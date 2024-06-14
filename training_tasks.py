@@ -4,6 +4,10 @@ import json
 import os
 import sys
 
+import boto3
+import luigi
+
+import cluster_tasks
 import const
 import normalize_tasks
 
@@ -38,17 +42,36 @@ OUTPUT_FIELDS = [
     'layers',
     'l2Reg',
     'dropout',
+    'allowCount',
     'trainMean',
     'trainStd',
     'validMean',
     'validStd',
     'testMean',
-    'testStd'
+    'testStd',
+    'trainMeanMedian',
+    'trainStdMedian',
+    'validMeanMedian',
+    'validStdMedian',
+    'testMeanMedian',
+    'testStdMedian',
+    'trainPercentMean',
+    'trainPercentStd',
+    'validPercentMean',
+    'validPercentStd',
+    'testPercentMean',
+    'testPercentStd',
+    'trainPercentMeanMedian',
+    'trainPercentStdMedian',
+    'validPercentMeanMedian',
+    'validPercentStdMedian',
+    'testPercentMeanMedian',
+    'testPercentStdMedian'
 ]
 
 
 def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, filename,
-    input_attrs, additional_block, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=30,
+    input_attrs, additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=30,
     blocked_attrs=BLOCKED_ATTRS):
     import csv
     import os
@@ -57,13 +80,21 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
 
     import boto3
     import keras
+    import pandas
     import toolz.itertoolz
 
     import normalize_tasks
 
     random.seed(seed)
 
-    input_attrs = list(filter(lambda x: additional_block not in x, input_attrs))
+    additional_block_lower = additional_block.lower()
+    input_attrs = filter(lambda x: additional_block_lower not in x.lower(), input_attrs)
+
+    if allow_count:
+        input_attrs = filter(lambda x: 'count' not in x.lower(), input_attrs)
+
+    input_attrs = list(input_attrs)
+
     temp_file_path = '/tmp/' + filename
 
     def get_data():
@@ -78,31 +109,34 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
             s3_object = s3.Object(bucket_name, filename)
             s3_object.download_file(temp_file_path)
 
-        def get_year_set(year):
+        def assign_year(year):
             if year < 2013:
                 return 'train'
             else:
                 return 'test' if year % 2 == 0 else 'valid'
-        
-        def assign_by_year(row):
-            row['setAssign'] = get_year_set(row['year'])
-            return row
 
-        with open(temp_file_path, 'r') as f:
-            records_raw = csv.DictReader(f)
-            records_parsed = map(lambda x: normalize_tasks.parse_row(x), records_raw)
-            records_assigned = map(lambda x: assign_by_year(x), records_parsed)
-            records_grouped = toolz.itertoolz.groupby('setAssign', records_assigned)
+        frame = pandas.read_csv(temp_file_path)        
+        frame['setAssign'] = frame['year'].apply(assign_year)
+        train = frame[frame['setAssign'] == 'train']
+        valid = frame[frame['setAssign'] == 'valid']
+        test = frame[frame['setAssign'] == 'test']
 
-        get_inputs = lambda (target): [target[x] for x in input_attrs]
-        get_outputs = lambda (target): [target[x] for x in output_attrs]
 
-        records_grouped_items = records_grouped.items()
-        records_grouped_org = map(
-            lambda x: (x[0], {'inputs': get_inputs(x[1]), 'outputs': get_outputs(x[1])}),
-            records_grouped_items
-        )
-        return dict(records_grouped_org)
+
+        return {
+            'train': {
+                'inputs': train[input_attrs],
+                'outputs': train[output_attrs]
+            },
+            'valid': {
+                'inputs': valid[input_attrs],
+                'outputs': valid[output_attrs]
+            },
+            'test': {
+                'inputs': test[input_attrs],
+                'outputs': test[output_attrs]
+            }
+        }
 
     def build_model(num_inputs):
         model = keras.Sequential()
@@ -140,12 +174,21 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
         def get_abs_diff(a, b):
             return abs(a - b)
 
+        def get_percent_diff(a, b):
+            if b == 0 and a != 0:
+                return 1
+            else:
+                return abs((a - b) / b)
+
         def get_maes(target_inputs, target_outputs):
             predictions = model.predict(target_inputs, verbose=None)
-            paired_flat = zip(predictions, target_outputs.to_numpy())
+            paired_flat = list(zip(predictions, target_outputs.to_numpy()))
+            
             paired_parsed = map(lambda x: {
                 'mean': get_abs_diff(x[0][0], x[1][0]),
-                'std': get_abs_diff(x[0][1], x[1][1])
+                'std': get_abs_diff(x[0][1], x[1][1]),
+                'meanPercent': get_percent_diff(x[0][0], x[1][0]),
+                'stdPercent': get_percent_diff(x[0][1], x[1][1])
             }, paired_flat)
             paired_parsed_realized = list(paired_parsed)
 
@@ -154,10 +197,26 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
 
             median_mean_errors = statistics.median(map(lambda x: x['mean'], paired_parsed_realized))
             median_std_errors = statistics.median(map(lambda x: x['std'], paired_parsed_realized))
+
+            mean_mean_errors_percent = statistics.mean(map(lambda x: x['meanPercent'], paired_parsed_realized))
+            median_mean_errors_percent = statistics.mean(map(lambda x: x['stdPercent'], paired_parsed_realized))
+            
+            mean_std_errors_percent = statistics.median(map(lambda x: x['meanPercent'], paired_parsed_realized))
+            median_std_errors_percent = statistics.median(map(lambda x: x['stdPercent'], paired_parsed_realized))
             
             return {
-                'mean': {'mean': mean_mean_errors, 'median': median_mean_errors},
-                'std': {'mean': mean_std_errors, 'median': median_std_errors}
+                'mean': {
+                    'mean': mean_mean_errors,
+                    'median': median_mean_errors,
+                    'meanPercent': mean_mean_errors_percent,
+                    'medianPercent': median_mean_errors_percent
+                },
+                'std': {
+                    'mean': mean_std_errors,
+                    'median': median_std_errors,
+                    'meanPercent': mean_std_errors_percent,
+                    'medianPercent': median_std_errors_percent
+                }
             }
 
         train_errors = get_maes(data_splits['train']['inputs'], data_splits['train']['outputs'])
@@ -169,6 +228,7 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
             'layers': num_layers,
             'l2Reg': l2_reg,
             'dropout': dropout,
+            'allowCount': allow_count,
             'trainMean': train_errors['mean']['mean'],
             'trainStd': train_errors['std']['mean'],
             'validMean': valid_errors['mean']['mean'],
@@ -180,7 +240,19 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
             'validMeanMedian': valid_errors['mean']['median'],
             'validStdMedian': valid_errors['std']['median'],
             'testMeanMedian': test_errors['mean']['median'],
-            'testStdMedian': test_errors['std']['median']
+            'testStdMedian': test_errors['std']['median'],
+            'trainPercentMean': train_errors['mean']['meanPercent'],
+            'trainPercentStd': train_errors['std']['meanPercent'],
+            'validPercentMean': valid_errors['mean']['meanPercent'],
+            'validPercentStd': valid_errors['std']['meanPercent'],
+            'testPercentMean': test_errors['mean']['meanPercent'],
+            'testPercentStd': test_errors['std']['meanPercent'],
+            'trainPercentMeanMedian': train_errors['mean']['medianPercent'],
+            'trainPercentStdMedian': train_errors['std']['medianPercent'],
+            'validPercentMeanMedian': valid_errors['mean']['medianPercent'],
+            'validPercentStdMedian': valid_errors['std']['medianPercent'],
+            'testPercentMeanMedian': test_errors['mean']['medianPercent'],
+            'testPercentStdMedian': test_errors['std']['medianPercent']
         }
 
     if os.path.isfile(temp_file_path):
@@ -198,19 +270,34 @@ class UploadHistoricTrainingFrame(luigi.Task):
         return normalize_tasks.NormalizeHistoricTrainingFrame()
 
     def output(self):
-        return luigi.LocalTarget('upload_historic_confirm.txt')
+        return luigi.LocalTarget(const.get_file_location('upload_historic_confirm.txt'))
 
     def run(self):
+        access_key = os.environ['CLIMATE_ACCESS_KEY']
+        access_secret = os.environ['CLIMATE_ACCESS_SECRET']
 
+        s3 = boto3.client(
+            's3',
+            aws_access_key_id=access_key,
+            aws_secret_access_key=access_secret
+        )
+
+        s3.upload_file(self.input().path, const.BUCKET_NAME, const.HISTORIC_TRAINING_FILENAME)
+
+        with self.output().open('w') as f:
+            f.write('success')
 
 
 class SweepTask(luigi.Task):
 
     def requires(self):
-        return UploadHistoricTrainingFrame()
+        return {
+            'upload': UploadHistoricTrainingFrame(),
+            'cluster': cluster_tasks.StartClusterTask()
+        }
 
     def output(self):
-        return luigi.LocalTarget('sweep.csv')
+        return luigi.LocalTarget(const.get_file_location('sweep.csv'))
 
     def run(self):
         num_layers = DEFAULT_NUM_LAYERS
@@ -220,16 +307,16 @@ class SweepTask(luigi.Task):
         all_attrs = const.TRAINING_FRAME_ATTRS
         all_attrs_no_geohash = filter(lambda x: x != 'geohash', all_attrs)
         all_attrs_no_output = filter(lambda x: x not in OUTPUT_ATTRS, all_attrs_no_geohash)
-        all_attrs_no_count = filter(lambda x: 'count' not in x.lower(), all_attrs_no_output)
-        input_attrs = sorted(filter(lambda x: x not in BLOCKED_ATTRS, all_attrs_no_count))
-        combinations = itertools.product(num_layers, l2_regs, dropouts, BLOCKS)
+        input_attrs = sorted(filter(lambda x: x not in BLOCKED_ATTRS, all_attrs_no_output))
+        combinations = itertools.product(num_layers, l2_regs, dropouts, BLOCKS, [True, False])
 
         access_key = os.environ['CLIMATE_ACCESS_KEY']
         access_secret = os.environ['CLIMATE_ACCESS_SECRET']
 
-        client = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=10, maximum=200)
-
+        cluster = cluster_tasks.get_cluster()
+        cluster.adapt(minimum=10, maximum=500)
+        
+        client = cluster.get_client()
         outputs = client.map(
             lambda x: try_model(
                 access_key,
@@ -237,10 +324,11 @@ class SweepTask(luigi.Task):
                 x[0],
                 x[1],
                 x[2],
-                bucket,
-                filename,
+                const.BUCKET_NAME,
+                const.HISTORIC_TRAINING_FILENAME,
                 input_attrs,
-                x[3]
+                x[3],
+                x[4]
             ),
             list(combinations)
         )

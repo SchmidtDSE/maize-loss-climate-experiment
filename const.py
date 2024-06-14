@@ -9,6 +9,8 @@ START_WORKERS = 10
 BUCKET_NAME = 'dse-chc-core-data'
 SAMPLE_DAY_GAP = 1
 
+HISTORIC_TRAINING_FILENAME = 'training_historic.csv'
+
 EXPECTED_CLIMATE_COLS = [
     'geohash',
     'year',
@@ -575,6 +577,13 @@ TRAINING_INT_FIELDS = {
     'year',
     'climateCounts',
     'yieldObservations'
+}
+
+YIELD_FIELDS = {
+    'baselineYieldMean',
+    'baselineYieldStd',
+    'yieldMean',
+    'yieldStd'
 }
 
 TRAINING_STR_FIELDS = {'geohash'}

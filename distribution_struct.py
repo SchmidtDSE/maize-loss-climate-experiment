@@ -73,7 +73,7 @@ class WelfordAccumulator:
         
         post_delta = value - self._mean
 
-        self._delta_accumulator += local_delta * post_delta
+        self._delta_accumulator += post_delta * post_delta
 
     def get_mean(self):
         return self._mean

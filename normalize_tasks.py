@@ -1,5 +1,6 @@
 import csv
 import json
+import math
 
 import luigi
 
@@ -8,25 +9,39 @@ import distribution_struct
 import preprocess_combine_tasks
 
 
+def try_float(target):
+    try:
+        return float(target)
+    except ValueError:
+        return None
+
+
+def try_int(target):
+    try:
+        return int(target)
+    except ValueError:
+        return None
+
+
 def parse_row(row):
     for field in row:
         if field in const.TRAINING_STR_FIELDS:
             row[field] = row[field]
         elif field in const.TRAINING_INT_FIELDS:
-            row[field] = int(row[field])
+            row[field] = try_int(row[field])
         else:
-            row[field] = float(row[field])
+            row[field] = try_float(row[field])
 
     return row
 
 
-class GetInputDistributionsTaskTemplate(luigi.Task):
+class GetInputDistributionsTask(luigi.Task):
 
     def requires(self):
-        preprocess_combine_tasks.CombineHistoricPreprocessTask()
+        return preprocess_combine_tasks.CombineHistoricPreprocessTask()
 
     def output(self):
-        return luigi.LocalTarget(const.get_file_location('historic_z.json'))
+        return luigi.LocalTarget(const.get_file_location('historic_z.csv'))
 
     def run(self):
         fields_to_process = set(const.TRAINING_FRAME_ATTRS) - set(const.NON_Z_FIELDS)
@@ -40,8 +55,9 @@ class GetInputDistributionsTaskTemplate(luigi.Task):
 
             for row in input_records:
                 for field in fields_to_process:
-                    value = float(row[field])
-                    accumulators[field].add(value)
+                    value = try_float(row[field])
+                    if value is not None and not math.isnan(value):
+                        accumulators[field].add(value)
 
         output_rows = map(
             lambda x: self._serialize_accumulator(x[0], x[1]),
@@ -49,7 +65,7 @@ class GetInputDistributionsTaskTemplate(luigi.Task):
         )
 
         with self.output().open('w') as f:
-            writer = csv.DictWriter(f)
+            writer = csv.DictWriter(f, fieldnames=['field', 'mean', 'std'])
             writer.writeheader()
             writer.writerows(output_rows)
 
@@ -65,7 +81,7 @@ class NormalizeTrainingFrame(luigi.Task):
 
     def requires(self):
         return {
-            'distributions': GetInputDistributionsTaskTemplate(),
+            'distributions': GetInputDistributionsTask(),
             'target': self.get_target()
         }
 
@@ -74,20 +90,30 @@ class NormalizeTrainingFrame(luigi.Task):
 
     def run(self):
         with self.input()['distributions'].open('r') as f:
-            distributions = json.load(f)
+            rows = csv.DictReader(f)
+
+            distributions = {}
+
+            for row in rows:
+                distributions[row['field']] = {
+                    'mean': float(row['mean']),
+                    'std': float(row['std'])
+                }
 
         with self.input()['target'].open('r') as f_in:
-            reader = csv.DictReader(f)
+            reader = csv.DictReader(f_in)
 
             rows = map(lambda x: self._parse_row(x), reader)
-            rows_augmented = map(lambda x: self._set_aside_attrs(x), rows)
-            rows_with_response = map(lambda x: self._transform_response(x), rows_augmented)
-            rows_with_z = map(lambda x: self._transform_z(x), rows_with_response)
-            rows_standardized = map(lambda x: self._standardize_row(x), rows_with_z)
+            rows_allowed = filter(lambda x: x['year'] in const.YEARS, rows)
+            rows_augmented = map(lambda x: self._set_aside_attrs(x), rows_allowed)
+            rows_with_response = map(lambda x: self._transform_yield(x, distributions), rows_augmented)
+            rows_with_z = map(lambda x: self._transform_z(x, distributions), rows_with_response)
+            rows_with_num = map(lambda x: self._force_values(x), rows_with_z)
+            rows_standardized = map(lambda x: self._standardize_row(x), rows_with_num)
 
             with self.output().open('w') as f_out:
-                writer = csv.DictWriter(f)
-                writer.writeheader(const.TRAINING_FRAME_ATTRS)
+                writer = csv.DictWriter(f_out, fieldnames=const.TRAINING_FRAME_ATTRS)
+                writer.writeheader()
                 writer.writerows(rows_standardized)
 
     def get_target(self):
@@ -104,17 +130,10 @@ class NormalizeTrainingFrame(luigi.Task):
         row['baselineYieldStdOriginal'] = row['baselineYieldStd']
         return row
 
-    def _transform_response(self, row):
-        get_percent_change = lambda (start, end): (end - start) / start
-
-        baseline_mean = row['baselineYieldMeanOriginal']
-        baseline_std = row['baselineYieldStdOriginal']
-
-        year_mean = row['yieldMean']
-        year_std = row['yieldStd']
-        
-        row['yieldMean'] = get_percent_change(year_mean, baseline_mean)
-        row['yieldStd'] = get_percent_change(year_std, baseline_std)
+    def _transform_yield(self, row, distributions):
+        distribution = distributions['baselineYieldMean']
+        for field in const.YIELD_FIELDS:
+            row[field] = (row[field] - distribution['mean']) / distribution['std']
 
         return row
 
@@ -123,15 +142,34 @@ class NormalizeTrainingFrame(luigi.Task):
             original_value = row[field]
             
             distribution = distributions[field]
-            mean = distributions['mean']
-            std = distributions['std']
-            
-            row[field] = (row[field] - mean) / std
+            mean = distribution['mean']
+            std = distribution['std']
+
+            original_value = row[field]
+
+            all_zeros = original_value == 0 and mean == 0 and std == 0
+
+            if (original_value is None) or all_zeros:
+                row[field] = -999
+            else:
+                row[field] = (original_value - mean) / std
+
+        return row
+
+    def _force_values(self, row):
+        def force_value(target):
+            if target is None or math.isnan(target):
+                return -999
+            else:
+                return target
+
+        for field in filter(lambda x: x != 'geohash', row.keys()):
+            row[field] = force_value(row[field])
 
         return row
 
     def _standardize_row(self, row):
-        return dict(map(lambda x: (x, row[x]), TRAINING_FRAME_ATTRS))
+        return dict(map(lambda x: (x, row[x]), const.TRAINING_FRAME_ATTRS))
 
 
 class NormalizeHistoricTrainingFrame(NormalizeTrainingFrame):
