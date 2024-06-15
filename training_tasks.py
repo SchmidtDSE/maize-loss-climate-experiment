@@ -12,7 +12,7 @@ import const
 import normalize_tasks
 
 DEFAULT_NUM_LAYERS = [1, 2, 3, 4, 5]
-DEFAULT_REGULARIZATION = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+DEFAULT_REGULARIZATION = [0.00, 0.01, 0.02, 0.05, 0.07, 0.10, 0.20, 0.50, 0.70]
 DEFAULT_DROPOUT = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 BLOCKS = [
     'all attrs',
@@ -70,22 +70,11 @@ OUTPUT_FIELDS = [
 ]
 
 
-def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, filename,
-    input_attrs, additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=30,
-    blocked_attrs=BLOCKED_ATTRS):
-    import csv
-    import os
-    import random
-    import statistics
-
-    import boto3
-    import keras
-    import pandas
-    import toolz.itertoolz
-
-    import normalize_tasks
-
-    random.seed(seed)
+def get_input_attrs(additional_block, allow_count):
+    all_attrs = const.TRAINING_FRAME_ATTRS
+    all_attrs_no_geohash = filter(lambda x: x != 'geohash', all_attrs)
+    all_attrs_no_output = filter(lambda x: x not in OUTPUT_ATTRS, all_attrs_no_geohash)
+    input_attrs = sorted(filter(lambda x: x not in BLOCKED_ATTRS, all_attrs_no_output))
 
     additional_block_lower = additional_block.lower()
     input_attrs = filter(lambda x: additional_block_lower not in x.lower(), input_attrs)
@@ -95,7 +84,64 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
 
     input_attrs = list(input_attrs)
 
+    return input_attrs
+
+
+def build_model(num_layers, num_inputs, l2_reg, dropout):
+    import keras
+
+    model = keras.Sequential()
+    model.add(keras.Input(shape=(num_inputs,)))
+    model.add(keras.layers.Normalization())
+
+    if l2_reg == 0:
+        build_layer = lambda x: keras.layers.Dense(x, activation='leaky_relu')
+    else:
+        build_layer = lambda x: keras.layers.Dense(
+            x,
+            activation='leaky_relu',
+            activity_regularizer=keras.regularizers.L2(l2_reg)
+        )
+    
+    layers = [
+        build_layer(256),
+        build_layer(128),
+        build_layer(64),
+        build_layer(32),
+        build_layer(8)
+    ][-num_layers:]
+    
+    for layer in layers:
+        model.add(layer)
+        if dropout > 0:
+            model.add(keras.layers.Dropout(dropout))
+    
+    model.add(keras.layers.Dense(2, activation='linear'))
+
+    model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+
+    return model
+
+
+def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, filename,
+    additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=30,
+    blocked_attrs=BLOCKED_ATTRS):
+    import csv
+    import os
+    import random
+    import statistics
+
+    import boto3
+    import pandas
+    import toolz.itertoolz
+
+    import normalize_tasks
+
+    random.seed(seed)
+
     temp_file_path = '/tmp/' + filename
+
+    input_attrs = get_input_attrs(additional_block, allow_count)
 
     def get_data():
 
@@ -121,8 +167,6 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
         valid = frame[frame['setAssign'] == 'valid']
         test = frame[frame['setAssign'] == 'test']
 
-
-
         return {
             'train': {
                 'inputs': train[input_attrs],
@@ -137,30 +181,6 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
                 'outputs': test[output_attrs]
             }
         }
-
-    def build_model(num_inputs):
-        model = keras.Sequential()
-        model.add(keras.Input(shape=(num_inputs,)))
-        model.add(keras.layers.Normalization())
-        
-        layers = [
-            keras.layers.Dense(256, activation='leaky_relu'),
-            keras.layers.Dense(128, activation='leaky_relu'),
-            keras.layers.Dense(64, activation='leaky_relu'),
-            keras.layers.Dense(32, activation='leaky_relu'),
-            keras.layers.Dense(8, activation='leaky_relu')
-        ][-num_layers:]
-        
-        for layer in layers:
-            model.add(layer)
-            if dropout > 0:
-                model.add(keras.layers.Dropout(dropout))
-        
-        model.add(keras.layers.Dense(2, activation='linear'))
-
-        model.compile(optimizer='adam', loss='mse', metrics=['mae'])
-
-        return model
 
     def train_model(model, data_splits):
         model.fit(
@@ -259,7 +279,7 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
         os.remove(temp_file_path)
 
     split_data = get_data()
-    model = build_model(len(input_attrs))
+    model = build_model(num_layers, len(input_attrs), l2_reg, dropout)
     train_model(model, split_data)
     return evaluate_model(model, split_data)
 
@@ -304,10 +324,6 @@ class SweepTask(luigi.Task):
         l2_regs = DEFAULT_REGULARIZATION
         dropouts = DEFAULT_DROPOUT
 
-        all_attrs = const.TRAINING_FRAME_ATTRS
-        all_attrs_no_geohash = filter(lambda x: x != 'geohash', all_attrs)
-        all_attrs_no_output = filter(lambda x: x not in OUTPUT_ATTRS, all_attrs_no_geohash)
-        input_attrs = sorted(filter(lambda x: x not in BLOCKED_ATTRS, all_attrs_no_output))
         combinations = itertools.product(num_layers, l2_regs, dropouts, BLOCKS, [True, False])
 
         access_key = os.environ['CLIMATE_ACCESS_KEY']
@@ -326,7 +342,6 @@ class SweepTask(luigi.Task):
                 x[2],
                 const.BUCKET_NAME,
                 const.HISTORIC_TRAINING_FILENAME,
-                input_attrs,
                 x[3],
                 x[4]
             ),

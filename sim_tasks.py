@@ -7,7 +7,11 @@ import sqlite3
 import statistics
 
 import coiled
+import luigi
 import toolz
+
+import selection_tasks
+import training_tasks
 
 OUTPUT_FIELDS = [
     'geohash',
@@ -199,3 +203,176 @@ def parse_record_dict(record_raw):
 
 def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size):
     return [run_simulation(x, deltas, threshold, std_mult, geohash_sim_size) for x in tasks]
+
+
+class ProjectTaskTemplate(luigi.Task):
+
+    def requires(self):
+        return {
+            'model': selection_tasks.TrainFullModel(),
+            'target': self.get_target_task(),
+            'configuration': selection_tasks.SelectConfigurationTask()
+        }
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location(self.get_filename()))
+
+    def run(self):
+        target_frame = pandas.read_csv(self.input()['target'].path)
+        
+        with self.input()['configuration'] as f:
+            configuration = json.load(f)['constrained']
+
+        model = keras.models.load_model(self.output().path)
+        
+        additional_block = configuration['block']
+        allow_count = configuration['allowCount'].lower() == 'true'
+        
+        input_attrs = training_tasks.get_input_attrs(additional_block, allow_count)
+        inputs = target_frame[input_attrs]
+
+        target_frame['joinYear'] = target_frame['year']
+        target_frame['simYear'] = target_frame['year'] - 2007 + 5 + self.get_base_year()
+
+        target_frame['combinedOutput'] = model.predict(inputs)
+        target_frame['predictedMean'] = target_frame['combinedOutput'].map(lambda x: x[0])
+        target_frame['predictedStd'] = target_frame['combinedOutput'].map(lambda x: x[0])
+
+        target_frame[[
+            'geohash',
+            'simYear',
+            'joinYear',
+            'predictedMean',
+            'predictedStd',
+            'yieldObservations'
+        ]].to_csv(self.output().path)
+
+    def get_target_task(self):
+        raise NotImplementedError('Use implementor.')
+    
+    def get_base_year(self):
+        raise NotImplementedError('Use implementor.')
+
+    def get_filename(self):
+        raise NotImplementedError('Use implementor.')
+
+
+class MakeSimulationTasksTemplate(luigi.Task):
+
+    def requires(self):
+        return {
+            'baseline': self.get_baseline_task(),
+            'projection': self.get_projection_task()
+        }
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location(self.get_filename()))
+
+    def run(self):
+        baseline_indexed = self._index_input('baseline')
+        projection_indexed = self._index_input('projection')
+
+        baseline_keys = set(baseline_indexed.keys())
+        projection_keys = set(projection_indexed)
+        keys = baseline_keys.intersection(projection_keys)
+
+        def get_output_row(key):
+            baseline_record = baseline_indexed[key]
+            projection_record = projection_indexed[key]
+            
+            return {
+                'geohash': projection_record['geohash'],
+                'year': projection_record['simYear'],
+                'condition': self.get_condition(),
+                'originalYieldMean': baseline_record['projectedMean'],
+                'originalYieldStd': baseline_record['projectedStd'],
+                'projectedYieldMean': projection_record['projectedMean'],
+                'projectedYieldStd': projection_record['projectedStd'],
+                'numObservations': projection_record['yieldObservations']
+            }
+
+        output_rows = map(get_output_row, keys)
+
+    def get_filename(self):
+        raise NotImplementedError('Use implementor.')
+    
+    def get_baseline_task(self):
+        raise NotImplementedError('Use implementor.')
+    
+    def get_projection_task(self):
+        raise NotImplementedError('Use implementor.')
+
+    def get_condition(self):
+        raise NotImplementedError('Use implementor.')
+
+    def _index_input(self, name):
+        indexed = {}
+        
+        with self.input()[name].open('r') as f:
+            rows_raw = csv.DictReader(f)
+            rows = map(lambda x: self._parse_row(x), rows_raw)
+            
+            for row in rows:
+                key = '%s.%d' % (row['geohash'], row['joinYear'])
+                indexed[key] = row
+
+        return indexed
+
+    def _parse_row(self, row):
+        return {
+            'geohash': row['geohash'],
+            'simYear': int(row['simYear']),
+            'joinYear': int(row['joinYear']),
+            'predictedMean': float(row['predictedMean']),
+            'predictedStd': float(row['predictedStd']),
+            'yieldObservations': int(row['yieldObservations'])
+        }
+
+
+class ExecuteSimulationTasksTemplate(luigi.Task):
+
+    def requires(self):
+        return {
+            'tasks': self.get_tasks_task(),
+            'cluster': cluster_tasks.StartClusterTask()
+        }
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location(self.get_filename()))
+
+    def run(self):
+        with self.input().open('r') as f:
+            rows = csv.DictReader(f)
+            tasks = [parse_record_dict(x) for x in rows]
+
+        job_shuffles = list(range(0, 500))
+        input_records_grouped = toolz.itertoolz.groupby(
+            lambda x: random.choice(job_shuffles),
+            tasks
+        )
+
+        tasks_with_variations = list(
+            itertools.product(input_records_grouped.values(), THRESHOLDS, STD_MULT, GEOHASH_SIZE)
+        )
+
+        cluster = cluster_tasks.get_cluster()
+        cluster.adapt(minimum=10, maximum=500)
+        client = cluster.get_client()
+
+        outputs = client.map(
+            lambda x: run_simulation_set(x[0], deltas, x[1], x[2], x[3]),
+            tasks_with_variations
+        )
+
+        outputs_realized = map(lambda x: x.result(), outputs)
+
+        with open(output_loc, 'w') as f:
+            writer = csv.DictWriter(f, fieldnames=OUTPUT_FIELDS)
+            writer.writeheader()
+
+            for output_set in outputs_realized:
+                writer.writerows(output_set)
+                f.flush()
+
+    def get_tasks_task(self):
+        raise NotImplementedError('Use implementor.')
