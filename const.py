@@ -568,8 +568,6 @@ NON_Z_FIELDS = {
     'year',
     'geohash',
     'climateCounts',
-    'yieldMean',
-    'yieldStd',
     'yieldObservations'
 }
 

@@ -1,6 +1,7 @@
 import csv
 import json
 
+import keras
 import luigi
 import pandas
 
@@ -80,7 +81,7 @@ class SelectConfigurationTask(luigi.Task):
         return row
 
 
-class PostHocTestRawDataTask(luigi.Task):
+class PostHocTestRawDataTemplateTask(luigi.Task):
 
     def requires(self):
         return {
@@ -92,7 +93,7 @@ class PostHocTestRawDataTask(luigi.Task):
         return luigi.LocalTarget(const.get_file_location(self.get_filename()))
 
     def run(self):
-        with self.input()['configuration'] as f:
+        with self.input()['configuration'].open('r') as f:
             configuration = json.load(f)['constrained']
 
         input_frame = pandas.read_csv(self.input()['training'].path)
@@ -122,9 +123,9 @@ class PostHocTestRawDataTask(luigi.Task):
             verbose=None
         )
 
-        input_frame['combinedOutput'] = model.predict(input_frame[input_attrs])
-        input_frame['predictedMean'] = input_frame['combinedOutput'].map(lambda x: x[0])
-        input_frame['predictedStd'] = input_frame['combinedOutput'].map(lambda x: x[0])
+        combined_output = model.predict(input_frame[input_attrs])
+        input_frame['predictedMean'] = combined_output[:,0]
+        input_frame['predictedStd'] = combined_output[:,1]
         input_frame['meanResidual'] = input_frame['predictedMean'] - input_frame['yieldMean']
         input_frame['stdResidual'] = input_frame['predictedStd'] - input_frame['yieldStd']
 
@@ -145,6 +146,15 @@ class PostHocTestRawDataTask(luigi.Task):
         raise NotImplementedError('Must use implementor.')
 
 
+class PostHocTestRawDataTemporalTask(PostHocTestRawDataTemplateTask):
+
+    def get_set_assign(self, record):
+        return 'train' if record['year'] < 2014 else 'test'
+
+    def get_filename(self):
+        return 'post_hoc_temporal.csv'
+
+
 class TrainFullModel(luigi.Task):
 
     def requires(self):
@@ -157,7 +167,7 @@ class TrainFullModel(luigi.Task):
         return luigi.LocalTarget(const.get_file_location('model.keras'))
 
     def run(self):
-        with self.input()['configuration'] as f:
+        with self.input()['configuration'].open('r') as f:
             configuration = json.load(f)['constrained']
 
         input_frame = pandas.read_csv(self.input()['training'].path)

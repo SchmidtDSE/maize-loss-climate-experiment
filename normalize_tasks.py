@@ -20,7 +20,7 @@ def try_int(target):
     try:
         return int(target)
     except ValueError:
-        return None
+        return round(try_float(target))
 
 
 def parse_row(row):
@@ -106,8 +106,7 @@ class NormalizeTrainingFrame(luigi.Task):
             rows = map(lambda x: self._parse_row(x), reader)
             rows_allowed = filter(lambda x: x['year'] in const.YEARS, rows)
             rows_augmented = map(lambda x: self._set_aside_attrs(x), rows_allowed)
-            rows_with_response = map(lambda x: self._transform_yield(x, distributions), rows_augmented)
-            rows_with_z = map(lambda x: self._transform_z(x, distributions), rows_with_response)
+            rows_with_z = map(lambda x: self._transform_z(x, distributions), rows_augmented)
             rows_with_num = map(lambda x: self._force_values(x), rows_with_z)
             rows_standardized = map(lambda x: self._standardize_row(x), rows_with_num)
 
@@ -128,13 +127,6 @@ class NormalizeTrainingFrame(luigi.Task):
     def _set_aside_attrs(self, row):
         row['baselineYieldMeanOriginal'] = row['baselineYieldMean']
         row['baselineYieldStdOriginal'] = row['baselineYieldStd']
-        return row
-
-    def _transform_yield(self, row, distributions):
-        distribution = distributions['baselineYieldMean']
-        for field in const.YIELD_FIELDS:
-            row[field] = (row[field] - distribution['mean']) / distribution['std']
-
         return row
 
     def _transform_z(self, row, distributions):
@@ -179,3 +171,14 @@ class NormalizeHistoricTrainingFrame(NormalizeTrainingFrame):
 
     def get_filename(self):
         return 'historic_normalized.csv'
+
+
+class NormalizeFutureTrainingFrame(NormalizeTrainingFrame):
+
+    condition = luigi.Parameter()
+
+    def get_target(self):
+        return preprocess_combine_tasks.ReformatFuturePreprocessTask(condition=self.condition)
+
+    def get_filename(self):
+        return '%s_normalized.csv' % self.condition

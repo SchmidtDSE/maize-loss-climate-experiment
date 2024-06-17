@@ -7,9 +7,14 @@ import sqlite3
 import statistics
 
 import coiled
+import keras
 import luigi
+import pandas
 import toolz
 
+import cluster_tasks
+import const
+import normalize_tasks
 import selection_tasks
 import training_tasks
 
@@ -79,8 +84,8 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size):
 
     import scipy.stats
     
-    mean_deltas = deltas['mean']['deltas']
-    std_deltas = deltas['std']['deltas']
+    mean_deltas = deltas['mean']
+    std_deltas = deltas['std']
 
     original_mean = task.get_original_mean()
     original_std = task.get_original_std()
@@ -124,8 +129,11 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size):
     
     def get_loss_level(target):
         neg_threshold = threshold * -1
-        claims = filter(lambda x: x <= neg_threshold, target)
-        return statistics.mean(claims)
+        claims = list(filter(lambda x: x <= neg_threshold, target))
+        if len(claims) > 0:
+            return statistics.mean(claims)
+        else:
+            return 0
     
     predicted_claims_rate = get_claims_rate(predicted_deltas)
     counterfactual_claims_rate = get_claims_rate(counterfactual_deltas)
@@ -205,6 +213,32 @@ def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size):
     return [run_simulation(x, deltas, threshold, std_mult, geohash_sim_size) for x in tasks]
 
 
+class GetNumObservationsTask(luigi.Task):
+
+    def requires(self):
+        return normalize_tasks.NormalizeHistoricTrainingFrame()
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('observation_counts.csv'))
+
+    def run(self):
+        with self.input().open('r') as f_in:
+            with self.output().open('w') as f_out:
+                rows = csv.DictReader(f_in)
+                standard_rows = map(lambda x: self._standardize_row(x), rows)
+
+                writer = csv.DictWriter(f_out, fieldnames=['geohash', 'year', 'yieldObservations'])
+                writer.writeheader()
+                writer.writerows(standard_rows)
+
+    def _standardize_row(self, target):
+        return {
+            'geohash': target['geohash'],
+            'year': int(target['year']),
+            'yieldObservations': int(target['yieldObservations'])
+        }
+
+
 class ProjectTaskTemplate(luigi.Task):
 
     def requires(self):
@@ -220,10 +254,10 @@ class ProjectTaskTemplate(luigi.Task):
     def run(self):
         target_frame = pandas.read_csv(self.input()['target'].path)
         
-        with self.input()['configuration'] as f:
+        with self.input()['configuration'].open('r') as f:
             configuration = json.load(f)['constrained']
 
-        model = keras.models.load_model(self.output().path)
+        model = keras.models.load_model(self.input()['model'].path)
         
         additional_block = configuration['block']
         allow_count = configuration['allowCount'].lower() == 'true'
@@ -232,11 +266,11 @@ class ProjectTaskTemplate(luigi.Task):
         inputs = target_frame[input_attrs]
 
         target_frame['joinYear'] = target_frame['year']
-        target_frame['simYear'] = target_frame['year'] - 2007 + 5 + self.get_base_year()
+        target_frame['simYear'] = target_frame['year'] - 2007 + self.get_base_year()
 
-        target_frame['combinedOutput'] = model.predict(inputs)
-        target_frame['predictedMean'] = target_frame['combinedOutput'].map(lambda x: x[0])
-        target_frame['predictedStd'] = target_frame['combinedOutput'].map(lambda x: x[0])
+        outputs = model.predict(inputs)
+        target_frame['predictedMean'] = outputs[:,0]
+        target_frame['predictedStd'] = outputs[:,1]
 
         target_frame[[
             'geohash',
@@ -262,7 +296,8 @@ class MakeSimulationTasksTemplate(luigi.Task):
     def requires(self):
         return {
             'baseline': self.get_baseline_task(),
-            'projection': self.get_projection_task()
+            'projection': self.get_projection_task(),
+            'numObservations': GetNumObservationsTask()
         }
 
     def output(self):
@@ -276,22 +311,52 @@ class MakeSimulationTasksTemplate(luigi.Task):
         projection_keys = set(projection_indexed)
         keys = baseline_keys.intersection(projection_keys)
 
+        with self.input()['numObservations'].open('r') as f:
+            rows = csv.DictReader(f)
+            keyed = map(
+                lambda x: ('%s.%s' % (x['geohash'], x['year']), int(x['yieldObservations'])),
+                rows
+            )
+            observation_counts_indexed = dict(keyed)
+
+        def get_num_observations(geohash, join_year):
+            key = '%s.%d' % (geohash, join_year)
+            return observation_counts_indexed.get(key, 0)
+
         def get_output_row(key):
             baseline_record = baseline_indexed[key]
             projection_record = projection_indexed[key]
+
+            geohash = projection_record['geohash']
+            join_year = projection_record['joinYear']
             
             return {
-                'geohash': projection_record['geohash'],
+                'geohash': geohash,
                 'year': projection_record['simYear'],
                 'condition': self.get_condition(),
-                'originalYieldMean': baseline_record['projectedMean'],
-                'originalYieldStd': baseline_record['projectedStd'],
-                'projectedYieldMean': projection_record['projectedMean'],
-                'projectedYieldStd': projection_record['projectedStd'],
-                'numObservations': projection_record['yieldObservations']
+                'originalYieldMean': baseline_record['predictedMean'],
+                'originalYieldStd': baseline_record['predictedStd'],
+                'projectedYieldMean': projection_record['predictedMean'],
+                'projectedYieldStd': projection_record['predictedStd'],
+                'numObservations': get_num_observations(geohash, join_year)
             }
 
-        output_rows = map(get_output_row, keys)
+        output_rows_all = map(get_output_row, keys)
+        output_rows = filter(lambda x: x['numObservations'] > 0, output_rows_all)
+
+        with self.output().open('w') as f:
+            writer = csv.DictWriter(f, fieldnames=[
+                'geohash',
+                'year',
+                'condition',
+                'originalYieldMean',
+                'originalYieldStd',
+                'projectedYieldMean',
+                'projectedYieldStd',
+                'numObservations'
+            ])
+            writer.writeheader()
+            writer.writerows(output_rows)
 
     def get_filename(self):
         raise NotImplementedError('Use implementor.')
@@ -334,6 +399,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
     def requires(self):
         return {
             'tasks': self.get_tasks_task(),
+            'deltas': self.get_deltas_task(),
             'cluster': cluster_tasks.StartClusterTask()
         }
 
@@ -341,11 +407,11 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
         return luigi.LocalTarget(const.get_file_location(self.get_filename()))
 
     def run(self):
-        with self.input().open('r') as f:
+        with self.input()['tasks'].open('r') as f:
             rows = csv.DictReader(f)
             tasks = [parse_record_dict(x) for x in rows]
 
-        job_shuffles = list(range(0, 500))
+        job_shuffles = list(range(0, 200))
         input_records_grouped = toolz.itertoolz.groupby(
             lambda x: random.choice(job_shuffles),
             tasks
@@ -356,8 +422,25 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
         )
 
         cluster = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=10, maximum=500)
+        cluster.adapt(minimum=1, maximum=500)
         client = cluster.get_client()
+
+        with self.input()['deltas'].open('r') as f:
+            rows = csv.DictReader(f)
+            test_rows = filter(lambda x: x['setAssign'] == 'test', rows)
+            rows_mean_std_linear_str = map(
+                lambda x: (x['meanResidual'], x['stdResidual']),
+                test_rows
+            )
+            rows_mean_std_linear = map(
+                lambda x: (float(x[0]), float(x[1])),
+                rows_mean_std_linear_str
+            )
+            unzipped = list(zip(*rows_mean_std_linear))
+            deltas = {
+                'mean': unzipped[0],
+                'std': unzipped[1]
+            }
 
         outputs = client.map(
             lambda x: run_simulation_set(x[0], deltas, x[1], x[2], x[3]),
@@ -366,7 +449,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
 
         outputs_realized = map(lambda x: x.result(), outputs)
 
-        with open(output_loc, 'w') as f:
+        with self.output().open('w') as f:
             writer = csv.DictWriter(f, fieldnames=OUTPUT_FIELDS)
             writer.writeheader()
 
@@ -376,3 +459,253 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
 
     def get_tasks_task(self):
         raise NotImplementedError('Use implementor.')
+
+    def get_filename(self):
+        raise NotImplementedError('Use implementor.')
+
+    def get_deltas_task(self):
+        raise NotImplementedError('Use implementor.')
+
+
+class ProjectHistoricTask(ProjectTaskTemplate):
+    
+    def get_target_task(self):
+        return normalize_tasks.NormalizeHistoricTrainingFrame()
+    
+    def get_base_year(self):
+        return 2007
+
+    def get_filename(self):
+        return 'historic_project_dist.csv'
+
+
+class Project2030Task(ProjectTaskTemplate):
+    
+    def get_target_task(self):
+        return normalize_tasks.NormalizeFutureTrainingFrame(condition='2030_SSP245')
+    
+    def get_base_year(self):
+        return 2030
+
+    def get_filename(self):
+        return '2030_project_dist.csv'
+
+
+class Project2030CounterfactualTask(ProjectTaskTemplate):
+    
+    def get_target_task(self):
+        return normalize_tasks.NormalizeHistoricTrainingFrame()
+    
+    def get_base_year(self):
+        return 2030
+
+    def get_filename(self):
+        return '2030_project_dist_counterfactual.csv'
+
+
+class Project2050Task(ProjectTaskTemplate):
+    
+    def get_target_task(self):
+        return normalize_tasks.NormalizeFutureTrainingFrame(condition='2050_SSP245')
+    
+    def get_base_year(self):
+        return 2050
+
+    def get_filename(self):
+        return '2050_project_dist.csv'
+
+
+class Project2050CounterfactualTask(ProjectTaskTemplate):
+    
+    def get_target_task(self):
+        return normalize_tasks.NormalizeFutureTrainingFrame(condition='2030_SSP245')
+    
+    def get_base_year(self):
+        return 2050
+
+    def get_filename(self):
+        return '2050_project_dist_counterfactual.csv'
+
+
+class MakeSimulationTasks2030Task(MakeSimulationTasksTemplate):
+
+    def get_filename(self):
+        return '2030_sim_tasks.csv'
+    
+    def get_baseline_task(self):
+        return ProjectHistoricTask()
+    
+    def get_projection_task(self):
+        return Project2030Task()
+
+    def get_condition(self):
+        return '2030_SSP245'
+
+
+class MakeSimulationTasks2050Task(MakeSimulationTasksTemplate):
+
+    def get_filename(self):
+        return '2050_sim_tasks.csv'
+    
+    def get_baseline_task(self):
+        return Project2030Task()
+    
+    def get_projection_task(self):
+        return Project2050Task()
+
+    def get_condition(self):
+        return '2030_SSP245'
+
+
+class MakeSimulationTasks2030CounterfactualTask(MakeSimulationTasksTemplate):
+
+    def get_filename(self):
+        return '2030_sim_tasks_counterfactual.csv'
+    
+    def get_baseline_task(self):
+        return ProjectHistoricTask()
+    
+    def get_projection_task(self):
+        return Project2030CounterfactualTask()
+
+    def get_condition(self):
+        return '2030_SSP245'
+
+
+class MakeSimulationTasks2050CounterfactualTask(MakeSimulationTasksTemplate):
+
+    def get_filename(self):
+        return '2050_sim_tasks_counterfactual.csv'
+    
+    def get_baseline_task(self):
+        return Project2030CounterfactualTask()
+    
+    def get_projection_task(self):
+        return Project2050CounterfactualTask()
+
+    def get_condition(self):
+        return '2030_SSP245'
+
+
+class ExecuteSimulationTasks2030PredictedTask(ExecuteSimulationTasksTemplate):
+
+    def get_tasks_task(self):
+        return MakeSimulationTasks2030Task()
+
+    def get_filename(self):
+        return '2030_sim.csv'
+
+    def get_deltas_task(self):
+        return selection_tasks.PostHocTestRawDataTemporalTask()
+
+
+class ExecuteSimulationTasks2050PredictedTask(ExecuteSimulationTasksTemplate):
+
+    def get_tasks_task(self):
+        return MakeSimulationTasks2050Task()
+
+    def get_filename(self):
+        return '2050_sim.csv'
+
+    def get_deltas_task(self):
+        return selection_tasks.PostHocTestRawDataTemporalTask()
+
+
+class ExecuteSimulationTasks2030Counterfactual(ExecuteSimulationTasksTemplate):
+
+    def get_tasks_task(self):
+        return MakeSimulationTasks2030CounterfactualTask()
+
+    def get_filename(self):
+        return '2030_sim_counterfactual.csv'
+
+    def get_deltas_task(self):
+        return selection_tasks.PostHocTestRawDataTemporalTask()
+
+class ExecuteSimulationTasks2050Counterfactual(ExecuteSimulationTasksTemplate):
+
+    def get_tasks_task(self):
+        return MakeSimulationTasks2050CounterfactualTask()
+
+    def get_filename(self):
+        return '2050_sim_counterfactual.csv'
+
+    def get_deltas_task(self):
+        return selection_tasks.PostHocTestRawDataTemporalTask()
+
+
+class CombineSimulationsTasks(luigi.Task):
+
+    def requires(self):
+        return {
+            '2030': ExecuteSimulationTasks2030PredictedTask(),
+            '2030_counterfactual': ExecuteSimulationTasks2050PredictedTask(),
+            '2050': ExecuteSimulationTasks2030Counterfactual(),
+            '2050_counterfactual': ExecuteSimulationTasks2050Counterfactual()
+        }
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('sim_combined.csv'))
+
+    def run(self):
+        with self.output().open('w') as f:
+            writer = csv.DictWriter(f, fieldnames=['series'] + OUTPUT_FIELDS)
+            writer.writeheader()
+            self._write_out('2030', writer)
+            self._write_out('2030_counterfactual', writer)
+            self._write_out('2050', writer)
+            self._write_out('2050_counterfactual', writer)
+
+    def _write_out(self, label, writer):
+        with self.input()[label].open('r') as f:
+            reader = csv.DictReader(f)
+            rows = map(lambda x: self._add_series(label, x), reader)
+            writer.writerows(rows)
+
+    def _add_series(self, series, row):
+        row['series'] = series
+        return row
+
+
+class MakeSingleYearStatistics(luigi.Task):
+
+    def requires(self):
+        return CombineSimulationsTasks()
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('sim_combined_summary_1_year.csv'))
+
+    def run(self):
+        with self.input().open('r') as f:
+            reader = csv.DictReader(f)
+
+            def is_equal(value, target):
+                value_float = float(value)
+                return abs(value_float - target) < 0.00001
+
+            right_threshold = filter(lambda x: is_equal(x['threshold'], 0.25), reader)
+            right_std = filter(lambda x: is_equal(x['stdMult'], 1), right_threshold)
+            right_geohash = filter(lambda x: is_equal(x['geohashSimSize'], 4), right_std)
+            rows = map(lambda x: self._parse_row(x), right_geohash)
+            rows_by_series = toolz.itertoolz.groupby('series', rows)
+
+        def make_weight_record(trial):
+            num = trial['num']
+            return {
+                'predictedLossWeightAcc': (1 - trial['predicted']) * num,
+                ''
+            }
+
+        def process_family(trials):
+            num_trials = len(trials)
+            threshold = 0.05 / num_trials
+            significant = filter(lambda x: x['pAdapted'] < threshold, trials)
+
+    def _parse_row(self, row):
+        return {
+            'series': row['series'],
+            'num': int(row['num']),
+            'predicted': float(row['predicted']),
+            'counterfactual': float(row['counterfactual']),
+            'pAdapted': float(row['pAdapted'])
+        }
