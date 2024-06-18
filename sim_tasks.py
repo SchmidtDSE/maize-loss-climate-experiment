@@ -291,6 +291,78 @@ class ProjectTaskTemplate(luigi.Task):
         raise NotImplementedError('Use implementor.')
 
 
+class InterpretProjectTaskTemplate(luigi.Task):
+
+    def requires(self):
+        return {
+            'target': self.get_target_task(),
+            'dist': normalize_tasks.GetInputDistributionsTask()
+        }
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location(self.get_filename()))
+
+    def run(self):
+        with self.input()['dist'].open('r') as f:
+            rows = csv.DictReader(f)
+
+            distributions = {}
+
+            for row in rows:
+                distributions[row['field']] = {
+                    'mean': float(row['mean']),
+                    'std': float(row['std'])
+                }
+
+        with self.output().open('w') as f_out:
+            writer = csv.DictWriter(f_out, fieldnames=[
+                'geohash',
+                'simYear',
+                'joinYear',
+                'predictedMean',
+                'predictedStd',
+                'yieldObservations'
+            ])
+            writer.writeheader()
+            
+            with self.input()['target'] as f_in:
+                reader = csv.DictReader(f_in)
+                standardized_rows = map(lambda x: self._standardize_row(x), reader)
+                updated_rows = map(lambda x: self._update_row(x, distributions), standardized_rows)
+                writer.writerows(updated_rows)
+
+    def get_target_task(self):
+        raise NotImplementedError('Must use implementor.')
+
+    def get_filename(self):
+        raise NotImplementedError('Must use implementor.')
+
+    def _standardize_row(self, target):
+        return {
+            'geohash': target['geohash'],
+            'simYear': int(target['simYear']),
+            'joinYear': int(target['joinYear']),
+            'predictedMean': float(target['predictedMean']),
+            'predictedStd': float(target['predictedStd']),
+            'yieldObservations': int(target['yieldObservations'])
+        }
+
+    def _update_row(self, row, distributions):
+        mean_dist = distributions['yieldMean']
+        std_dist = distributions['yieldStd']
+
+        original_predicted_mean = row['predictedMean']
+        original_predicted_std = row['predictedStd']
+
+        interpreted_predicted_mean = original_predicted_mean * mean_dist['std'] + mean_dist['mean']
+        interpreted_predicted_std = original_predicted_std * std_dist['std'] + std_dist['mean']
+
+        row['yieldMean'] = interpreted_predicted_mean
+        row['yieldStd'] = interpreted_predicted_std
+
+        return row
+
+
 class MakeSimulationTasksTemplate(luigi.Task):
 
     def requires(self):
@@ -527,16 +599,61 @@ class Project2050CounterfactualTask(ProjectTaskTemplate):
         return '2050_project_dist_counterfactual.csv'
 
 
+class InterpretProjectHistoricTask(InterpretProjectTaskTemplate):
+    
+    def get_target_task(self):
+        return ProjectHistoricTask()
+
+    def get_filename(self):
+        return 'historic_project_dist_interpret.csv'
+
+
+class InterpretProject2030Task(InterpretProjectTaskTemplate):
+    
+    def get_target_task(self):
+        return Project2030Task()
+
+    def get_filename(self):
+        return '2030_project_dist_interpret.csv'
+
+
+class InterpretProject2030CounterfactualTask(InterpretProjectTaskTemplate):
+    
+    def get_target_task(self):
+        return Project2030CounterfactualTask()
+
+    def get_filename(self):
+        return '2030_project_dist_counterfactual_interpret.csv'
+
+
+class InterpretProject2050Task(InterpretProjectTaskTemplate):
+    
+    def get_target_task(self):
+        return Project2050Task()
+
+    def get_filename(self):
+        return '2050_project_dist_interpret.csv'
+
+
+class InterpretProject2050CounterfactualTask(InterpretProjectTaskTemplate):
+    
+    def get_target_task(self):
+        return Project2050CounterfactualTask()
+
+    def get_filename(self):
+        return '2050_project_dist_counterfactual_interpret.csv'
+
+
 class MakeSimulationTasks2030Task(MakeSimulationTasksTemplate):
 
     def get_filename(self):
         return '2030_sim_tasks.csv'
     
     def get_baseline_task(self):
-        return ProjectHistoricTask()
+        return InterpretProjectHistoricTask()
     
     def get_projection_task(self):
-        return Project2030Task()
+        return InterpretProject2030Task()
 
     def get_condition(self):
         return '2030_SSP245'
@@ -548,10 +665,10 @@ class MakeSimulationTasks2050Task(MakeSimulationTasksTemplate):
         return '2050_sim_tasks.csv'
     
     def get_baseline_task(self):
-        return Project2030Task()
+        return InterpretProject2030Task()
     
     def get_projection_task(self):
-        return Project2050Task()
+        return InterpretProject2050Task()
 
     def get_condition(self):
         return '2030_SSP245'
@@ -563,10 +680,10 @@ class MakeSimulationTasks2030CounterfactualTask(MakeSimulationTasksTemplate):
         return '2030_sim_tasks_counterfactual.csv'
     
     def get_baseline_task(self):
-        return ProjectHistoricTask()
+        return InterpretProjectHistoricTask()
     
     def get_projection_task(self):
-        return Project2030CounterfactualTask()
+        return InterpretProject2030CounterfactualTask()
 
     def get_condition(self):
         return '2030_SSP245'
@@ -578,10 +695,10 @@ class MakeSimulationTasks2050CounterfactualTask(MakeSimulationTasksTemplate):
         return '2050_sim_tasks_counterfactual.csv'
     
     def get_baseline_task(self):
-        return Project2030CounterfactualTask()
+        return InterpretProject2030CounterfactualTask()
     
     def get_projection_task(self):
-        return Project2050CounterfactualTask()
+        return InterpretProject2050CounterfactualTask()
 
     def get_condition(self):
         return '2030_SSP245'
