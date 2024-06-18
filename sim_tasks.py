@@ -354,8 +354,11 @@ class InterpretProjectTaskTemplate(luigi.Task):
         original_predicted_mean = row['predictedMean']
         original_predicted_std = row['predictedStd']
 
-        interpreted_predicted_mean = original_predicted_mean * mean_dist['std'] + mean_dist['mean']
-        interpreted_predicted_std = original_predicted_std * std_dist['std'] + std_dist['mean']
+        def interpret(target, dist):
+            return target * dist['std'] + dist['mean'] / (100 * 0.5)
+
+        interpreted_predicted_mean = interpret(original_predicted_mean, mean_dist)
+        interpreted_predicted_std = interpret(original_predicted_std, std_dist)
 
         row['yieldMean'] = interpreted_predicted_mean
         row['yieldStd'] = interpreted_predicted_std
