@@ -51,7 +51,3 @@ def get_bucket_files(bucket_name, access_key, access_secret):
     all_keys = map(lambda x: x.key, all_objects)
 
     return all_keys
-
-
-def upload_bucket_file(local_file_path, bucket_name, access_key, access_secret):
-    pass

@@ -86,7 +86,7 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
     def requires(self):
         return {
             'configuration': SelectConfigurationTask(),
-            'training': normalize_tasks.NormalizeHistoricTrainingFrame()
+            'training': normalize_tasks.NormalizeHistoricTrainingFrameTask()
         }
 
     def output(self):
@@ -160,7 +160,7 @@ class TrainFullModel(luigi.Task):
     def requires(self):
         return {
             'configuration': SelectConfigurationTask(),
-            'training': normalize_tasks.NormalizeHistoricTrainingFrame()
+            'training': normalize_tasks.NormalizeHistoricTrainingFrameTask()
         }
 
     def output(self):

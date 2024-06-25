@@ -113,9 +113,9 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size):
         counterfactual_yield = random.gauss(mu=original_mean, sigma=original_std)
         adapted_yield = random.gauss(mu=sim_mean + sim_std, sigma=sim_std)
 
-        predicted_delta = predicted_yield  # (predicted_yield - prior_yield) / prior_yield
-        counterfactual_delta = counterfactual_yield  # (counterfactual_yield - prior_yield) / prior_yield
-        adapted_delta = adapted_yield  # (adapted_yield - prior_yield) / prior_yield
+        predicted_delta = predicted_yield
+        counterfactual_delta = counterfactual_yield
+        adapted_delta = adapted_yield
         
         predicted_deltas.append(predicted_delta)
         counterfactual_deltas.append(counterfactual_delta)
@@ -216,7 +216,7 @@ def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size):
 class GetNumObservationsTask(luigi.Task):
 
     def requires(self):
-        return normalize_tasks.NormalizeHistoricTrainingFrame()
+        return normalize_tasks.NormalizeHistoricTrainingFrameTask()
 
     def output(self):
         return luigi.LocalTarget(const.get_file_location('observation_counts.csv'))
@@ -355,7 +355,8 @@ class InterpretProjectTaskTemplate(luigi.Task):
         original_predicted_std = row['predictedStd']
 
         def interpret(target, dist):
-            return target * dist['std'] + dist['mean'] / (100 * 0.5)
+            reverse_z = target * dist['std'] + dist['mean']
+            return reverse_z
 
         interpreted_predicted_mean = interpret(original_predicted_mean, mean_dist)
         interpreted_predicted_std = interpret(original_predicted_std, std_dist)
@@ -545,7 +546,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
 class ProjectHistoricTask(ProjectTaskTemplate):
     
     def get_target_task(self):
-        return normalize_tasks.NormalizeHistoricTrainingFrame()
+        return normalize_tasks.NormalizeHistoricTrainingFrameTask()
     
     def get_base_year(self):
         return 2007
@@ -557,7 +558,7 @@ class ProjectHistoricTask(ProjectTaskTemplate):
 class Project2030Task(ProjectTaskTemplate):
     
     def get_target_task(self):
-        return normalize_tasks.NormalizeFutureTrainingFrame(condition='2030_SSP245')
+        return normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2030_SSP245')
     
     def get_base_year(self):
         return 2030
@@ -569,7 +570,7 @@ class Project2030Task(ProjectTaskTemplate):
 class Project2030CounterfactualTask(ProjectTaskTemplate):
     
     def get_target_task(self):
-        return normalize_tasks.NormalizeHistoricTrainingFrame()
+        return normalize_tasks.NormalizeHistoricTrainingFrameTask()
     
     def get_base_year(self):
         return 2030
@@ -581,7 +582,7 @@ class Project2030CounterfactualTask(ProjectTaskTemplate):
 class Project2050Task(ProjectTaskTemplate):
     
     def get_target_task(self):
-        return normalize_tasks.NormalizeFutureTrainingFrame(condition='2050_SSP245')
+        return normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2050_SSP245')
     
     def get_base_year(self):
         return 2050
@@ -593,7 +594,7 @@ class Project2050Task(ProjectTaskTemplate):
 class Project2050CounterfactualTask(ProjectTaskTemplate):
     
     def get_target_task(self):
-        return normalize_tasks.NormalizeFutureTrainingFrame(condition='2030_SSP245')
+        return normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2030_SSP245')
     
     def get_base_year(self):
         return 2050
