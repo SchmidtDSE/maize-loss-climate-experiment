@@ -36,7 +36,7 @@ OUTPUT_FIELDS = [
     'pAdapted'
 ]
 NUM_ARGS = 4
-STD_MULT = [0.5, 1.0, 1.5]
+STD_MULT = [1.0]  # [0.5, 1.0, 1.5]
 THRESHOLDS = [0.25, 0.15, 0.05]
 GEOHASH_SIZE = [4, 5]
 
@@ -82,6 +82,8 @@ class Task:
 def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size):
     import random
 
+    import distribution_struct
+
     import scipy.stats
     
     mean_deltas = deltas['mean']
@@ -97,25 +99,38 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size):
         num_observations = round(num_observations / 32)
 
     if num_observations == 0:
-        num_observations = 1
+        return None
+
+    num_units = round(num_observations / const.UNIT_SIZE_IN_PIXELS)
+
+    if num_units == 0:
+        return None
     
     predicted_deltas = []
     counterfactual_deltas = []
     adapted_deltas = []
-    for i in range(0, num_observations):
-        mean_delta = random.choice(mean_deltas) * -1
-        std_delta = random.choice(std_deltas) * -1
-        sim_mean = projected_mean + mean_delta
-        sim_std = projected_std * std_mult + std_delta
-        
-        prior_yield = random.gauss(mu=original_mean, sigma=original_std)
-        predicted_yield = random.gauss(mu=sim_mean, sigma=sim_std)
-        counterfactual_yield = random.gauss(mu=original_mean, sigma=original_std)
-        adapted_yield = random.gauss(mu=sim_mean + sim_std, sigma=sim_std)
+    for unit_i in range(0, num_units):
+        predicted_yield_acc = distribution_struct.WelfordAccumulator()
+        counterfactual_yield_acc = distribution_struct.WelfordAccumulator()
+        adapted_yield_acc = distribution_struct.WelfordAccumulator()
 
-        predicted_delta = predicted_yield
-        counterfactual_delta = counterfactual_yield
-        adapted_delta = adapted_yield
+        for pixel_i in range(0, const.UNIT_SIZE_IN_PIXELS):
+            mean_delta = random.choice(mean_deltas) * -1
+            std_delta = random.choice(std_deltas) * -1
+            sim_mean = projected_mean + mean_delta
+            sim_std = projected_std * std_mult + std_delta
+            
+            predicted_yield = random.gauss(mu=sim_mean, sigma=sim_std)
+            counterfactual_yield = random.gauss(mu=original_mean, sigma=original_std)
+            adapted_yield = random.gauss(mu=sim_mean + sim_std, sigma=sim_std)
+
+            predicted_yield_acc.add(predicted_yield)
+            counterfactual_yield_acc.add(counterfactual_yield)
+            adapted_yield_acc.add(adapted_yield)
+
+        predicted_delta = predicted_yield_acc.get_mean()
+        counterfactual_delta = counterfactual_yield_acc.get_mean()
+        adapted_delta = adapted_yield_acc.get_mean()
         
         predicted_deltas.append(predicted_delta)
         counterfactual_deltas.append(counterfactual_delta)
@@ -518,18 +533,18 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
                 'std': unzipped[1]
             }
 
-        outputs = client.map(
+        outputs_all = client.map(
             lambda x: run_simulation_set(x[0], deltas, x[1], x[2], x[3]),
             tasks_with_variations
         )
-
-        outputs_realized = map(lambda x: x.result(), outputs)
+        outputs_realized = map(lambda x: x.result(), outputs_all)
+        outputs_valid = filter(lambda x: x is not None, outputs_realized)
 
         with self.output().open('w') as f:
             writer = csv.DictWriter(f, fieldnames=OUTPUT_FIELDS)
             writer.writeheader()
 
-            for output_set in outputs_realized:
+            for output_set in outputs_valid:
                 writer.writerows(output_set)
                 f.flush()
 

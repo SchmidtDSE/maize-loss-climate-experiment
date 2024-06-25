@@ -600,5 +600,7 @@ TRAINING_STR_FIELDS = {'geohash'}
 
 INVALID_VALUE = -999
 
+UNIT_SIZE_IN_PIXELS = 625
+
 def get_file_location(name):
     return os.path.join(WORKSPACE_DIR, name)
