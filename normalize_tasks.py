@@ -253,8 +253,7 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
 
     def _transform_z(self, row, distributions):
         fields = distributions.keys()
-        fields_allowed = filter(lambda x: x not in const.YIELD_FIELDS, fields)
-        for field in fields_allowed:
+        for field in fields:
             original_value = row[field]
             
             distribution = distributions[field]

@@ -828,8 +828,7 @@ class MakeSingleYearStatistics(luigi.Task):
         def make_weight_record(trial):
             num = trial['num']
             return {
-                'predictedLossWeightAcc': (1 - trial['predicted']) * num,
-                ''
+                'predictedLossWeightAcc': (1 - trial['predicted']) * num
             }
 
         def process_family(trials):
