@@ -2,6 +2,7 @@ import cluster_tasks
 import const
 import preprocess_climate_tasks
 import preprocess_combine_tasks
+import sim_tasks
 import training_tasks
 
 
@@ -59,3 +60,12 @@ class RunThroughSweepTask(cluster_tasks.EndClusterTask):
 
     def get_task_name(self):
         return 'end_sweep'
+
+
+class RunThroughSimTask(cluster_tasks.EndClusterTask):
+
+    def get_prereq(self):
+        return sim_tasks.CombineSimulationsTasks()
+
+    def get_task_name(self):
+        return 'end_sim'

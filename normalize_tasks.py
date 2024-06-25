@@ -3,6 +3,7 @@ import json
 import math
 
 import luigi
+import numpy
 
 import const
 import distribution_struct
@@ -20,7 +21,7 @@ def try_int(target):
     try:
         return int(target)
     except ValueError:
-        return None
+        return round(try_float(target))
 
 
 def parse_row(row):
@@ -35,10 +36,123 @@ def parse_row(row):
     return row
 
 
+class GetAsDeltaTaskTemplate(luigi.Task):
+
+    def requires(self):
+        return {
+            'historic': preprocess_combine_tasks.CombineHistoricPreprocessTask(),
+            'target': self.get_target()
+        }
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location(self.get_filename()))
+
+    def run(self):
+        averages = {}
+
+        with self.input()['historic'].open() as f:
+            reader = csv.DictReader(f)
+            
+            for row in reader:
+                geohash = row['geohash']
+
+                other_fields = filter(lambda x: x not in ['year', 'geohash'], row.keys())
+
+                for field in other_fields:
+                    key = '%s.%s' % (geohash, field)
+                    if key not in averages:
+                        averages[key] = distribution_struct.WelfordAccumulator()
+
+                    value = self._get_float_maybe(row[field])
+                    
+                    if value is not None:
+                        averages[key].add(value)
+
+        def transform_row_regular(row):
+            keys = row.keys()
+            keys_delta_only = filter(lambda x: x not in const.NON_DELTA_FIELDS, keys)
+            keys_no_count = filter(lambda x: 'count' not in x.lower(), keys_delta_only)
+
+            geohash = row['geohash']
+            for key in keys_no_count:
+                average = averages['%s.%s' % (geohash, key)].get_mean()
+                delta = float(row[key]) - average
+                row[key] = delta
+            
+            return row
+
+        def transform_row_response(row):
+            geohash = row['geohash']
+            
+            key = '%s.baselineYieldMean' % geohash
+            original_mean = self._get_float_maybe(row['yieldMean'])
+            original_std = self._get_float_maybe(row['yieldStd'])
+
+            if original_mean is None or original_std is None or key not in averages:
+                new_mean = None
+                new_std = None
+            else:
+                baseline_mean = averages[key].get_mean()
+                new_mean = (original_mean - baseline_mean) / baseline_mean
+                new_std = original_std / baseline_mean
+
+            row['yieldMean'] = new_mean
+            row['yieldStd'] = new_std
+            
+            return row
+
+        with self.input()['target'].open() as f_in:
+            rows = csv.DictReader(f)
+            rows_regular_transform = map(lambda x: transform_row_regular(x), rows)
+            rows_regular_response = map(lambda x: transform_row_response(x), rows_regular_transform)
+
+            with self.output().open('w') as f_out:
+                writer = csv.DictWriter(f, fieldnames=const.TRAINING_FRAME_ATTRS)
+                writer.writeheader()
+                writer.writerows(rows_regular_response)
+
+    def get_target(self):
+        raise NotImplementedError('Must use implementor.')
+
+    def get_filename(self):
+        raise NotImplementedError('Must use implementor.')
+
+    def _get_float_maybe(target):
+        try:
+            value = float(row[field])
+        except ValueError:
+            return None
+
+        if numpy.isfinite(value):
+            return None
+        else:
+            return value
+
+
+class GetHistoricAsDeltaTask(GetAsDeltaTaskTemplate):
+    
+    def get_target(self):
+        return preprocess_combine_tasks.CombineHistoricPreprocessTask()
+
+    def get_filename(self):
+        return 'historic_deltas_transform.csv'
+
+
+class GetFutureAsDeltaTask(GetAsDeltaTaskTemplate):
+
+    condition = luigi.Parameter()
+
+    def get_target(self):
+        return preprocess_combine_tasks.ReformatFuturePreprocessTask(condition=self.condition)
+
+    def get_filename(self):
+        return '%s_deltas_transform.csv' % self.condition
+
+
 class GetInputDistributionsTask(luigi.Task):
 
     def requires(self):
-        return preprocess_combine_tasks.CombineHistoricPreprocessTask()
+        return GetHistoricAsDeltaTask()
 
     def output(self):
         return luigi.LocalTarget(const.get_file_location('historic_z.csv'))
@@ -77,7 +191,7 @@ class GetInputDistributionsTask(luigi.Task):
         }
 
 
-class NormalizeTrainingFrameTask(luigi.Task):
+class NormalizeTrainingFrameTemplateTask(luigi.Task):
 
     def requires(self):
         return {
@@ -106,15 +220,22 @@ class NormalizeTrainingFrameTask(luigi.Task):
             rows = map(lambda x: self._parse_row(x), reader)
             rows_allowed = filter(lambda x: x['year'] in const.YEARS, rows)
             rows_augmented = map(lambda x: self._set_aside_attrs(x), rows_allowed)
-            rows_with_response = map(lambda x: self._transform_yield(x, distributions), rows_augmented)
-            rows_with_z = map(lambda x: self._transform_z(x, distributions), rows_with_response)
+            rows_with_z = map(lambda x: self._transform_z(x, distributions), rows_augmented)
             rows_with_num = map(lambda x: self._force_values(x), rows_with_z)
             rows_standardized = map(lambda x: self._standardize_row(x), rows_with_num)
+            rows_with_mean = filter(
+                lambda x: x['yieldMean'] != const.INVALID_VALUE,
+                rows_standardized
+            )
+            rows_complete = filter(
+                lambda x: x['yieldStd'] != const.INVALID_VALUE,
+                rows_with_mean
+            )
 
             with self.output().open('w') as f_out:
                 writer = csv.DictWriter(f_out, fieldnames=const.TRAINING_FRAME_ATTRS)
                 writer.writeheader()
-                writer.writerows(rows_standardized)
+                writer.writerows(rows_complete)
 
     def get_target(self):
         raise NotImplementedError('Use implementor.')
@@ -128,13 +249,6 @@ class NormalizeTrainingFrameTask(luigi.Task):
     def _set_aside_attrs(self, row):
         row['baselineYieldMeanOriginal'] = row['baselineYieldMean']
         row['baselineYieldStdOriginal'] = row['baselineYieldStd']
-        return row
-
-    def _transform_yield(self, row, distributions):
-        distribution = distributions['baselineYieldMean']
-        for field in const.YIELD_FIELDS:
-            row[field] = (row[field] - distribution['mean']) / distribution['std']
-
         return row
 
     def _transform_z(self, row, distributions):
@@ -174,10 +288,21 @@ class NormalizeTrainingFrameTask(luigi.Task):
         return dict(map(lambda x: (x, row[x]), const.TRAINING_FRAME_ATTRS))
 
 
-class NormalizeHistoricTrainingFrameAbsTask(NormalizeTrainingFrameTask):
+class NormalizeHistoricTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
 
     def get_target(self):
-        return preprocess_combine_tasks.CombineHistoricPreprocessTask()
+        return GetHistoricAsDeltaTask()
 
     def get_filename(self):
         return 'historic_normalized.csv'
+
+
+class NormalizeFutureTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
+
+    condition = luigi.Parameter()
+
+    def get_target(self):
+        return GetFutureAsDeltaTask(condition=self.condition)
+
+    def get_filename(self):
+        return '%s_normalized.csv' % self.condition
