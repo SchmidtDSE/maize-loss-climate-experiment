@@ -77,7 +77,7 @@ class GetInputDistributionsTask(luigi.Task):
         }
 
 
-class NormalizeTrainingFrame(luigi.Task):
+class NormalizeTrainingFrameTask(luigi.Task):
 
     def requires(self):
         return {
@@ -138,7 +138,9 @@ class NormalizeTrainingFrame(luigi.Task):
         return row
 
     def _transform_z(self, row, distributions):
-        for field in distributions:
+        fields = distributions.keys()
+        fields_allowed = filter(lambda x: x not in const.YIELD_FIELDS, fields)
+        for field in fields_allowed:
             original_value = row[field]
             
             distribution = distributions[field]
@@ -150,7 +152,7 @@ class NormalizeTrainingFrame(luigi.Task):
             all_zeros = original_value == 0 and mean == 0 and std == 0
 
             if (original_value is None) or all_zeros:
-                row[field] = -999
+                row[field] = const.INVALID_VALUE
             else:
                 row[field] = (original_value - mean) / std
 
@@ -159,7 +161,7 @@ class NormalizeTrainingFrame(luigi.Task):
     def _force_values(self, row):
         def force_value(target):
             if target is None or math.isnan(target):
-                return -999
+                return const.INVALID_VALUE
             else:
                 return target
 
@@ -172,7 +174,7 @@ class NormalizeTrainingFrame(luigi.Task):
         return dict(map(lambda x: (x, row[x]), const.TRAINING_FRAME_ATTRS))
 
 
-class NormalizeHistoricTrainingFrame(NormalizeTrainingFrame):
+class NormalizeHistoricTrainingFrameAbsTask(NormalizeTrainingFrameTask):
 
     def get_target(self):
         return preprocess_combine_tasks.CombineHistoricPreprocessTask()

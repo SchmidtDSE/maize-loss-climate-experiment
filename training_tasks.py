@@ -287,7 +287,7 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
 class UploadHistoricTrainingFrame(luigi.Task):
 
     def requires(self):
-        return normalize_tasks.NormalizeHistoricTrainingFrame()
+        return normalize_tasks.NormalizeHistoricTrainingFrameTask()
 
     def output(self):
         return luigi.LocalTarget(const.get_file_location('upload_historic_confirm.txt'))

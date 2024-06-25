@@ -592,6 +592,8 @@ YIELD_FIELDS = {
 
 TRAINING_STR_FIELDS = {'geohash'}
 
+INVALID_VALUE = -999
+
 
 def get_file_location(name):
     return os.path.join(WORKSPACE_DIR, name)
