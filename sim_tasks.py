@@ -113,9 +113,9 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size):
         counterfactual_yield = random.gauss(mu=original_mean, sigma=original_std)
         adapted_yield = random.gauss(mu=sim_mean + sim_std, sigma=sim_std)
 
-        predicted_delta = (predicted_yield - prior_yield) / prior_yield
-        counterfactual_delta = (counterfactual_yield - prior_yield) / prior_yield
-        adapted_delta = (adapted_yield - prior_yield) / prior_yield
+        predicted_delta = predicted_yield  # (predicted_yield - prior_yield) / prior_yield
+        counterfactual_delta = counterfactual_yield  # (counterfactual_yield - prior_yield) / prior_yield
+        adapted_delta = adapted_yield  # (adapted_yield - prior_yield) / prior_yield
         
         predicted_deltas.append(predicted_delta)
         counterfactual_deltas.append(counterfactual_delta)
