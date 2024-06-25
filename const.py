@@ -21,7 +21,9 @@ EXPECTED_CLIMATE_COLS = [
     'std',
     'min',
     'max',
-    'count'
+    'count',
+    'skew',
+    'kertosis'
 ]
 
 CLIMATE_VARIABLES = [
@@ -70,7 +72,9 @@ GEOHASH_YIELD_COLS = [
     'geohash',
     'mean',
     'std',
-    'count'
+    'count',
+    'skew',
+    'kurtosis'
 ]
 
 TRAINING_FRAME_ATTRS = [

@@ -3,12 +3,14 @@ import math
 
 class Distribution:
 
-    def __init__(self, mean, std, count, dist_min=None, dist_max=None):
+    def __init__(self, mean, std, count, dist_min=None, dist_max=None, skew=None, kurtosis=None):
         self._mean = mean
         self._std = std
         self._count = count
         self._dist_min = dist_min
         self._dist_max = dist_max
+        self._skew = skew
+        self._kurtosis = kurtosis
 
     def get_mean(self):
         return self._mean
@@ -24,6 +26,12 @@ class Distribution:
     
     def get_max(self):
         return self._dist_max
+
+    def get_skew(self):
+        return self._skew
+
+    def get_kurtosis(self):
+        return self._kurtosis
 
     def combine(self, other):
         new_count = self.get_count() + other.get_count()
@@ -55,7 +63,32 @@ class Distribution:
         else:
             new_max = max([self_max, other_max])
 
-        return Distribution(new_mean, new_std, new_count, new_min, new_max)
+        def get_weighted_avg(a_val, a_weight, b_val, b_weight):
+            return (a_val * a_weight + b_val * b_weight) / (a_weight + b_weight)
+
+        new_skew = get_weighted_avg(
+            self.get_skew(),
+            self.get_count(),
+            other.get_skew(),
+            other.get_count()
+        )
+
+        new_kurtosis = get_weighted_avg(
+            self.get_kurtosis(),
+            self.get_count(),
+            other.get_kurtosis(),
+            other.get_count()
+        )
+
+        return Distribution(
+            new_mean,
+            new_std,
+            new_count,
+            new_min,
+            new_max,
+            new_skew,
+            new_kurtosis
+        )
 
 
 class WelfordAccumulator:

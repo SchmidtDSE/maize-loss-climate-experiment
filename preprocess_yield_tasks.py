@@ -21,6 +21,7 @@ def process_single(remote_filename, access_key, access_secret):
     import geolib.geohash
     import libgeohash
     import numpy
+    import scipy.stats
 
     import aws_util
     import const
@@ -87,7 +88,18 @@ def process_single(remote_filename, access_key, access_secret):
             mean = 0
             std = 0
 
-        return data_struct.GeohashYieldSummary(year, geohash, mean, std, count)
+        skew = scipy.stats.skew(values)
+        kurtosis = scipy.stats.kurtosis(values)
+
+        return data_struct.GeohashYieldSummary(
+            year,
+            geohash,
+            mean,
+            std,
+            count,
+            skew,
+            kurtosis
+        )
 
     return run(remote_filename)
 

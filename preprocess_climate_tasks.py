@@ -38,6 +38,7 @@ def get_daily_geohash(bucket_name, tiff_info, geohashes, access_key, access_secr
     import geolib.geohash
     import geotiff
     import numpy
+    import scipy.stats
 
     import aws_util
     import data_struct
@@ -94,13 +95,17 @@ def get_daily_geohash(bucket_name, tiff_info, geohashes, access_key, access_secr
         dist_std = numpy.std(raw_data)
         dist_min = numpy.min(raw_data)
         dist_max = numpy.max(raw_data)
+        dist_skew = scipy.stats.skew(raw_data)
+        dist_kurtosis = scipy.stats.kurtosis(raw_data)
 
         return distribution_struct.Distribution(
             dist_mean,
             dist_std,
             dist_count,
             dist_min,
-            dist_max
+            dist_max,
+            dist_skew,
+            dist_kurtosis
         )
 
     def make_geohash_summary(geohash, distribution):
@@ -115,6 +120,8 @@ def get_daily_geohash(bucket_name, tiff_info, geohashes, access_key, access_secr
             distribution.get_min(),
             distribution.get_max(),
             distribution.get_count(),
+            distribution.get_skew(),
+            distribution.get_kertosis(),
             tiff_info.get_date().day
         )
 
@@ -152,7 +159,9 @@ def confirm_and_remove_day(target):
         'std': float(target['std']),
         'min': float(target['min']),
         'max': float(target['max']),
-        'count': int(target['count'])
+        'count': int(target['count']),
+        'skew': float(target['skew']),
+        'kertosis': float(target['kertosis'])
     }
 
 

@@ -6,7 +6,7 @@ import distribution_struct
 class GeohashClimateSummary:
 
     def __init__(self, geohash, year, month, var, condition, mean, std, var_min, var_max, count,
-        day = None):
+        skew, kurtosis, day = None):
         self._geohash = geohash
         self._year = year
         self._month = month
@@ -17,6 +17,8 @@ class GeohashClimateSummary:
         self._var_min = var_min
         self._var_max = var_max
         self._count = count
+        self._skew = skew
+        self._kurtosis = kurtosis
         self._day = day
 
     def get_geohash(self):
@@ -63,7 +65,9 @@ class GeohashClimateSummary:
             self._std,
             self._var_min,
             self._var_max,
-            self._count
+            self._count,
+            self._skew,
+            self._kurtosis
         )
 
     def get_key(self):
@@ -91,6 +95,8 @@ class GeohashClimateSummary:
             'min': self.get_min(),
             'max': self.get_max(),
             'count': self.get_count(),
+            'skew': self.get_skew(),
+            'kurtosis': self.get_kurtosis(),
             'day': self.get_day()
         }
 
@@ -100,7 +106,9 @@ class GeohashClimateSummary:
             self.get_std(),
             self.get_count(),
             dist_min=self.get_min(),
-            dist_max=self.get_max()
+            dist_max=self.get_max(),
+            skew=self.get_skew(),
+            kurtosis=self.get_kurtosis()
         )
 
     def combine(self, other):
@@ -120,6 +128,8 @@ class GeohashClimateSummary:
             new_dist.get_min(),
             new_dist.get_max(),
             new_dist.get_count(),
+            new_dist.get_skew(),
+            new_dist.get_kurtosis(),
             self.get_day()
         )
 
@@ -135,18 +145,22 @@ def parse_geohash_climate_summary(target_dict):
         target_dict['min'],
         target_dict['max'],
         target_dict['count'],
+        target_dict['skew'],
+        target_dict['kurtosis'],
         target_dict['day']
     )
 
 
 class GeohashYieldSummary:
     
-    def __init__(self, year, geohash, mean, std, count):
+    def __init__(self, year, geohash, mean, std, count, skew, kurtosis):
         self._year = year
         self._geohash = geohash
         self._mean = mean
         self._std = std
         self._count = count
+        self._skew = skew
+        self._kurtosis = kurtosis
 
     def get_year(self):
         return self._year
@@ -165,6 +179,12 @@ class GeohashYieldSummary:
     
     def get_count(self):
         return self._count
+
+    def get_skew(self):
+        return self._skew
+
+    def get_kurtosis(self):
+        return self._kurtosis
     
     def to_dict(self):
         return {
@@ -172,22 +192,29 @@ class GeohashYieldSummary:
             'geohash': self.get_geohash(),
             'mean': self.get_mean(),
             'std': self.get_std(),
-            'count': self.get_count()
+            'count': self.get_count(),
+            'skew': self.get_skew(),
+            'kurtosis': self.get_kurtosis()
         }
 
     def combine(self, other):
         assert self.get_year() == other.get_year()
         assert self.get_geohash() == other.get_geohash()
-        
+
         self_dist = distribution_struct.Distribution(
             self.get_mean(),
             self.get_std(),
-            self.get_count()
+            self.get_count(),
+            skew=self.get_skew(),
+            kurtosis=self.get_kurtosis()
         )
+
         other_dist = distribution_struct.Distribution(
             other.get_mean(),
             other.get_std(),
-            other.get_count()
+            other.get_count(),
+            skew=self.get_skew(),
+            kurtosis=self.get_kurtosis()
         )
 
         new_dist = self_dist.combine(other_dist)
@@ -197,7 +224,9 @@ class GeohashYieldSummary:
             self.get_geohash(),
             new_dist.get_mean(),
             new_dist.get_std(),
-            new_dist.get_count()
+            new_dist.get_count(),
+            new_dist.get_skew(),
+            new_dist.get_kurtosis()
         )
 
 
@@ -207,7 +236,9 @@ def parse_geohash_yield_summary(target_dict):
         target_dict['geohash'],
         target_dict['mean'],
         target_dict['std'],
-        target_dict['count']
+        target_dict['count'],
+        target_dict['skew'],
+        target_dict['kurtosis']
     )
 
 
