@@ -54,6 +54,12 @@ class GeohashClimateSummary:
     def get_day(self):
         return self._day
 
+    def get_skew(self):
+        return self._skew
+
+    def get_kurtosis(self):
+        return self._kurtosis
+
     def get_without_day(self):
         return GeohashClimateSummary(
             self._geohash,

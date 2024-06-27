@@ -2,6 +2,7 @@ import csv
 import itertools
 import json
 import os
+import random
 import sys
 
 import boto3
@@ -12,12 +13,11 @@ import const
 import normalize_tasks
 
 DEFAULT_NUM_LAYERS = [1, 2, 3, 4, 5]
-DEFAULT_REGULARIZATION = [0.00, 0.01, 0.02, 0.05, 0.07, 0.10, 0.20, 0.50, 0.70]
-DEFAULT_DROPOUT = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+DEFAULT_REGULARIZATION = [0.000, 0.001, 0.010, 0.100]
+DEFAULT_DROPOUT = [0.00, 0.01, 0.05, 0.10, 0.50]
 BLOCKS = [
     'all attrs',
     'year',
-    'soil',
     'rhn',
     'rhx',
     'tmax',
@@ -25,8 +25,7 @@ BLOCKS = [
     'chirps',
     'svp',
     'vpt',
-    'wbgt',
-    'greendays'
+    'wbgt'
 ]
 BLOCKED_ATTRS = {
     'geohash',
@@ -124,7 +123,7 @@ def build_model(num_layers, num_inputs, l2_reg, dropout):
 
 
 def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, filename,
-    additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=30,
+    additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=35,
     blocked_attrs=BLOCKED_ATTRS):
     import csv
     import os
@@ -325,6 +324,8 @@ class SweepTask(luigi.Task):
         dropouts = DEFAULT_DROPOUT
 
         combinations = itertools.product(num_layers, l2_regs, dropouts, BLOCKS, [True, False])
+        combinations_realized = list(combinations)
+        random.shuffle(combinations_realized)
 
         access_key = os.environ['CLIMATE_ACCESS_KEY']
         access_secret = os.environ['CLIMATE_ACCESS_SECRET']
@@ -345,7 +346,7 @@ class SweepTask(luigi.Task):
                 x[3],
                 x[4]
             ),
-            list(combinations)
+            combinations_realized
         )
 
         with self.output().open('w') as f:

@@ -23,7 +23,7 @@ EXPECTED_CLIMATE_COLS = [
     'max',
     'count',
     'skew',
-    'kertosis'
+    'kurtosis'
 ]
 
 CLIMATE_VARIABLES = [
@@ -585,6 +585,8 @@ YIELD_FIELDS = {
     'yieldMean',
     'yieldStd'
 }
+
+NORM_YIELD_FIELDS = False
 
 NON_DELTA_FIELDS = [
     'year',

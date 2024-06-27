@@ -36,21 +36,30 @@ def parse_row(row):
     return row
 
 
-class GetAsDeltaTaskTemplate(luigi.Task):
+def get_float_maybe(target):
+    try:
+        value = float(target)
+    except ValueError:
+        return None
+
+    if numpy.isfinite(value):
+        return value
+    else:
+        return None
+
+
+class GetHistoricAveragesTask(luigi.Task):
 
     def requires(self):
-        return {
-            'historic': preprocess_combine_tasks.CombineHistoricPreprocessTask(),
-            'target': self.get_target()
-        }
+        return preprocess_combine_tasks.CombineHistoricPreprocessTask()
 
     def output(self):
-        return luigi.LocalTarget(const.get_file_location(self.get_filename()))
+        return luigi.LocalTarget(const.get_file_location('historic_averages.csv'))
 
     def run(self):
         averages = {}
-
-        with self.input()['historic'].open() as f:
+        
+        with self.input().open() as f:
             reader = csv.DictReader(f)
             
             for row in reader:
@@ -63,10 +72,36 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                     if key not in averages:
                         averages[key] = distribution_struct.WelfordAccumulator()
 
-                    value = self._get_float_maybe(row[field])
+                    value = get_float_maybe(row[field])
                     
                     if value is not None:
                         averages[key].add(value)
+
+        output_rows = map(lambda x: {'key': x[0], 'mean': x[1].get_mean()}, averages.items())
+
+        with self.output().open('w') as f:
+            writer = csv.DictWriter(f, fieldnames=['key', 'mean'])
+            writer.writeheader()
+            writer.writerows(output_rows)
+
+
+class GetAsDeltaTaskTemplate(luigi.Task):
+
+    def requires(self):
+        return {
+            'averages': GetHistoricAveragesTask(),
+            'target': self.get_target()
+        }
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location(self.get_filename()))
+
+    def run(self):
+        with self.input()['averages'].open() as f:
+            reader = csv.DictReader(f)
+            average_tuples_str = map(lambda x: (x['key'], x['mean']), reader)
+            average_tuples = map(lambda x: (x[0], float(x[1])), average_tuples_str)
+            averages = dict(average_tuples)
 
         def transform_row_regular(row):
             keys = row.keys()
@@ -75,9 +110,11 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
             geohash = row['geohash']
             for key in keys_no_count:
-                average = averages['%s.%s' % (geohash, key)].get_mean()
-                delta = float(row[key]) - average
-                row[key] = delta
+                average = averages['%s.%s' % (geohash, key)]
+                original_value = get_float_maybe(row[key])
+                if original_value is not None:
+                    delta = original_value - average
+                    row[key] = delta
             
             return row
 
@@ -85,14 +122,14 @@ class GetAsDeltaTaskTemplate(luigi.Task):
             geohash = row['geohash']
             
             key = '%s.baselineYieldMean' % geohash
-            original_mean = self._get_float_maybe(row['yieldMean'])
-            original_std = self._get_float_maybe(row['yieldStd'])
+            original_mean = get_float_maybe(row['yieldMean'])
+            original_std = get_float_maybe(row['yieldStd'])
 
             if original_mean is None or original_std is None or key not in averages:
                 new_mean = None
                 new_std = None
             else:
-                baseline_mean = averages[key].get_mean()
+                baseline_mean = averages[key]
                 new_mean = (original_mean - baseline_mean) / baseline_mean
                 new_std = original_std / baseline_mean
 
@@ -102,12 +139,12 @@ class GetAsDeltaTaskTemplate(luigi.Task):
             return row
 
         with self.input()['target'].open() as f_in:
-            rows = csv.DictReader(f)
+            rows = csv.DictReader(f_in)
             rows_regular_transform = map(lambda x: transform_row_regular(x), rows)
             rows_regular_response = map(lambda x: transform_row_response(x), rows_regular_transform)
 
             with self.output().open('w') as f_out:
-                writer = csv.DictWriter(f, fieldnames=const.TRAINING_FRAME_ATTRS)
+                writer = csv.DictWriter(f_out, fieldnames=const.TRAINING_FRAME_ATTRS)
                 writer.writeheader()
                 writer.writerows(rows_regular_response)
 
@@ -116,17 +153,6 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
     def get_filename(self):
         raise NotImplementedError('Must use implementor.')
-
-    def _get_float_maybe(target):
-        try:
-            value = float(row[field])
-        except ValueError:
-            return None
-
-        if numpy.isfinite(value):
-            return None
-        else:
-            return value
 
 
 class GetHistoricAsDeltaTask(GetAsDeltaTaskTemplate):
@@ -253,7 +279,13 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
 
     def _transform_z(self, row, distributions):
         fields = distributions.keys()
-        for field in fields:
+
+        if const.NORM_YIELD_FIELDS:
+            fields_allowed = fields
+        else:
+            fields_allowed = filter(lambda x: x not in const.YIELD_FIELDS, fields)
+
+        for field in fields_allowed:
             original_value = row[field]
             
             distribution = distributions[field]

@@ -110,6 +110,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size):
     counterfactual_deltas = []
     adapted_deltas = []
     for unit_i in range(0, num_units):
+        baseline_yield_acc = distribution_struct.WelfordAccumulator()
         predicted_yield_acc = distribution_struct.WelfordAccumulator()
         counterfactual_yield_acc = distribution_struct.WelfordAccumulator()
         adapted_yield_acc = distribution_struct.WelfordAccumulator()
@@ -120,17 +121,20 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size):
             sim_mean = projected_mean + mean_delta
             sim_std = projected_std * std_mult + std_delta
             
+            baseline_yield = random.gauss(mu=original_mean, sigma=original_std)
             predicted_yield = random.gauss(mu=sim_mean, sigma=sim_std)
             counterfactual_yield = random.gauss(mu=original_mean, sigma=original_std)
             adapted_yield = random.gauss(mu=sim_mean + sim_std, sigma=sim_std)
 
+            baseline_yield_acc.add(baseline_yield)
             predicted_yield_acc.add(predicted_yield)
             counterfactual_yield_acc.add(counterfactual_yield)
             adapted_yield_acc.add(adapted_yield)
 
-        predicted_delta = predicted_yield_acc.get_mean()
-        counterfactual_delta = counterfactual_yield_acc.get_mean()
-        adapted_delta = adapted_yield_acc.get_mean()
+        baseline = baseline_yield_acc.get_mean()
+        counterfactual_delta = counterfactual_yield_acc.get_mean() - baseline
+        predicted_delta = predicted_yield_acc.get_mean() - baseline
+        adapted_delta = adapted_yield_acc.get_mean() - baseline
         
         predicted_deltas.append(predicted_delta)
         counterfactual_deltas.append(counterfactual_delta)
@@ -340,7 +344,7 @@ class InterpretProjectTaskTemplate(luigi.Task):
             ])
             writer.writeheader()
             
-            with self.input()['target'] as f_in:
+            with self.input()['target'].open('r') as f_in:
                 reader = csv.DictReader(f_in)
                 standardized_rows = map(lambda x: self._standardize_row(x), reader)
                 updated_rows = map(lambda x: self._update_row(x, distributions), standardized_rows)
@@ -370,14 +374,17 @@ class InterpretProjectTaskTemplate(luigi.Task):
         original_predicted_std = row['predictedStd']
 
         def interpret(target, dist):
-            reverse_z = target * dist['std'] + dist['mean']
-            return reverse_z
+            if const.NORM_YIELD_FIELDS:
+                reverse_z = target * dist['std'] + dist['mean']
+                return reverse_z
+            else:
+                return target
 
         interpreted_predicted_mean = interpret(original_predicted_mean, mean_dist)
         interpreted_predicted_std = interpret(original_predicted_std, std_dist)
 
-        row['yieldMean'] = interpreted_predicted_mean
-        row['yieldStd'] = interpreted_predicted_std
+        row['predictedMean'] = interpreted_predicted_mean
+        row['predictedStd'] = interpreted_predicted_std
 
         return row
 

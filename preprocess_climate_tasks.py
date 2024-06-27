@@ -121,7 +121,7 @@ def get_daily_geohash(bucket_name, tiff_info, geohashes, access_key, access_secr
             distribution.get_max(),
             distribution.get_count(),
             distribution.get_skew(),
-            distribution.get_kertosis(),
+            distribution.get_kurtosis(),
             tiff_info.get_date().day
         )
 
@@ -161,7 +161,7 @@ def confirm_and_remove_day(target):
         'max': float(target['max']),
         'count': int(target['count']),
         'skew': float(target['skew']),
-        'kertosis': float(target['kertosis'])
+        'kurtosis': float(target['kurtosis'])
     }
 
 
@@ -191,11 +191,11 @@ def run_job(sample_day_gap, bucket, years, variables, geohashes, conditions, clu
     return output_dicts_realized
 
 
-class PreprocessClimateGeotiffsTask(luigi.Task):
+class PreprocessClimateGeotiffTask(luigi.Task):
 
     dataset_name = luigi.Parameter()
     conditions = luigi.Parameter()
-    years = luigi.Parameter()
+    year = luigi.Parameter()
 
     def requires(self):
         return {
@@ -204,9 +204,8 @@ class PreprocessClimateGeotiffsTask(luigi.Task):
         }
 
     def output(self):
-        return luigi.LocalTarget(
-            const.get_file_location('climate_%s.csv' % self.dataset_name)
-        )
+        filename = 'climate_%s_%d.csv' % (self.dataset_name, self.year)
+        return luigi.LocalTarget(const.get_file_location(filename))
 
     def run(self):
         cluster = cluster_tasks.get_cluster()
@@ -233,10 +232,6 @@ class PreprocessClimateGeotiffsTask(luigi.Task):
                 writer.writerows(results)
                 f.flush()
 
-                cluster.adapt(minimum=500, maximum=500)
-
-        cluster.adapt(minimum=10, maximum=100)
-
     def _get_geohashes(self):
         with self.input()['geohashes'].open('r') as f:
             geohashes = f.readlines()
@@ -251,16 +246,44 @@ class PreprocessClimateGeotiffsTask(luigi.Task):
         return geohashes_set
 
     def _get_tasks(self):
-        years = self.years
+        years = [self.year]  # TODO: Decide if permanent
         variables = const.CLIMATE_VARIABLES
 
-        if const.SPLIT_CLIMATE_PREPROCESS:
-            tasks_all = map(lambda x: {'year': x, 'var': variables}, years)
-            tasks_nest = map(
-                lambda x: {'years': [x['year']], 'variables': x['var']},
-                tasks_all
+        tasks_all = map(lambda x: {'year': x, 'var': variables}, years)
+        tasks_nest = map(
+            lambda x: {'years': [x['year']], 'variables': x['var']},
+            tasks_all
+        )
+        tasks = list(tasks_nest)
+        return tasks
+
+
+class PreprocessClimateGeotiffsTask(luigi.Task):
+
+    dataset_name = luigi.Parameter()
+    conditions = luigi.Parameter()
+    years = luigi.Parameter()
+
+    def requires(self):
+        def make_subtask(year):
+            return PreprocessClimateGeotiffTask(
+                dataset_name=self.dataset_name,
+                conditions=self.conditions,
+                year=year
             )
-            tasks = list(tasks_nest)
-            return tasks
-        else:
-            return [{'years': years, 'variables': variables}]
+        return [make_subtask(year) for year in self.years]
+
+    def output(self):
+        return luigi.LocalTarget(
+            const.get_file_location('climate_%s.csv' % self.dataset_name)
+        )
+
+    def run(self):
+        with self.output().open('w') as f_out:
+            writer = csv.DictWriter(f_out, fieldnames=const.EXPECTED_CLIMATE_COLS)
+            writer.writeheader()
+
+            for sub_input in self.input():
+                with sub_input.open() as f_in:
+                    reader = csv.DictReader(f_in)
+                    writer.writerows(reader)

@@ -16,6 +16,7 @@ STR_META_ATTRS = {
 }
 CONSTRAINED_LAYERS = set(range(3, 6))
 CONSTRAINED_REG = [0, 0.7]
+CONSTRAINED_ATTRS = ['all attrs', 'year']
 
 
 class SelectConfigurationTask(luigi.Task):
@@ -35,8 +36,8 @@ class SelectConfigurationTask(luigi.Task):
             rows = [self._parse_row(x) for x in reader]
 
         for row in rows:
-            mean_accumulator.add(row['validPercentMeanMedian'])
-            std_accumulator.add(row['validPercentStdMedian'])
+            mean_accumulator.add(row['validMean'])
+            std_accumulator.add(row['validStd'])
 
         mean_mean = mean_accumulator.get_mean()
         mean_std = mean_accumulator.get_std()
@@ -44,8 +45,8 @@ class SelectConfigurationTask(luigi.Task):
         std_std = std_accumulator.get_std()
         
         def score_option(option):
-            mean_z = (option['validPercentMeanMedian'] - mean_mean) / mean_std
-            std_z = (option['validPercentStdMedian'] - std_mean) / std_std
+            mean_z = option['validMean']  # (option['validMean'] - mean_mean) / mean_std
+            std_z = option['validStd']  # (option['validStd'] - std_mean) / std_std
             return mean_z + std_z / 2
 
         unconstrained_selection_row = min(rows, key=score_option)
@@ -56,7 +57,7 @@ class SelectConfigurationTask(luigi.Task):
         constrained_candidates = filter(
             lambda x: (
                 x['layers'] in CONSTRAINED_LAYERS
-                and x['block'] == 'all attrs'
+                and x['block'] in CONSTRAINED_ATTRS
                 and get_regularization_ok(x['l2Reg'])
                 and get_regularization_ok(x['dropout'])
             ),
@@ -119,7 +120,7 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
         model.fit(
             train_inputs,
             train_outputs,
-            epochs=30,
+            epochs=35,
             verbose=None
         )
 
@@ -129,7 +130,8 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
         input_frame['meanResidual'] = input_frame['predictedMean'] - input_frame['yieldMean']
         input_frame['stdResidual'] = input_frame['predictedStd'] - input_frame['yieldStd']
 
-        input_frame[[
+        test_frame = input_frame[input_frame['setAssign'] == 'test']
+        test_frame[[
             'setAssign',
             'yieldMean',
             'yieldStd',
@@ -188,7 +190,7 @@ class TrainFullModel(luigi.Task):
         model.fit(
             train_inputs,
             train_outputs,
-            epochs=30,
+            epochs=35,
             verbose=None
         )
 
