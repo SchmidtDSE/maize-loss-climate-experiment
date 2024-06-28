@@ -314,6 +314,7 @@ class ProjectTaskTemplate(luigi.Task):
 
         target_frame['joinYear'] = target_frame['year']
         target_frame['simYear'] = target_frame['year'] - 2007 + self.get_base_year()
+        target_frame['year'] = target_frame['simYear']
 
         outputs = model.predict(inputs)
         target_frame['predictedMean'] = outputs[:,0]
