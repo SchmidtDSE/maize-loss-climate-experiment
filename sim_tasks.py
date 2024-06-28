@@ -19,6 +19,7 @@ import selection_tasks
 import training_tasks
 
 OUTPUT_FIELDS = [
+    'offsetBaseline',
     'geohash',
     'year',
     'condition',
@@ -26,17 +27,20 @@ OUTPUT_FIELDS = [
     'stdMult',
     'geohashSimSize',
     'num',
-    'predicted',
-    'counterfactual',
-    'adapted',
+    'predictedChange',
+    'baselineChange',
+    'adaptedChange',
+    'predictedClaims',
+    'baselineClaims',
+    'adaptedClaims',
     'predictedLoss',
-    'counterfactualLoss',
+    'baselineLoss',
     'adaptedLoss',
-    'pCounterfactual',
+    'p',
     'pAdapted'
 ]
 NUM_ARGS = 4
-STD_MULT = [1.0]  # [0.5, 1.0, 1.5]
+STD_MULT = [1.0]
 THRESHOLDS = [0.25, 0.15, 0.05]
 GEOHASH_SIZE = [4, 5]
 
@@ -79,7 +83,7 @@ class Task:
         return self._num_observations
 
 
-def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size):
+def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_baseline):
     import random
 
     import distribution_struct
@@ -107,12 +111,11 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size):
         return None
     
     predicted_deltas = []
-    counterfactual_deltas = []
+    baseline_deltas = []
     adapted_deltas = []
     for unit_i in range(0, num_units):
-        baseline_yield_acc = distribution_struct.WelfordAccumulator()
         predicted_yield_acc = distribution_struct.WelfordAccumulator()
-        counterfactual_yield_acc = distribution_struct.WelfordAccumulator()
+        baseline_yield_acc = distribution_struct.WelfordAccumulator()
         adapted_yield_acc = distribution_struct.WelfordAccumulator()
 
         for pixel_i in range(0, const.UNIT_SIZE_IN_PIXELS):
@@ -121,23 +124,28 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size):
             sim_mean = projected_mean + mean_delta
             sim_std = projected_std * std_mult + std_delta
             
-            baseline_yield = random.gauss(mu=original_mean, sigma=original_std)
             predicted_yield = random.gauss(mu=sim_mean, sigma=sim_std)
-            counterfactual_yield = random.gauss(mu=original_mean, sigma=original_std)
+            baseline_yield = random.gauss(mu=original_mean, sigma=original_std)
             adapted_yield = random.gauss(mu=sim_mean + sim_std, sigma=sim_std)
 
-            baseline_yield_acc.add(baseline_yield)
             predicted_yield_acc.add(predicted_yield)
-            counterfactual_yield_acc.add(counterfactual_yield)
+            baseline_yield_acc.add(baseline_yield)
             adapted_yield_acc.add(adapted_yield)
 
         baseline = baseline_yield_acc.get_mean()
-        counterfactual_delta = counterfactual_yield_acc.get_mean() - baseline
-        predicted_delta = predicted_yield_acc.get_mean() - baseline
-        adapted_delta = adapted_yield_acc.get_mean() - baseline
+
+        if offset_baseline == 'always':
+            predicted_delta = predicted_yield_acc.get_mean() - baseline
+            adapted_delta = adapted_yield_acc.get_mean() - baseline
+        elif offset_baseline == 'negative' and baseline < 0:
+            predicted_delta = predicted_yield_acc.get_mean() - baseline
+            adapted_delta = adapted_yield_acc.get_mean() - baseline
+        else:
+            predicted_delta = predicted_yield_acc.get_mean()
+            adapted_delta = adapted_yield_acc.get_mean()
         
+        baseline_deltas.append(baseline)
         predicted_deltas.append(predicted_delta)
-        counterfactual_deltas.append(counterfactual_delta)
         adapted_deltas.append(adapted_delta)
 
     def get_claims_rate(target):
@@ -153,19 +161,30 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size):
             return statistics.mean(claims)
         else:
             return 0
+
+    def get_change(target):
+        if len(target) > 0:
+            return statistics.mean(target)
+        else:
+            return 0
     
+    baseline_change = get_change(baseline_deltas)
+    predicted_change = get_change(predicted_deltas)
+    adapted_change = get_change(adapted_deltas)
+
+    baseline_claims_rate = get_claims_rate(baseline_deltas)
     predicted_claims_rate = get_claims_rate(predicted_deltas)
-    counterfactual_claims_rate = get_claims_rate(counterfactual_deltas)
     adapted_claims_rate = get_claims_rate(adapted_deltas)
     
+    baseline_loss = get_loss_level(baseline_deltas)
     predicted_loss = get_loss_level(predicted_deltas)
-    counterfactual_loss = get_loss_level(counterfactual_deltas)
     adapted_loss = get_loss_level(adapted_deltas)
 
-    p_counterfactual = scipy.stats.mannwhitneyu(predicted_deltas, counterfactual_deltas)[1]
+    p_baseline = scipy.stats.mannwhitneyu(predicted_deltas, baseline_deltas)[1]
     p_adapted = scipy.stats.mannwhitneyu(predicted_deltas, adapted_deltas)[1]
 
     return {
+        'offsetBaseline': offset_baseline,
         'geohash': task.get_geohash(),
         'year': task.get_year(),
         'condition': task.get_condition(),
@@ -173,13 +192,16 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size):
         'stdMult': std_mult,
         'geohashSimSize': geohash_sim_size,
         'num': num_observations,
-        'predicted': predicted_claims_rate,
-        'counterfactual': counterfactual_claims_rate,
-        'adapted': adapted_claims_rate,
+        'predictedChange': predicted_change,
+        'baselineChange': baseline_change,
+        'adaptedChange': adapted_change,
+        'predictedClaims': predicted_claims_rate,
+        'baselineClaims': baseline_claims_rate,
+        'adaptedClaims': adapted_claims_rate,
         'predictedLoss': predicted_loss,
-        'counterfactualLoss': counterfactual_loss,
+        'baselineLoss': baseline_loss,
         'adaptedLoss': adapted_loss,
-        'pCounterfactual': p_counterfactual,
+        'p': p_baseline,
         'pAdapted': p_adapted
     }
 
@@ -228,8 +250,14 @@ def parse_record_dict(record_raw):
     )
 
 
-def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size):
-    return [run_simulation(x, deltas, threshold, std_mult, geohash_sim_size) for x in tasks]
+def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, offset_baseline):
+    results_all = map(
+        lambda x: run_simulation(x, deltas, threshold, std_mult, geohash_sim_size, offset_baseline),
+        tasks
+    )
+    results_valid = filter(lambda x: x is not None, results_all)
+    results_realized = list(results_valid)
+    return results_realized
 
 
 class GetNumObservationsTask(luigi.Task):
@@ -516,7 +544,13 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
         )
 
         tasks_with_variations = list(
-            itertools.product(input_records_grouped.values(), THRESHOLDS, STD_MULT, GEOHASH_SIZE)
+            itertools.product(
+                input_records_grouped.values(),
+                THRESHOLDS,
+                STD_MULT,
+                GEOHASH_SIZE,
+                ['always', 'never', 'negative']
+            )
         )
 
         cluster = cluster_tasks.get_cluster()
@@ -541,17 +575,16 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
             }
 
         outputs_all = client.map(
-            lambda x: run_simulation_set(x[0], deltas, x[1], x[2], x[3]),
+            lambda x: run_simulation_set(x[0], deltas, x[1], x[2], x[3], x[4]),
             tasks_with_variations
         )
         outputs_realized = map(lambda x: x.result(), outputs_all)
-        outputs_valid = filter(lambda x: x is not None, outputs_realized)
 
         with self.output().open('w') as f:
             writer = csv.DictWriter(f, fieldnames=OUTPUT_FIELDS)
             writer.writeheader()
 
-            for output_set in outputs_valid:
+            for output_set in outputs_realized:
                 writer.writerows(output_set)
                 f.flush()
 
@@ -616,7 +649,7 @@ class Project2050Task(ProjectTaskTemplate):
 class Project2050CounterfactualTask(ProjectTaskTemplate):
     
     def get_target_task(self):
-        return normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2030_SSP245')
+        return normalize_tasks.NormalizeHistoricTrainingFrameTask()
     
     def get_base_year(self):
         return 2050
@@ -697,7 +730,7 @@ class MakeSimulationTasks2050Task(MakeSimulationTasksTemplate):
         return InterpretProject2050Task()
 
     def get_condition(self):
-        return '2030_SSP245'
+        return '2050_SSP245'
 
 
 class MakeSimulationTasks2030CounterfactualTask(MakeSimulationTasksTemplate):
@@ -782,8 +815,8 @@ class CombineSimulationsTasks(luigi.Task):
     def requires(self):
         return {
             '2030': ExecuteSimulationTasks2030PredictedTask(),
-            '2030_counterfactual': ExecuteSimulationTasks2050PredictedTask(),
-            '2050': ExecuteSimulationTasks2030Counterfactual(),
+            '2030_counterfactual': ExecuteSimulationTasks2030Counterfactual(),
+            '2050': ExecuteSimulationTasks2050PredictedTask(),
             '2050_counterfactual': ExecuteSimulationTasks2050Counterfactual()
         }
 
@@ -848,6 +881,6 @@ class MakeSingleYearStatistics(luigi.Task):
             'series': row['series'],
             'num': int(row['num']),
             'predicted': float(row['predicted']),
-            'counterfactual': float(row['counterfactual']),
+            'p': float(row['p']),
             'pAdapted': float(row['pAdapted'])
         }
