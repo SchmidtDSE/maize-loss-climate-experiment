@@ -117,6 +117,7 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
     import pandas
     import toolz.itertoolz
 
+    import const
     import normalize_tasks
 
     random.seed(seed)
