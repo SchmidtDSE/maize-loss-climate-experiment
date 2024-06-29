@@ -733,6 +733,21 @@ class InterpretProject2050CounterfactualTask(InterpretProjectTaskTemplate):
         return '2050_project_dist_counterfactual_interpret.csv'
 
 
+class MakeSimulationTasksHistoricTask(MakeSimulationTasksTemplate):
+
+    def get_filename(self):
+        return 'current_sim_tasks.csv'
+    
+    def get_baseline_task(self):
+        return InterpretProjectHistoricTask()
+    
+    def get_projection_task(self):
+        return InterpretProjectHistoricTask()
+
+    def get_condition(self):
+        return 'historic'
+
+
 class MakeSimulationTasks2030Task(MakeSimulationTasksTemplate):
 
     def get_filename(self):
@@ -793,6 +808,18 @@ class MakeSimulationTasks2050CounterfactualTask(MakeSimulationTasksTemplate):
         return '2030_SSP245'
 
 
+class ExecuteSimulationTasksHistoricPredictedTask(ExecuteSimulationTasksTemplate):
+
+    def get_tasks_task(self):
+        return MakeSimulationTasksHistoricTask()
+
+    def get_filename(self):
+        return 'historic_sim.csv'
+
+    def get_deltas_task(self):
+        return selection_tasks.PostHocTestRawDataTemporalTask()
+
+
 class ExecuteSimulationTasks2030PredictedTask(ExecuteSimulationTasksTemplate):
 
     def get_tasks_task(self):
@@ -844,6 +871,7 @@ class CombineSimulationsTasks(luigi.Task):
 
     def requires(self):
         return {
+            'historic': ExecuteSimulationTasksHistoricPredictedTask(),
             '2030': ExecuteSimulationTasks2030PredictedTask(),
             '2030_counterfactual': ExecuteSimulationTasks2030Counterfactual(),
             '2050': ExecuteSimulationTasks2050PredictedTask(),
@@ -857,6 +885,7 @@ class CombineSimulationsTasks(luigi.Task):
         with self.output().open('w') as f:
             writer = csv.DictWriter(f, fieldnames=['series'] + OUTPUT_FIELDS)
             writer.writeheader()
+            self._write_out('historic', writer)
             self._write_out('2030', writer)
             self._write_out('2030_counterfactual', writer)
             self._write_out('2050', writer)

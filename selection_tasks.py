@@ -14,8 +14,8 @@ STR_META_ATTRS = {
     'block',
     'allowCount'
 }
-CONSTRAINED_LAYERS = set(range(3, 6))
-CONSTRAINED_REG = [0, 0.7]
+CONSTRAINED_LAYERS = set(range(3, 7))
+CONSTRAINED_REG = [0, 1]
 CONSTRAINED_ATTRS = ['all attrs', 'year']
 
 
@@ -121,7 +121,8 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
             train_inputs,
             train_outputs,
             epochs=35,
-            verbose=None
+            verbose=None,
+            sample_weight=train_data[const.SAMPLE_WEIGHT_ATTR]
         )
 
         combined_output = model.predict(input_frame[input_attrs])
@@ -191,7 +192,8 @@ class TrainFullModel(luigi.Task):
             train_inputs,
             train_outputs,
             epochs=35,
-            verbose=None
+            verbose=None,
+            sample_weight=input_frame[const.SAMPLE_WEIGHT_ATTR]
         )
 
         model.save(self.output().path)

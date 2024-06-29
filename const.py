@@ -568,6 +568,8 @@ TRAINING_FRAME_ATTRS = [
     'yieldObservations'
 ]
 
+SAMPLE_WEIGHT_ATTR = 'yieldObservations'
+
 NON_Z_FIELDS = {
     'year',
     'geohash',
