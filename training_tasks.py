@@ -153,17 +153,17 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
             'train': {
                 'inputs': train[input_attrs],
                 'outputs': train[output_attrs],
-                'weights': train['yieldObservations']
+                'weights': train[const.SAMPLE_WEIGHT_ATTR]
             },
             'valid': {
                 'inputs': valid[input_attrs],
                 'outputs': valid[output_attrs],
-                'weights': valid['yieldObservations']
+                'weights': valid[const.SAMPLE_WEIGHT_ATTR]
             },
             'test': {
                 'inputs': test[input_attrs],
                 'outputs': test[output_attrs],
-                'weights': test['yieldObservations']
+                'weights': test[const.SAMPLE_WEIGHT_ATTR]
             }
         }
 
