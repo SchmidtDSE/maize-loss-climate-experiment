@@ -12,7 +12,7 @@ import cluster_tasks
 import const
 import normalize_tasks
 
-DEFAULT_NUM_LAYERS = [1, 2, 3, 4, 5]
+DEFAULT_NUM_LAYERS = [1, 2, 3, 4, 5, 6]
 DEFAULT_REGULARIZATION = [0.000, 0.001, 0.010, 0.100]
 DEFAULT_DROPOUT = [0.00, 0.01, 0.05, 0.10, 0.50]
 BLOCKS = [
@@ -47,25 +47,7 @@ OUTPUT_FIELDS = [
     'validMean',
     'validStd',
     'testMean',
-    'testStd',
-    'trainMeanMedian',
-    'trainStdMedian',
-    'validMeanMedian',
-    'validStdMedian',
-    'testMeanMedian',
-    'testStdMedian',
-    'trainPercentMean',
-    'trainPercentStd',
-    'validPercentMean',
-    'validPercentStd',
-    'testPercentMean',
-    'testPercentStd',
-    'trainPercentMeanMedian',
-    'trainPercentStdMedian',
-    'validPercentMeanMedian',
-    'validPercentStdMedian',
-    'testPercentMeanMedian',
-    'testPercentStdMedian'
+    'testStd'
 ]
 
 
@@ -103,6 +85,7 @@ def build_model(num_layers, num_inputs, l2_reg, dropout):
         )
     
     layers = [
+        build_layer(512),
         build_layer(256),
         build_layer(128),
         build_layer(64),
@@ -123,7 +106,7 @@ def build_model(num_layers, num_inputs, l2_reg, dropout):
 
 
 def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, filename,
-    additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=35,
+    additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=30,
     blocked_attrs=BLOCKED_ATTRS):
     import csv
     import os
@@ -169,15 +152,18 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
         return {
             'train': {
                 'inputs': train[input_attrs],
-                'outputs': train[output_attrs]
+                'outputs': train[output_attrs],
+                'weights': train['yieldObservations']
             },
             'valid': {
                 'inputs': valid[input_attrs],
-                'outputs': valid[output_attrs]
+                'outputs': valid[output_attrs],
+                'weights': valid['yieldObservations']
             },
             'test': {
                 'inputs': test[input_attrs],
-                'outputs': test[output_attrs]
+                'outputs': test[output_attrs],
+                'weights': test['yieldObservations']
             }
         }
 
@@ -186,61 +172,59 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
             data_splits['train']['inputs'],
             data_splits['train']['outputs'],
             epochs=epochs,
-            verbose=None
+            verbose=None,
+            sample_weight=data_splits['train']['weights']
         )
 
     def evaluate_model(model, data_splits):
         def get_abs_diff(a, b):
             return abs(a - b)
 
-        def get_percent_diff(a, b):
-            if b == 0 and a != 0:
-                return 1
-            else:
-                return abs((a - b) / b)
-
-        def get_maes(target_inputs, target_outputs):
+        def get_maes(target_inputs, target_outputs, weights):
             predictions = model.predict(target_inputs, verbose=None)
-            paired_flat = list(zip(predictions, target_outputs.to_numpy()))
+            paired_flat = list(zip(predictions, target_outputs.to_numpy(), weights))
             
             paired_parsed = map(lambda x: {
                 'mean': get_abs_diff(x[0][0], x[1][0]),
                 'std': get_abs_diff(x[0][1], x[1][1]),
-                'meanPercent': get_percent_diff(x[0][0], x[1][0]),
-                'stdPercent': get_percent_diff(x[0][1], x[1][1])
+                'weight': x[2]
             }, paired_flat)
             paired_parsed_realized = list(paired_parsed)
 
-            mean_mean_errors = statistics.mean(map(lambda x: x['mean'], paired_parsed_realized))
-            mean_std_errors = statistics.mean(map(lambda x: x['std'], paired_parsed_realized))
+            weight_sum = sum(map(lambda x: x['weight'], paired_parsed_realized))
 
-            median_mean_errors = statistics.median(map(lambda x: x['mean'], paired_parsed_realized))
-            median_std_errors = statistics.median(map(lambda x: x['std'], paired_parsed_realized))
+            mean_mean_errors = sum(map(
+                lambda x: x['mean'] * x['weight'],
+                paired_parsed_realized
+            )) / weight_sum
+            
+            mean_std_errors = sum(map(
+                lambda x: x['std'] * x['weight'],
+                paired_parsed_realized
+            )) / weight_sum
 
-            mean_mean_errors_percent = statistics.mean(map(lambda x: x['meanPercent'], paired_parsed_realized))
-            median_mean_errors_percent = statistics.mean(map(lambda x: x['stdPercent'], paired_parsed_realized))
-            
-            mean_std_errors_percent = statistics.median(map(lambda x: x['meanPercent'], paired_parsed_realized))
-            median_std_errors_percent = statistics.median(map(lambda x: x['stdPercent'], paired_parsed_realized))
-            
             return {
-                'mean': {
-                    'mean': mean_mean_errors,
-                    'median': median_mean_errors,
-                    'meanPercent': mean_mean_errors_percent,
-                    'medianPercent': median_mean_errors_percent
-                },
-                'std': {
-                    'mean': mean_std_errors,
-                    'median': median_std_errors,
-                    'meanPercent': mean_std_errors_percent,
-                    'medianPercent': median_std_errors_percent
-                }
+                'mean': mean_mean_errors,
+                'std': mean_std_errors
             }
 
-        train_errors = get_maes(data_splits['train']['inputs'], data_splits['train']['outputs'])
-        valid_errors = get_maes(data_splits['valid']['inputs'], data_splits['valid']['outputs'])
-        test_errors = get_maes(data_splits['test']['inputs'], data_splits['test']['outputs'])
+        train_errors = get_maes(
+            data_splits['train']['inputs'],
+            data_splits['train']['outputs'],
+            data_splits['train']['weights']
+        )
+        
+        valid_errors = get_maes(
+            data_splits['valid']['inputs'],
+            data_splits['valid']['outputs'],
+            data_splits['valid']['weights']
+        )
+        
+        test_errors = get_maes(
+            data_splits['test']['inputs'],
+            data_splits['test']['outputs'],
+            data_splits['test']['weights']
+        )
         
         return {
             'block': additional_block,
@@ -248,30 +232,12 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
             'l2Reg': l2_reg,
             'dropout': dropout,
             'allowCount': allow_count,
-            'trainMean': train_errors['mean']['mean'],
-            'trainStd': train_errors['std']['mean'],
-            'validMean': valid_errors['mean']['mean'],
-            'validStd': valid_errors['std']['mean'],
-            'testMean': test_errors['mean']['mean'],
-            'testStd': test_errors['std']['mean'],
-            'trainMeanMedian': train_errors['mean']['median'],
-            'trainStdMedian': train_errors['std']['median'],
-            'validMeanMedian': valid_errors['mean']['median'],
-            'validStdMedian': valid_errors['std']['median'],
-            'testMeanMedian': test_errors['mean']['median'],
-            'testStdMedian': test_errors['std']['median'],
-            'trainPercentMean': train_errors['mean']['meanPercent'],
-            'trainPercentStd': train_errors['std']['meanPercent'],
-            'validPercentMean': valid_errors['mean']['meanPercent'],
-            'validPercentStd': valid_errors['std']['meanPercent'],
-            'testPercentMean': test_errors['mean']['meanPercent'],
-            'testPercentStd': test_errors['std']['meanPercent'],
-            'trainPercentMeanMedian': train_errors['mean']['medianPercent'],
-            'trainPercentStdMedian': train_errors['std']['medianPercent'],
-            'validPercentMeanMedian': valid_errors['mean']['medianPercent'],
-            'validPercentStdMedian': valid_errors['std']['medianPercent'],
-            'testPercentMeanMedian': test_errors['mean']['medianPercent'],
-            'testPercentStdMedian': test_errors['std']['medianPercent']
+            'trainMean': train_errors['mean'],
+            'trainStd': train_errors['std'],
+            'validMean': valid_errors['mean'],
+            'validStd': valid_errors['std'],
+            'testMean': test_errors['mean'],
+            'testStd': test_errors['std']
         }
 
     if os.path.isfile(temp_file_path):

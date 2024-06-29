@@ -121,7 +121,8 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
             train_inputs,
             train_outputs,
             epochs=35,
-            verbose=None
+            verbose=None,
+            sample_weight=train_data['yieldObservations']
         )
 
         combined_output = model.predict(input_frame[input_attrs])
@@ -191,7 +192,8 @@ class TrainFullModel(luigi.Task):
             train_inputs,
             train_outputs,
             epochs=35,
-            verbose=None
+            verbose=None,
+            sample_weight=input_frame['yieldObservations']
         )
 
         model.save(self.output().path)
