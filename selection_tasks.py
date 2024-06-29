@@ -14,8 +14,8 @@ STR_META_ATTRS = {
     'block',
     'allowCount'
 }
-CONSTRAINED_LAYERS = set(range(3, 6))
-CONSTRAINED_REG = [0, 0.7]
+CONSTRAINED_LAYERS = set(range(3, 7))
+CONSTRAINED_REG = [0, 1]
 CONSTRAINED_ATTRS = ['all attrs', 'year']
 
 
