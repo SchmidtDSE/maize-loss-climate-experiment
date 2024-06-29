@@ -20,6 +20,7 @@ import training_tasks
 
 OUTPUT_FIELDS = [
     'offsetBaseline',
+    'unitSize',
     'geohash',
     'year',
     'condition',
@@ -43,6 +44,7 @@ NUM_ARGS = 4
 STD_MULT = [1.0]
 THRESHOLDS = [0.25, 0.15, 0.05]
 GEOHASH_SIZE = [4, 5]
+SAMPLE_MODEL_RESIDUALS = False
 
 
 class Task:
@@ -83,7 +85,7 @@ class Task:
         return self._num_observations
 
 
-def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_baseline):
+def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_size):
     import random
 
     import distribution_struct
@@ -105,7 +107,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
     if num_observations == 0:
         return None
 
-    num_units = round(num_observations / const.UNIT_SIZE_IN_PIXELS)
+    num_units = round(num_observations / unit_size)
 
     if num_units == 0:
         return None
@@ -118,9 +120,15 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
         baseline_yield_acc = distribution_struct.WelfordAccumulator()
         adapted_yield_acc = distribution_struct.WelfordAccumulator()
 
-        for pixel_i in range(0, const.UNIT_SIZE_IN_PIXELS):
-            mean_delta = random.choice(mean_deltas) * -1
-            std_delta = random.choice(std_deltas) * -1
+        for pixel_i in range(0, unit_size):
+
+            if SAMPLE_MODEL_RESIDUALS:
+                mean_delta = random.choice(mean_deltas) * -1
+                std_delta = random.choice(std_deltas) * -1
+            else:
+                mean_delta = 0
+                std_delta = 0
+
             sim_mean = projected_mean + mean_delta
             sim_std = projected_std * std_mult + std_delta
             
@@ -185,6 +193,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
     return {
         'offsetBaseline': offset_baseline,
+        'unitSize': unit_size,
         'geohash': task.get_geohash(),
         'year': task.get_year(),
         'condition': task.get_condition(),
@@ -250,9 +259,9 @@ def parse_record_dict(record_raw):
     )
 
 
-def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, offset_baseline):
+def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_size):
     results_all = map(
-        lambda x: run_simulation(x, deltas, threshold, std_mult, geohash_sim_size, offset_baseline),
+        lambda x: run_simulation(x, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_size),
         tasks
     )
     results_valid = filter(lambda x: x is not None, results_all)
@@ -260,10 +269,29 @@ def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, off
     return results_realized
 
 
-class GetNumObservationsTask(luigi.Task):
+class NormalizeRefHistoricTrainingFrameTask(luigi.Task):
 
     def requires(self):
         return normalize_tasks.NormalizeHistoricTrainingFrameTask()
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('ref_historic_normalized.csv'))
+
+    def run(self):
+        with self.input().open('r') as f_in:
+            reader = csv.DictReader(f_in)
+            allowed_rows = filter(lambda x: int(x['year']) in const.FUTURE_REF_YEARS, reader)
+
+            with self.output().open('w') as f_out:
+                writer = csv.DictWriter(f_out, fieldnames=const.TRAINING_FRAME_ATTRS)
+                writer.writeheader()
+                writer.writerows(allowed_rows)
+
+
+class GetNumObservationsTask(luigi.Task):
+
+    def requires(self):
+        return NormalizeRefHistoricTrainingFrameTask()
 
     def output(self):
         return luigi.LocalTarget(const.get_file_location('observation_counts.csv'))
@@ -550,7 +578,8 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
                 THRESHOLDS,
                 STD_MULT,
                 GEOHASH_SIZE,
-                ['always', 'never', 'negative']
+                ['always', 'never'],
+                [const.UNIT_SIZE_IN_PIXELS, 1]
             )
         )
 
@@ -576,7 +605,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
             }
 
         outputs_all = client.map(
-            lambda x: run_simulation_set(x[0], deltas, x[1], x[2], x[3], x[4]),
+            lambda x: run_simulation_set(x[0], deltas, x[1], x[2], x[3], x[4], x[5]),
             tasks_with_variations
         )
         outputs_realized = map(lambda x: x.result(), outputs_all)
@@ -602,7 +631,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
 class ProjectHistoricTask(ProjectTaskTemplate):
     
     def get_target_task(self):
-        return normalize_tasks.NormalizeHistoricTrainingFrameTask()
+        return NormalizeRefHistoricTrainingFrameTask()
     
     def get_base_year(self):
         return 2007
@@ -626,7 +655,7 @@ class Project2030Task(ProjectTaskTemplate):
 class Project2030CounterfactualTask(ProjectTaskTemplate):
     
     def get_target_task(self):
-        return normalize_tasks.NormalizeHistoricTrainingFrameTask()
+        return NormalizeRefHistoricTrainingFrameTask()
     
     def get_base_year(self):
         return 2030
@@ -650,7 +679,7 @@ class Project2050Task(ProjectTaskTemplate):
 class Project2050CounterfactualTask(ProjectTaskTemplate):
     
     def get_target_task(self):
-        return normalize_tasks.NormalizeHistoricTrainingFrameTask()
+        return NormalizeRefHistoricTrainingFrameTask()
     
     def get_base_year(self):
         return 2050
