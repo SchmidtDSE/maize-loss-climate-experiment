@@ -42,7 +42,7 @@ OUTPUT_FIELDS = [
 ]
 NUM_ARGS = 4
 STD_MULT = [1.0]
-THRESHOLDS = [0.25, 0.15, 0.05]
+THRESHOLDS = [0.25, 0.15]
 GEOHASH_SIZE = [4, 5]
 SAMPLE_MODEL_RESIDUALS = False
 
@@ -86,6 +86,7 @@ class Task:
 
 
 def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_size):
+    import math
     import random
 
     import distribution_struct
@@ -99,7 +100,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
     original_std = task.get_original_std()
     projected_mean = task.get_projected_mean()
     projected_std = task.get_projected_std()
-    num_observations = task.get_num_observations()
+    num_observations = task.get_num_observations() / const.RESOLUTION_SCALER
 
     if geohash_sim_size == 5:
         num_observations = round(num_observations / 32)
@@ -107,7 +108,8 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
     if num_observations == 0:
         return None
 
-    num_units = round(num_observations / unit_size)
+    unit_size_scaled = math.ceil(unit_size / const.RESOLUTION_SCALER)
+    num_units = round(num_observations / unit_size_scaled)
 
     if num_units == 0:
         return None
@@ -117,10 +119,9 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
     adapted_deltas = []
     for unit_i in range(0, num_units):
         predicted_yield_acc = distribution_struct.WelfordAccumulator()
-        baseline_yield_acc = distribution_struct.WelfordAccumulator()
         adapted_yield_acc = distribution_struct.WelfordAccumulator()
 
-        for pixel_i in range(0, unit_size):
+        for pixel_i in range(0, unit_size_scaled):
 
             if SAMPLE_MODEL_RESIDUALS:
                 mean_delta = random.choice(mean_deltas) * -1
@@ -133,26 +134,22 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
             sim_std = projected_std * std_mult + std_delta
             
             predicted_yield = random.gauss(mu=sim_mean, sigma=sim_std)
-            baseline_yield = random.gauss(mu=original_mean, sigma=original_std)
             adapted_yield = random.gauss(mu=sim_mean + sim_std, sigma=sim_std)
 
             predicted_yield_acc.add(predicted_yield)
-            baseline_yield_acc.add(baseline_yield)
             adapted_yield_acc.add(adapted_yield)
 
-        baseline = baseline_yield_acc.get_mean()
-
         if offset_baseline == 'always':
-            predicted_delta = predicted_yield_acc.get_mean() - baseline
-            adapted_delta = adapted_yield_acc.get_mean() - baseline
-        elif offset_baseline == 'negative' and baseline < 0:
-            predicted_delta = predicted_yield_acc.get_mean() - baseline
-            adapted_delta = adapted_yield_acc.get_mean() - baseline
+            predicted_delta = predicted_yield_acc.get_mean() - original_mean
+            adapted_delta = adapted_yield_acc.get_mean() - original_mean
+        elif offset_baseline == 'negative' and original_mean < 0:
+            predicted_delta = predicted_yield_acc.get_mean() - original_mean
+            adapted_delta = adapted_yield_acc.get_mean() - original_mean
         else:
             predicted_delta = predicted_yield_acc.get_mean()
             adapted_delta = adapted_yield_acc.get_mean()
         
-        baseline_deltas.append(baseline)
+        baseline_deltas.append(original_mean)
         predicted_deltas.append(predicted_delta)
         adapted_deltas.append(adapted_delta)
 
