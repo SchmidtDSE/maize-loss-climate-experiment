@@ -47,6 +47,7 @@ STD_MULT = [1.0]
 THRESHOLDS = [0.25, 0.15]
 GEOHASH_SIZE = [4, 5]
 SAMPLE_MODEL_RESIDUALS = True
+SIM_PARTIAL_AVG = 0
 
 
 class Task:
@@ -143,9 +144,8 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
             adapted_yield_acc.add(adapted_yield)
 
         def execute_offset_baseline(value, offset):
-            # The average will partially catch up during the period
             half_way = (value + offset) / 2
-            effective_offset = (half_way + offset * 3) / 4
+            effective_offset = half_way * SIM_PARTIAL_AVG + offset * (1 - SIM_PARTIAL_AVG)
             return value - effective_offset
 
         if offset_baseline == 'always':
