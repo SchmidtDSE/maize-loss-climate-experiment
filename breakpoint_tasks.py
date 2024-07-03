@@ -1,5 +1,6 @@
 import cluster_tasks
 import const
+import export_tasks
 import preprocess_climate_tasks
 import preprocess_combine_tasks
 import sim_tasks
@@ -78,3 +79,12 @@ class RunThroughSimTask(cluster_tasks.EndClusterTask):
 
     def get_task_name(self):
         return 'end_sim'
+
+
+class RunThroughHistTask(cluster_tasks.EndClusterTask):
+
+    def get_prereq(self):
+        return export_tasks.HistExportTask()
+
+    def get_task_name(self):
+        return 'end_hist'

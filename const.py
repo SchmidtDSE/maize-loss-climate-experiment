@@ -608,5 +608,7 @@ UNIT_SIZE_IN_PIXELS = 1196
 
 RESOLUTION_SCALER = 1111  # 30m x 30m limited by 1km x 1km daily gridmet
 
+DEFAULT_P_THRESHOLD = 0.05
+
 def get_file_location(name):
     return os.path.join(WORKSPACE_DIR, name)

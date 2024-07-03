@@ -18,6 +18,8 @@ import normalize_tasks
 import selection_tasks
 import training_tasks
 
+BINS = list(map(lambda x: x - 100, range(0, 205, 5)))
+BIN_FIELDS = ['bin%d' % x for x in BINS]
 OUTPUT_FIELDS = [
     'offsetBaseline',
     'unitSize',
@@ -39,12 +41,12 @@ OUTPUT_FIELDS = [
     'adaptedLoss',
     'p',
     'pAdapted'
-]
+] + BIN_FIELDS
 NUM_ARGS = 4
 STD_MULT = [1.0]
 THRESHOLDS = [0.25, 0.15]
 GEOHASH_SIZE = [4, 5]
-SAMPLE_MODEL_RESIDUALS = False
+SAMPLE_MODEL_RESIDUALS = True
 
 
 class Task:
@@ -92,6 +94,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
     import distribution_struct
 
     import scipy.stats
+    import toolz.itertoolz
     
     mean_deltas = deltas['mean']
     std_deltas = deltas['std']
@@ -139,12 +142,30 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
             predicted_yield_acc.add(predicted_yield)
             adapted_yield_acc.add(adapted_yield)
 
+        def execute_offset_baseline(value, offset):
+            # The average will partially catch up during the period
+            half_way = (value + offset) / 2
+            effective_offset = (half_way + offset * 3) / 4
+            return value - effective_offset
+
         if offset_baseline == 'always':
-            predicted_delta = predicted_yield_acc.get_mean() - original_mean
-            adapted_delta = adapted_yield_acc.get_mean() - original_mean
+            predicted_delta = execute_offset_baseline(
+                predicted_yield_acc.get_mean(),
+                original_mean
+            )
+            adapted_delta = execute_offset_baseline(
+                adapted_yield_acc.get_mean(),
+                original_mean
+            )
         elif offset_baseline == 'negative' and original_mean < 0:
-            predicted_delta = predicted_yield_acc.get_mean() - original_mean
-            adapted_delta = adapted_yield_acc.get_mean() - original_mean
+            predicted_delta = execute_offset_baseline(
+                predicted_yield_acc.get_mean(),
+                original_mean
+            )
+            adapted_delta = execute_offset_baseline(
+                adapted_yield_acc.get_mean(),
+                original_mean
+            )
         else:
             predicted_delta = predicted_yield_acc.get_mean()
             adapted_delta = adapted_yield_acc.get_mean()
@@ -188,7 +209,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
     p_baseline = scipy.stats.mannwhitneyu(predicted_deltas, baseline_deltas)[1]
     p_adapted = scipy.stats.mannwhitneyu(predicted_deltas, adapted_deltas)[1]
 
-    return {
+    ret_dict = {
         'offsetBaseline': offset_baseline,
         'unitSize': unit_size,
         'geohash': task.get_geohash(),
@@ -210,6 +231,33 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
         'p': p_baseline,
         'pAdapted': p_adapted
     }
+
+    def cap_delta(target):
+        if target > 1:
+            return 1
+        elif target < -1:
+            return -1
+        else:
+            return target
+
+    def project_delta(target):
+        percent = target * 100
+        percent_rounded = round(percent / 5) * 5
+        return percent_rounded
+
+    predicted_deltas_cap = map(cap_delta, predicted_deltas)
+    predicted_deltas_projected = map(project_delta, predicted_deltas_cap)
+    deltas_tuples = map(lambda x: (x, 1), predicted_deltas_projected)
+    deltas_count = dict(toolz.itertoolz.reduceby(
+        lambda x: x[0],
+        lambda a, b: (a[0], a[1] + b[1]),
+        deltas_tuples
+    ).values())
+
+    for bin_num in BINS:
+        ret_dict['bin%d' % bin_num] = deltas_count.get(bin_num, 0)
+
+    return ret_dict
 
 
 def parse_record(record_raw):
@@ -581,7 +629,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
         )
 
         cluster = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=1, maximum=500)
+        cluster.adapt(minimum=20, maximum=100)
         client = cluster.get_client()
 
         with self.input()['deltas'].open('r') as f:
