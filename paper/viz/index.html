@@ -1,0 +1,394 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+        <!-- Sketchingpy / PyScript -->
+        <link rel="stylesheet" href="/third_party/core.css">
+        <script type="module" src="/third_party/core.js"></script>
+
+        <link rel="stylesheet" href="base.css?v=EPOCH">
+        <title>Predicting Climate Change Risk to Corn Yields and Identifying Specific Mitigation Options through an Adjusted APH</title>
+
+
+    </head>
+    <body>
+        <py-config>
+        {
+            "packages": [
+                "/third_party/sketchingpy-0.2.2-py3-none-any.whl",
+                "/third_party/toolz-0.12.1-py3-none-any.whl"
+            ],
+            "files": {
+                "/buttons.py?v=EPOCH": "buttons.py",
+                "/const.py?v=EPOCH": "const.py",
+                "/data_struct.py?v=EPOCH": "data_struct.py",
+                "/history_viz.py?v=EPOCH": "history_viz.py",
+                "/hist_viz.py?v=EPOCH": "hist_viz.py",
+                "/legend.py?v=EPOCH": "legend.py",
+                "/map_viz.py?v=EPOCH": "map_viz.py",
+                "/preprocess.py?v=EPOCH": "preprocess.py",
+                "/results_viz_entry.py?v=EPOCH": "results_viz_entry.py",
+                "/results_viz.py?v=EPOCH": "results_viz.py",
+                "/scatter.py?v=EPOCH": "scatter.py",
+                "/sweep_viz.py?v=EPOCH": "sweep_viz.py",
+                "/symbols.py?v=EPOCH": "symbols.py"
+            }
+        }
+        </py-config>
+
+        <header>
+            <h1>Explorably Predicting Catastrophic Corn Yield Loss and Adaptation Potential under Climate Change</h1>
+            
+            <section id=""></section>
+
+            <section id="summary">
+                <span class="inline-header">Summary:</span>
+                Using game design techniques, neural network-based "explorable" modeling highlights geographic distribution of <span class="tooltip" data-tippy-content="Overall average 48% increase in probability of catastrophic (25%) loss compared to counterfactual (no climate change)." tabindex="0">increased catastrophic corn yield loss risk</span> in the USA while also estimating <span class="tooltip" data-tippy-content="Overall average 50% decrease in probability of catastrophic (25%) loss relative to business as usual." tabindex="0">adaptation potential</span> for mitigation of these expected climate change-driven challenges in 2030 and 2050 time horizons, offering important insurer-relevant metrics as needed by regulators to confront these structural threats to financial and food security.
+            </section>
+        </header>
+        
+        <nav class="styled">
+            <span class="nav-item"><a href="#introduction">Introduction</a></span>
+            <span class="nav-item"><a href="#methods">Methods</a></span>
+            <span class="nav-item"><a href="#results">Results</a></span>
+            <span class="nav-item"><a href="#discussion">Discussion</a></span>
+            <span class="nav-item"><a href="#conclusion">Conclusion</a></span>
+            <span class="nav-item"><a href="#works-cited">Works Cited</a></span>
+            <span class="nav-item"><a href="#open-source">Open Source</a></span>
+        </nav>
+        
+        <main class="presentation">
+
+            <section id="introduction" class="major-section">
+                <h2>Introduction</h2>
+                90 million acres across the US grows corn, a massive amount of farmland not only critically serving the domestic food system but also <span class="tooltip" data-tippy-content="10 to 20% of US corn crop are typically exported annually (Ates 2023)." tabindex="0">the rest of the world</span> (<a href="https://www.ers.usda.gov/topics/crops/corn-and-other-feed-grains/feed-grains-sector-at-a-glance/" target="_blank">Ates 2023</a>). Like agriculture more broadly, climate change threatens this essential crop (<a href="https://climate.nasa.gov/news/3124/global-climate-change-impact-on-crops-expected-within-10-years-nasa-study-finds/" target="_blank">Gray 2021</a>; <a href="https://www.nature.com/articles/s43016-021-00400-y" target="_blank">Jagermeyr et al 2021</a>) but, while tools exist for growers to adapt to these anticipated threats, this paper considers structural financial barriers to their adoption.
+
+                <section id="prior-work">
+                    <h3 class="inline-header">Prior work:</h3>
+                    The literature anticipates a perilous 24% reduction in corn yields by 2030 (<a href="https://www.nature.com/articles/s43016-021-00400-y" target="_blank">Jagermeyr et al 2021</a>). To meet that challenge, prior work explores many mitigations from <span class="tooltip" data-tippy-content="As conditions change in the future, places where crops are currently grown may become less tenable but those operations could move to new locations whose new conditions are more amenable." tabindex="0">spatial adaptation</span> (<a href="https://www.nature.com/articles/nclimate1585" target="_blank">Butler and Huybers 2013</a>) to machine learning predicting yield using weather, soil, management, and genotype (<a href="https://www.nature.com/articles/s42003-023-04833-y" target="_blank">Chang et al 2023</a>). However, despite modeling highlighting regenerative agriculture's role in climate crisis solutions (<a href="https://linkinghub.elsevier.com/retrieve/pii/S2590332220300889" target="_blank">Bowles et al 2020</a>) and mechanisms such <span class="tooltip" data-tippy-content="A US (federal) process by which private insurers can propose new insurance products." tabindex="0">508h</span> (<a href="https://farmdocdaily.illinois.edu/2023/03/privately-developed-crop-insurance-products-and-the-next-farm-bill.html" target="_blank">Schnitkey et al 2023</a>), prior work identifies crop insurance's current failure to "recognize the reduced risk of regenerative practices" as a barrier to adoption (<a href="https://food.berkeley.edu/wp-content/uploads/2020/12/BFI_ValueRisk_in_Ag_120920_Digital.pdf" target="_blank">McBride et al 2020</a>).
+                </section>
+
+                <section id="objectives">
+                    <h3 class="inline-header">Objectives:</h3>
+                    This study projects future climate risk and adaptation potential through institution-relevant metrics to accomplish three goals:
+
+                    <ul>
+                        <li>Policy makers are experts who must craft regulation by conversing with data directly using their own knowledge <a href="https://arxiv.org/abs/2312.11359" target="_blank">Pottinger et al 2023</a>) but the literature's necessarily complex methods are often opaque and published in static media that inhibit this "dialogue" and tell "the author's argument, and nothing else" (<a href="http://worrydream.com/ExplorableExplanations/" target="_blank">Victor 2011</a>).</li>
+                        <li>Though modeling often focuses on overall productivity (<a href="https://www.nature.com/articles/s43016-021-00400-y" target="_blank">Jagermeyr et al 2021</a>), insurers and regulators need statistically significant significant metrics regarding policy-relevant loss events in order to quanitfy benefits (<a href="https://www.extension.iastate.edu/agdm/crops/html/a1-44.html" target="_blank">Plastina and Johnson 2022</a>).</li>
+                        <li>Complementing prior work disecting individual threats and practices (<a href="https://linkinghub.elsevier.com/retrieve/pii/S2590332220300889" target="_blank">Bowles et al 2020</a>), this study considers multi-year climate simulations to attempt to reach closer towards more a necessary comprehensive understanding of "the full extent in production risk increases due to [climate] changes" (<a href="https://www.usda.gov/sites/default/files/documents/3_FPAC_RMA_ClimateAdaptationPlan_2022.pdf" target="_blank">RMA 2022</a>).
+                    </ul>
+
+                    To offer this agency, relevance, and comprehensiveness, this study provides configurable interactive multi-year visualizations of insurer-relevant metrics.
+                </section>
+
+            </section>
+
+            <section id="methods" class="major-section">
+                <h2>Methods</h2>
+                This study affords interrogation of predicted yields under future <span class="tooltip" data-tippy-content="Conditions here refers to soil characterstics and the climate variables." tabindex="0">growing conditions</span> and this first explorable component explores model performance under different configurations.
+
+                <div class="interactive">
+                    <div id="sketch-load-message-methods">Under construction...</div>
+                    <canvas id="sketch-canvas-methods"></canvas>
+                    <div>Interactive component allowing evaluation of different model configuration performance in training and validation. Download sweep data.</div>
+                </div>
+
+                <section id="data">
+                    <h3 class="inline-header">Data:</h3>
+                    This study trains neural networks using the following <span class="tooltip" data-tippy-content="The model uses CHC-CMIP6 and STATSGO2 as inputs to predict the SCYM yield as response." tabindex="0">variables</span>:
+
+                    <ul>
+                        <li>CHC-CMIP6's historic (1983 - 2016) and future (2030 and 2050) climate data (<a href="https://www.chc.ucsb.edu/data/chc-cmip6" target="_blank">Williams et al 2023</a>).</li>
+                        <li>Soil Survey Geographic Database's <span class="tooltip" data-tippy-content="The 'nonirryield_r' field for corn-labeled entries (STATSGO2)." tabindex="0">yield expectation</span> (<a href="https://www.nrcs.usda.gov/resources/data-and-reports/description-of-statsgo2-database" target="_blank">Staff 2022</a>).</li>
+                        <li>SCYM's corn yields spanning 1999 - 2022 (<a href="https://linkinghub.elsevier.com/retrieve/pii/S0034425715001637" target="_blank">Lobell et al 2015</a>).</li>
+                    </ul>
+
+                    In the overlapping time period of 1999 - 2016, four character geohashes (<a href="https://web.archive.org/web/20080305102941/http://blog.labix.org/2008/02/26/geohashorg-is-public/" target="_blank">Niemeyer 2008</a>) create small <span class="tooltip" data-tippy-content="Fields nearby each other and likely to see similar conditions / soil are grouped together in order to have samples to compare in statistical tests and to estimate adaptation as described in prediction." tabindex="0">geographic groups</span> that aggregate daily climate data to <span class="tooltip" data-tippy-content="For each month within each year, data are aggregated to describe min, max, mean, and standard deviation for the inputs." tabindex="0">per-month distributions</span> which pair with non-longitudinal STATSGO2 data to predict longitudinal (yearly) yield.
+                </section>
+
+                <section id="prediction">
+                    <h3 class="inline-header">Prediction:</h3>
+                    A feed forward dense neural network predicts future <span class="tooltip" data-tippy-content="Predicts one distribution per geohash by predicting mean and standard deviation" tabindex="0">yield per geohash</span>. To optimize <span class="tooltip" data-tippy-content="In addition to the parameters a single model uses to fit to a dataset, meta-parameters describe different models such as neural networks with different numbers of notes." tabindex="0">meta-parameters</span>, this study <span class="tooltip" data-tippy-content="A common practice is to try many different architectural parameters in different combinations where, in this case, this study tries different number of layers of neurons and 'regularization' techniques (dropout and L2) to help the model perform well on new data." tabindex="0">sweeps architectures and reuglarization</span> (<a href="https://towardsdatascience.com/regularization-in-deep-learning-l1-l2-and-dropout-377e75acc036" target="_blank">Oppermann 2020</a>). Models train on 1999 to 2012 data with (2013, 2015) held as validation and (2014, 2016) as hidden test sets (<a href="https://towardsdatascience.com/train-validation-and-test-sets-72cb40cba9e7" target="_blank">Shah 2017</a>). Finally, fit to all available data, the final model generates future yield distributions per geohash for <span class="tooltip" data-tippy-content="1 to 3 years from either the 2030 or 2050 predicted series are selected and used in statistical tests depending on user configuration." tabindex="0">2030 and 2050</span> and Monte Carlo estimates insurance event frequency in both a 1 year and, for comprehensiveness, 3 year trials (<a href="https://towardsdatascience.com/monte-carlo-simulation-a-practical-guide-85da45597f0e" target="_blank">Kwiatkowski 2022</a>). Though configurable, this study focuses on <span class="tooltip" data-tippy-content="25% lower than expected yield or worse which reflects federal Multi-Peril Crop Insurance, a program active in over 400 million acres in the US." tabindex="0">catastrophic loss</span> (<a href="https://www.ers.usda.gov/topics/farm-practices-management/risk-management/crop-insurance-at-a-glance/" target="_blank">Tsiboe and Turner 2023</a>).
+                    
+                    <details>
+                        <summary>Additional model details</summary>
+                        <div class="details-inner">
+                            The neural network uses soil and climate data as input to predict yield output in the form of mean and standard deviation. Note that all inputs and responses are z score normalized. Afterwards, Monte Carlo uses <span class="tooltip" data-tippy-content="There is one sample drawn for each sample per data point for a single year in the original dataset" tabindex="0">three draws</span>:
+                            
+                            <ul>
+                                <li>Historic Scenario which samples historic yield distributions assuming historic climate.</li>
+                                <li>Estimated Scenario which samples both predicted distributions under climate change and error residuals observed in model construction.</li>
+                                <li>Adapted Scenario which modifies the Estimated Scenario by shifting predicted distribution to simulate adaptation.</li>
+                            </ul>
+        
+                            Considered in three tasks:
+        
+                            <ul>
+                                <li>Yield Task which compares Historic to Estimated Scenarios to indicate effects on <span class="tooltip" data-tippy-content="Unlike the other tasks, this only compares means and not the probability of events considering the full distribution of yields." tabindex="0">average yields</span>.</li>
+                                <li>Un-Adapted Loss Task compares Historic to Estimated Scenarios to determine how often an <span class="tooltip data-tippy-content="Unlike the Yield Task, this looks at the probability of a loss at x% or higher where this threshold is user configurable." tabindex="0">insured loss event</span> occurs.</li>
+                                <li>Adapted Loss Task which compares Estimated to Adapted Scenarios to determine how often an insured loss event occurs.</li>
+                            </ul>
+                            
+                            Though reader-configurable, these results are filtered for statistical significance using the Bonferroni-corrected (<a href="http://www.biostathandbook.com/#print">McDonald 2014</a>; <a href="https://www.semanticscholar.org/paper/Il-calcolo-delle-assicurazioni-su-gruppi-di-teste-Bonferroni-Bonferroni/98da9d46e4c442945bfd88db72be177e7a198fd3" target="blank">Bonferroni 1935</a>) Mann Whitney U (<a href="http://projecteuclid.org/euclid.aoms/1177730491" target="_blank">Mann and Whitney 1947</a>).
+                        </div>
+                    </details>
+                </section>
+
+                <section>
+                    <h3 class="inline-header">Adaptation:</h3>
+                        To determine relative potential for adaptation geographically, this paper observes that differences in yield between fields with similar climate and soil may arise from chance or <span class="tooltip" data-tippy-content="This can be practices like crop rotation and cover cropping or genetic adaptation. This paper does not separate out practices but uses localized variability to attempt to measure adaptation potential as a whole.">practice</span> and, thus, groups with larger variance may have more potential for adaptation than those with low variance. Though configurable in the Discussion section, this study estimates adaptation potential by moving results by one standard deviation per geohash.
+                </section>
+
+            </section>
+
+            <section id="results" class="major-section">
+                <h2>Results</h2>
+                This work suggests relatively stable average production histories that, underscoring urgency for regulators and financial institutions, are punctuated by more frequent extreme losses with an average <span class="tooltip" data-tippy-content="Average across all fields and 6 years in both the 2030 and 2050 series where the former sees 29% average relative increase and the later sees 67% average relative increase." tabindex="0">48% relative increase</span> in catastrophic loss probability compared to <span class="tooltip" data-tippy-content="Model expectations without climate change / use of historic climate conditions.">counterfactual</span>. Responding to this concerning risk, localized variability thankfully also suggests that practices may offer mitigation, seeing an average <span class="tooltip" data-tippy-content="Average across all fields and 6 years in both the 2030 and 2050 series where the former sees 55% relative decrease and the later sees 47% relative decrease." tabindex="0">50% relative decrease</span> in catastrophic loss probability. That said, both of these changes come with with geographic variation. This second interactive explores predicted yield, risk, and adaptation potential where, by comparing views, readers are encouraged to find groups of fields or regions that are 1) at climate risk and 2) may benefit from adaptation.
+
+                <div class="interactive">
+                    <div id="sketch-load-message-results">Loading...</div>
+                    <canvas id="sketch-canvas-results"></canvas>
+                    <div>Visualization of spatial and aggregate changes to mean yield, loss risk, and adaptation potential. Download projections data.</div>
+                </div>
+                
+                <p>
+                    <details>
+                        <summary>Details on selected model</summary>
+                        <div class="details-inner">
+                            From the sweep, this study uses a 4 layers deep network with 0.2 L2 regularization no dropout to balance the two responses and overfitting. This achieves the following performance:
+                            
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Response</th>
+                                        <th>Train MAE</th>
+                                        <th>Validation MAE</th>
+                                        <th>Test MAE</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Yield mean</td>
+                                        <td>0.33</td>
+                                        <td>0.59</td>
+                                        <td>0.64</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Yield std</td>
+                                        <td>0.44</td>
+                                        <td>0.95</td>
+                                        <td>0.81</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            The responses are z score normalized so these MAEs refer to number of standard deviations and reflect performance on assigning entire years to different sets. However, alternative schemes find similar performance. In a two split (train, test) set of supplemental experiments:
+                            
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Split Type</th>
+                                        <th>Response</th>
+                                        <th>Test Mean Abs Error</th>
+                                        <th>Test Median Abs Error</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Random</td>
+                                        <td>Mean</td>
+                                        <td>0.34</td>
+                                        <td>0.31</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Random</td>
+                                        <td>Std</td>
+                                        <td>0.48</td>
+                                        <td>0.56</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Year</td>
+                                        <td>Mean</td>
+                                        <td>0.61</td>
+                                        <td>0.55</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Year</td>
+                                        <td>Std</td>
+                                        <td>0.96</td>
+                                        <td>0.81</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Geohash</td>
+                                        <td>Mean</td>
+                                        <td>0.34</td>
+                                        <td>0.27</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Geohash</td>
+                                        <td>Std</td>
+                                        <td>0.51</td>
+                                        <td>0.38</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            Note that these errors are seen prior to Monte Carlo where temporal displacement residuals are sampled in simulations.
+                        </div>
+                    </details>
+                </p>
+            </section>
+            
+            <section id="discussion" class="major-section">
+                <h2>Discussion</h2>
+                This dual observation of stable average yields punctuated by potentially more severe losses may indicate a threat to the US food system and financial health of its crop insurance program, highlighting the need to leverage the adaptation potential highlighted by this study. However, before understanding those practical implications further in the Conclusion Section, discussion first turns to key parameters, future work, and design.
+
+                <div class="interactive">
+                    <div id="sketch-load-message-discussion">Under construction...</div>
+                    <canvas id="sketch-canvas-discussion"></canvas>
+                    <div>Tool affording exploration of aggregate results under different aggregation and loss thresholds. Download parameter aggregates.</div>
+                </div>
+                
+                <section id="parameters">
+                    <h3 class="inline-header">Parameters:</h3>
+                    Results remain sensitive to geohash size and loss event threshold. First, though this paper focuses on the MPCI 25% catastrophic loss, different insurance products may consider others as afforded by this work. Second, 4 character geohashes afford strong performance but additional work may consider more granular predictions.
+                </section>
+                
+                <section id="individual-practices">
+                    <h3 class="inline-header">Individual practices:</h3>
+                    This study attempts to understand adaptation potential geographically but specific regenerative practices such as crop rotation (<a href="https://linkinghub.elsevier.com/retrieve/pii/S2590332220300889" target="_blank">Bowles et al 2020</a>) and cover cropping (<a href="https://onlinelibrary.wiley.com/doi/10.1111/gcb.16489" target="_blank">Deines et al 2023</a>; <a href="https://onlinelibrary.wiley.com/doi/10.1111/ajae.12431" target="_blank">Aglasan et al 2023</a>) require individual investigation. This study may help those efforts understand climate risks but further practice-specific adaptation is left for future work.
+                </section>
+
+                <section id="new-data">
+                    <h3 class="inline-header">Climate data:</h3>
+                    The CHC-CMIP6 dataset continues to receive updates (<a href="https://www.chc.ucsb.edu/data/chc-cmip6" target="_blank">Williams et al 2023</a>) but, at time of writing, climate information cannot remains unavailable from 2017 to 2022 (<a href="https://linkinghub.elsevier.com/retrieve/pii/S0034425715001637" target="_blank">Lobell et al 2015</a>). Performance may improve as more recent climate data become available and this study observes may enable usage of more recent yield estimation methods such as the pending VAE-QDANN (<a href="https://www.nasaacres.org/news/agu23-recap" target="_blank">Ma et al 2023</a>).
+                </section>
+
+                <section id="game-design">
+                    <h3 class="inline-header">Game design:</h3>
+                    In crafting design of these "explorable explanations" (<a href="http://worrydream.com/ExplorableExplanations/" target="_blank">Victor 2011</a>), note that this study analogies to mini-games (<a href="https://www.gamedeveloper.com/design/designing-rpg-mini-games-and-getting-them-right-" target="_blank">DellaFave 2014</a>) with a series of small user experiences with distinct gameplay and objectives, allowing this study to reach the concepts of "gameplay loops" (<a href="https://gamedesignskills.com/game-design/core-loops-in-gameplay/" target="_blank">Brazie 2024</a>) and "juxtaposition gratification" (<a href="https://www.youtube.com/watch?v=ORsb7g_ioLs" target="_blank">JM8 2024</a>). These methods seek to offer deeper user agency and relevance.
+
+                    <details>
+                        <summary>Explorable design details</summary>
+                        <div class="details-inner">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Section</th>
+                                        <th>Gameplay loop</th>
+                                        <th>Juxtaposition gratification</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Methods</td>
+                                        <td>Iteratively change model parameters and data to optimize model results.</td>
+                                        <td>Seeing dots of prior hypotheses next to latest attempt.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Results</td>
+                                        <td>Iteratively select fields of interest and evaluate their suitability across views.</td>
+                                        <td>Seeing a selected cluster maintain coherence across views.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Discussion</td>
+                                        <td>Iterative manipulation of parameters (geohash size, event threshold) to uncover future work.</td>
+                                        <td>Seeing deviations from the study's published results which highlight promise of alternative parameters.</td>
+                                    <tr>
+                                        <td>Conclusion</td>
+                                        <td>Iteratively change production history to create 3 catastrophic loss events.</td>
+                                        <td>Seeing major loss events, often without dramatic changes to average yield.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </details>
+
+                </section>
+
+            </section>
+            
+            <section id="conclusion" class="major-section">
+                <h2>Conclusion</h2>
+                Simulations see a volatile future needing to shift perspective from yield average to stability where the former moves little while the later probability of catastrophic events moves substantially. Presenting a particular challenge to both the food system and the financial structures supporting it: measures of baseline yields such as the USDA APH (<a href="https://www.extension.iastate.edu/agdm/crops/html/a1-56.html" target="_blank">Plastina and Edwards 2014</a>) which use averages to manage risk may not change dramatically even as climate change increases the actual probability of loss each year, highlighting climate change's "silent" structural challenge in the food system and the financial solvency of insurance.
+                
+                <div class="interactive">
+                    <div id="sketch-load-message-conclusion">Loading...</div>
+                    <canvas id="sketch-canvas-conclusion"></canvas>
+                    <div>Interactive mathematics demo that allows simulation of a modifiable production history. Download speadsheet alternative.</div>
+                </div>
+                
+                That said, this paper also provides both design and modeling methods which may help navigate that future danger, demonstrating "explorable" (<a href="http://worrydream.com/ExplorableExplanations/" target="_blank">Victor 2011</a>) approaches to sophisticated quantification of that pending risk  in an insurer-relevant way which highlights areas of potential mitigation.
+            </section>
+
+            <section id="open-source" class="major-section">
+                <details>
+                    <summary>Open Source</summary>
+                    <div class="details-inner">
+                        The pipeline to produce this work is available at and the source code for this article is at . Any data on this page are provided under a CC-BY-NC license. Zotero, Sketchingpy.
+                    </div>
+                </details>
+            </section>
+
+            <section id="works-cited" class="bottom-section">
+                <details>
+                    <summary>Works Cited</summary>
+                    <div>
+                      <div class="csl-entry">Aglasan, Serkan, Roderick M. Rejesus, Stephen Hagen, and William Salas. “Cover Crops, Crop Insurance Losses, and Resilience to Extreme Weather Events.” <i>American Journal of Agricultural Economics</i>, October 12, 2023, ajae.12431. https://doi.org/10.1111/ajae.12431.</div>
+                      <div class="csl-entry">Albers, M.A., R.R. Dobos, and M.P. Robotham. “User Guide for the National Commodity Crop Productivity Index (NCCPI), Version 3.0.” Natural Resources Conservation Service, USDS, 2022. https://www.nrcs.usda.gov/sites/default/files/2023-01/NCCPI-User-Guide.pdf.</div>
+                      <div class="csl-entry">Ates, Aaron. “Feed Grains Sector at a Glance.” Economic Research Service, USDA, December 21, 2023. https://www.ers.usda.gov/topics/crops/corn-and-other-feed-grains/feed-grains-sector-at-a-glance/.</div>
+                      <div class="csl-entry">Bowles, Timothy M., Maria Mooshammer, Yvonne Socolar, Francisco Calderón, Michel A. Cavigelli, Steve W. Culman, William Deen, et al. “Long-Term Evidence Shows That Crop-Rotation Diversification Increases Agricultural Resilience to Adverse Growing Conditions in North America.” <i>One Earth</i> 2, no. 3 (March 2020): 284–93. https://doi.org/10.1016/j.oneear.2020.02.007.</div>
+                      <div class="csl-entry">Brazie, Alexander. “Designing The Core Gameplay Loop: A Beginner’s Guide.” Game Design Skills, March 19, 2024. https://gamedesignskills.com/game-design/core-loops-in-gameplay/.</div>
+                      <div class="csl-entry">Butler, Ethan E., and Peter Huybers. “Adaptation of US Maize to Temperature Variations.” <i>Nature Climate Change</i> 3, no. 1 (January 2013): 68–72. https://doi.org/10.1038/nclimate1585.</div>
+                      <div class="csl-entry">Chang, Yanbin, Jeremy Latham, Mark Licht, and Lizhi Wang. “A Data-Driven Crop Model for Maize Yield Prediction.” <i>Communications Biology</i> 6, no. 1 (April 21, 2023): 439. https://doi.org/10.1038/s42003-023-04833-y.</div>
+                      <div class="csl-entry">Deines, Jillian M., Kaiyu Guan, Bruno Lopez, Qu Zhou, Cambria S. White, Sheng Wang, and David B. Lobell. “Recent Cover Crop Adoption Is Associated with Small Maize and Soybean Yield Losses in the United States.” <i>Global Change Biology</i> 29, no. 3 (February 2023): 794–807. https://doi.org/10.1111/gcb.16489.</div>
+                      <div class="csl-entry">DellaFave, Robert. “Designing RPG Mini-Games (and Getting Them Right),” March 3, 2014. https://www.gamedeveloper.com/design/designing-rpg-mini-games-and-getting-them-right-.</div>
+                      <div class="csl-entry">Gray, Ellen. “Global Climate Change Impact on Crops Expected Within 10 Years, NASA Study Finds,” November 2, 2021. https://climate.nasa.gov/news/3124/global-climate-change-impact-on-crops-expected-within-10-years-nasa-study-finds/.</div>
+                      <div class="csl-entry">“Il Calcolo Delle Assicurazioni Su Gruppi Di Teste.” <i>Studi in Onore Del Professore Salvatore Ortu Carboni</i>, 1935. https://www.semanticscholar.org/paper/Il-calcolo-delle-assicurazioni-su-gruppi-di-teste-Bonferroni-Bonferroni/98da9d46e4c442945bfd88db72be177e7a198fd3.</div>
+                      <div class="csl-entry">Jägermeyr, Jonas, Christoph Müller, Alex C. Ruane, Joshua Elliott, Juraj Balkovic, Oscar Castillo, Babacar Faye, et al. “Climate Impacts on Global Agriculture Emerge Earlier in New Generation of Climate and Crop Models.” <i>Nature Food</i> 2, no. 11 (November 1, 2021): 873–85. https://doi.org/10.1038/s43016-021-00400-y.</div>
+                      <div class="csl-entry">JM8. “1:20 / 10:37 The Secret to Making Any Game Satisfying | Design Delve.” Second Wind Group, March 15, 2024. https://www.youtube.com/watch?v=ORsb7g_ioLs.</div>
+                      <div class="csl-entry">Kwiatkowski, Robert. “Monte Carlo Simulation — a Practical Guide,” January 30, 2022. https://towardsdatascience.com/monte-carlo-simulation-a-practical-guide-85da45597f0e.</div>
+                      <div class="csl-entry">Lobell, David B., David Thau, Christopher Seifert, Eric Engle, and Bertis Little. “A Scalable Satellite-Based Crop Yield Mapper.” <i>Remote Sensing of Environment</i> 164 (July 2015): 324–33. https://doi.org/10.1016/j.rse.2015.04.021.</div>
+                      <div class="csl-entry">Ma, Yuchi. “VAE-QDANN.” AGU, 2023. https://www.nasaacres.org/news/agu23-recap.</div>
+                      <div class="csl-entry">Mann, H. B., and D. R. Whitney. “On a Test of Whether One of Two Random Variables Is Stochastically Larger than the Other.” <i>The Annals of Mathematical Statistics</i> 18, no. 1 (March 1947): 50–60. https://doi.org/10.1214/aoms/1177730491.</div>
+                      <div class="csl-entry">McBride, Fiona, Ethan Elkind, Nina Ichikawa, and Ken Alex. “Redefining Value and Risk in Agriculture,” December 2020. https://food.berkeley.edu/wp-content/uploads/2020/12/BFI_ValueRisk_in_Ag_120920_Digital.pdf.</div>
+                      <div class="csl-entry">McDonald, J.H. <i>Handbook of Biological Statistics</i>. 3rd ed. Baltimore, Maryland: Sparky House Publishing, 2014. http://www.biostathandbook.com/#print.</div>
+                      <div class="csl-entry">Niemeyer, Gustavo. “Geohash.Org Is Public!” Labix Blog, February 26, 2008. https://web.archive.org/web/20080305102941/http://blog.labix.org/2008/02/26/geohashorg-is-public/.</div>
+                      <div class="csl-entry">Oppermann, Artem. “Regularization in Deep Learning — L1, L2, and Dropout.” Towards Data Science, February 19, 2020. https://towardsdatascience.com/regularization-in-deep-learning-l1-l2-and-dropout-377e75acc036.</div>
+                      <div class="csl-entry">Plastina, Alejandro, and William Edwards. “Trend-Adjusted Actual Production History (APH).” Iowa State University Extension and Outreach, September 2014. https://www.extension.iastate.edu/agdm/crops/html/a1-56.html.</div>
+                      <div class="csl-entry">Plastina, Alejandro, and Steven Johnson. “Supplemental Coverage Option (SCO) and Enhanced Coverage Option (ECO).” Iowa State University Extension and Outreach, October 2022. https://www.extension.iastate.edu/agdm/crops/html/a1-44.html.</div>
+                      <div class="csl-entry">Pottinger, A Samuel, Nivedita Biyani, Roland Geyer, Douglas J McCauley, Magali de Bruyn, Molly R Morse, Neil Nathan, Kevin Koy, and Ciera Martinez. “Combining Game Design and Data Visualization to Inform Plastics Policy: Fostering Collaboration between Science, Decision-Makers, and Artificial Intelligence,” 2023. https://doi.org/10.48550/ARXIV.2312.11359.</div>
+                      <div class="csl-entry">Ribeiro, Marco Tulio, Sameer Singh, and Carlos Guestrin. “‘Why Should I Trust You?’: Explaining the Predictions of Any Classifier.” In <i>Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</i>, 1135–44. San Francisco California USA: ACM, 2016. https://doi.org/10.1145/2939672.2939778.</div>
+                      <div class="csl-entry">RMA, Staff. “Risk Management Agency Climate Adaptation Plan.” United States Department of Agriculture, June 2022.</div>
+                      <div class="csl-entry">Schnitkey, Gary, Nick Paulson, and Carl Zulauf. “Privately Developed Crop Insurance Products and the Next Farm Bill.” Unviersity of Illinois, March 14, 2023. https://farmdocdaily.illinois.edu/2023/03/privately-developed-crop-insurance-products-and-the-next-farm-bill.html.</div>
+                      <div class="csl-entry">Shah, Tarang. “About Train, Validation and Test Sets in Machine Learning.” Towards Data Science, December 6, 2017. https://towardsdatascience.com/train-validation-and-test-sets-72cb40cba9e7.</div>
+                      <div class="csl-entry">Staff. “Description of STATSGO2 Database.” Natural Resources Conservation Service, USDS, November 16, 2022. https://www.nrcs.usda.gov/resources/data-and-reports/description-of-statsgo2-database.</div>
+                      <div class="csl-entry">Tsiboe, Francis, and Dylan Turner. “Crop Insurance at a Glance.” Economic Research Service, USDA, May 3, 2023. https://www.ers.usda.gov/topics/farm-practices-management/risk-management/crop-insurance-at-a-glance/.</div>
+                      <div class="csl-entry">Victor, Bret. “Explorable Explanations.” Bret Victor, March 10, 2011. http://worrydream.com/ExplorableExplanations/.</div>
+                      <div class="csl-entry">Williams, Emily, Chris Funk, Pete Peterson, and Cascade Tuholske. “CHC-CMIP6,” 2023. https://doi.org/10.21424/R47H0M.</div>
+                    </div>
+                </details>
+            </section>
+
+        </main>
+    </body>
+
+    <script src="/third_party/popper.min.js"></script>
+    <script src="/third_party/tippy-bundle.umd.min.js"></script>
+
+    <script>
+        tippy("[data-tippy-content]");
+    </script>
+
+    <script type="py">
+        import results_viz
+        results_viz.ResultsVizPresenter('sketch-canvas-results', 'sketch-load-message-results')
+    </script>
+    
+    <script type="py">
+        import history_viz
+        history_viz.HistoryMainPresenter('sketch-canvas-conclusion', 'sketch-load-message-conclusion')
+    </script>
+</html>

@@ -73,6 +73,17 @@ TOOL_OUTPUT_COLS = [
     'lng'
 ]
 
+COMBINED_TASK_FIELDS = [
+    'geohash',
+    'year',
+    'condition',
+    'originalYieldMean',
+    'originalYieldStd',
+    'projectedYieldMean',
+    'projectedYieldStd',
+    'numObservations'
+]
+
 USE_UNIT_FOR_COUNTERFACTUAL = True
 
 
@@ -198,7 +209,7 @@ class ClimateExportTask(luigi.Task):
         def is_output_valid(target):
             output_keys = set(target.keys()) - {'year', 'geohash', 'month'}
             output_values = map(lambda x: target[x], output_keys)
-            invalid_values = map(lambda x: not math.isfinite(x), output_values)
+            invalid_values = filter(lambda x: not math.isfinite(x), output_values)
             invalid_count = sum(map(lambda x: 1, invalid_values))
             return invalid_count == 0
 
@@ -578,3 +589,26 @@ class SummaryExportTask(luigi.Task):
             'lat': geohash_decoded.lat,
             'lng': geohash_decoded.lon
         }
+
+
+class CombinedTasksRecordTask(luigi.Task):
+
+    def requires(self):
+        return {
+            'historic': sim_tasks.MakeSimulationTasksHistoricTask(),
+            '2030 series': sim_tasks.MakeSimulationTasks2030Task(),
+            '2050 series': sim_tasks.MakeSimulationTasks2050Task()
+        }
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('export_combined_tasks.csv'))
+
+    def run(self):
+        with self.output().open('w') as f_out:
+            writer = csv.DictWriter(f_out, fieldnames=COMBINED_TASK_FIELDS)
+            writer.writeheader()
+
+            for series in self.input().keys():
+                with self.input()[series].open('r') as f_in:
+                    reader = csv.DictReader(f_in)
+                    writer.writerows(reader)

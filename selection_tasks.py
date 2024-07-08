@@ -1,5 +1,6 @@
 import csv
 import json
+import random
 
 import keras
 import luigi
@@ -98,6 +99,7 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
             configuration = json.load(f)['constrained']
 
         input_frame = pandas.read_csv(self.input()['training'].path)
+        self.prep_set_assign(input_frame)
         input_frame['setAssign'] = input_frame.apply(
             lambda x: self.get_set_assign(x),
             axis=1
@@ -131,8 +133,39 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
         input_frame['meanResidual'] = input_frame['predictedMean'] - input_frame['yieldMean']
         input_frame['stdResidual'] = input_frame['predictedStd'] - input_frame['yieldStd']
 
-        test_frame = input_frame[input_frame['setAssign'] == 'test']
-        test_frame[[
+        if self.output_test_only():
+            test_frame = input_frame[input_frame['setAssign'] == 'test']
+            test_frame[self.get_output_cols()].to_csv(self.output().path)
+        else:
+            input_frame[self.get_output_cols()].to_csv(self.output().path)
+
+    def get_set_assign(self, record):
+        raise NotImplementedError('Must use implementor.')
+
+    def get_filename(self):
+        raise NotImplementedError('Must use implementor.')
+
+    def get_output_cols(self):
+        raise NotImplementedError('Must use implementor.')
+
+    def output_test_only(self):
+        raise NotImplementedError('Must use implementor.')
+
+    def prep_set_assign(self, frame):
+        pass
+
+
+class PostHocTestRawDataTemporalResidualsTask(PostHocTestRawDataTemplateTask):
+
+    def get_set_assign(self, record):
+        return 'train' if record['year'] < 2014 else 'test'
+
+    def get_filename(self):
+        return 'post_hoc_temporal.csv'
+
+    def get_output_cols(self):
+        # Weighting by geohash
+        return [
             'setAssign',
             'yieldMean',
             'yieldStd',
@@ -140,22 +173,93 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
             'predictedStd',
             'meanResidual',
             'stdResidual'
-        ]].to_csv(self.output().path)
+        ]
 
-    def get_set_assign(self, record):
-        raise NotImplementedError('Must use implementor.')
-
-    def get_filename(self):
-        raise NotImplementedError('Must use implementor.')
+    def output_test_only(self):
+        return True
 
 
-class PostHocTestRawDataTemporalTask(PostHocTestRawDataTemplateTask):
+class PostHocTestRawDataTemporalCountTask(PostHocTestRawDataTemplateTask):
 
     def get_set_assign(self, record):
         return 'train' if record['year'] < 2014 else 'test'
 
     def get_filename(self):
-        return 'post_hoc_temporal.csv'
+        return 'post_hoc_temporal_with_count.csv'
+
+    def get_output_cols(self):
+        # Weighting by unit
+        return [
+            'setAssign',
+            'yieldMean',
+            'yieldStd',
+            'predictedMean',
+            'predictedStd',
+            'meanResidual',
+            'stdResidual',
+            'yieldObservations'
+        ]
+
+    def output_test_only(self):
+        return False
+
+
+class PostHocTestRawDataRandomCountTask(PostHocTestRawDataTemplateTask):
+
+    def get_set_assign(self, record):
+        return random.choice(['train', 'train', 'train', 'test'])
+
+    def get_filename(self):
+        return 'post_hoc_random_with_count.csv'
+
+    def get_output_cols(self):
+        # Weighting by unit
+        return [
+            'setAssign',
+            'yieldMean',
+            'yieldStd',
+            'predictedMean',
+            'predictedStd',
+            'meanResidual',
+            'stdResidual',
+            'yieldObservations'
+        ]
+
+    def output_test_only(self):
+        return False
+
+
+class PostHocTestRawDataSpatialCountTask(PostHocTestRawDataTemplateTask):
+
+    def prep_set_assign(self, frame):
+        unique_geohashes = set(frame['geohash'].apply(lambda x: x[:3]).unique())
+        unique_geohashes_assigned = map(
+            lambda x: (x, random.choice(['train', 'train', 'train', 'test'])),
+            unique_geohashes
+        )
+        self._geohash_assignments = dict(unique_geohashes_assigned)
+
+    def get_set_assign(self, record):
+        return self._geohash_assignments[record['geohash'][:3]]
+
+    def get_filename(self):
+        return 'post_hoc_spatial_with_count.csv'
+
+    def get_output_cols(self):
+        # Weighting by unit
+        return [
+            'setAssign',
+            'yieldMean',
+            'yieldStd',
+            'predictedMean',
+            'predictedStd',
+            'meanResidual',
+            'stdResidual',
+            'yieldObservations'
+        ]
+
+    def output_test_only(self):
+        return False
 
 
 class TrainFullModel(luigi.Task):

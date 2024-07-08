@@ -1,3 +1,7 @@
 venv
 __pycache__
 workspace
+paper/arxiv
+paper/arxiv.zip
+paper/img
+paper/outputs

@@ -88,7 +88,7 @@ class Task:
         return self._num_observations
 
 
-def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_size):
+def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_sizes):
     import math
     import random
 
@@ -111,17 +111,17 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
     if num_observations == 0:
         return None
-
-    unit_size_scaled = math.ceil(unit_size / const.RESOLUTION_SCALER)
-    num_units = round(num_observations / unit_size_scaled)
-
-    if num_units == 0:
-        return None
     
     predicted_deltas = []
     baseline_deltas = []
     adapted_deltas = []
-    for unit_i in range(0, num_units):
+    pixels_remaining = num_observations
+    while pixels_remaining > 0:
+
+        unit_size = random.choice(unit_sizes)
+        unit_size_scaled = math.ceil(unit_size / const.RESOLUTION_SCALER)
+        pixels_remaining = pixels_remaining - unit_size_scaled
+        
         predicted_yield_acc = distribution_struct.WelfordAccumulator()
         adapted_yield_acc = distribution_struct.WelfordAccumulator()
 
@@ -304,9 +304,9 @@ def parse_record_dict(record_raw):
     )
 
 
-def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_size):
+def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_sizes):
     results_all = map(
-        lambda x: run_simulation(x, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_size),
+        lambda x: run_simulation(x, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_sizes),
         tasks
     )
     results_valid = filter(lambda x: x is not None, results_all)
@@ -594,24 +594,40 @@ class MakeSimulationTasksTemplate(luigi.Task):
         }
 
 
+class CheckUnitSizes(luigi.Task):
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('unit_sizes_2023.csv'))
+
+    def run(self):
+        raise RuntimeError('Expected unit_sizes.csv to be provided.')
+
+
 class ExecuteSimulationTasksTemplate(luigi.Task):
 
     def requires(self):
         return {
             'tasks': self.get_tasks_task(),
             'deltas': self.get_deltas_task(),
-            'cluster': cluster_tasks.StartClusterTask()
+            'cluster': cluster_tasks.StartClusterTask(),
+            'unitSizes': CheckUnitSizes()
         }
 
     def output(self):
         return luigi.LocalTarget(const.get_file_location(self.get_filename()))
 
     def run(self):
+        with self.input()['unitSizes'].open('r') as f:
+            reader = csv.DictReader(f)
+            values_pixels_str = map(lambda x: x['coveragePixels'], reader)
+            values_pixels_int = map(lambda x: int(x), values_pixels_str)
+            unit_sizes = list(values_pixels_int)
+
         with self.input()['tasks'].open('r') as f:
             rows = csv.DictReader(f)
             tasks = [parse_record_dict(x) for x in rows]
 
-        job_shuffles = list(range(0, 200))
+        job_shuffles = list(range(0, 100))
         input_records_grouped = toolz.itertoolz.groupby(
             lambda x: random.choice(job_shuffles),
             tasks
@@ -623,8 +639,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
                 THRESHOLDS,
                 STD_MULT,
                 GEOHASH_SIZE,
-                ['always', 'never'],
-                [const.UNIT_SIZE_IN_PIXELS, 1]
+                ['always', 'never']
             )
         )
 
@@ -650,7 +665,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
             }
 
         outputs_all = client.map(
-            lambda x: run_simulation_set(x[0], deltas, x[1], x[2], x[3], x[4], x[5]),
+            lambda x: run_simulation_set(x[0], deltas, x[1], x[2], x[3], x[4], unit_sizes),
             tasks_with_variations
         )
         outputs_realized = map(lambda x: x.result(), outputs_all)
@@ -862,7 +877,7 @@ class ExecuteSimulationTasksHistoricPredictedTask(ExecuteSimulationTasksTemplate
         return 'historic_sim.csv'
 
     def get_deltas_task(self):
-        return selection_tasks.PostHocTestRawDataTemporalTask()
+        return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
 
 
 class ExecuteSimulationTasks2030PredictedTask(ExecuteSimulationTasksTemplate):
@@ -874,7 +889,7 @@ class ExecuteSimulationTasks2030PredictedTask(ExecuteSimulationTasksTemplate):
         return '2030_sim.csv'
 
     def get_deltas_task(self):
-        return selection_tasks.PostHocTestRawDataTemporalTask()
+        return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
 
 
 class ExecuteSimulationTasks2050PredictedTask(ExecuteSimulationTasksTemplate):
@@ -886,7 +901,7 @@ class ExecuteSimulationTasks2050PredictedTask(ExecuteSimulationTasksTemplate):
         return '2050_sim.csv'
 
     def get_deltas_task(self):
-        return selection_tasks.PostHocTestRawDataTemporalTask()
+        return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
 
 
 class ExecuteSimulationTasks2030Counterfactual(ExecuteSimulationTasksTemplate):
@@ -898,7 +913,7 @@ class ExecuteSimulationTasks2030Counterfactual(ExecuteSimulationTasksTemplate):
         return '2030_sim_counterfactual.csv'
 
     def get_deltas_task(self):
-        return selection_tasks.PostHocTestRawDataTemporalTask()
+        return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
 
 class ExecuteSimulationTasks2050Counterfactual(ExecuteSimulationTasksTemplate):
 
@@ -909,7 +924,7 @@ class ExecuteSimulationTasks2050Counterfactual(ExecuteSimulationTasksTemplate):
         return '2050_sim_counterfactual.csv'
 
     def get_deltas_task(self):
-        return selection_tasks.PostHocTestRawDataTemporalTask()
+        return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
 
 
 class CombineSimulationsTasks(luigi.Task):

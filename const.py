@@ -604,7 +604,7 @@ TRAINING_STR_FIELDS = {'geohash'}
 
 INVALID_VALUE = -999
 
-UNIT_SIZE_IN_PIXELS = 1196
+UNIT_SIZE_IN_PIXELS = 8404  # 1196
 
 RESOLUTION_SCALER = 1111  # 30m x 30m limited by 1km x 1km daily gridmet
 

@@ -1,9 +1,12 @@
+import luigi
+
 import cluster_tasks
 import const
 import export_tasks
 import preprocess_climate_tasks
 import preprocess_combine_tasks
 import sim_tasks
+import stats_tasks
 import training_tasks
 
 
@@ -88,3 +91,31 @@ class RunThroughHistTask(cluster_tasks.EndClusterTask):
 
     def get_task_name(self):
         return 'end_hist'
+
+
+class ExecuteSupplementalTasks(luigi.Task):
+
+    def requires(self):
+        return {
+            'text': stats_tasks.CombineStatsTask(),
+            'climate': export_tasks.ClimateExportTask(),
+            'sweep': export_tasks.SweepExportTask(),
+            'hist': export_tasks.HistExportTask(),
+            'summary': export_tasks.SummaryExportTask()
+        }
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('break_supplemental.txt'))
+
+    def run(self):
+        with self.output().open('w') as f:
+            f.write('done')
+
+
+class ExecuteSupplementalTasksWithCluster(cluster_tasks.EndClusterTask):
+
+    def get_prereq(self):
+        return ExecuteSupplementalTasks()
+
+    def get_task_name(self):
+        return 'end_supplemental'
