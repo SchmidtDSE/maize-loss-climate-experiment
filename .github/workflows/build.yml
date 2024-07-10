@@ -10,9 +10,7 @@ buildDeploy:
         with:
           python-version: '3.11'
       - name: Build deploy
-        run: bash script/prepare_deploy.sh
-      - name: Zip deploy
-        run: zip -r deploy.zip deploy
+        run: prepare_deploy.sh
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
