@@ -376,7 +376,7 @@ class HistExportTask(luigi.Task):
 
         bin_keys = map(lambda x: 'bin%d' % x, sim_tasks.BINS)
 
-        for key in bin_keys:
+        for key in bin_keys:f
             ret_dict[key] = float(target[key])
 
         return ret_dict

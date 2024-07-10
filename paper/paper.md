@@ -9,22 +9,22 @@ affiliations:
   - id: 1
     name: Eric and Wendy Schmidt Center for Data Science and Environment, University of California Berkeley, Berkeley 94720, CA, USA
   - id: 2
-    name: Department of Environmental Science, Policy & Management, University of California Berkeley, Berkeley 94720, CA, USA
-  - id: 2
     name: Department of Agricultural Economics and Agribusiness, University of Arkansas, Fayetteville 72701, AR, USA
+  - id: 3
+    name: Department of Environmental Science, Policy & Management, University of California Berkeley, Berkeley 94720, CA, USA
 author:
   - name: A Samuel Pottinger \orcidlink{0000-0002-0458-4985}
-    affil-id: 1, 2
+    affil-id: 1
     correspondence: yes
     email: sam.pottinger@berkeley.edu
   - name: Lawson Connor
-    affil-id: 3
-  - name: Brookie Guzder-Williams \orcidlink{0000-0001-6855-8260}
-    affil-id: 1, 2
-  - name: Maya Weltman-Fahs
-    affil-id: 1, 2
-  - name: Timothy Bowles \orcidlink{0000-0002-4840-3787}
     affil-id: 2
+  - name: Brookie Guzder-Williams \orcidlink{0000-0001-6855-8260}
+    affil-id: 1
+  - name: Maya Weltman-Fahs
+    affil-id: 1
+  - name: Timothy Bowles \orcidlink{0000-0002-4840-3787}
+    affil-id: 3
 output:
   pdf_document:
     number_sections: yes

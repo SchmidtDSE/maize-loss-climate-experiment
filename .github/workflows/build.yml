@@ -1,12 +1,4 @@
-name: Build
-on: [push]
-
-permissions:
-  actions: read
-  contents: read
-
-jobs:
-  buildDeploy:
+buildDeploy:
     environment: build
     runs-on: ubuntu-latest
     name: Build Deploy

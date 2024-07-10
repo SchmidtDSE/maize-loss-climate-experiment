@@ -1,0 +1,355 @@
+[
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "Column 8",
+    "newColumnName": "Crop",
+    "description": "Rename column Column 8 to Crop"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "Column 21",
+    "newColumnName": "Coverage",
+    "description": "Rename column Column 21 to Coverage"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "Coverage",
+    "newColumnName": "CoverageUnits",
+    "description": "Rename column Coverage to CoverageUnits"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "Column 10",
+    "newColumnName": "PolicyType",
+    "description": "Rename column Column 10 to PolicyType"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "Column 20",
+    "newColumnName": "CoverageLevel",
+    "description": "Rename column Column 20 to CoverageLevel"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "CoverageLevel",
+    "newColumnName": "Coverage",
+    "description": "Rename column CoverageLevel to Coverage"
+  },
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [
+        {
+          "type": "list",
+          "name": "Crop",
+          "expression": "value",
+          "columnName": "Crop",
+          "invert": false,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [
+            {
+              "v": {
+                "v": "Corn",
+                "l": "Corn"
+              }
+            }
+          ],
+          "selectBlank": false,
+          "selectError": false
+        },
+        {
+          "type": "list",
+          "name": "PolicyType",
+          "expression": "value",
+          "columnName": "PolicyType",
+          "invert": false,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [
+            {
+              "v": {
+                "v": "YP",
+                "l": "YP"
+              }
+            },
+            {
+              "v": {
+                "v": "RP",
+                "l": "RP"
+              }
+            }
+          ],
+          "selectBlank": false,
+          "selectError": false
+        }
+      ],
+      "mode": "row-based"
+    },
+    "columnName": "Coverage",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10,
+    "description": "Text transform on cells in column Coverage using expression value.toNumber()"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "Column 19",
+    "newColumnName": "UnitType",
+    "description": "Rename column Column 19 to UnitType"
+  },
+  {
+    "op": "core/column-addition",
+    "engineConfig": {
+      "facets": [
+        {
+          "type": "list",
+          "name": "Crop",
+          "expression": "value",
+          "columnName": "Crop",
+          "invert": false,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [
+            {
+              "v": {
+                "v": "Corn",
+                "l": "Corn"
+              }
+            }
+          ],
+          "selectBlank": false,
+          "selectError": false
+        },
+        {
+          "type": "list",
+          "name": "PolicyType",
+          "expression": "value",
+          "columnName": "PolicyType",
+          "invert": false,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [
+            {
+              "v": {
+                "v": "YP",
+                "l": "YP"
+              }
+            },
+            {
+              "v": {
+                "v": "RP",
+                "l": "RP"
+              }
+            }
+          ],
+          "selectBlank": false,
+          "selectError": false
+        }
+      ],
+      "mode": "row-based"
+    },
+    "baseColumnName": "Coverage",
+    "expression": "jython:return int(value) == 0",
+    "onError": "set-to-blank",
+    "newColumnName": "isZero",
+    "columnInsertIndex": 20,
+    "description": "Create column isZero at index 20 based on column Coverage using expression jython:return int(value) == 0"
+  },
+  {
+    "op": "core/column-reorder",
+    "columnNames": [
+      "Crop",
+      "PolicyType",
+      "UnitType",
+      "Coverage",
+      "isZero",
+      "CoverageUnits"
+    ],
+    "description": "Reorder columns"
+  },
+  {
+    "op": "core/row-removal",
+    "engineConfig": {
+      "facets": [
+        {
+          "type": "list",
+          "name": "Crop",
+          "expression": "value",
+          "columnName": "Crop",
+          "invert": true,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [
+            {
+              "v": {
+                "v": "Corn",
+                "l": "Corn"
+              }
+            }
+          ],
+          "selectBlank": false,
+          "selectError": false
+        }
+      ],
+      "mode": "row-based"
+    },
+    "description": "Remove rows"
+  },
+  {
+    "op": "core/row-removal",
+    "engineConfig": {
+      "facets": [
+        {
+          "type": "list",
+          "name": "PolicyType",
+          "expression": "value",
+          "columnName": "PolicyType",
+          "invert": true,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [
+            {
+              "v": {
+                "v": "YP",
+                "l": "YP"
+              }
+            },
+            {
+              "v": {
+                "v": "RP",
+                "l": "RP"
+              }
+            }
+          ],
+          "selectBlank": false,
+          "selectError": false
+        }
+      ],
+      "mode": "row-based"
+    },
+    "description": "Remove rows"
+  },
+  {
+    "op": "core/row-removal",
+    "engineConfig": {
+      "facets": [
+        {
+          "type": "list",
+          "name": "UnitType",
+          "expression": "value",
+          "columnName": "UnitType",
+          "invert": true,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [
+            {
+              "v": {
+                "v": "Enterprise Unit",
+                "l": "Enterprise Unit"
+              }
+            },
+            {
+              "v": {
+                "v": "Whole Farm Unit",
+                "l": "Whole Farm Unit"
+              }
+            },
+            {
+              "v": {
+                "v": "Basic Unit",
+                "l": "Basic Unit"
+              }
+            }
+          ],
+          "selectBlank": false,
+          "selectError": false
+        }
+      ],
+      "mode": "row-based"
+    },
+    "description": "Remove rows"
+  },
+  {
+    "op": "core/row-removal",
+    "engineConfig": {
+      "facets": [
+        {
+          "type": "list",
+          "name": "isZero",
+          "expression": "value",
+          "columnName": "isZero",
+          "invert": false,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [
+            {
+              "v": {
+                "v": 1,
+                "l": "1"
+              }
+            }
+          ],
+          "selectBlank": false,
+          "selectError": false
+        }
+      ],
+      "mode": "row-based"
+    },
+    "description": "Remove rows"
+  },
+  {
+    "op": "core/column-removal",
+    "columnName": "isZero",
+    "description": "Remove column isZero"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "Coverage",
+    "newColumnName": "CoverageAcres",
+    "description": "Rename column Coverage to CoverageAcres"
+  },
+  {
+    "op": "core/column-removal",
+    "columnName": "CoverageUnits",
+    "description": "Remove column CoverageUnits"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "Crop",
+    "newColumnName": "crop",
+    "description": "Rename column Crop to crop"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "PolicyType",
+    "newColumnName": "policyType",
+    "description": "Rename column PolicyType to policyType"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "UnitType",
+    "newColumnName": "unitType",
+    "description": "Rename column UnitType to unitType"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "CoverageAcres",
+    "newColumnName": "coverageAcres",
+    "description": "Rename column CoverageAcres to coverageAcres"
+  },
+  {
+    "op": "core/column-addition",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "baseColumnName": "coverageAcres",
+    "expression": "jython:return value * 17564481 / 3906250",
+    "onError": "set-to-blank",
+    "newColumnName": "coveragePixels",
+    "columnInsertIndex": 4,
+    "description": "Create column coveragePixels at index 4 based on column coverageAcres using expression jython:return value * 17564481 / 3906250"
+  }
+]
