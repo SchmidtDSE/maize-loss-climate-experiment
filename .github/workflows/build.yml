@@ -5,27 +5,28 @@ permissions:
   actions: read
   contents: read
 
-buildDeploy:
-  environment: build
-  runs-on: ubuntu-latest
-  name: Build Deploy
-  steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    - name: Build deploy
-      run: prepare_deploy.sh
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: deploy
-        path: deploy.zip
-        if-no-files-found: error
-    - name: Check build
-      run: bash paper/viz/script/check_deploy.sh
+jobs:
+  buildDeploy:
+    environment: build
+    runs-on: ubuntu-latest
+    name: Build Deploy
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Build deploy
+        run: prepare_deploy.sh
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: deploy
+          path: deploy.zip
+          if-no-files-found: error
+      - name: Check build
+        run: bash paper/viz/script/check_deploy.sh
   deploy:
     environment: deploy
     name: Deploy
