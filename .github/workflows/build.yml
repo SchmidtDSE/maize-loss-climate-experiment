@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Build deploy
-        run: prepare_viz_deploy.sh
+        run: bash prepare_viz_deploy.sh
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
