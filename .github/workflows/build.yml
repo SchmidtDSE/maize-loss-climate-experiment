@@ -26,7 +26,7 @@ jobs:
           path: deploy.zip
           if-no-files-found: error
       - name: Check build
-        run: bash paper/viz/script/check_deploy.sh
+        run: python paper/viz/script/check_deploy.py deploy
   deploy:
     environment: deploy
     name: Deploy
