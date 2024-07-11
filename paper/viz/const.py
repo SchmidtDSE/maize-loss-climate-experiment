@@ -25,13 +25,13 @@ BUTTON_WIDTH = 120
 BUTTON_WIDTH_COMPACT = 78
 BUTTON_WIDTH_NARROW = 60
 
-YIELD_MIN_VALUE = 0
-YIELD_MAX_VALUE = 3000
-YIELD_INCREMENT = 250
+YIELD_MIN_VALUE = -0.4
+YIELD_MAX_VALUE = 0.4
+YIELD_INCREMENT = 0.05
 
-YIELD_CHANGE_MIN_VALUE = -100
-YIELD_CHANGE_MAX_VALUE = 100
-YIELD_CHANGE_INCREMENT = 10
+YIELD_CHANGE_MIN_VALUE = -0.4
+YIELD_CHANGE_MAX_VALUE = 0.4
+YIELD_CHANGE_INCREMENT = 0.05
 
 RISK_MIN_VALUE = -30
 RISK_MAX_VALUE = 60
@@ -46,52 +46,52 @@ ADAPT_MAX_VALUE = 90
 ADAPT_INCREMENT = 10
 
 VAR_MINS = {
-    'chirps': -2,
-    'rhn': -4,
-    'rhx': -4,
-    'svp': -0.1,
-    'tmax': -5,
-    'tmin': -5,
-    'vpd': -0.1,
-    'wbgtmax': -5
+    'chirps': -3,
+    'rhn': -3,
+    'rhx': -3,
+    'svp': -3,
+    'tmax': -3,
+    'tmin': -3,
+    'vpd': -3,
+    'wbgtmax': -3
 }
 
 VAR_MAXS = {
-    'chirps': 2,
-    'rhn': 4,
-    'rhx': 4,
-    'svp': 0.5,
-    'tmax': 5,
-    'tmin': 5,
-    'vpd': 0.5,
-    'wbgtmax': 5
+    'chirps': 3,
+    'rhn': 3,
+    'rhx': 3,
+    'svp': 3,
+    'tmax': 3,
+    'tmin': 3,
+    'vpd': 3,
+    'wbgtmax': 3
 }
 
 VAR_INCREMENTS = {
     'chirps': 0.5,
     'rhn': 0.5,
     'rhx': 0.5,
-    'svp': 0.1,
-    'tmax': 1,
-    'tmin': 1,
-    'vpd': 0.1,
-    'wbgtmax': 1
+    'svp': 0.5,
+    'tmax': 0.5,
+    'tmin': 0.5,
+    'vpd': 0.5,
+    'wbgtmax': 0.5
 }
 
 MAX_COUNT = 0.1
 
 CATEGORY_COLORS = {
     'not significant': '#c0c0c0',
-    'decrease': '#d95f02',
-    'increase': '#1b9e77',
+    'decrease': '#a6cee3',
+    'increase': '#b2df8a',
     'increased risk, can adapt': '#1f78b4',
     'increased risk, cant adapt': '#a6cee3',
     'decreased risk, can adapt': '#33a02c',
     'decreased risk, cant adapt': '#b2df8a',
-    'increase risk, increase variability': '#1f78b4',
-    'increase risk, decrease variability': '#a6cee3',
-    'decrease risk, increase variability': '#33a02c',
-    'decrease risk, decrease variability': '#b2df8a'
+    'increase risk, increase yield': '#a6cee3',
+    'increase risk, decrease yield': '#1f78b4',
+    'decrease risk, increase yield': '#b2df8a',
+    'decrease risk, decrease yield': '#33a02c'
 }
 
 MONTH_NUMS = {
@@ -113,7 +113,7 @@ MAP_SCALE_NEGATIVE = ['#fde0efa0', '#f1b6daa0', '#de77aea0', '#c51b7da0']
 MAP_SCALE_POSITIVE = ['#e6f5d0a0', '#b8e186a0', '#7fbc41a0', '#4d9221a0']
 
 SELECTION_INSTRUCTION = ' '.join([
-    'Click select to find fields (dots below) that would be good for a pilot.',
+    'Click select to find neighborhoods (dots below) that would be good for a pilot.',
     'Toggle yield, risk and adaptation or map vs scatter.',
     'Do different views change your answer?'
 ])

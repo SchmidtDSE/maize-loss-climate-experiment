@@ -115,43 +115,43 @@ class ScatterMainPresenter:
             max_value_y = const.YIELD_MAX_VALUE
             increment_x = const.YIELD_INCREMENT
             increment_y = const.YIELD_INCREMENT
-            format_str_x = '%.0f'
-            format_str_y = '%.0f'
-            vert_title = 'Predicted Mean Yield'
-            horiz_title = 'Historic Mean Yield'
+            format_str_x = lambda x: '%+.0f%%' % (x * 100)
+            format_str_y = lambda x: '%+.0f%%' % (x * 100)
+            vert_title = 'Change from Yield Expectation (Climate Change)'
+            horiz_title = 'Change from Yield Expectation (Counterfactual)'
         elif metric == 'yieldVar':
             min_value_y = const.YIELD_CHANGE_MIN_VALUE
             max_value_y = const.YIELD_CHANGE_MAX_VALUE
             increment_y = const.YIELD_CHANGE_INCREMENT
-            format_str_y = '%+.0f'
-            vert_title = 'Mean Yield Change'
+            format_str_y = lambda x: '%+.0f%%' % (x * 100)
+            vert_title = 'Change from Yield Expectation (Climate Change)'
             min_value_x = const.VAR_MINS[variable]
             max_value_x = const.VAR_MAXS[variable]
             increment_x = const.VAR_INCREMENTS[variable]
-            horiz_title = 'Mean Change (%s)' % variable
-            format_str_x = '%+.1f'
+            horiz_title = 'Mean Change (%s, z)' % variable
+            format_str_x = lambda x: '%+.1f%%' % x
         elif metric == 'risk':
             min_value_y = const.RISK_MIN_VALUE
             max_value_y = const.RISK_MAX_VALUE
-            min_value_x = const.STD_MIN_VALUE
-            max_value_x = const.STD_MAX_VALUE
+            min_value_x = const.YIELD_CHANGE_MIN_VALUE
+            max_value_x = const.YIELD_CHANGE_MAX_VALUE
             increment_y = const.RISK_INCREMENT
-            increment_x = const.STD_INCREMENT
-            format_str_x = '%+.0f%%'
-            format_str_y = '%+.0f%%'
-            vert_title = 'Change in Loss Probabilty'
-            horiz_title = 'Change in Variability'
+            increment_x = const.YIELD_CHANGE_INCREMENT
+            format_str_x = lambda x: '%+.0f%%' % (x * 100)
+            format_str_y = lambda x: '%+.0f%%' % x
+            vert_title = 'Change in Claims Rate'
+            horiz_title = 'Change from Yield Expectation (Climate Change)'
         elif metric == 'riskVar':
             min_value_y = const.RISK_MIN_VALUE
             max_value_y = const.RISK_MAX_VALUE
             increment_y = const.RISK_INCREMENT
-            format_str_y = '%+.0f%%'
-            vert_title = 'Change in Loss Probabilty'
+            format_str_y = lambda x: '%+.0f%%' % x
+            vert_title = 'Change in Claims Rate'
             min_value_x = const.VAR_MINS[variable]
             max_value_x = const.VAR_MAXS[variable]
             increment_x = const.VAR_INCREMENTS[variable]
-            horiz_title = 'Mean Change (%s)' % variable
-            format_str_x = '%+.1f'
+            horiz_title = 'Mean Change (%s, z)' % variable
+            format_str_x = lambda x: '%+.1f%%' % x
         elif metric == 'adaptation':
             min_value_x = const.ADAPT_MIN_VALUE
             min_value_y = const.ADAPT_MIN_VALUE
@@ -159,21 +159,21 @@ class ScatterMainPresenter:
             max_value_y = const.ADAPT_MAX_VALUE
             increment_x = const.ADAPT_INCREMENT
             increment_y = const.ADAPT_INCREMENT
-            format_str_x = '%+.0f%%'
-            format_str_y = '%+.0f%%'
-            vert_title = 'Change in Loss Probabilty'
+            format_str_x = lambda x: '%+.0f%%' % x
+            format_str_y = lambda x: '%+.0f%%' % x
+            vert_title = 'Change in Claims Rate'
             horiz_title = 'Adaptation Effect'
         elif metric == 'adaptationVar':
             min_value_y = const.ADAPT_MIN_VALUE
             max_value_y = const.ADAPT_MAX_VALUE
             increment_y = const.ADAPT_INCREMENT
-            format_str_y = '%+.0f%%'
+            format_str_y = lambda x: '%+.0f%%' % x
             vert_title = 'Change Catastrophic Probabilty with Adapt'
             min_value_x = const.VAR_MINS[variable]
             max_value_x = const.VAR_MAXS[variable]
             increment_x = const.VAR_INCREMENTS[variable]
-            horiz_title = 'Mean Change (%s)' % variable
-            format_str_x = '%+.1f'
+            horiz_title = 'Mean Change (%s, z)' % variable
+            format_str_x = lambda x: '%+.1f' % x
         else:
             raise RuntimeError('Unknown metric ' + metric)
         
@@ -297,11 +297,16 @@ class ScatterMainPresenter:
                 self._sketch.draw_text(
                     x_pos,
                     effective_height + 12,
-                    format_str_x % current_value
+                    format_str_x(current_value)
                 )
                 
                 self._sketch.set_fill(const.EMBEDDED_BAR_COLOR)
-                height = get_hist_size(counts.get('%.1f' % current_value, 0) / total)
+
+                if total == 0:
+                    height = 0
+                else:
+                    height = get_hist_size(counts.get('%.1f' % current_value, 0) / total)
+                
                 if height > 0.1:
                     self._sketch.draw_rect(
                         x_pos - 5,
@@ -356,11 +361,16 @@ class ScatterMainPresenter:
                 self._sketch.draw_text(
                     -1,
                     y_pos,
-                    format_str_y % current_value
+                    format_str_y(current_value)
                 )
 
                 self._sketch.set_fill(const.EMBEDDED_BAR_COLOR)
-                width = get_hist_size(counts.get('%.1f' % current_value, 0) / total)
+
+                if total == 0:
+                    width = 0
+                else:
+                    width = get_hist_size(counts.get('%.1f' % current_value, 0) / total)
+                
                 if width > 0.1:
                     self._sketch.draw_rect(
                         -1 - width,

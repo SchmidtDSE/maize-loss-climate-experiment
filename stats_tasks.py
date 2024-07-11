@@ -15,7 +15,7 @@ NEURONS_PER_LAYER = [512, 256, 128, 64, 32, 8]
 
 
 def format_percent(target):
-    return '%d\\%%' % round(target * 100)
+    return '%.1f\\%%' % (target * 100)
 
 
 def format_severity(target):

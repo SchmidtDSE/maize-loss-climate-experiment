@@ -1,0 +1,2 @@
+pandoc-fignos==2.4.0
+pandoc-tablenos==2.3.0

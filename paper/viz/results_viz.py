@@ -47,7 +47,7 @@ class ResultsVizPresenter:
             self._config = default_configuration
         else:
             self._config = buttons.Configuration(
-                '2030 conditions',
+                '2050 conditions',
                 '1 year',
                 'yield',
                 'scatter',
@@ -55,7 +55,7 @@ class ResultsVizPresenter:
                 'Bonferroni',
                 'significant only',
                 'no var',
-                'jun',
+                'jul',
                 '75% cov'
             )
 

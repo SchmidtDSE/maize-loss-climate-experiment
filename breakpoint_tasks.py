@@ -101,7 +101,8 @@ class ExecuteSupplementalTasks(luigi.Task):
             'climate': export_tasks.ClimateExportTask(),
             'sweep': export_tasks.SweepExportTask(),
             'hist': export_tasks.HistExportTask(),
-            'summary': export_tasks.SummaryExportTask()
+            'summary': export_tasks.SummaryExportTask(),
+            'combined': export_tasks.CombinedTasksRecordTask()
         }
 
     def output(self):

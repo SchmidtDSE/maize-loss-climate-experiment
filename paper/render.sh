@@ -4,9 +4,9 @@ cd ..
 
 python3 fill_template.py ./paper.md ./outputs/stats.json ./paper_filled.md
 
-pandoc -o paper_filled.pdf --citeproc --number-sections --template=default.tex paper_filled.md
-pandoc -o paper_filled.tex --citeproc --number-sections --template=default.tex paper_filled.md
-pandoc -o paper_filled.docx --citeproc --number-sections paper_filled.md
+pandoc -o paper_filled.pdf --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos --template=default.tex paper_filled.md
+pandoc -o paper_filled.tex --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos --template=default.tex paper_filled.md
+pandoc -o paper_filled.docx --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos paper_filled.md
 
 rm -r arxiv
 mkdir arxiv
