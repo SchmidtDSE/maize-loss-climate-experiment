@@ -211,7 +211,7 @@ class ConfigPresenter:
             y,
             'Layers',
             ['1 layer', '2 layers', '3 layers', '4 layers', '5 layers'],
-            '5 layers',
+            '3 layers',
             lambda x: self._change_layers(x)
         )
 
@@ -223,17 +223,11 @@ class ConfigPresenter:
             'L2',
             [
                 'No L2',
-                '0.1',
-                '0.2',
-                '0.3',
-                '0.4',
-                '0.5',
-                '0.6',
-                '0.7',
-                '0.8',
-                '0.9'
+                '0.001',
+                '0.010',
+                '0.100'
             ],
-            'No L2',
+            '0.010',
             lambda x: self._change_l2(x)
         )
 
@@ -245,17 +239,12 @@ class ConfigPresenter:
             'Dropout',
             [
                 'No Dropout',
-                '0.1',
-                '0.2',
-                '0.3',
-                '0.4',
-                '0.5',
-                '0.6',
-                '0.7',
-                '0.8',
-                '0.9'
+                '0.01',
+                '0.05',
+                '0.10',
+                '0.50'
             ],
-            'No Dropout',
+            '0.05',
             lambda x: self._change_dropout(x)
         )
 
@@ -446,10 +435,14 @@ class ScatterPresenter:
         self._sketch.draw_buffer(0, 0, 'sweep-points')
 
     def _get_x(self, val):
-        return val / 2 * (self._width - 80 - 20) + 80
+        if val > 0.4:
+            val = 0.4
+        return val * 100 / 40 * (self._width - 80 - 20) + 80
 
     def _get_y(self, val):
-        offset = val / 2 * (self._height - 50 - 20) + 50
+        if val > 0.4:
+            val = 0.4
+        offset = val * 100 / 40 * (self._height - 50 - 20) + 50
         return self._height - offset
 
     def _draw_horiz_axis(self):
@@ -461,25 +454,25 @@ class ScatterPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 11)
         self._sketch.set_text_align('center', 'top')
 
-        tick_points_int = range(0, 225, 25)
+        tick_points_int = range(0, 45, 5)
         tick_points_float = map(lambda x: x / 100, tick_points_int)
         for val in tick_points_float:
             self._sketch.draw_text(
                 self._get_x(val),
                 self._height - 45,
-                '%.2f' % val
+                ('>' if val >= 0.399 else '') + ('%d%%' % round(val * 100))
             )
 
         self._sketch.set_text_align('center', 'center')
         self._sketch.push_transform()
         self._sketch.translate(
-            self._get_x(1),
+            self._get_x(0.20),
             self._height - 20
         )
         self._sketch.draw_text(
             0,
             0,
-            'Error predicting yield distribution mean (z, MAE)'
+            'Error predicting yield distribution mean (%, MAE)'
         )
         self._sketch.pop_transform()
 
@@ -495,13 +488,13 @@ class ScatterPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 11)
         self._sketch.set_text_align('right', 'center')
 
-        tick_points_int = range(0, 225, 25)
+        tick_points_int = range(0, 45, 5)
         tick_points_float = map(lambda x: x / 100, tick_points_int)
         for val in tick_points_float:
             self._sketch.draw_text(
                 48,
                 self._get_y(val),
-                '%.2f' % val
+                ('>' if val >= 0.399 else '') + ('%d%%' % round(val * 100))
             )
 
         self._sketch.set_text_align('center', 'center')
@@ -509,13 +502,13 @@ class ScatterPresenter:
         self._sketch.set_angle_mode('degrees')
         self._sketch.translate(
             12,
-            self._get_y(1)
+            self._get_y(0.20)
         )
         self._sketch.rotate(-90)
         self._sketch.draw_text(
             0,
             0,
-            'Error predicting yield distribution std (z, MAE)'
+            'Error predicting yield distribution std (%, MAE)'
         )
         self._sketch.pop_transform()
 

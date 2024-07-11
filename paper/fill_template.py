@@ -20,7 +20,11 @@ def main():
         source_contents = f.read()
 
     loader = jinja2.BaseLoader()
-    template = jinja2.Environment(loader=loader).from_string(source_contents)
+    template = jinja2.Environment(
+        loader=loader,
+        comment_start_string='{//',
+        comment_end_string='//}'
+    ).from_string(source_contents)
 
     with open(template_loc) as f:
         template_vals = json.load(f)

@@ -49,6 +49,11 @@ class RiskComparison:
         self_count = self.get_count()
         other_count = other.get_count()
 
+        if self_count == 0:
+            return other
+        elif other_count == 0:
+            return self
+
         self_weighted_p = self.get_p_value() * self_count
         other_weighted_p = other.get_p_value() * other_count
         weighted_p = (self_weighted_p + other_weighted_p) / (self_count + other_count)
@@ -99,6 +104,11 @@ class YieldDistribution:
     def combine(self, other):
         self_count = self.get_count()
         other_count = other.get_count()
+
+        if self_count == 0:
+            return other
+        elif other_count == 0:
+            return self
         
         self_weighted_mean = self.get_mean() * self_count
         other_weighted_mean = other.get_mean() * other_count
@@ -107,7 +117,11 @@ class YieldDistribution:
         self_var_piece = (self_count - 1) * self.get_std()**2
         other_var_piece = (other_count - 1) * other.get_std()**2
         pooled_count = self_count + other_count - 2
-        new_std = math.sqrt((self_var_piece + other_var_piece) / pooled_count)
+
+        if pooled_count == 0:
+            new_std = (self.get_std() + other.get_std()) / 2
+        else:
+            new_std = math.sqrt((self_var_piece + other_var_piece) / pooled_count)
 
         new_count = self_count + other_count
         return YieldDistribution(new_mean, new_std, new_count)
@@ -132,6 +146,12 @@ class YieldComparison:
     def combine(self, other):
         self_count = self.get_predicted().get_count()
         other_count = other.get_predicted().get_count()
+
+        if self_count == 0:
+            return other
+        elif other_count == 0:
+            return self
+
         self_weighted_p = self.get_p_value() * self_count
         other_weighted_p = other.get_p_value() * other_count
         weighted_p = (self_weighted_p + other_weighted_p) / (self_count + other_count)

@@ -537,7 +537,7 @@ class MainPresenter:
         self._sketch.draw_text(
             SUB_CHART_WIDTH / 2 + 40,
             30,
-            'Histogram of Simulated Change in Risk Unit-Level Yields'
+            'Histogram of Change in Risk Unit-Level Yields Relative to Expected (Avg Yield)'
         )
         
         self._sketch.pop_style()

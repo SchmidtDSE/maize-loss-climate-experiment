@@ -237,46 +237,6 @@
       "facets": [
         {
           "type": "list",
-          "name": "UnitType",
-          "expression": "value",
-          "columnName": "UnitType",
-          "invert": true,
-          "omitBlank": false,
-          "omitError": false,
-          "selection": [
-            {
-              "v": {
-                "v": "Enterprise Unit",
-                "l": "Enterprise Unit"
-              }
-            },
-            {
-              "v": {
-                "v": "Whole Farm Unit",
-                "l": "Whole Farm Unit"
-              }
-            },
-            {
-              "v": {
-                "v": "Basic Unit",
-                "l": "Basic Unit"
-              }
-            }
-          ],
-          "selectBlank": false,
-          "selectError": false
-        }
-      ],
-      "mode": "row-based"
-    },
-    "description": "Remove rows"
-  },
-  {
-    "op": "core/row-removal",
-    "engineConfig": {
-      "facets": [
-        {
-          "type": "list",
           "name": "isZero",
           "expression": "value",
           "columnName": "isZero",

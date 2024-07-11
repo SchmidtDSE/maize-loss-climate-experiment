@@ -182,14 +182,12 @@ def make_scatter_values(records, climate_deltas, configuration):
         risk_change = record.get_predicted_risk().get_risk_change()
         risk_p = record.get_predicted_risk().get_p_value()
         
-        std_before = record.get_yield_comparison().get_prior().get_std_percent()
-        std_after = record.get_yield_comparison().get_predicted().get_std_percent()
-        std_change = std_after - std_before
+        yield_change = record.get_yield_comparison().get_predicted().get_mean()
 
-        if std_change > 0:
-            var_str = 'increase variability'
+        if yield_change > 0:
+            var_str = 'increase yield'
         else:
-            var_str = 'decrease variability'
+            var_str = 'decrease yield'
 
         if risk_p > p_threshold:
             category = 'not significant'
@@ -199,7 +197,7 @@ def make_scatter_values(records, climate_deltas, configuration):
             category = 'decrease risk, ' + var_str
 
         var_x = get_var_x(record)
-        effective_x = std_change * 100 if var_x is None else var_x
+        effective_x = yield_change if var_x is None else var_x
 
         return ScatterPoint(
             record.get_geohash(),
