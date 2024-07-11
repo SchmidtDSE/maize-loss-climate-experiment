@@ -82,16 +82,16 @@ MAX_COUNT = 0.1
 
 CATEGORY_COLORS = {
     'not significant': '#c0c0c0',
-    'decrease': '#a6cee3',
-    'increase': '#b2df8a',
-    'increased risk, can adapt': '#1f78b4',
-    'increased risk, cant adapt': '#a6cee3',
-    'decreased risk, can adapt': '#33a02c',
-    'decreased risk, cant adapt': '#b2df8a',
-    'increase risk, increase yield': '#a6cee3',
-    'increase risk, decrease yield': '#1f78b4',
-    'decrease risk, increase yield': '#b2df8a',
-    'decrease risk, decrease yield': '#33a02c'
+    'lower than counterfactual': '#a6cee3',
+    'higher than counterfatual': '#b2df8a',
+    'higher risk, can adapt': '#1f78b4',
+    'higher risk, cant adapt': '#a6cee3',
+    'lower risk, can adapt': '#33a02c',
+    'lower risk, cant adapt': '#b2df8a',
+    'higher risk, yield above counterfactual': '#a6cee3',
+    'higher risk, yield below counterfactual': '#1f78b4',
+    'lower risk, yield above counterfactual': '#b2df8a',
+    'lower risk, yield below counterfactual': '#33a02c'
 }
 
 MONTH_NUMS = {

@@ -160,9 +160,9 @@ def make_scatter_values(records, climate_deltas, configuration):
         if p_value > p_threshold:
             category = 'not significant'
         elif prior_mean > predicted_mean:
-            category = 'decrease'
+            category = 'lower than counterfactual'
         else:
-            category = 'increase'
+            category = 'higher than counterfatual'
 
         var_x = get_var_x(record)
         effective_x = prior_mean if var_x is None else var_x
@@ -182,19 +182,21 @@ def make_scatter_values(records, climate_deltas, configuration):
         risk_change = record.get_predicted_risk().get_risk_change()
         risk_p = record.get_predicted_risk().get_p_value()
         
-        yield_change = record.get_yield_comparison().get_predicted().get_mean()
+        after_yield = record.get_yield_comparison().get_predicted().get_mean()
+        before_yield = record.get_yield_comparison().get_prior().get_mean()
+        yield_change = after_yield - before_yield
 
         if yield_change > 0:
-            var_str = 'increase yield'
+            var_str = 'yield above counterfactual'
         else:
-            var_str = 'decrease yield'
+            var_str = 'yield below counterfactual'
 
         if risk_p > p_threshold:
             category = 'not significant'
         elif risk_change > 0:
-            category = 'increase risk, ' + var_str
+            category = 'higher risk, ' + var_str
         else:
-            category = 'decrease risk, ' + var_str
+            category = 'lower risk, ' + var_str
 
         var_x = get_var_x(record)
         effective_x = yield_change if var_x is None else var_x
@@ -220,14 +222,14 @@ def make_scatter_values(records, climate_deltas, configuration):
             category = 'not significant'
         elif predicted_change > 0:
             if adapted_p < p_threshold and adapted_change < predicted_change:
-                category = 'increased risk, can adapt'
+                category = 'higher risk, can adapt'
             else:
-                category = 'increased risk, cant adapt'
+                category = 'higher risk, cant adapt'
         else:
             if adapted_p < p_threshold and adapted_change < predicted_change:
-                category = 'decreased risk, can adapt'
+                category = 'lower risk, can adapt'
             else:
-                category = 'decreased risk, cant adapt'
+                category = 'lower risk, cant adapt'
 
         var_x = get_var_x(record)
         effective_x = adapted_change * 100 if var_x is None else var_x

@@ -118,7 +118,7 @@ class ScatterMainPresenter:
             format_str_x = lambda x: '%+.0f%%' % (x * 100)
             format_str_y = lambda x: '%+.0f%%' % (x * 100)
             vert_title = 'Change from Yield Expectation (Climate Change)'
-            horiz_title = 'Change from Yield Expectation (Counterfactual)'
+            horiz_title = 'Change from Yield Expectation (Counterfactual - No Further Climate Change)'
         elif metric == 'yieldVar':
             min_value_y = const.YIELD_CHANGE_MIN_VALUE
             max_value_y = const.YIELD_CHANGE_MAX_VALUE
@@ -271,7 +271,7 @@ class ScatterMainPresenter:
             return dict(reduced.values())
 
         def get_hist_size(percent):
-            return percent * 30
+            return percent * 25
 
         def draw_horiz_axis():
             self._sketch.push_transform()

@@ -17,7 +17,7 @@ author:
     affil-id: 1
     correspondence: yes
     email: sam.pottinger@berkeley.edu
-  - name: Lawson Connor
+  - name: Lawson Connor \orcidlink{0000-0001-5951-5752}
     affil-id: 2
   - name: Brookie Guzder-Williams \orcidlink{0000-0001-6855-8260}
     affil-id: 1
@@ -183,7 +183,7 @@ Prior work expects that larger insured units will reduce risk [@knight_developin
 ## Stress
 Our model shows depressed yields during combined warmer and drier conditions potentially similar to 2012 which saw poor US maize outcomes [@ers_weather_2013].
 
-![Screenshot of an interactive tools showing precipitation and loss probability changes. The horizontal axis is precipitation and the vertical axis is the change in claims rate (probability of covered loss).](./img/scatter.png "Screenshot of an interactive tools showing precipitation and loss probability changes. The horizontal axis is precipitation and the vertical axis is the change in claims rate (probability of covered loss)."){ width=85% #fig:chirps }
+![Screenshot of an interactive tool showing precipitation and loss probability changes. The horizontal axis is change in precipitation and the vertical axis is the change in claims rate (probability of covered loss).](./img/scatter.png "Screenshot of an interactive tool showing precipitation and loss probability changes. The horizontal axis is change in precipitation and the vertical axis is the change in claims rate (probability of covered loss)."){ width=85% #fig:chirps }
 
 In this context, precipitation may serve as a protective factor: neighborhoods with drier July conditions are more likely to see higher loss probability (p < 0.05 / 2) in both the 2030 and 2050 series via rank correlation [@spearman_proof_1904]. That in mind, our predictions may add additional evidence to prior empirical studies such as @sinsawat_effect_2004 and @marouf_effects_2013 which describe the negative impacts of heat stress and water deficits. This possible concurrence between "top-down" remote sensing and "bottom-up" physical experimentation not only offers further confidence in these results but our model outputs may reveal geographically and temporally specific outlines of these threats, possibly useful for insurer and grower adaptation. Even so, as seen in Figure @fig:chirps, we caution that analysis finds $\rho = -0.2$ so other factors beyond temperature and precipitation alone may influence these outcomes.
 

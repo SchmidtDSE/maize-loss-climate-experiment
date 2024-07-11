@@ -76,7 +76,7 @@ class LegendPresenter:
             self._sketch.clear_stroke()
             self._sketch.set_fill(const.INACTIVE_TEXT_COLOR)
             percent_rounded = round(percent * 100)
-            self._sketch.draw_text(17, y - 2, '%d%% see %s' % (percent_rounded, name))
+            self._sketch.draw_text(17, y - 2, '%d%% %s' % (percent_rounded, name))
 
             if not use_symbols:
                 self._sketch.set_fill(const.EMBEDDED_BAR_COLOR)

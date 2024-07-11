@@ -71,15 +71,15 @@ def get_strategy(sketch, category):
     inner_increase_secondary = lambda x, y, color: draw_increase_secondary(sketch, x, y, color)
     var_draw_strategies = {
         'not significant': inner_not_sig,
-        'decrease': inner_decrease_primary,
-        'increase': inner_increase_primary,
-        'increased risk, can adapt': inner_increase_primary,
-        'increased risk, cant adapt': inner_increase_secondary,
-        'decreased risk, can adapt': inner_decrease_primary,
-        'decreased risk, cant adapt': inner_decrease_secondary,
-        'increase risk, increase variability': inner_increase_primary,
-        'increase risk, decrease variability': inner_increase_secondary,
-        'decrease risk, increase variability': inner_decrease_primary,
-        'decrease risk, decrease variability': inner_decrease_secondary
+        'lower than counterfactual': inner_decrease_primary,
+        'higher than counterfactual': inner_increase_primary,
+        'higher risk, can adapt': inner_increase_primary,
+        'higher risk, cant adapt': inner_increase_secondary,
+        'lower risk, can adapt': inner_decrease_primary,
+        'lower risk, cant adapt': inner_decrease_secondary,
+        'higher risk, yield above counterfactual': inner_increase_primary,
+        'higher risk, yield below counterfactual': inner_increase_secondary,
+        'lower risk, yield above counterfactual': inner_decrease_primary,
+        'lower risk, yield below counterfactual': inner_decrease_secondary
     }
     return var_draw_strategies[category]
