@@ -46,25 +46,25 @@ ADAPT_MAX_VALUE = 90
 ADAPT_INCREMENT = 10
 
 VAR_MINS = {
-    'chirps': -3,
-    'rhn': -3,
-    'rhx': -3,
-    'svp': -3,
-    'tmax': -3,
-    'tmin': -3,
-    'vpd': -3,
-    'wbgtmax': -3
+    'chirps': -2.5,
+    'rhn': -2.5,
+    'rhx': -2.5,
+    'svp': -2.5,
+    'tmax': -2.5,
+    'tmin': -2.5,
+    'vpd': -2.5,
+    'wbgtmax': -2.5
 }
 
 VAR_MAXS = {
-    'chirps': 3,
-    'rhn': 3,
-    'rhx': 3,
-    'svp': 3,
-    'tmax': 3,
-    'tmin': 3,
-    'vpd': 3,
-    'wbgtmax': 3
+    'chirps': 3.5,
+    'rhn': 3.5,
+    'rhx': 3.5,
+    'svp': 3.5,
+    'tmax': 3.5,
+    'tmin': 3.5,
+    'vpd': 3.5,
+    'wbgtmax': 3.5
 }
 
 VAR_INCREMENTS = {

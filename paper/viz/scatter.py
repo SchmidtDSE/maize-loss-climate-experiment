@@ -129,7 +129,7 @@ class ScatterMainPresenter:
             max_value_x = const.VAR_MAXS[variable]
             increment_x = const.VAR_INCREMENTS[variable]
             horiz_title = 'Mean Change (%s, z)' % variable
-            format_str_x = lambda x: '%+.1f%%' % x
+            format_str_x = lambda x: '%+.1f' % x
         elif metric == 'risk':
             min_value_y = const.RISK_MIN_VALUE
             max_value_y = const.RISK_MAX_VALUE
@@ -151,7 +151,7 @@ class ScatterMainPresenter:
             max_value_x = const.VAR_MAXS[variable]
             increment_x = const.VAR_INCREMENTS[variable]
             horiz_title = 'Mean Change (%s, z)' % variable
-            format_str_x = lambda x: '%+.1f%%' % x
+            format_str_x = lambda x: '%+.1f' % x
         elif metric == 'adaptation':
             min_value_x = const.ADAPT_MIN_VALUE
             min_value_y = const.ADAPT_MIN_VALUE
