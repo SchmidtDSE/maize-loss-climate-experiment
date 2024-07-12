@@ -29,7 +29,7 @@ def main():
         sys.exit(1)
     else:
         data_loc = sys.argv[1]
-        scenario = sys.argv[2] + ' conditions'
+        scenario = sys.argv[2] + ' series'
         metric = sys.argv[3]
         visualization = sys.argv[4]
         threshold = 'p < ' + sys.argv[5]
@@ -43,7 +43,7 @@ def main():
 
         default_configuration = buttons.Configuration(
             scenario,
-            '1 year',
+            'Avg All Years',
             metric,
             visualization,
             threshold,

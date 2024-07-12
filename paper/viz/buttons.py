@@ -242,26 +242,24 @@ class ConfigurationPresenter:
             0,
             current_y,
             'Scenario',
-            ['2030 conditions', '2050 conditions'],
+            ['2030 series', '2050 series'],
             self._config.get_scenario(),
             lambda x: self._set_config(self._config.get_with_scenario(x))
         )
 
-#        current_y += self._scenario_buttons.get_height() + 12
-#
-#        self._range_buttons = ToggleButtonSet(
-#            self._sketch,
-#            0,
-#            current_y,
-#            'Range of Risk',
-#            ['1 year', '3 years'],
-#            self._config.get_risk_range(),
-#            lambda x: self._set_config(self._config.get_with_risk_range(x))
-#        )
-#
-#        current_y += self._range_buttons.get_height() + 30
-        
         current_y += self._scenario_buttons.get_height() + 12
+
+        self._range_buttons = ToggleButtonSet(
+            self._sketch,
+            0,
+            current_y,
+            'Range of Risk',
+            ['Sample 1 Year', 'Avg All Years'],
+            self._config.get_risk_range(),
+            lambda x: self._set_config(self._config.get_with_risk_range(x))
+        )
+
+        current_y += self._range_buttons.get_height() + 30
 
         self._threshold_buttons = ToggleButtonSet(
             self._sketch,
@@ -356,7 +354,7 @@ class ConfigurationPresenter:
         mouse_y = mouse_y - self._y
 
         self._scenario_buttons.step(mouse_x, mouse_y, clicked)
-#        self._range_buttons.step(mouse_x, mouse_y, clicked)
+        self._range_buttons.step(mouse_x, mouse_y, clicked)
         self._metric_buttons.step(mouse_x, mouse_y, clicked)
         self._viz_buttons.step(mouse_x, mouse_y, clicked)
         self._threshold_buttons.step(mouse_x, mouse_y, clicked)

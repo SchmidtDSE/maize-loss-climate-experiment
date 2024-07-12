@@ -47,8 +47,8 @@ class ResultsVizPresenter:
             self._config = default_configuration
         else:
             self._config = buttons.Configuration(
-                '2050 conditions',
-                '1 year',
+                '2050 series',
+                'Avg All Years',
                 'yield',
                 'scatter',
                 'p < 0.05',
@@ -243,16 +243,10 @@ class ResultsVizPresenter:
     def _get_description(self):
         metric = self._config.get_metric()
         
-        if self._config.get_risk_range() == '3 years':
-            if metric == 'yield':
-                agg_str = 'Averaging across 3 years.'
-            else:
-                agg_str = 'Prob of event in any of 3 years.'
+        if self._config.get_risk_range() == '':
+            agg_str = 'Averaging across all years.'
         else:
-            if metric == 'yield':
-                agg_str = 'Single year avg yields.'
-            else:
-                agg_str = 'Prob of event in single year.'
+            agg_str = 'Single year avg yields.'
 
         in_map = self._config.get_visualization() == 'map'
         no_var = self._config.get_var() == 'no var'

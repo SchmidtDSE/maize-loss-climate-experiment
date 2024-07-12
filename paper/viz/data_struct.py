@@ -54,23 +54,18 @@ class RiskComparison:
         elif other_count == 0:
             return self
 
-        self_weighted_p = self.get_p_value() * self_count
-        other_weighted_p = other.get_p_value() * other_count
-        new_p = (self_weighted_p + other_weighted_p) / (self_count + other_count)
+        new_p = min([self.get_p_value(), other.get_p_value()])
 
-        def combine_probs(a, b):
-            a_not = 1 - a
-            b_not = 1 - b
-            not_a_b = a_not * b_not
-            return 1 - not_a_b
+        def combine_probs(a, a_count, b, b_count):
+            return (a * a_count + b * b_count) / (a_count + b_count)
 
         self_control_risk = self.get_control_risk()
         other_control_risk = other.get_control_risk()
-        new_control_risk = combine_probs(self_control_risk, other_control_risk)
+        new_control_risk = combine_probs(self_control_risk, self_count, other_control_risk, other_count)
 
         self_experimental_risk = self.get_experimental_risk()
         other_experimental_risk = other.get_experimental_risk()
-        new_experimental_risk = combine_probs(self_experimental_risk, other_experimental_risk)
+        new_experimental_risk = combine_probs(self_experimental_risk, self_count, other_experimental_risk, other_count)
 
         new_count = self_count + other_count
 
@@ -152,13 +147,11 @@ class YieldComparison:
         elif other_count == 0:
             return self
 
-        self_weighted_p = self.get_p_value() * self_count
-        other_weighted_p = other.get_p_value() * other_count
-        weighted_p = (self_weighted_p + other_weighted_p) / (self_count + other_count)
+        new_p = min([self.get_p_value(), other.get_p_value()])
         return YieldComparison(
             self.get_prior().combine(other.get_prior()),
             self.get_predicted().combine(other.get_predicted()),
-            weighted_p
+            new_p
         )
 
 

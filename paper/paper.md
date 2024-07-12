@@ -181,11 +181,11 @@ Prior work suggests that historic trends would anticipate continued increases in
 Prior work expects that larger insured units will reduce risk [@knight_developing_2010] and we similarly observe that the claims rate decreases as the acrage included in an insured unit grows. However, after attempting multiple insured unit sizes including removal of smaller Optional Units [@zulauf_importance_2023] in post-hoc simulations, a gap persists in claims rates between the counterfactual and expected climate change simulations, suggesting our concerns may remain relevant across different risk units.
 
 ## Geographic bias
-We find significant results ($p < 0.05 / n$) more common on the eastern side of the study area as shown in Figure @fig:geo.
+We find significant results ($p < 0.05 / n$) more common in some areas as shown in Figure @fig:geo.
 
 ![Example simulation in our interactive tool’s geographic view. Our projections vary across different geographic areas.](./img/map.png "Example simulation in our interactive tool’s geographic view. Our projections vary across different geographic areas."){ width=85% #fig:geo }
 
-This spatial bias may partially reflect that a number of more western neighborhoods have less land dedicated to maize so simulate with smaller sample sizes and fail to reach significance. In other cases, this geographic effect may also reflect disproportionate stress or other changes relative to historic conditions. In particular, as further explorable in our interactive tools, we note some east / west bias in changes to precipitation, temperature, and VPD / SVP.
+This spatial bias may partially reflect that a number of neighborhoods have less land dedicated to maize so simulate with smaller sample sizes and fail to reach significance. In other cases, this geographic effect may also reflect disproportionate stress or other changes relative to historic conditions. In particular, as further explorable in our interactive tools, we note some geographic bias in changes to precipitation, temperature, and VPD / SVP.
 
 ## Heat and drought stress
 Our model shows depressed yields during combined warmer and drier conditions potentially similar to 2012 which saw poor US maize outcomes [@ers_weather_2013].

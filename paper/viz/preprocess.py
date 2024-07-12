@@ -107,14 +107,13 @@ def get_scenario_year(record):
 
 
 def make_scatter_values(records, climate_deltas, configuration):
-    count = len(records)
     scenario = configuration.get_scenario()
     target_year = int(scenario[:4])
     target_loss = '25% loss' if configuration.get_loss() == '75% cov' else '15% loss'
     scenario_records = filter(lambda x: scenario.startswith(str(get_scenario_year(x))), records)
     loss_records = filter(lambda x: x.get_loss() == target_loss, scenario_records)
 
-    if configuration.get_risk_range() == '1 year':
+    if configuration.get_risk_range() == 'Sample 1 Year':
         year_records = filter(lambda x: x.get_year() in [2030, 2050], loss_records)
     else:
         year_records_nested = toolz.itertoolz.reduceby(
@@ -123,6 +122,9 @@ def make_scatter_values(records, climate_deltas, configuration):
             loss_records
         )
         year_records = year_records_nested.values()
+
+    year_records = list(year_records)
+    count = len(year_records)
 
     p_threshold_naive = {
         'p < 0.05': 0.05,
