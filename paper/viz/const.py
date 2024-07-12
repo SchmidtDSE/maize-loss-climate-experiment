@@ -83,7 +83,7 @@ MAX_COUNT = 0.1
 CATEGORY_COLORS = {
     'not significant': '#c0c0c0',
     'lower than counterfactual': '#a6cee3',
-    'higher than counterfatual': '#b2df8a',
+    'higher than counterfactual': '#b2df8a',
     'higher risk, can adapt': '#1f78b4',
     'higher risk, cant adapt': '#a6cee3',
     'lower risk, can adapt': '#33a02c',

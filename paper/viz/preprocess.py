@@ -162,7 +162,7 @@ def make_scatter_values(records, climate_deltas, configuration):
         elif prior_mean > predicted_mean:
             category = 'lower than counterfactual'
         else:
-            category = 'higher than counterfatual'
+            category = 'higher than counterfactual'
 
         var_x = get_var_x(record)
         effective_x = prior_mean if var_x is None else var_x

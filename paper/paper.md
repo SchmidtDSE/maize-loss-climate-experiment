@@ -180,7 +180,14 @@ Prior work suggests that historic trends would anticipate continued increases in
 ## Risk unit size
 Prior work expects that larger insured units will reduce risk [@knight_developing_2010] and we similarly observe that the claims rate decreases as the acrage included in an insured unit grows. However, after attempting multiple insured unit sizes including removal of smaller Optional Units [@zulauf_importance_2023] in post-hoc simulations, a gap persists in claims rates between the counterfactual and expected climate change simulations, suggesting our concerns may remain relevant across different risk units.
 
-## Stress
+## Geographic bias
+We find significant results ($p < 0.05 / n$) more common on the eastern side of the study area as shown in Figure @fig:geo.
+
+![Example simulation in our interactive tool’s geographic view. Our projections vary across different geographic areas.](./img/map.png "Example simulation in our interactive tool’s geographic view. Our projections vary across different geographic areas."){ width=85% #fig:geo }
+
+This spatial bias may partially reflect that a number of more western neighborhoods have less land dedicated to maize so simulate with smaller sample sizes and fail to reach significance. In other cases, this geographic effect may also reflect disproportionate stress or other changes relative to historic conditions. In particular, as further explorable in our interactive tools, we note some east / west bias in changes to precipitation, temperature, and VPD / SVP.
+
+## Heat and drought stress
 Our model shows depressed yields during combined warmer and drier conditions potentially similar to 2012 which saw poor US maize outcomes [@ers_weather_2013].
 
 ![Screenshot of an interactive tool showing precipitation and loss probability changes. The horizontal axis is change in precipitation and the vertical axis is the change in claims rate (probability of covered loss).](./img/scatter.png "Screenshot of an interactive tool showing precipitation and loss probability changes. The horizontal axis is change in precipitation and the vertical axis is the change in claims rate (probability of covered loss)."){ width=85% #fig:chirps }
@@ -237,17 +244,13 @@ In order to explore these simulated distributions geographically and under diffe
 
 Table: Overview of explorable explanations. {#tbl:apps}
 
-In crafting the "explorable explanations" [@victor_explorable_2011] in Table @tbl:apps, we draw analogies to micro-apps  [@bridgwater_what_2015] or mini-games [@dellafave_designing_2014] in which the user encounters a series of small experiences that, each with distinct interaction and objectives, can only provide minimal instruction [@brown_100_2024]. As these visualizations cannot take advantage of design techniques like Hayashida-style tutorials [@pottinger_pyafscgaporg_2023], they rely on simple "loops" [@brazie_designing_2024] for immediate "juxtaposition gratification" (JG) [@jm8_secret_2024], showing fast progression after minimal input.
-
-![Example simulation in our interactive tool’s geographic view. Our projections vary across different geographic areas.](./img/map.png "Example simulation in our interactive tool’s geographic view. Our projections vary across different geographic areas."){ width=85% #fig:geo }
-
-Having broken this experience into multiple micro-apps, we follow the framework from @unwin_why_2020 and note that our custom tools first serve as internal "exploratory" graphics enabling the insights detailed in our results, outlining specific observations we attribute to the use of these tools (see Table @tbl:insights).
+In crafting the "explorable explanations" [@victor_explorable_2011] in Table @tbl:apps, we draw analogies to micro-apps  [@bridgwater_what_2015] or mini-games [@dellafave_designing_2014] in which the user encounters a series of small experiences that, each with distinct interaction and objectives, can only provide minimal instruction [@brown_100_2024]. As these visualizations cannot take advantage of design techniques like Hayashida-style tutorials [@pottinger_pyafscgaporg_2023], they rely on simple "loops" [@brazie_designing_2024] for immediate "juxtaposition gratification" (JG) [@jm8_secret_2024], showing fast progression after minimal input. Having broken this experience into multiple micro-apps, we follow the framework from @unwin_why_2020 and note that our custom tools first serve as internal "exploratory" graphics enabling the insights detailed in our results, outlining specific observations we attribute to the use of these tools (see Table @tbl:insights).
 
 | **Simulator**   | **Observation**                                                                                                                         |
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| Distributional  | Dichotomy of larger changes to insurer-relevant tails contrasting smaller changes to mean yield                                         |
-| Claims          | Issues of using average for $y_{expected}$ [@fcic_common_2020]                                                                                                         |
-| Neighborhood    | Model output relationships with broader climate factors, highlighting the possible systemic protective value of increased precipitation |
+| Distributional  | Dichotomy of larger changes to insurer-relevant tails contrasting smaller changes to mean yield.                                         |
+| Claims          | Issues of using average for $y_{expected}$ [@fcic_common_2020].                                                                                                         |
+| Neighborhood    | Eastward bias of impact. Model output relationships with broader climate factors, highlighting the possible systemic protective value of increased precipitation. |
 | Hyper-parameter | Model resilience to removing individual inputs.                                                                                         |
 
 Table: Observations we made from our own tools in the "exploratory" graphic context of @unwin_why_2020. {#tbl:insights}
