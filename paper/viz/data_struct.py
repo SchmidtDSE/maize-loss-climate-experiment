@@ -56,7 +56,7 @@ class RiskComparison:
 
         self_weighted_p = self.get_p_value() * self_count
         other_weighted_p = other.get_p_value() * other_count
-        weighted_p = (self_weighted_p + other_weighted_p) / (self_count + other_count)
+        new_p = (self_weighted_p + other_weighted_p) / (self_count + other_count)
 
         def combine_probs(a, b):
             a_not = 1 - a
@@ -77,7 +77,7 @@ class RiskComparison:
         return RiskComparison(
             new_control_risk,
             new_experimental_risk,
-            weighted_p,
+            new_p,
             new_count
         )
 
