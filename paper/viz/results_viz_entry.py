@@ -32,7 +32,7 @@ def main():
         scenario = sys.argv[2] + ' series'
         metric = sys.argv[3]
         visualization = sys.argv[4]
-        threshold = 'p < ' + sys.argv[5]
+        threshold = 'p <  %s' % sys.argv[5]
         adjustment = sys.argv[6]
         sig_filter = 'significant only' if sys.argv[7] == 'significant' else 'all'
         var = 'no var' if sys.argv[8] == 'none' else sys.argv[8]

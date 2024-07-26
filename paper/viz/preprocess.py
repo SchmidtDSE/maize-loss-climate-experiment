@@ -115,6 +115,7 @@ def make_scatter_values(records, climate_deltas, configuration):
 
     if configuration.get_risk_range() == 'Sample 1 Year':
         year_records = filter(lambda x: x.get_year() in [2030, 2050], loss_records)
+        count_multiplier = 1  # single year summarized
     else:
         year_records_nested = toolz.itertoolz.reduceby(
             lambda x: x.get_key(),
@@ -122,13 +123,14 @@ def make_scatter_values(records, climate_deltas, configuration):
             loss_records
         )
         year_records = year_records_nested.values()
+        count_multiplier = 5  # 5 years summarized
 
     year_records = list(year_records)
-    count = len(year_records)
+    count = len(year_records) * count_multiplier
 
     p_threshold_naive = {
-        'p < 0.05': 0.05,
-        'p < 0.10': 0.1
+        'p <  0.05': 0.05,
+        'p <  0.10': 0.1
     }[configuration.get_threshold()]
 
     if configuration.get_adjustment() == 'Bonferroni':
@@ -160,7 +162,7 @@ def make_scatter_values(records, climate_deltas, configuration):
         p_value = record.get_yield_comparison().get_p_value()
 
         if p_value > p_threshold:
-            category = 'not significant'
+            category = 'no significant change'
         elif prior_mean > predicted_mean:
             category = 'lower than counterfactual'
         else:
@@ -194,7 +196,7 @@ def make_scatter_values(records, climate_deltas, configuration):
             var_str = 'yield below counterfactual'
 
         if risk_p > p_threshold:
-            category = 'not significant'
+            category = 'no significant change'
         elif risk_change > 0:
             category = 'higher risk, ' + var_str
         else:
@@ -221,7 +223,7 @@ def make_scatter_values(records, climate_deltas, configuration):
         adapted_p = record.get_adapted_risk().get_p_value()
 
         if predicted_p > p_threshold:
-            category = 'not significant'
+            category = 'no significant change'
         elif predicted_change > 0:
             if adapted_p < p_threshold and adapted_change < predicted_change:
                 category = 'higher risk, can adapt'
@@ -259,7 +261,7 @@ def make_scatter_values(records, climate_deltas, configuration):
     points_valid = filter(lambda x: x.get_is_valid(), points)
 
     if configuration.get_sig_filter() == 'significant only':
-        points_filtered = filter(lambda x: x.get_category() != 'not significant', points_valid)
+        points_filtered = filter(lambda x: x.get_category() != 'no significant change', points_valid)
     else:
         points_filtered = points_valid
 

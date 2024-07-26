@@ -149,8 +149,6 @@ class DeterminePercentSignificantTask(luigi.Task):
         return luigi.LocalTarget(const.get_file_location('stats_significant.json'))
 
     def run(self):
-        geohashes = set()
-        geohashes_meeting_threshold = set()
         
         with self.input().open() as f:
             records = csv.DictReader(f)
@@ -159,15 +157,16 @@ class DeterminePercentSignificantTask(luigi.Task):
                 records
             )
 
-            for record in records_mpci:
-                geohash = record['geohash']
-                meets_threshold = int(record['pMeets0.05n']) == 1
-                
-                geohashes.add(geohash)
-                if meets_threshold:
-                    geohashes_meeting_threshold.add(geohash)
+            records_2050 = list(filter(lambda x: '2050' in x['condition'], records_mpci))
+            total_count = sum(map(lambda x: float(x['num']), records_2050))
 
-        percent = len(geohashes_meeting_threshold) / len(geohashes)
+            sig_records = filter(lambda x: int(x['pMeets0.05n']) == 1, records_2050)
+            sig_geohashes = set(map(lambda x: x['geohash'], sig_records))
+
+            sig_records_geohash = list(filter(lambda x: x['geohash'] in sig_geohashes, records_2050))
+            sig_count = sum(map(lambda x: float(x['num']), sig_records_geohash))
+
+        percent = sig_count / total_count
         output_record = {'percentSignificant': format_percent(percent)}
 
         with self.output().open('w') as f:

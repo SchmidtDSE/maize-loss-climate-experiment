@@ -151,7 +151,7 @@ In these trials as oulined in Table @tbl:posthocresults, the temporal displaceme
 
 
 ## Simulation outcomes
-Despite the conservative nature of the Bonferroni correction [@mcdonald_handbook_2014] and the 1km sample assumption, {{percentSignificant}} of neighborhoods in SSP245 see significant changes to claim probability ($p<0.05/n$) though we observe that some of the remaining neighborhoods failing to meet that threshold have less land dedicated to maize within their area and, thus, a smaller sample size in our simulations.
+Despite the conservative nature of the Bonferroni correction [@mcdonald_handbook_2014] and the 1km sample assumption, {{percentSignificant}} of maize acreage in SSP245 falls within a neighborhood with significant changes to claim probability ($p < 0.05 / n$) at some point during the 2050 series simulations. That said, we observe that some of the remaining neighborhoods failing to meet that threshold have less land dedicated to maize within their area and, thus, a smaller sample size in our simulations.
 
 | **Scenario**   | **Year** | **Unit mean yield change** | **Unit loss probability**         | **Avg covered loss severity**  |
 | ---------------------------- | -------- | -------------------------- | --------------------------------- | ------------------------------ |
@@ -181,7 +181,7 @@ Prior work suggests that historic trends would anticipate continued increases in
 Prior work expects that larger insured units will reduce risk [@knight_developing_2010] and we similarly observe that the claims rate decreases as the acrage included in an insured unit grows. However, after attempting multiple insured unit sizes including removal of smaller Optional Units [@zulauf_importance_2023] in post-hoc simulations, a gap persists in claims rates between the counterfactual and expected climate change simulations, suggesting our concerns may remain relevant across different risk units.
 
 ## Geographic bias
-We find significant results ($p < 0.05 / n$) more common in some areas as shown in Figure @fig:geo.
+We find neighborhoods with significant results ($p < 0.05 / n$) more common in some areas as shown in Figure @fig:geo.
 
 ![Example simulation in our interactive tool’s geographic view. Our projections vary across different geographic areas.](./img/map.png "Example simulation in our interactive tool’s geographic view. Our projections vary across different geographic areas."){ width=85% #fig:geo }
 
@@ -265,7 +265,7 @@ Maize production not only suffers from climate warming's effects [@jagermeyr_cli
 \bigskip
 
 # Acknowledgements
-Study funded by the Eric and Wendy Schmidt Center for Data Science and Environment at the University of California, Berkeley. We have no conflicts of interest to disclose. Using yield estimation data from @lobell_scalable_2015 and @deines_million_2021 with our thanks to David Lobell for permission. We also wish to thank Magali de Bruyn, Nick Gondek, Jiajie Kong, Kevin Koy, and Ciera Martinez for conversation regarding these results. Thanks to Color Brewer [@brewer_colorbrewer_2013].
+Study funded by the Eric and Wendy Schmidt Center for Data Science and Environment at the University of California, Berkeley. We have no conflicts of interest to disclose. Using yield estimation data from @lobell_scalable_2015 and @deines_million_2021 with our thanks to David Lobell for permission. We also wish to thank Magali de Bruyn, Nick Gondek, Jiajie Kong, Kevin Koy, and Ciera Martinez for conversation regarding these results. Thanks to Color Brewer [@brewer_colorbrewer_2013] and Public Sans [@general_services_administration_public_2024].
 
 \bigskip
 
