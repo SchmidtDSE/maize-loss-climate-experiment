@@ -1,2 +1,7 @@
-pandoc-fignos==2.4.0
-pandoc-tablenos==2.3.0
+matplotlib~=3.9.1
+numpy~=2.0.1
+pandas~=2.2.2
+pandoc-fignos~=2.4.0
+pandoc-tablenos~=2.3.0
+sketchingpy[desktopall]~=0.2.2
+toolz~=0.12.1

@@ -6,6 +6,33 @@ permissions:
   contents: read
 
 jobs:
+  buildPaper:
+    environment: build
+    runs-on: ubuntu-latest
+    name: Build Paper
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Update apt
+        run: sudo apt-get update
+      - name: Install Pandoc
+        run: sudo apt-get install pandoc pandoc-citeproc texlive-extra-utils texlive-fonts-recommended texlive-latex-base texlive-latex-extra texlive-bibtex-extra biber
+      - name: Install zip
+        run: sudo apt-get install zip
+      - name: Install other deps
+        run: cd paper; pip install -r requirements.txt
+      - name: Build paper
+        run: cd paper; bash render.sh
+      - name: Move export
+        run: mv paper/arxiv.zip arxiv.zip
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: arxiv
+          path: arxiv.zip
+          if-no-files-found: error
   buildDeploy:
     environment: build
     runs-on: ubuntu-latest
@@ -31,7 +58,7 @@ jobs:
     environment: deploy
     name: Deploy
     runs-on: ubuntu-latest
-    needs: [buildDeploy]
+    needs: [buildPaper, buildDeploy]
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Download artifact

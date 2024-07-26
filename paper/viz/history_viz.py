@@ -1,9 +1,9 @@
 import copy
 import statistics
 
-import buttons
 import sketchingpy
 
+import buttons
 import const
 
 HIGH_VARIABILITY_SCENARIO = [210, 140, 250, 190, 270, 150, 280, 170, 300, 70]
