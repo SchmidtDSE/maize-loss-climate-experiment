@@ -19,12 +19,12 @@ jobs:
           python-version: '3.11'
       - name: Update apt
         run: sudo apt-get update
-      - name: Install Pandoc
-        run: sudo apt-get install pandoc pandoc-citeproc texlive-extra-utils texlive-fonts-recommended texlive-latex-base texlive-latex-extra texlive-bibtex-extra biber
       - name: Install zip
         run: sudo apt-get install zip
-      - name: Install other deps
+      - name: Install Python deps
         run: cd paper; pip install -r requirements.txt
+      - name: Install Pandoc
+        run: sudo apt-get install pandoc pandoc-citeproc texlive-extra-utils texlive-fonts-recommended texlive-latex-base texlive-latex-extra texlive-bibtex-extra biber
       - name: Build paper
         run: cd paper; bash render.sh
       - name: Move export
