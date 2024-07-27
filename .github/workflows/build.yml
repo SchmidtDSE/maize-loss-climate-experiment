@@ -57,9 +57,9 @@ jobs:
       - name: Install Pandoc deps
         run: sudo apt-get install texlive-extra-utils texlive-fonts-recommended texlive-latex-base texlive-latex-extra texlive-bibtex-extra biber
       - name: Download Pandoc
-        run: wget https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-1-amd64.deb
+        run: wget https://github.com/jgm/pandoc/releases/download/3.1.9/pandoc-3.1.9-1-amd64.deb
       - name: Install Pandoc
-        run: sudo dpkg -i pandoc-2.19.2-1-amd64.deb
+        run: sudo dpkg -i pandoc-3.1.9-1-amd64.deb
       - name: Prep file structure
         run: mkdir paper/img
       - name: Get static images
@@ -67,6 +67,8 @@ jobs:
         env:
           user: ${{ secrets.HttpUser }}
           pass: ${{ secrets.HttpPass }}
+      - name: Patch Pandoc deps
+        run: python -m pip install --force-reinstall git+https://github.com/tomduck/pandoc-xnos@284474574f51888be75603e7d1df667a0890504d#egg=pandoc-xnos
       - name: Build paper
         run: cd paper; bash render.sh
       - name: Move export
