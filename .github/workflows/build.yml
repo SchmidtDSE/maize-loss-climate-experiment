@@ -54,8 +54,12 @@ jobs:
         run: mv font_build/fonts/otf/PublicSans-Regular.otf paper/viz/font/PublicSans-Regular.otf
       - name: Install Python deps
         run: cd paper; pip install -r requirements.txt
+      - name: Install Pandoc deps
+        run: sudo apt-get install texlive-extra-utils texlive-fonts-recommended texlive-latex-base texlive-latex-extra texlive-bibtex-extra biber
+      - name: Download Pandoc
+        run: wget https://github.com/jgm/pandoc/releases/download/3.2.1/pandoc-3.2.1-1-amd64.deb
       - name: Install Pandoc
-        run: sudo apt-get install pandoc pandoc-citeproc texlive-extra-utils texlive-fonts-recommended texlive-latex-base texlive-latex-extra texlive-bibtex-extra biber
+        run: sudo dpkg -i pandoc-3.2.1-1-amd64.deb
       - name: Prep file structure
         run: mkdir paper/img
       - name: Build paper
