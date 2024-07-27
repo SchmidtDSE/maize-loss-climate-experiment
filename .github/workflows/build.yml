@@ -6,6 +6,79 @@ permissions:
   contents: read
 
 jobs:
+  buildPaper:
+    environment: build
+    runs-on: ubuntu-latest
+    name: Build Paper
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Update apt
+        run: sudo apt-get update
+      - name: Install zip
+        run: sudo apt-get install zip
+      - name: Install wget
+        run: sudo apt-get install wget
+      
+      - name: Download pipeline summary outputs
+        run: wget --user $user --password $pass https://ag-adaptation-study.pub/archive/outputs.zip
+        env:
+          user: ${{ secrets.HttpUser }}
+          pass: ${{ secrets.HttpPass }}
+      - name: Unzip downloaded summary data
+        run: unzip outputs.zip
+      - name: Move downloaded summary data
+        run: mv outputs paper/outputs
+      - name: Download pipeline detailed outputs
+        run: wget --user $user --password $pass https://ag-adaptation-study.pub/archive/data.zip
+        env:
+          user: ${{ secrets.HttpUser }}
+          pass: ${{ secrets.HttpPass }}
+      - name: Unzip downloaded detailed data
+        run: unzip data.zip
+      - name: Move downloaded detailed data
+        run: mv data paper/viz/data
+      - name: Make font build dir
+        run: mkdir font_build
+      - name: Download font
+        run: cd font_build; wget https://github.com/uswds/public-sans/releases/download/v2.001/public-sans-v2.001.zip
+      - name: Unzip font
+        run: cd font_build; unzip public-sans-v2.001
+      - name: Make font destination
+        run: mkdir paper/viz/font
+      - name: Move font
+        run: mv font_build/fonts/otf/PublicSans-Regular.otf paper/viz/font/PublicSans-Regular.otf
+      - name: Install Python deps
+        run: cd paper; pip install -r requirements.txt
+      - name: Install Pandoc deps
+        run: sudo apt-get install texlive-extra-utils texlive-fonts-recommended texlive-latex-base texlive-latex-extra texlive-bibtex-extra biber
+      - name: Download Pandoc
+        run: wget https://github.com/jgm/pandoc/releases/download/3.1.9/pandoc-3.1.9-1-amd64.deb
+      - name: Install Pandoc
+        run: sudo dpkg -i pandoc-3.1.9-1-amd64.deb
+      - name: Prep file structure
+        run: mkdir paper/img
+      - name: Get static images
+        run: cd paper/img; wget --user $user --password $pass https://ag-adaptation-study.pub/archive/pipeline.png
+        env:
+          user: ${{ secrets.HttpUser }}
+          pass: ${{ secrets.HttpPass }}
+      - name: Patch Pandoc deps
+        run: python -m pip install --force-reinstall git+https://github.com/tomduck/pandoc-xnos@284474574f51888be75603e7d1df667a0890504d#egg=pandoc-xnos
+      - name: Build paper
+        run: cd paper; bash render.sh
+      - name: Move export
+        run: mv paper/arxiv.zip arxiv.zip
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: arxiv
+          path: arxiv.zip
+          if-no-files-found: error
   buildDeploy:
     environment: build
     runs-on: ubuntu-latest

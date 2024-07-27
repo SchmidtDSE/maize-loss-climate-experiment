@@ -123,7 +123,7 @@ class MapMainPresenter:
                 return result
 
         def draw_record_no_var(record):
-            if record.get_category() == 'not significant':
+            if record.get_category() == 'no significant change':
                 self._sketch.set_stroke_weight(1)
                 self._sketch.set_stroke(const.CATEGORY_COLORS[record.get_category()] + 'A0')
                 self._sketch.clear_fill()

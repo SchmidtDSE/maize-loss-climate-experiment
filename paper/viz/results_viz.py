@@ -51,7 +51,7 @@ class ResultsVizPresenter:
                 'Avg All Years',
                 'yield',
                 'scatter',
-                'p < 0.05',
+                'p <  0.05',
                 'Bonferroni',
                 'significant only',
                 'no var',

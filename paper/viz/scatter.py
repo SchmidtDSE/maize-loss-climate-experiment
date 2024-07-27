@@ -233,7 +233,7 @@ class ScatterMainPresenter:
             self._sketch.set_ellipse_mode('radius')
 
             def draw_record(record, is_highlighted):
-                if record.get_category() == 'not significant':
+                if record.get_category() == 'no significant change':
                     self._sketch.set_stroke_weight(2)
                     self._sketch.set_stroke(const.CATEGORY_COLORS[record.get_category()] + 'A0')
                     self._sketch.clear_fill()

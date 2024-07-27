@@ -235,7 +235,7 @@ class ConfigurationPresenter:
             lambda x: self._set_config(self._config.get_with_loss(x))
         )
 
-        current_y += self._viz_buttons.get_height() + 30
+        current_y += self._viz_buttons.get_height() + 25
 
         self._scenario_buttons = ToggleButtonSet(
             self._sketch,
@@ -259,14 +259,14 @@ class ConfigurationPresenter:
             lambda x: self._set_config(self._config.get_with_risk_range(x))
         )
 
-        current_y += self._range_buttons.get_height() + 30
+        current_y += self._range_buttons.get_height() + 25
 
         self._threshold_buttons = ToggleButtonSet(
             self._sketch,
             0,
             current_y,
             'Threshold',
-            ['p < 0.05', 'p < 0.10'],
+            ['p <  0.05', 'p <  0.10'],
             self._config.get_threshold(),
             lambda x: self._set_config(self._config.get_with_threshold(x))
         )
@@ -295,7 +295,7 @@ class ConfigurationPresenter:
             lambda x: self._set_config(self._config.get_with_sig_filter(x))
         )
 
-        current_y += self._filter_buttons.get_height() + 30
+        current_y += self._filter_buttons.get_height() + 25
 
         self._var_buttons = ToggleButtonSet(
             self._sketch,

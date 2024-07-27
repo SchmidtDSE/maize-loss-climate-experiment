@@ -81,7 +81,7 @@ VAR_INCREMENTS = {
 MAX_COUNT = 0.1
 
 CATEGORY_COLORS = {
-    'not significant': '#c0c0c0',
+    'no significant change': '#c0c0c0',
     'lower than counterfactual': '#a6cee3',
     'higher than counterfactual': '#b2df8a',
     'higher risk, can adapt': '#1f78b4',

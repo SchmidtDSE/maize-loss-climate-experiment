@@ -39,10 +39,14 @@ class LegendPresenter:
         self._sketch.set_text_align('left', 'baseline')
         self._sketch.set_ellipse_mode('radius')
 
+        self._sketch.clear_stroke()
+        self._sketch.set_fill(const.INACTIVE_TEXT_COLOR)
+        self._sketch.draw_text(0, -7, 'Acreage summary:')
+
         use_symbols = self._var != 'no var' and self._viz == 'map'
 
         def draw_series_no_var(x, y, fill_color, category):
-            if name == 'not significant':
+            if name == 'no significant change':
                 self._sketch.set_stroke(fill_color + 'C0')
                 self._sketch.set_stroke_weight(2)
                 self._sketch.clear_fill()

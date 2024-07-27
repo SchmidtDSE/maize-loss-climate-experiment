@@ -54,6 +54,7 @@ class RiskComparison:
         elif other_count == 0:
             return self
 
+        # We are highlighting neighborhoods with any year with significant changes
         new_p = min([self.get_p_value(), other.get_p_value()])
 
         def combine_probs(a, a_count, b, b_count):

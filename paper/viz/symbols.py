@@ -70,7 +70,7 @@ def get_strategy(sketch, category):
     inner_increase_primary = lambda x, y, color: draw_increase(sketch, x, y, color)
     inner_increase_secondary = lambda x, y, color: draw_increase_secondary(sketch, x, y, color)
     var_draw_strategies = {
-        'not significant': inner_not_sig,
+        'no significant change': inner_not_sig,
         'lower than counterfactual': inner_decrease_primary,
         'higher than counterfactual': inner_increase_primary,
         'higher risk, can adapt': inner_increase_primary,
