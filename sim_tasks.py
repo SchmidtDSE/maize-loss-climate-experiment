@@ -1,5 +1,6 @@
 import concurrent.futures
 import csv
+import functools
 import itertools
 import json
 import random
@@ -27,6 +28,7 @@ OUTPUT_FIELDS = [
     'year',
     'condition',
     'threshold',
+    'thresholdStd',
     'stdMult',
     'geohashSimSize',
     'num',
@@ -39,6 +41,12 @@ OUTPUT_FIELDS = [
     'predictedLoss',
     'baselineLoss',
     'adaptedLoss',
+    'predictedClaimsStd',
+    'baselineClaimsStd',
+    'adaptedClaimsStd',
+    'predictedLossStd',
+    'baselineLossStd',
+    'adaptedLossStd',
     'p',
     'pAdapted'
 ] + BIN_FIELDS
@@ -88,7 +96,9 @@ class Task:
         return self._num_observations
 
 
-def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_sizes):
+def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_baseline,
+    unit_sizes, std_thresholds):
+    
     import math
     import random
 
@@ -96,6 +106,8 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
     import scipy.stats
     import toolz.itertoolz
+
+    std_threshold = std_thresholds['%.2f' % threshold]
     
     mean_deltas = deltas['mean']
     std_deltas = deltas['std']
@@ -174,19 +186,27 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
         predicted_deltas.append(predicted_delta)
         adapted_deltas.append(adapted_delta)
 
-    def get_claims_rate(target):
-        neg_threshold = threshold * -1
+    def get_claims_rate(target, inner_threshold=threshold):
+        neg_threshold = inner_threshold * -1
         claims = filter(lambda x: x <= neg_threshold, target)
         num_claims = sum(map(lambda x: 1, claims))
         return num_claims / len(target)
     
-    def get_loss_level(target):
-        neg_threshold = threshold * -1
+    def get_loss_level(target, inner_threshold=threshold):
+        neg_threshold = inner_threshold * -1
         claims = list(filter(lambda x: x <= neg_threshold, target))
         if len(claims) > 0:
             return statistics.mean(claims)
         else:
             return 0
+
+    def get_claims_rate_std(target):
+        converted_threshold = original_std * std_thresholds
+        return get_claims_rate(target, inner_threshold=converted_threshold)
+    
+    def get_loss_level_std(target):
+        converted_threshold = original_std * std_thresholds
+        return get_loss_level(target, inner_threshold=converted_threshold)
 
     def get_change(target):
         if len(target) > 0:
@@ -206,6 +226,14 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
     predicted_loss = get_loss_level(predicted_deltas)
     adapted_loss = get_loss_level(adapted_deltas)
 
+    baseline_claims_rate = get_claims_rate_std(baseline_deltas)
+    predicted_claims_rate = get_claims_rate_std(predicted_deltas)
+    adapted_claims_rate = get_claims_rate_std(adapted_deltas)
+    
+    baseline_loss = get_loss_level_std(baseline_deltas)
+    predicted_loss = get_loss_level_std(predicted_deltas)
+    adapted_loss = get_loss_level_std(adapted_deltas)
+
     p_baseline = scipy.stats.mannwhitneyu(predicted_deltas, baseline_deltas)[1]
     p_adapted = scipy.stats.mannwhitneyu(predicted_deltas, adapted_deltas)[1]
 
@@ -216,6 +244,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
         'year': task.get_year(),
         'condition': task.get_condition(),
         'threshold': threshold,
+        'stdThreshold': std_threshold,
         'stdMult': std_mult,
         'geohashSimSize': geohash_sim_size,
         'num': num_observations,
@@ -228,6 +257,12 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
         'predictedLoss': predicted_loss,
         'baselineLoss': baseline_loss,
         'adaptedLoss': adapted_loss,
+        'predictedClaimsStd': predicted_claims_rate_std,
+        'baselineClaimsStd': baseline_claims_rate_std,
+        'adaptedClaimsStd': adapted_claims_rate_std,
+        'predictedLossStd': predicted_loss_std,
+        'baselineLossStd': baseline_loss_std,
+        'adaptedLossStd': adapted_loss_std,
         'p': p_baseline,
         'pAdapted': p_adapted
     }
@@ -304,9 +339,19 @@ def parse_record_dict(record_raw):
     )
 
 
-def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_sizes):
+def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, offset_baseline,
+    unit_sizes, std_thresholds):
     results_all = map(
-        lambda x: run_simulation(x, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_sizes),
+        lambda x: run_simulation(
+            x,
+            deltas,
+            threshold,
+            std_mult,
+            geohash_sim_size,
+            offset_baseline,
+            unit_sizes,
+            std_thresholds
+        ),
         tasks
     )
     results_valid = filter(lambda x: x is not None, results_all)
@@ -610,7 +655,8 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
             'tasks': self.get_tasks_task(),
             'deltas': self.get_deltas_task(),
             'cluster': cluster_tasks.StartClusterTask(),
-            'unitSizes': CheckUnitSizes()
+            'unitSizes': CheckUnitSizes(),
+            'stdThresholds': DetermineEquivalentStdTask()
         }
 
     def output(self):
@@ -664,8 +710,20 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
                 'std': unzipped[1]
             }
 
+        with self.input()['stdThresholds'].open('r') as f:
+            std_thresholds = json.load(f)
+
         outputs_all = client.map(
-            lambda x: run_simulation_set(x[0], deltas, x[1], x[2], x[3], x[4], unit_sizes),
+            lambda x: run_simulation_set(
+                x[0],
+                deltas,
+                x[1],
+                x[2],
+                x[3],
+                x[4],
+                unit_sizes,
+                std_thresholds
+            ),
             tasks_with_variations
         )
         outputs_realized = map(lambda x: x.result(), outputs_all)
@@ -1003,3 +1061,43 @@ class MakeSingleYearStatistics(luigi.Task):
             'p': float(row['p']),
             'pAdapted': float(row['pAdapted'])
         }
+
+
+class DetermineEquivalentStdTask(luigi.Task):
+
+    def requires(self):
+        return InterpretProjectHistoricTask()
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('stats_equivalent_raw.json'))
+
+    def run(self):
+
+        def execute_threshold(level):
+            with self.input().open() as f:
+                reader = csv.DictReader(f)
+                equivalencies = map(lambda x: {
+                    'equivalent': self._get_equivalent_std(x, level),
+                    'num': int(x['yieldObservations'])
+                }, reader)
+
+                def combine(a, b):
+                    total = a['num'] + b['num']
+                    return {
+                        'equivalent': (a['equivalent'] * a['num'] + b['equivalent'] * b['num']) / total,
+                        'num': total
+                    }
+
+                overall_equivalency = functools.reduce(combine, equivalencies)['equivalent']
+
+                return overall_equivalency
+
+        with self.output().open('w') as f:
+            json.dump({
+                '0.25': execute_threshold(0.25),
+                '0.15': execute_threshold(0.15)
+            }, f)
+
+    def _get_equivalent_std(self, target, level):
+        predicted_std = float(target['predictedStd'])
+        return level / predicted_std

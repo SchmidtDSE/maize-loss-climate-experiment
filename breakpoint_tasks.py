@@ -102,7 +102,8 @@ class ExecuteSupplementalTasks(luigi.Task):
             'sweep': export_tasks.SweepExportTask(),
             'hist': export_tasks.HistExportTask(),
             'summary': export_tasks.SummaryExportTask(),
-            'combined': export_tasks.CombinedTasksRecordTask()
+            'combined': export_tasks.CombinedTasksRecordTask(),
+            'rates': export_tasks.ExportClaimsRatesTask()
         }
 
     def output(self):

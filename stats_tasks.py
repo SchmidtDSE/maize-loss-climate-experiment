@@ -1,5 +1,4 @@
 import csv
-import functools
 import json
 import statistics
 
@@ -259,37 +258,21 @@ class ExtractSimStatsTask(luigi.Task):
         }
 
 
-class DetermineEquivalentStdTask(luigi.Task):
+class SummarizeEquivalentStdTask(luigi.Task):
 
     def requires(self):
-        return sim_tasks.InterpretProjectHistoricTask()
+        return sim_tasks.DetermineEquivalentStdTask()
 
     def output(self):
         return luigi.LocalTarget(const.get_file_location('stats_equivalent.json'))
 
     def run(self):
-        with self.input().open() as f:
-            reader = csv.DictReader(f)
-            equivalencies = map(lambda x: {
-                'equivalent': self._get_equivalent_std(x),
-                'num': int(x['yieldObservations'])
-            }, reader)
-
-            def combine(a, b):
-                total = a['num'] + b['num']
-                return {
-                    'equivalent': (a['equivalent'] * a['num'] + b['equivalent'] * b['num']) / total,
-                    'num': total
-                }
-
-            overall_equivalency = functools.reduce(combine, equivalencies)['equivalent']
-
-        with self.output().open('w') as f:
-            json.dump({'equivalentStd': '%.2f' % overall_equivalency}, f)
-
-    def _get_equivalent_std(self, target):
-        predicted_std = float(target['predictedStd'])
-        return 0.25 / predicted_std
+        with self.input().open('r') as f_in:
+            with self.output().open('w') as f_out:
+                source = json.load(f_in)
+                json.dump({
+                    'equivalentStd': '%.2f' % source['0.25']
+                }, f_out)
 
 
 class CombineStatsTask(luigi.Task):
@@ -300,7 +283,7 @@ class CombineStatsTask(luigi.Task):
             'posthoc': ExportPosthocTestTask(),
             'significance': DeterminePercentSignificantTask(),
             'sim': ExtractSimStatsTask(),
-            'std': DetermineEquivalentStdTask()
+            'std': SummarizeEquivalentStdTask()
         }
 
     def output(self):

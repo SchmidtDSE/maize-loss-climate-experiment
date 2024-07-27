@@ -54,7 +54,7 @@ SWEEP_OUTPUT_COLS = [
     'testStd'
 ]
 
-HIST_OUTPUT_COLS = ['set', 'series', 'bin', 'val']
+HIST_OUTPUT_COLS = ['geohashSize', 'set', 'series', 'bin', 'val']
 
 TOOL_OUTPUT_COLS = [
     'geohash',
@@ -82,6 +82,42 @@ COMBINED_TASK_FIELDS = [
     'projectedYieldMean',
     'projectedYieldStd',
     'numObservations'
+]
+
+CLAIMS_COLS = [
+    'offsetBaseline',
+    'unitSize',
+    'year',
+    'condition',
+    'threshold',
+    'thresholdStd',
+    'stdMult',
+    'geohashSimSize',
+    'claimsRate',
+    'claimsRateStd',
+    'num'
+]
+
+CLAIMS_RATE_GROUP_KEYS = [
+    'offsetBaseline',
+    'unitSize',
+    'year',
+    'condition',
+    'threshold',
+    'thresholdStd',
+    'stdMult',
+    'geohashSimSize'
+]
+
+CLAIMS_RATE_GROUP_KEYS_FLOAT = [
+    'unitSize',
+    'threshold',
+    'thresholdStd',
+    'stdMult',
+    'geohashSimSize',
+    'num',
+    'claimsRate',
+    'claimsRateStd'
 ]
 
 USE_UNIT_FOR_COUNTERFACTUAL = True
@@ -229,18 +265,22 @@ class ClimateExportTask(luigi.Task):
         return '\t'.join(pieces_str)
 
 
-def is_default_config_record(target, threshold):
+def is_default_config_record(target, threshold, geohash_sim_size=4, historic=False):
     if threshold is not None and abs(float(target['threshold']) - threshold) > 0.0001:
         return False
 
     if abs(float(target['stdMult']) - 1) > 0.0001:
         return False
 
-    if int(target['geohashSimSize']) != 4:
+    if int(target['geohashSimSize']) != geohash_sim_size:
         return False
 
-    if target['series'] == 'historic':
-        return False
+    if historic:
+        if target['series'] != 'historic':
+            return False
+    else:
+        if target['series'] == 'historic':
+            return False
 
     if abs(float(target['unitSize'])) <= 1.0001:
         return False
@@ -312,13 +352,17 @@ class GetFamilySizeTask(luigi.Task):
             json.dump(reduced_dict, f)
 
 
-class HistExportTask(luigi.Task):
+class HistExportSubTask(luigi.Task):
+
+    geohash_size = luigi.Parameter()
+    historic = luigi.Parameter()
 
     def requires(self):
         return sim_tasks.CombineSimulationsTasks()
 
     def output(self):
-        return luigi.LocalTarget(const.get_file_location('export_hist.csv'))
+        vals = (self.geohash_size, 'historic' if self.historic else 'simulated')
+        return luigi.LocalTarget(const.get_file_location('export_hist_%d_%s.csv' % vals))
 
     def run(self):
         with self.output().open('w') as f_out:
@@ -327,7 +371,7 @@ class HistExportTask(luigi.Task):
 
             with self.input().open() as f_in:
                 all_rows = csv.DictReader(f_in)
-                rows_allowed = filter(lambda x: is_default_config_record(x, 0.25), all_rows)
+                rows_allowed = filter(lambda x: self._get_is_target(x), all_rows)
                 rows_simplified = map(lambda x: self._simplify_input(x), rows_allowed)
                 rows_combined = toolz.itertoolz.reduceby(
                     lambda x: x['series'],
@@ -344,7 +388,7 @@ class HistExportTask(luigi.Task):
 
             with self.input().open() as f_in:
                 all_rows = csv.DictReader(f_in)
-                rows_allowed = filter(lambda x: is_default_config_record(x, 0.25), all_rows)
+                rows_allowed = filter(lambda x: self._get_is_target(x), all_rows)
                 rows_simplified = map(lambda x: self._simplify_input(x), rows_allowed)
                 rows_combined = toolz.itertoolz.reduceby(
                     lambda x: x['series'],
@@ -361,6 +405,7 @@ class HistExportTask(luigi.Task):
                     lambda x: x['bin'] == 'claimsSco',
                     rows_interpreted_with_rename
                 )
+                rows_claims_with_meta = map(lambda x: self._add_meta(x), rows_claims)
                 writer.writerows(rows_claims)
 
 
@@ -457,6 +502,47 @@ class HistExportTask(luigi.Task):
             }
         else:
             return target
+
+    def _add_meta(self, target):
+        return {
+            'geohashSize': self.geohash_size,
+            'set': target['set'],
+            'series': target['series'],
+            'bin': new_name,
+            'val': target['val']
+        }
+
+    def _get_is_target(self, candidate):
+        return is_default_config_record(
+            x,
+            0.25,
+            geohash_sim_size=self.geohash_size,
+            historic=self.historic
+        )
+
+
+class HistExportTask(luigi.Task):
+
+    def requires(self):
+        return [
+            HistExportSubTask(geohash_size=4, historic=False),
+            HistExportSubTask(geohash_size=4, historic=True),
+            HistExportSubTask(geohash_size=5, historic=False),
+            HistExportSubTask(geohash_size=5, historic=True)
+        ]
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('export_hist.csv'))
+
+    def run(self):
+        with self.output().open('w') as f_out:
+            writer = csv.DictWriter(f_out, fieldnames=HIST_OUTPUT_COLS)
+            writer.writeheader()
+
+            for target in self.input():
+                with target.open('r') as f_in:
+                    reader = csv.DictReader(f)
+                    writer.writerows(reader)
 
 
 class SummaryExportTask(luigi.Task):
@@ -612,3 +698,77 @@ class CombinedTasksRecordTask(luigi.Task):
                 with self.input()[series].open('r') as f_in:
                     reader = csv.DictReader(f_in)
                     writer.writerows(reader)
+
+
+class ExportClaimsRatesTask(luigi.Task):
+
+    def requires(self):
+        return sim_tasks.CombineSimulationsTasks()
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('export_claims.csv'))
+
+    def run(self):
+        with self.output().open('w') as f_out:
+            writer = csv.DictWriter(f_out, fieldnames=CLAIMS_COLS)
+            writer.writeheader()
+
+            with self.input().open('r') as f_in:
+                reader = csv.DictReader(f_in)
+                simplified = map(lambda x: self._simplify_input(x), reader)
+                reduced = toolz.itertoolz.reduceby(
+                    lambda x: self._key_record(x),
+                    lambda a, b: self._combine_records(a, b),
+                    simplified
+                ).values()
+
+                writer.writerows(reduced)
+
+    def _simplify_input(self, target):
+        return {
+            'offsetBaseline': target['offsetBaseline'],
+            'unitSize': float(target['unitSize']),
+            'year': int(target['year']),
+            'condition': target['condition'],
+            'threshold': float(target['threshold']),
+            'thresholdStd': float(target['threshold']),
+            'stdMult': float(target['stdMult']),
+            'geohashSimSize': float(target['geohashSimSize']),
+            'num': float(target['num']),
+            'claimsRate': float(target['predictedClaims']),
+            'claimsRateStd': float(target['predictedClaimsStd'])
+        }
+
+    def _combine_records(self, a, b):
+        def get_weighted(key):
+            a_val = a[key]
+            a_num = a['num']
+            b_val = b[key]
+            b_num = b['num']
+
+            return (a_val * a_num + b_val * b_num) / (a_num + b_num)
+        
+        return {
+            'offsetBaseline': a['offsetBaseline'],
+            'unitSize': a['unitSize'],
+            'year': a['year'],
+            'condition': a['condition'],
+            'threshold': a['threshold'],
+            'thresholdStd': a['thresholdStd'],
+            'stdMult': a['stdMult'],
+            'geohashSimSize': a['geohashSimSize'],
+            'num': a['num'] + b['num'],
+            'claimsRate': get_weighted('claimsRate'),
+            'claimsRateStd': get_weighted('claimsRateStd')
+        }
+
+    def _key_record(self, record):
+        def get_value(key):
+            if key in CLAIMS_RATE_GROUP_KEYS_FLOAT:
+                return '%.4f' % record[key]
+            else:
+                return record[key]
+
+        key_vals = map(get_value, CLAIMS_RATE_GROUP_KEYS)
+        key_vals_str = map(lambda x: str(x), key_vals)
+        return '\t'.join(key_vals_str)
