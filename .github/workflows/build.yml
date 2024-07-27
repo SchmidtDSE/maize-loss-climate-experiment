@@ -62,6 +62,11 @@ jobs:
         run: sudo dpkg -i pandoc-2.19.2-1-amd64.deb
       - name: Prep file structure
         run: mkdir paper/img
+      - name: Get static images
+        run: cd paper/img; wget --user $user --password $pass https://ag-adaptation-study.pub/archive/pipeline.png
+        env:
+          user: ${{ secrets.HttpUser }}
+          pass: ${{ secrets.HttpPass }}
       - name: Build paper
         run: cd paper; bash render.sh
       - name: Move export
