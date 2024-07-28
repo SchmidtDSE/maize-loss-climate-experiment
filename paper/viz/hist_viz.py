@@ -551,7 +551,7 @@ class MainPresenter:
         )
         
         self._sketch.set_text_align('right', 'top')
-        self._sketch.draw_text(end_x, y + 8, '%.0f%% Loss Probability' % claims)
+        self._sketch.draw_text(end_x, y + 8, '%.1f%% Loss Probability' % claims)
         
         self._sketch.pop_style()
         self._sketch.pop_transform()
@@ -587,7 +587,7 @@ class MainPresenter:
         )
         
         self._sketch.set_text_align('right', 'bottom')
-        self._sketch.draw_text(end_x, y - 8, '%.0f%% Loss Probability' % claims)
+        self._sketch.draw_text(end_x, y - 8, '%.1f%% Loss Probability' % claims)
         
         self._sketch.set_text_align('right', 'top')
         self._sketch.draw_text(end_x, y + 2, '0%')
