@@ -97,7 +97,7 @@ class Task:
 
 
 def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_baseline,
-    unit_sizes, std_thresholds):
+    unit_sizes, std_thresholds, sample_model_residuals):
     
     import math
     import random
@@ -120,6 +120,9 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
     if geohash_sim_size == 5:
         num_observations = round(num_observations / 32)
+        unit_size_multiplier = 1 / 32
+    else:
+        unit_size_multiplier = 1
 
     if num_observations == 0:
         return None
@@ -130,7 +133,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
     pixels_remaining = num_observations
     while pixels_remaining > 0:
 
-        unit_size = random.choice(unit_sizes)
+        unit_size = random.choice(unit_sizes) * unit_size_multiplier
         unit_size_scaled = math.ceil(unit_size / const.RESOLUTION_SCALER)
         pixels_remaining = pixels_remaining - unit_size_scaled
         
@@ -139,7 +142,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
         for pixel_i in range(0, unit_size_scaled):
 
-            if SAMPLE_MODEL_RESIDUALS:
+            if sample_model_residuals:
                 mean_delta = random.choice(mean_deltas) * -1
                 std_delta = random.choice(std_deltas) * -1
             else:
@@ -201,11 +204,11 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
             return 0
 
     def get_claims_rate_std(target):
-        converted_threshold = original_std * std_thresholds
+        converted_threshold = original_std * std_threshold
         return get_claims_rate(target, inner_threshold=converted_threshold)
     
     def get_loss_level_std(target):
-        converted_threshold = original_std * std_thresholds
+        converted_threshold = original_std * std_threshold
         return get_loss_level(target, inner_threshold=converted_threshold)
 
     def get_change(target):
@@ -226,13 +229,13 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
     predicted_loss = get_loss_level(predicted_deltas)
     adapted_loss = get_loss_level(adapted_deltas)
 
-    baseline_claims_rate = get_claims_rate_std(baseline_deltas)
-    predicted_claims_rate = get_claims_rate_std(predicted_deltas)
-    adapted_claims_rate = get_claims_rate_std(adapted_deltas)
+    baseline_claims_rate_std = get_claims_rate_std(baseline_deltas)
+    predicted_claims_rate_std = get_claims_rate_std(predicted_deltas)
+    adapted_claims_rate_std = get_claims_rate_std(adapted_deltas)
     
-    baseline_loss = get_loss_level_std(baseline_deltas)
-    predicted_loss = get_loss_level_std(predicted_deltas)
-    adapted_loss = get_loss_level_std(adapted_deltas)
+    baseline_loss_std = get_loss_level_std(baseline_deltas)
+    predicted_loss_std = get_loss_level_std(predicted_deltas)
+    adapted_loss_std = get_loss_level_std(adapted_deltas)
 
     p_baseline = scipy.stats.mannwhitneyu(predicted_deltas, baseline_deltas)[1]
     p_adapted = scipy.stats.mannwhitneyu(predicted_deltas, adapted_deltas)[1]
@@ -244,7 +247,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
         'year': task.get_year(),
         'condition': task.get_condition(),
         'threshold': threshold,
-        'stdThreshold': std_threshold,
+        'thresholdStd': std_threshold,
         'stdMult': std_mult,
         'geohashSimSize': geohash_sim_size,
         'num': num_observations,
@@ -340,7 +343,7 @@ def parse_record_dict(record_raw):
 
 
 def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, offset_baseline,
-    unit_sizes, std_thresholds):
+    unit_sizes, std_thresholds, sample_model_residuals):
     results_all = map(
         lambda x: run_simulation(
             x,
@@ -350,7 +353,8 @@ def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, off
             geohash_sim_size,
             offset_baseline,
             unit_sizes,
-            std_thresholds
+            std_thresholds,
+            sample_model_residuals
         ),
         tasks
     )
@@ -722,7 +726,8 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
                 x[3],
                 x[4],
                 unit_sizes,
-                std_thresholds
+                std_thresholds,
+                self.get_sample_model_residuals()
             ),
             tasks_with_variations
         )
@@ -745,17 +750,47 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
     def get_deltas_task(self):
         raise NotImplementedError('Use implementor.')
 
+    def get_sample_model_residuals(self):
+        return SAMPLE_MODEL_RESIDUALS
 
-class ProjectHistoricTask(ProjectTaskTemplate):
-    
+
+class ProjectHistoricTask(luigi.Task):
+
+    def requires(self):
+        return {
+            'target': NormalizeRefHistoricTrainingFrameTask()
+        }
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('historic_project_dist.csv'))
+
+    def run(self):
+        target_frame = pandas.read_csv(self.input()['target'].path)
+
+        target_frame['joinYear'] = target_frame['year']
+        target_frame['simYear'] = 2007
+        target_frame['year'] = target_frame['simYear']
+
+        target_frame['predictedMean'] = target_frame['yieldMean']
+        target_frame['predictedStd'] = target_frame['yieldStd']
+
+        target_frame[[
+            'geohash',
+            'simYear',
+            'joinYear',
+            'predictedMean',
+            'predictedStd',
+            'yieldObservations'
+        ]].to_csv(self.output().path)
+
     def get_target_task(self):
-        return NormalizeRefHistoricTrainingFrameTask()
+        raise NotImplementedError('Use implementor.')
     
     def get_base_year(self):
-        return 2007
+        raise NotImplementedError('Use implementor.')
 
     def get_filename(self):
-        return 'historic_project_dist.csv'
+        raise NotImplementedError('Use implementor.')
 
 
 class Project2030Task(ProjectTaskTemplate):
@@ -937,6 +972,9 @@ class ExecuteSimulationTasksHistoricPredictedTask(ExecuteSimulationTasksTemplate
     def get_deltas_task(self):
         return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
 
+    def get_sample_model_residuals(self):
+        return False  # This one is not predicted
+
 
 class ExecuteSimulationTasks2030PredictedTask(ExecuteSimulationTasksTemplate):
 
@@ -1081,6 +1119,11 @@ class DetermineEquivalentStdTask(luigi.Task):
                     'num': int(x['yieldObservations'])
                 }, reader)
 
+                equivalencies_valid = filter(
+                    lambda x: x['equivalent'] is not None,
+                    equivalencies
+                )
+
                 def combine(a, b):
                     total = a['num'] + b['num']
                     return {
@@ -1088,7 +1131,7 @@ class DetermineEquivalentStdTask(luigi.Task):
                         'num': total
                     }
 
-                overall_equivalency = functools.reduce(combine, equivalencies)['equivalent']
+                overall_equivalency = functools.reduce(combine, equivalencies_valid)['equivalent']
 
                 return overall_equivalency
 
@@ -1100,4 +1143,8 @@ class DetermineEquivalentStdTask(luigi.Task):
 
     def _get_equivalent_std(self, target, level):
         predicted_std = float(target['predictedStd'])
-        return level / predicted_std
+
+        if predicted_std > 0:
+            return level / predicted_std
+        else:
+            return None

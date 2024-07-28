@@ -86,7 +86,6 @@ COMBINED_TASK_FIELDS = [
 
 CLAIMS_COLS = [
     'offsetBaseline',
-    'unitSize',
     'year',
     'condition',
     'threshold',
@@ -100,7 +99,6 @@ CLAIMS_COLS = [
 
 CLAIMS_RATE_GROUP_KEYS = [
     'offsetBaseline',
-    'unitSize',
     'year',
     'condition',
     'threshold',
@@ -110,7 +108,6 @@ CLAIMS_RATE_GROUP_KEYS = [
 ]
 
 CLAIMS_RATE_GROUP_KEYS_FLOAT = [
-    'unitSize',
     'threshold',
     'thresholdStd',
     'stdMult',
@@ -371,7 +368,7 @@ class HistExportSubTask(luigi.Task):
 
             with self.input().open() as f_in:
                 all_rows = csv.DictReader(f_in)
-                rows_allowed = filter(lambda x: self._get_is_target(x), all_rows)
+                rows_allowed = filter(lambda x: self._get_is_target(x, 0.25), all_rows)
                 rows_simplified = map(lambda x: self._simplify_input(x), rows_allowed)
                 rows_combined = toolz.itertoolz.reduceby(
                     lambda x: x['series'],
@@ -384,11 +381,12 @@ class HistExportSubTask(luigi.Task):
                     lambda x: self._rename_claims(x, 'claimsMpci'),
                     rows_interpreted
                 )
-                writer.writerows(rows_interpreted_with_rename)
+                rows_with_meta = map(lambda x: self._add_meta(x), rows_interpreted_with_rename)
+                writer.writerows(rows_with_meta)
 
             with self.input().open() as f_in:
                 all_rows = csv.DictReader(f_in)
-                rows_allowed = filter(lambda x: self._get_is_target(x), all_rows)
+                rows_allowed = filter(lambda x: self._get_is_target(x, 0.15), all_rows)
                 rows_simplified = map(lambda x: self._simplify_input(x), rows_allowed)
                 rows_combined = toolz.itertoolz.reduceby(
                     lambda x: x['series'],
@@ -405,8 +403,8 @@ class HistExportSubTask(luigi.Task):
                     lambda x: x['bin'] == 'claimsSco',
                     rows_interpreted_with_rename
                 )
-                rows_claims_with_meta = map(lambda x: self._add_meta(x), rows_claims)
-                writer.writerows(rows_claims)
+                rows_with_meta = map(lambda x: self._add_meta(x), rows_claims)
+                writer.writerows(rows_with_meta)
 
 
     def _simplify_input(self, target):
@@ -453,7 +451,11 @@ class HistExportSubTask(luigi.Task):
 
     def _create_output_rows(self, target):
         is_counterfactual = '_counterfactual' in target['series']
-        year = int(target['series'].split('_')[0])
+
+        if target['series'] == 'historic':
+            year = 2010
+        else:
+            year = int(target['series'].split('_')[0])
         
         def make_record_for_bin(bin_val):
             key = 'bin%d' % bin_val
@@ -505,17 +507,17 @@ class HistExportSubTask(luigi.Task):
 
     def _add_meta(self, target):
         return {
-            'geohashSize': self.geohash_size,
+            'geohashSize': int(self.geohash_size),
             'set': target['set'],
             'series': target['series'],
-            'bin': new_name,
+            'bin': target['bin'],
             'val': target['val']
         }
 
-    def _get_is_target(self, candidate):
+    def _get_is_target(self, candidate, threshold):
         return is_default_config_record(
-            x,
-            0.25,
+            candidate,
+            threshold,
             geohash_sim_size=self.geohash_size,
             historic=self.historic
         )
@@ -541,7 +543,7 @@ class HistExportTask(luigi.Task):
 
             for target in self.input():
                 with target.open('r') as f_in:
-                    reader = csv.DictReader(f)
+                    reader = csv.DictReader(f_in)
                     writer.writerows(reader)
 
 
@@ -580,7 +582,12 @@ class SummaryExportTask(luigi.Task):
     def _simplify_input(self, target, family_sizes):
         is_counterfactual = '_counterfactual' in target['series']
         year = int(target['year'])
-        year_series = int(target['series'].split('_')[0])
+
+        if target['series'] == 'historic':
+            year_series_str = 'historic'
+        else:
+            year_series = int(target['series'].split('_')[0])
+            year_series_str = '%d_SSP245' % year_series
 
         def include_if_predicted(value):
             if is_counterfactual:
@@ -604,7 +611,7 @@ class SummaryExportTask(luigi.Task):
             'geohash': target['geohash'],
             'isCounterfactual': is_counterfactual,
             'year': year,
-            'condition': '%d_SSP245' % year_series,
+            'condition': year_series_str,
             'lossThreshold': float(target['threshold']),
             'num': float(target['num']),
             'predictedRisk': include_if_predicted(predicted_claims),
@@ -727,8 +734,23 @@ class ExportClaimsRatesTask(luigi.Task):
     def _simplify_input(self, target):
         return {
             'offsetBaseline': target['offsetBaseline'],
-            'unitSize': float(target['unitSize']),
-            'year': int(target['year']),
+            'year': {
+                2003: 2010,
+                2005: 2010,
+                2007: 2010,
+                2009: 2010,
+                2011: 2010,
+                2026: 2030,
+                2028: 2030,
+                2030: 2030,
+                2032: 2030,
+                2034: 2030,
+                2046: 2050,
+                2048: 2050,
+                2050: 2050,
+                2052: 2050,
+                2054: 2050
+            }[int(target['year'])],
             'condition': target['condition'],
             'threshold': float(target['threshold']),
             'thresholdStd': float(target['threshold']),
@@ -750,7 +772,6 @@ class ExportClaimsRatesTask(luigi.Task):
         
         return {
             'offsetBaseline': a['offsetBaseline'],
-            'unitSize': a['unitSize'],
             'year': a['year'],
             'condition': a['condition'],
             'threshold': a['threshold'],
