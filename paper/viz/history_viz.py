@@ -6,8 +6,8 @@ import sketchingpy
 import buttons
 import const
 
-HIGH_VARIABILITY_SCENARIO = [210, 140, 250, 190, 270, 150, 280, 170, 300, 70]
-LOW_VARIABILITY_SCENARIO =  [190, 200, 190, 195, 200, 210, 200, 205, 220, 170]
+HIGH_VARIABILITY_SCENARIO = [200, 140, 240, 190, 270, 145, 270, 170, 290, 20]
+LOW_VARIABILITY_SCENARIO =  [190, 200, 190, 195, 200, 210, 200, 205, 220, 160]
 
 
 class HistoryMainPresenter:
@@ -273,7 +273,7 @@ class HistoryChartPresenter:
         std = statistics.stdev(self._values)
 
         if self._use_std:
-            threshold = -1.8
+            threshold = -2.1
             format_str = '%s%.1f std'
             get_delta = lambda x: (x - average) / std
         else:
@@ -349,7 +349,7 @@ class HistoryChartPresenter:
 
         if self._use_std:
             std = statistics.stdev(self._values)
-            with_loss = filter(lambda x: (x - average) / std < -1, self._values)
+            with_loss = filter(lambda x: (x - average) / std < -2.1, self._values)
         else:
             with_loss = filter(lambda x: (x - average) / average < -0.25, self._values)
         
