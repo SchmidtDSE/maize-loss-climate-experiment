@@ -1,22 +1,69 @@
 import copy
 import statistics
+import sys
 
 import sketchingpy
 
 import buttons
 import const
 
-HIGH_VARIABILITY_SCENARIO = [200, 140, 240, 190, 270, 145, 270, 170, 290, 20]
+HIGH_VARIABILITY_SCENARIO = [200, 140, 240, 190, 270, 135, 270, 170, 290, 20]
 LOW_VARIABILITY_SCENARIO =  [190, 200, 190, 195, 200, 210, 200, 205, 220, 160]
+
+NUM_ARGS = 1
+USAGE_STR = 'python history_viz.py [csv location]'
+
+
+class SummaryDataFacade:
+
+    def __init__(self, raw_rows):
+        with_offset = filter(lambda x: x['offsetBaseline'] == 'always', raw_rows)
+        with_size = filter(lambda x: x['geohashSimSize'] == '4.0', with_offset)
+        with_threshold = filter(lambda x: x['threshold'] == '0.25', with_size)
+        parsed = map(lambda x: self._parse_record(x), with_threshold)
+        parsed_tuple = map(
+            lambda x: (self._get_key(x['condition'], x['year']), x),
+            parsed
+        )
+        self._inner_records = dict(parsed_tuple)
+
+    def get_claims(self, year, condition, using_std):
+        key = self._get_key(condition, year)
+        attr = 'claimsRate' + ('Std' if using_std else '')
+        return self._inner_records[key][attr]
+
+    def get_threshold(self, year, condition, using_std):
+        key = self._get_key(condition, year)
+        attr = 'threshold' + ('Std' if using_std else '')
+        return self._inner_records[key][attr]
+
+    def _parse_record(self, target):
+        return {
+            'year': int(target['year']),
+            'condition': target['condition'],
+            'threshold': float(target['threshold']),
+            'thresholdStd': float(target['thresholdStd']),
+            'claimsRate': float(target['claimsRate']),
+            'claimsRateStd': float(target['claimsRateStd'])
+        }
+
+    def _get_key(self, condition, year):
+        return '%s_%d' % (condition, year)
 
 
 class HistoryMainPresenter:
 
-    def __init__(self, target, loading_id):
+    def __init__(self, target, loading_id, csv_loc=None):
         self._sketch = sketchingpy.Sketch2D(const.WIDTH, const.HEIGHT, target, loading_id)
         self._sketch.set_fps(10)
 
         self._click_waiting = False
+
+        if csv_loc is None:
+            csv_loc = './data/export_claims.csv'
+
+        raw_rows = self._sketch.get_data_layer().get_csv(csv_loc)
+        self._data_facade = SummaryDataFacade(raw_rows)
         
         self._last_mouse_x = None
         self._last_mouse_y = None
@@ -29,6 +76,15 @@ class HistoryMainPresenter:
             const.WIDTH - 10,
             const.HEIGHT - 5 - 20 - (const.BUTTON_HEIGHT + 10),
             LOW_VARIABILITY_SCENARIO
+        )
+
+        self._summary_presenter = SummaryPresenter(
+            self._sketch,
+            const.WIDTH - 219,
+            30,
+            200,
+            100,
+            self._data_facade
         )
 
         self._threshold_type_buttons = buttons.ToggleButtonSet(
@@ -84,6 +140,7 @@ class HistoryMainPresenter:
 
         self._draw_annotation()
         self._chart_presenter.step(mouse_x, mouse_y, self._click_waiting)
+        self._summary_presenter.step(mouse_x, mouse_y, self._click_waiting)
         self._threshold_type_buttons.step(mouse_x, mouse_y, self._click_waiting)
         self._scenario_buttons.step(mouse_x, mouse_y, self._click_waiting)
 
@@ -107,7 +164,9 @@ class HistoryMainPresenter:
 
     def _update_threshold(self, new_value):
         self._change_waiting = True
-        self._chart_presenter.set_use_std(new_value == 'Stdev-based')
+        using_std = new_value == 'Stdev-based'
+        self._chart_presenter.set_using_std(using_std)
+        self._summary_presenter.set_using_std(using_std)
 
     def _update_stability(self, new_setting):
         self._change_waiting = True
@@ -142,6 +201,12 @@ class HistoryChartPresenter:
         self._sketch.set_rect_mode('corner')
         self._sketch.draw_rect(0, 0, self._width, self._height)
 
+        self._sketch.set_text_font(const.FONT_SRC, 16)
+        self._sketch.set_text_align('center', 'center')
+        self._sketch.clear_stroke()
+        self._sketch.set_fill(const.ACTIVE_TEXT_COLOR)
+        self._sketch.draw_text(self._width / 2, 14, 'Simulated Individual Farm Production History')
+
         self._draw_hover(mouse_x, mouse_y)
         self._draw_candidate(mouse_x, mouse_y, clicked)
         self._draw_x_axis()
@@ -152,7 +217,7 @@ class HistoryChartPresenter:
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
-    def set_use_std(self, new_use_std):
+    def set_using_std(self, new_use_std):
         self._use_std = new_use_std
 
     def set_values(self, new_values):
@@ -388,8 +453,90 @@ class HistoryChartPresenter:
          return ((self._height - y - 40) * 400) / (self._height - 50)
 
 
+class SummaryPresenter:
+
+    def __init__(self, sketch, x, y, width, height, data_facade):
+        self._sketch = sketch
+        self._x = x
+        self._y = y
+        self._width = width
+        self._height = height
+        self._data_facade = data_facade
+        self._using_std = False
+
+    def set_using_std(self, using_std):
+        self._using_std = using_std
+
+    def step(self, mouse_x_abs, mouse_y_abs, clicked):
+        self._sketch.push_transform()
+        self._sketch.push_style()
+
+        self._sketch.translate(self._x, self._y)
+        mouse_x = mouse_x_abs - self._x
+        mouse_y = mouse_y_abs - self._y
+
+        # Draw axis and title
+        self._sketch.set_fill(const.PANEL_BG_COLOR + 'A0')
+        self._sketch.set_stroke(const.INACTIVE_BORDER)
+        self._sketch.set_stroke_weight(1)
+        self._sketch.set_rect_mode('corner')
+        self._sketch.draw_rect(0, 0, self._width, self._height)
+
+        self._sketch.clear_stroke()
+        self._sketch.set_fill(const.ACTIVE_TEXT_COLOR)
+        self._sketch.set_text_font(const.FONT_SRC, 12)
+        self._sketch.set_text_align('center', 'center')
+        self._sketch.draw_text(self._width / 2, 10, 'US Corn Belt Summary')
+
+        self._sketch.clear_fill()
+        self._sketch.set_stroke(const.INACTIVE_BORDER)
+        self._sketch.draw_line(4, self._height - 18, self._width - 4, self._height - 18)
+
+        self._sketch.clear_stroke()
+        self._sketch.set_fill(const.INACTIVE_TEXT_COLOR)
+        self._sketch.set_text_align('center', 'top')
+        self._sketch.draw_text(self._width / 2, self._height - 16, 'Claims Rate')
+
+        self._sketch.set_text_align('left', 'top')
+        self._sketch.draw_text(4, self._height - 16, '0%')
+
+        self._sketch.set_text_align('right', 'top')
+        self._sketch.draw_text(self._width - 4, self._height - 16, '10%')
+
+        # Draw top bar
+        historic_claims = self._data_facade.get_claims(2010, 'historic', self._using_std) * 100
+        historic_threshold = self._data_facade.get_threshold(2010, 'historic', self._using_std)
+        future_claims = self._data_facade.get_claims(2050, '2050_SSP245', self._using_std) * 100
+        future_threshold = self._data_facade.get_threshold(2050, '2050_SSP245', self._using_std)
+        threshold_descriptor = ' std' if self._using_std else '% of avg'
+
+        self._sketch.clear_stroke()
+        self._sketch.set_fill(const.INACTIVE_TEXT_COLOR)
+        self._sketch.set_text_font(const.FONT_SRC, 12)
+        self._sketch.set_text_align('left', 'bottom')
+
+        historic_str_vals = (historic_claims, historic_threshold, threshold_descriptor)
+        self._sketch.draw_text(2, 40, 'Historic: %.1f%% (<-%.2f%s)' % historic_str_vals)
+
+        future_str_vals = (future_claims, future_threshold, threshold_descriptor)
+        self._sketch.draw_text(2, 64, 'Future: %.1f%% (<-%.2f%s)' % future_str_vals)
+
+        self._sketch.set_rect_mode('corner')
+        get_width = lambda x: x / 10 * (self._width - 8)
+        self._sketch.draw_rect(4, 41, get_width(historic_claims) , 3)
+        self._sketch.draw_rect(4, 65, get_width(future_claims), 3)
+
+        self._sketch.pop_style()
+        self._sketch.pop_transform()
+
+
 def main():
-    presenter = HistoryMainPresenter('History Viz', None)
+    if len(sys.argv) != NUM_ARGS + 1:
+        print(USAGE_STR)
+        sys.exit(1)
+    
+    csv_loc = sys.argv[1]
+    presenter = HistoryMainPresenter('History Viz', None, csv_loc=csv_loc)
 
 
 if __name__ == '__main__':

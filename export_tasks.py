@@ -753,7 +753,7 @@ class ExportClaimsRatesTask(luigi.Task):
             }[int(target['year'])],
             'condition': target['condition'],
             'threshold': float(target['threshold']),
-            'thresholdStd': float(target['threshold']),
+            'thresholdStd': float(target['thresholdStd']),
             'stdMult': float(target['stdMult']),
             'geohashSimSize': float(target['geohashSimSize']),
             'num': float(target['num']),

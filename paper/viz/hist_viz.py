@@ -56,7 +56,7 @@ class MainPresenter:
             self._click_waiting = True
 
         top_button_y = 5
-        bottom_button_y = SUB_CHART_HEIGHT * 2 + 50 + 25 * 2 + 2 + 8
+        bottom_button_y = SUB_CHART_HEIGHT * 2 + 50 + 25 * 2 + 2 + 10
 
         self._target_set = str(default_year)
         self._year_buttons = buttons.ToggleButtonSet(
