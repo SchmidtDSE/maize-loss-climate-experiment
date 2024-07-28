@@ -177,7 +177,7 @@ class MainPresenter:
         return offset / 200 * SUB_CHART_WIDTH
 
     def _get_y(self, value):
-        return value / 20 * (SUB_CHART_HEIGHT - 50)
+        return value / 30 * (SUB_CHART_HEIGHT - 20)
 
     def _combine_dicts(self, a, b):
         
@@ -459,7 +459,7 @@ class MainPresenter:
         self._sketch.set_text_align('right', 'center')
         self._sketch.set_text_font(const.FONT_SRC, 11)
         
-        for percent in range(0, 25, 5):
+        for percent in range(0, 35, 5):
             height = self._get_y(percent)
             self._sketch.draw_text(
                 0,
@@ -468,11 +468,16 @@ class MainPresenter:
             )
         
         self._sketch.push_transform()
-        self._sketch.translate(-30, self._get_y(8))
+        self._sketch.translate(-35, self._get_y(16))
         self._sketch.set_angle_mode('degrees')
         self._sketch.rotate(-90)
         self._sketch.set_text_align('center', 'center')
-        self._sketch.draw_text(0, 0, 'Without Climate Change')
+
+        if self._comparison == 'vs historical':
+            self._sketch.draw_text(0, 0, 'Historic Values (Approx 2007)')
+        else:
+            self._sketch.draw_text(0, 0, 'Climate Change Stop at 2024')
+        
         self._sketch.pop_transform()
         
         self._sketch.pop_style()
@@ -488,7 +493,7 @@ class MainPresenter:
         self._sketch.set_text_align('right', 'center')
         self._sketch.set_text_font(const.FONT_SRC, 11)
         
-        for percent in range(0, 25, 5):
+        for percent in range(0, 35, 5):
             height = self._get_y(percent)
             self._sketch.draw_text(
                 0,
@@ -499,16 +504,16 @@ class MainPresenter:
         self._sketch.set_text_align('left', 'center')
         self._sketch.draw_text(
             2,
-            SUB_CHART_HEIGHT - self._get_y(10),
+            SUB_CHART_HEIGHT - self._get_y(15),
             'of risk units'
         )
         
         self._sketch.push_transform()
-        self._sketch.translate(-30, SUB_CHART_HEIGHT - self._get_y(8))
+        self._sketch.translate(-35, SUB_CHART_HEIGHT - self._get_y(10))
         self._sketch.set_angle_mode('degrees')
         self._sketch.rotate(-90)
         self._sketch.set_text_align('center', 'center')
-        self._sketch.draw_text(0, 0, 'With Climate Change')
+        self._sketch.draw_text(0, 0, 'Continued Climate Change (SSP245)')
         self._sketch.pop_transform()
         
         self._sketch.pop_style()
@@ -527,7 +532,7 @@ class MainPresenter:
         is_catastrophic = self._target_threshold == '75% cov'
         max_val = 20 if is_catastrophic else 25
         
-        y = SUB_CHART_HEIGHT - self._get_y(20)
+        y = SUB_CHART_HEIGHT - self._get_y(30)
         start_x = self._get_x(-100)
         end_x = self._get_x(-25 if is_catastrophic else -15)
         
@@ -563,7 +568,7 @@ class MainPresenter:
         is_catastrophic = self._target_threshold == '75% cov'
         max_val = 20 if is_catastrophic else 25
         
-        y = self._get_y(20)
+        y = self._get_y(30)
         start_x = self._get_x(-100)
         end_x = self._get_x(-25 if is_catastrophic else -15)
         
@@ -606,7 +611,7 @@ class MainPresenter:
         self._sketch.set_text_align('center', 'bottom')
         self._sketch.draw_text(
             SUB_CHART_WIDTH / 2 + 40,
-            30,
+            25,
             'Histogram of Change in Risk Unit-Level Yields Relative to Expected (Avg Yield)'
         )
         
