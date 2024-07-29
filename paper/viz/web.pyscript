@@ -1,0 +1,9 @@
+import hist_viz
+import history_viz
+import results_viz
+import sweep_viz
+
+hist_viz.MainPresenter('sketch-canvas-results', 'sketch-load-message-results')
+results_viz.ResultsVizPresenter('sketch-canvas-discussion', 'sketch-load-message-discussion')
+history_viz.HistoryMainPresenter('sketch-canvas-conclusion', 'sketch-load-message-conclusion')
+sweep_viz.SweepMainPresenter('sketch-canvas-methods', 'sketch-load-message-methods')

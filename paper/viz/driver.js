@@ -1,0 +1,53 @@
+/**
+ * Start the web application.
+ */
+function openWebApp(event) {
+    document.querySelectorAll(".app-intro").forEach((x) => x.style.display = "none");
+    document.querySelectorAll(".sketch").forEach((x) => x.style.display = "block");
+
+    const execute = () => {
+        const scriptTag = document.createElement("script");
+        scriptTag.type = "py";
+        scriptTag.src = "web.pyscript?v=" + Date.now();
+        document.getElementById("root").appendChild(scriptTag);
+    };
+
+    let progress = 0;
+    const progressBars = document.querySelectorAll(".sketch-load-progress");
+    progressBars.forEach((x) => x.value = 0);
+    const incrementBar = () => {
+        let updateWaiting = false;
+        
+        progressBars.forEach((progressBar) => {
+            progressBar.value += 1;
+            updateWaiting = updateWaiting || progressBar.value < 19;
+        });
+
+        if (updateWaiting) {
+            setTimeout(incrementBar, 500);
+        }
+    };
+
+    event.preventDefault();
+
+    incrementBar();
+    execute();
+}
+
+
+function main() {
+    const tabs = new Tabby("[data-tabs]");
+    const slider = tns({
+        container: '.intro-slider',
+        items: 1,
+        slideBy: 'page',
+        autoplay: false,
+        nav: false
+    });
+
+    const loadLinks = document.querySelectorAll(".load-app-link");
+    loadLinks.forEach((x) => x.addEventListener("click", openWebApp));
+}
+
+
+main();
