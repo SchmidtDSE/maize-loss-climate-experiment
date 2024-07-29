@@ -1,5 +1,6 @@
 import concurrent.futures
 import csv
+import functools
 import itertools
 import json
 import random
@@ -27,6 +28,7 @@ OUTPUT_FIELDS = [
     'year',
     'condition',
     'threshold',
+    'thresholdStd',
     'stdMult',
     'geohashSimSize',
     'num',
@@ -39,6 +41,12 @@ OUTPUT_FIELDS = [
     'predictedLoss',
     'baselineLoss',
     'adaptedLoss',
+    'predictedClaimsStd',
+    'baselineClaimsStd',
+    'adaptedClaimsStd',
+    'predictedLossStd',
+    'baselineLossStd',
+    'adaptedLossStd',
     'p',
     'pAdapted'
 ] + BIN_FIELDS
@@ -88,7 +96,9 @@ class Task:
         return self._num_observations
 
 
-def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_sizes):
+def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_baseline,
+    unit_sizes, std_thresholds, sample_model_residuals):
+    
     import math
     import random
 
@@ -96,6 +106,8 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
     import scipy.stats
     import toolz.itertoolz
+
+    std_threshold = std_thresholds['%.2f' % threshold]
     
     mean_deltas = deltas['mean']
     std_deltas = deltas['std']
@@ -108,6 +120,9 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
     if geohash_sim_size == 5:
         num_observations = round(num_observations / 32)
+        unit_size_multiplier = 1 / 32
+    else:
+        unit_size_multiplier = 1
 
     if num_observations == 0:
         return None
@@ -118,7 +133,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
     pixels_remaining = num_observations
     while pixels_remaining > 0:
 
-        unit_size = random.choice(unit_sizes)
+        unit_size = random.choice(unit_sizes) * unit_size_multiplier
         unit_size_scaled = math.ceil(unit_size / const.RESOLUTION_SCALER)
         pixels_remaining = pixels_remaining - unit_size_scaled
         
@@ -127,7 +142,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
         for pixel_i in range(0, unit_size_scaled):
 
-            if SAMPLE_MODEL_RESIDUALS:
+            if sample_model_residuals:
                 mean_delta = random.choice(mean_deltas) * -1
                 std_delta = random.choice(std_deltas) * -1
             else:
@@ -174,19 +189,27 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
         predicted_deltas.append(predicted_delta)
         adapted_deltas.append(adapted_delta)
 
-    def get_claims_rate(target):
-        neg_threshold = threshold * -1
+    def get_claims_rate(target, inner_threshold=threshold):
+        neg_threshold = inner_threshold * -1
         claims = filter(lambda x: x <= neg_threshold, target)
         num_claims = sum(map(lambda x: 1, claims))
         return num_claims / len(target)
     
-    def get_loss_level(target):
-        neg_threshold = threshold * -1
+    def get_loss_level(target, inner_threshold=threshold):
+        neg_threshold = inner_threshold * -1
         claims = list(filter(lambda x: x <= neg_threshold, target))
         if len(claims) > 0:
             return statistics.mean(claims)
         else:
             return 0
+
+    def get_claims_rate_std(target):
+        converted_threshold = original_std * std_threshold
+        return get_claims_rate(target, inner_threshold=converted_threshold)
+    
+    def get_loss_level_std(target):
+        converted_threshold = original_std * std_threshold
+        return get_loss_level(target, inner_threshold=converted_threshold)
 
     def get_change(target):
         if len(target) > 0:
@@ -206,6 +229,14 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
     predicted_loss = get_loss_level(predicted_deltas)
     adapted_loss = get_loss_level(adapted_deltas)
 
+    baseline_claims_rate_std = get_claims_rate_std(baseline_deltas)
+    predicted_claims_rate_std = get_claims_rate_std(predicted_deltas)
+    adapted_claims_rate_std = get_claims_rate_std(adapted_deltas)
+    
+    baseline_loss_std = get_loss_level_std(baseline_deltas)
+    predicted_loss_std = get_loss_level_std(predicted_deltas)
+    adapted_loss_std = get_loss_level_std(adapted_deltas)
+
     p_baseline = scipy.stats.mannwhitneyu(predicted_deltas, baseline_deltas)[1]
     p_adapted = scipy.stats.mannwhitneyu(predicted_deltas, adapted_deltas)[1]
 
@@ -216,6 +247,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
         'year': task.get_year(),
         'condition': task.get_condition(),
         'threshold': threshold,
+        'thresholdStd': std_threshold,
         'stdMult': std_mult,
         'geohashSimSize': geohash_sim_size,
         'num': num_observations,
@@ -228,6 +260,12 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
         'predictedLoss': predicted_loss,
         'baselineLoss': baseline_loss,
         'adaptedLoss': adapted_loss,
+        'predictedClaimsStd': predicted_claims_rate_std,
+        'baselineClaimsStd': baseline_claims_rate_std,
+        'adaptedClaimsStd': adapted_claims_rate_std,
+        'predictedLossStd': predicted_loss_std,
+        'baselineLossStd': baseline_loss_std,
+        'adaptedLossStd': adapted_loss_std,
         'p': p_baseline,
         'pAdapted': p_adapted
     }
@@ -304,9 +342,20 @@ def parse_record_dict(record_raw):
     )
 
 
-def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_sizes):
+def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, offset_baseline,
+    unit_sizes, std_thresholds, sample_model_residuals):
     results_all = map(
-        lambda x: run_simulation(x, deltas, threshold, std_mult, geohash_sim_size, offset_baseline, unit_sizes),
+        lambda x: run_simulation(
+            x,
+            deltas,
+            threshold,
+            std_mult,
+            geohash_sim_size,
+            offset_baseline,
+            unit_sizes,
+            std_thresholds,
+            sample_model_residuals
+        ),
         tasks
     )
     results_valid = filter(lambda x: x is not None, results_all)
@@ -610,7 +659,8 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
             'tasks': self.get_tasks_task(),
             'deltas': self.get_deltas_task(),
             'cluster': cluster_tasks.StartClusterTask(),
-            'unitSizes': CheckUnitSizes()
+            'unitSizes': CheckUnitSizes(),
+            'stdThresholds': DetermineEquivalentStdTask()
         }
 
     def output(self):
@@ -664,8 +714,21 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
                 'std': unzipped[1]
             }
 
+        with self.input()['stdThresholds'].open('r') as f:
+            std_thresholds = json.load(f)
+
         outputs_all = client.map(
-            lambda x: run_simulation_set(x[0], deltas, x[1], x[2], x[3], x[4], unit_sizes),
+            lambda x: run_simulation_set(
+                x[0],
+                deltas,
+                x[1],
+                x[2],
+                x[3],
+                x[4],
+                unit_sizes,
+                std_thresholds,
+                self.get_sample_model_residuals()
+            ),
             tasks_with_variations
         )
         outputs_realized = map(lambda x: x.result(), outputs_all)
@@ -687,17 +750,47 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
     def get_deltas_task(self):
         raise NotImplementedError('Use implementor.')
 
+    def get_sample_model_residuals(self):
+        return SAMPLE_MODEL_RESIDUALS
 
-class ProjectHistoricTask(ProjectTaskTemplate):
-    
+
+class ProjectHistoricTask(luigi.Task):
+
+    def requires(self):
+        return {
+            'target': NormalizeRefHistoricTrainingFrameTask()
+        }
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('historic_project_dist.csv'))
+
+    def run(self):
+        target_frame = pandas.read_csv(self.input()['target'].path)
+
+        target_frame['joinYear'] = target_frame['year']
+        target_frame['simYear'] = 2007
+        target_frame['year'] = target_frame['simYear']
+
+        target_frame['predictedMean'] = target_frame['yieldMean']
+        target_frame['predictedStd'] = target_frame['yieldStd']
+
+        target_frame[[
+            'geohash',
+            'simYear',
+            'joinYear',
+            'predictedMean',
+            'predictedStd',
+            'yieldObservations'
+        ]].to_csv(self.output().path)
+
     def get_target_task(self):
-        return NormalizeRefHistoricTrainingFrameTask()
+        raise NotImplementedError('Use implementor.')
     
     def get_base_year(self):
-        return 2007
+        raise NotImplementedError('Use implementor.')
 
     def get_filename(self):
-        return 'historic_project_dist.csv'
+        raise NotImplementedError('Use implementor.')
 
 
 class Project2030Task(ProjectTaskTemplate):
@@ -879,6 +972,9 @@ class ExecuteSimulationTasksHistoricPredictedTask(ExecuteSimulationTasksTemplate
     def get_deltas_task(self):
         return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
 
+    def get_sample_model_residuals(self):
+        return False  # This one is not predicted
+
 
 class ExecuteSimulationTasks2030PredictedTask(ExecuteSimulationTasksTemplate):
 
@@ -1003,3 +1099,52 @@ class MakeSingleYearStatistics(luigi.Task):
             'p': float(row['p']),
             'pAdapted': float(row['pAdapted'])
         }
+
+
+class DetermineEquivalentStdTask(luigi.Task):
+
+    def requires(self):
+        return InterpretProjectHistoricTask()
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('stats_equivalent_raw.json'))
+
+    def run(self):
+
+        def execute_threshold(level):
+            with self.input().open() as f:
+                reader = csv.DictReader(f)
+                equivalencies = map(lambda x: {
+                    'equivalent': self._get_equivalent_std(x, level),
+                    'num': int(x['yieldObservations'])
+                }, reader)
+
+                equivalencies_valid = filter(
+                    lambda x: x['equivalent'] is not None,
+                    equivalencies
+                )
+
+                def combine(a, b):
+                    total = a['num'] + b['num']
+                    return {
+                        'equivalent': (a['equivalent'] * a['num'] + b['equivalent'] * b['num']) / total,
+                        'num': total
+                    }
+
+                overall_equivalency = functools.reduce(combine, equivalencies_valid)['equivalent']
+
+                return overall_equivalency
+
+        with self.output().open('w') as f:
+            json.dump({
+                '0.25': execute_threshold(0.25),
+                '0.15': execute_threshold(0.15)
+            }, f)
+
+    def _get_equivalent_std(self, target, level):
+        predicted_std = float(target['predictedStd'])
+
+        if predicted_std > 0:
+            return level / predicted_std
+        else:
+            return None

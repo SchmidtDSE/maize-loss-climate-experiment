@@ -11,7 +11,7 @@ SUB_CHART_WIDTH = 700
 SUB_CHART_HEIGHT = 200
 TOP_COLOR = '#404040'
 BOTTOM_COLOR = '#707070'
-SUMMARY_FIELDS = ['claimsMpci', 'claimsSco', 'mean', 'cnt']
+SUMMARY_FIELDS = ['claimsMpci', 'claimsSco', 'mean', 'cnt', 'claimsRate']
 
 NUM_ARGS = 4
 USAGE_STR = 'python hist_viz.py [csv location] [default year] [default coverage] [output location]'
@@ -24,12 +24,12 @@ class MainPresenter:
         if output_loc:
             self._sketch = sketchingpy.Sketch2DStatic(
                 SUB_CHART_WIDTH + 80 + 11,
-                SUB_CHART_HEIGHT * 2 + 50 + 20 + 41
+                SUB_CHART_HEIGHT * 2 + 50 + 25 * 2 + 41
             )
         else:
             self._sketch = sketchingpy.Sketch2D(
                 SUB_CHART_WIDTH + 80 + 11,
-                SUB_CHART_HEIGHT * 2 + 50 + 20 + 41,
+                SUB_CHART_HEIGHT * 2 + 50 + 25 * 2 + 41,
                 target,
                 loading_id
             )
@@ -45,6 +45,8 @@ class MainPresenter:
 
         self._csv_loc = csv_loc
 
+        self._cached_raw = self._sketch.get_data_layer().get_csv(self._csv_loc)
+
         self._redraw_required = True
         self._click_waiting = False
         self._last_mouse_x = None
@@ -53,13 +55,14 @@ class MainPresenter:
         def set_mouse_clicked(mouse):
             self._click_waiting = True
 
-        button_y = SUB_CHART_HEIGHT * 2 + 50 + 20 + 2 + 8
+        top_button_y = 5
+        bottom_button_y = SUB_CHART_HEIGHT * 2 + 50 + 25 * 2 + 2 + 10
 
         self._target_set = str(default_year)
         self._year_buttons = buttons.ToggleButtonSet(
             self._sketch,
             5,
-            button_y,
+            top_button_y,
             'Year',
             ['2030', '2050'],
             str(default_year),
@@ -70,11 +73,33 @@ class MainPresenter:
         self._threshold_buttons = buttons.ToggleButtonSet(
             self._sketch,
             SUB_CHART_WIDTH + 80 - const.BUTTON_WIDTH * 2,
-            button_y,
+            top_button_y,
             'Threshold',
             ['85% cov', '75% cov'],
             default_coverage + '% cov',
             lambda x: self._change_loss(x)
+        )
+
+        self._comparison = 'vs counterfact'
+        self._comparison_buttons = buttons.ToggleButtonSet(
+            self._sketch,
+            5,
+            bottom_button_y,
+            'Comparison',
+            ['vs counterfact', 'vs historical'],
+            str(self._comparison),
+            lambda x: self._change_comparison(x)
+        )
+
+        self._geohash_size = '4 char geohash'
+        self._geohash_buttons = buttons.ToggleButtonSet(
+            self._sketch,
+            SUB_CHART_WIDTH + 80 - const.BUTTON_WIDTH * 2,
+            bottom_button_y,
+            'Geohash',
+            ['4 char geohash', 'approx 5 char'],
+            str(self._geohash_size),
+            lambda x: self._change_geohash_size(x)
         )
 
         self._records = self._get_records()
@@ -116,6 +141,8 @@ class MainPresenter:
 
         self._year_buttons.step(mouse_x, mouse_y, self._click_waiting)
         self._threshold_buttons.step(mouse_x, mouse_y, self._click_waiting)
+        self._comparison_buttons.step(mouse_x, mouse_y, self._click_waiting)
+        self._geohash_buttons.step(mouse_x, mouse_y, self._click_waiting)
 
         self._click_waiting = False
 
@@ -135,12 +162,22 @@ class MainPresenter:
         self._records = self._get_records()
         self._redraw_required = True
 
+    def _change_comparison(self, comparison_str):
+        self._comparison = comparison_str
+        self._records = self._get_records()
+        self._redraw_required = True
+
+    def _change_geohash_size(self, geohash_str):
+        self._geohash_size = geohash_str
+        self._records = self._get_records()
+        self._redraw_required = True
+
     def _get_x(self, value):
         offset = value + 100
         return offset / 200 * SUB_CHART_WIDTH
 
     def _get_y(self, value):
-        return value / 20 * (SUB_CHART_HEIGHT - 50)
+        return value / 30 * (SUB_CHART_HEIGHT - 20)
 
     def _combine_dicts(self, a, b):
         
@@ -162,7 +199,7 @@ class MainPresenter:
             keys
         ))
 
-    def _get_percents(self, target):
+    def _get_percents(self, target, claims_key):
         
         def get_precent_inner(inner_target):
             keys = inner_target.keys()
@@ -174,7 +211,9 @@ class MainPresenter:
             ))
             
             for key in SUMMARY_FIELDS:
-                ret_dict[key] = inner_target[key]
+                ret_dict[key] = inner_target.get(key, -1)
+
+            ret_dict['claimsRate'] = float(inner_target[claims_key]) / float(inner_target['cnt'])
             
             return ret_dict
         
@@ -193,23 +232,54 @@ class MainPresenter:
             return int(target)
 
     def _get_records(self):
-        raw_records = self._sketch.get_data_layer().get_csv(self._csv_loc)
-        allowed_records = filter(lambda x: x['series'] in SERIES, raw_records)
-        year_records = filter(lambda x: x['set'] == self._target_set, allowed_records)
+        raw_records = self._cached_raw
+        
+        target_geohash_size = {
+            '4 char geohash': 4,
+            'approx 5 char': 5
+        }[self._geohash_size]
+        
+        raw_records_right_size = filter(
+            lambda x: int(x['geohashSize']) == target_geohash_size,
+            raw_records
+        )
+
+        use_historic = self._comparison == 'vs historical'
+        
+        def get_is_in_target_series(target):
+            is_target_set = target['set'] == self._target_set
+            if use_historic:
+                if target['set'] == '2010':
+                    return True
+                else:
+                    return target['series'] == 'predicted' and is_target_set
+            else:
+                return target['series'] in SERIES and is_target_set
+        
+        allowed_records = filter(
+            get_is_in_target_series,
+            raw_records_right_size
+        )
+        
         cast_records = map(
             lambda x: {
-                'series': x['series'],
+                'series': 'counterfactual' if (use_historic and x['set'] == '2010') else x['series'],
                 'bin': self._interpret_bin(x['bin']),
                 'val': float(x['val'])
             },
-            year_records
+            allowed_records
         )
+        
         nested_records = map(
             lambda x: {x['series']: {x['bin']: x['val']}},
             cast_records
         )
+        
         counts = functools.reduce(lambda a, b: self._combine_dicts(a, b), nested_records)
-        return self._get_percents(counts)
+        
+        claims_key = 'claimsSco' if self._target_threshold == '85% cov' else 'claimsMpci'
+
+        return self._get_percents(counts, claims_key)
 
     def _get_body_fields(self, hist):
         items = hist.items()
@@ -389,7 +459,7 @@ class MainPresenter:
         self._sketch.set_text_align('right', 'center')
         self._sketch.set_text_font(const.FONT_SRC, 11)
         
-        for percent in range(0, 25, 5):
+        for percent in range(0, 35, 5):
             height = self._get_y(percent)
             self._sketch.draw_text(
                 0,
@@ -398,11 +468,16 @@ class MainPresenter:
             )
         
         self._sketch.push_transform()
-        self._sketch.translate(-30, self._get_y(8))
+        self._sketch.translate(-35, self._get_y(16))
         self._sketch.set_angle_mode('degrees')
         self._sketch.rotate(-90)
         self._sketch.set_text_align('center', 'center')
-        self._sketch.draw_text(0, 0, 'Without Climate Change')
+
+        if self._comparison == 'vs historical':
+            self._sketch.draw_text(0, 0, 'Historic Values (Approx 2007)')
+        else:
+            self._sketch.draw_text(0, 0, 'Climate Change Stop at 2024')
+        
         self._sketch.pop_transform()
         
         self._sketch.pop_style()
@@ -418,7 +493,7 @@ class MainPresenter:
         self._sketch.set_text_align('right', 'center')
         self._sketch.set_text_font(const.FONT_SRC, 11)
         
-        for percent in range(0, 25, 5):
+        for percent in range(0, 35, 5):
             height = self._get_y(percent)
             self._sketch.draw_text(
                 0,
@@ -429,16 +504,16 @@ class MainPresenter:
         self._sketch.set_text_align('left', 'center')
         self._sketch.draw_text(
             2,
-            SUB_CHART_HEIGHT - self._get_y(10),
+            SUB_CHART_HEIGHT - self._get_y(15),
             'of risk units'
         )
         
         self._sketch.push_transform()
-        self._sketch.translate(-30, SUB_CHART_HEIGHT - self._get_y(8))
+        self._sketch.translate(-35, SUB_CHART_HEIGHT - self._get_y(10))
         self._sketch.set_angle_mode('degrees')
         self._sketch.rotate(-90)
         self._sketch.set_text_align('center', 'center')
-        self._sketch.draw_text(0, 0, 'With Climate Change')
+        self._sketch.draw_text(0, 0, 'Continued Climate Change (SSP245)')
         self._sketch.pop_transform()
         
         self._sketch.pop_style()
@@ -455,9 +530,9 @@ class MainPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 9)
 
         is_catastrophic = self._target_threshold == '75% cov'
-        max_val = 10 if is_catastrophic else 15
+        max_val = 20 if is_catastrophic else 25
         
-        y = SUB_CHART_HEIGHT - self._get_y(20)
+        y = SUB_CHART_HEIGHT - self._get_y(30)
         start_x = self._get_x(-100)
         end_x = self._get_x(-25 if is_catastrophic else -15)
         
@@ -476,7 +551,7 @@ class MainPresenter:
         )
         
         self._sketch.set_text_align('right', 'top')
-        self._sketch.draw_text(end_x, y + 8, '%.0f%% Loss Probability' % claims)
+        self._sketch.draw_text(end_x, y + 8, '%.1f%% Loss Probability' % claims)
         
         self._sketch.pop_style()
         self._sketch.pop_transform()
@@ -491,9 +566,9 @@ class MainPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 9)
 
         is_catastrophic = self._target_threshold == '75% cov'
-        max_val = 10 if is_catastrophic else 15
+        max_val = 20 if is_catastrophic else 25
         
-        y = self._get_y(20)
+        y = self._get_y(30)
         start_x = self._get_x(-100)
         end_x = self._get_x(-25 if is_catastrophic else -15)
         
@@ -512,7 +587,7 @@ class MainPresenter:
         )
         
         self._sketch.set_text_align('right', 'bottom')
-        self._sketch.draw_text(end_x, y - 8, '%.0f%% Loss Probability' % claims)
+        self._sketch.draw_text(end_x, y - 8, '%.1f%% Loss Probability' % claims)
         
         self._sketch.set_text_align('right', 'top')
         self._sketch.draw_text(end_x, y + 2, '0%')
@@ -536,17 +611,12 @@ class MainPresenter:
         self._sketch.set_text_align('center', 'bottom')
         self._sketch.draw_text(
             SUB_CHART_WIDTH / 2 + 40,
-            30,
+            25,
             'Histogram of Change in Risk Unit-Level Yields Relative to Expected (Avg Yield)'
         )
         
         self._sketch.pop_style()
         self._sketch.pop_transform()
-
-    def _get_claims_rate(self, target):
-        is_catastrophic = self._target_threshold == '75% cov'
-        key = 'claimsMpci' if is_catastrophic else 'claimsSco'
-        return target[key] / target['cnt'] * 100
 
     def _draw_viz(self):
         self._sketch.push_transform()
@@ -570,8 +640,8 @@ class MainPresenter:
             )
             self._draw_axis_upper()
             self._draw_axis_bottom()
-            self._draw_top_claims(self._get_claims_rate(self._records['predicted']))
-            self._draw_bottom_claims(self._get_claims_rate(self._records['counterfactual']))
+            self._draw_top_claims(self._records['predicted']['claimsRate'] * 100)
+            self._draw_bottom_claims(self._records['counterfactual']['claimsRate'] * 100)
             self._draw_title()
             self._sketch.exit_buffer()
 
@@ -582,11 +652,11 @@ class MainPresenter:
         self._sketch.set_rect_mode('corner')
         self._sketch.draw_rect(
             4,
-            4,
+            4 + 25 + 5,
             SUB_CHART_WIDTH + 80 + 2,
             SUB_CHART_HEIGHT * 2 + 50 + 20 + 2
         )
-        self._sketch.draw_buffer(5, 5, 'hist-center')
+        self._sketch.draw_buffer(5, 5 + 25 + 5, 'hist-center')
 
         self._sketch.pop_style()
         self._sketch.pop_transform()
