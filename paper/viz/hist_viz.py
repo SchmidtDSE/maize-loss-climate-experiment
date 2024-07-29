@@ -20,7 +20,7 @@ USAGE_STR = 'python hist_viz.py [csv location] [default year] [default coverage]
 class MainPresenter:
 
     def __init__(self, target, loading_id, csv_loc=None, default_year=None, default_coverage=None,
-        unit=unit, comparison=comparison, output_loc=None):
+        unit='unit risk', comparison='vs counterfact', output_loc=None):
         if output_loc:
             self._sketch = sketchingpy.Sketch2DStatic(
                 SUB_CHART_WIDTH + 80 + 11,
