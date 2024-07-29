@@ -76,6 +76,30 @@ th, td {
     padding: 3px;
 }
 
+.app-intro {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #A0A0A0;
+    border-radius: 5px;
+    color: #000000;
+}
+
+.app-intro a.load-app-link {
+    padding: 5px;
+    background-color: #5050C0;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.app-intro a.load-app-link:hover {
+    text-decoration: underline;
+}
+
+.app-intro .instruction {
+    margin-bottom: 12px;
+}
+
 .block-quote {
     border: 1px solid #A0A0A0;
     border-radius: 5px;
@@ -145,6 +169,10 @@ th, td {
 .presentation {
     text-align: center;
     color: #333333;
+}
+
+.sketch {
+    display: none;
 }
 
 .tooltip {

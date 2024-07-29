@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html id="root">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -50,9 +50,7 @@
                 <li><a href="#methods">Methods</a></li>
                 <li><a href="#results">Results</a></li>
                 <li><a href="#discussion">Discussion</a></li>
-                <li><a href="#observation">Observation</a></li>
                 <li><a href="#conclusion">Conclusion</a></li>
-                <li><a href="#green-days">Bonus</a></li>
             </ul>
         </nav>
         
@@ -111,56 +109,69 @@
             <section id="methods">
                 <h2>Methods</h2>
                 <div class="interactive">
-                    <div id="sketch-load-message-methods">Loading...</div>
-                    <canvas id="sketch-canvas-methods"></canvas>
+                    <div class="app-intro">
+                        <div class="instruction">This section contains interactive components. It will take just a moment to load the data.</div>
+                        <a href="" class="load-app-link">Load Interactives >></a>
+                    </div>
+                    <div class="sketch">
+                        <div id="sketch-load-message-methods">
+                            Loading...
+                            <progress class="sketch-load-progress" max="20" value="0"></progress>
+                        </div>
+                        <canvas id="sketch-canvas-methods"></canvas>
+                    </div>
                     <div>Visualization that allows users to try different neural network configurations and see their validation set performance. How would you balance the error between predicted mean and predicted std?</div>
                 </div>
             </section>
             <section id="results">
                 <h2>Results</h2>
                 <div class="interactive">
-                    <div id="sketch-load-message-results">Loading...</div>
-                    <canvas id="sketch-canvas-results"></canvas>
+                    <div class="app-intro">
+                        <div class="instruction">This section contains interactive components. It will take just a moment to load the data.</div>
+                        <a href="" class="load-app-link">Load Interactives >></a>
+                    </div>
+                    <div class="sketch">
+                        <div id="sketch-load-message-results">
+                            Loading...
+                            <progress class="sketch-load-progress" max="20" value="0"></progress>
+                        </div>
+                        <canvas id="sketch-canvas-results"></canvas>
+                    </div>
                     <div>Visualization that explores the details of the results in depth. Which type of loss on which time horizon are we most worried about?</div>
                 </div>
-            </section>
-            <section id="observation">
-                <h2>Observation</h2>
-                <div>Looking at geohashes' variability versus risk may start to reveal a trend:</div>
-                <div class="diagram">
-                    <img src="/img/std_claims.png" alt="Plot of geohashes by future probability of catastrophic claim versus yield std dev">
-                </div>
-                <div>We can start to see this more clearly if we flip this around to ask what the equivalent percent loss is for 1 std dev below average per field:</div>
-                <div class="diagram">
-                    <img src="/img/std_claim_conv.png" alt="Plot equating standard deviation to percent below average.">
-                </div>
-                <div>Some fields' stability are subsidizing the risk of others.</div>
             </section>
             <section id="discussion">
                 <h2>Discussion</h2>
                 <div class="interactive">
-                    <div id="sketch-load-message-discussion">Loading...</div>
-                    <canvas id="sketch-canvas-discussion"></canvas>
+                    <div class="app-intro">
+                        <div class="instruction">This section contains interactive components. It will take just a moment to load the data.</div>
+                        <a href="" class="load-app-link">Load Interactives >></a>
+                    </div>
+                    <div class="sketch">
+                        <div id="sketch-load-message-discussion">
+                            Loading...
+                            <progress class="sketch-load-progress" max="20" value="0"></progress>
+                        </div>
+                        <canvas id="sketch-canvas-discussion"></canvas>
+                    </div>
                     <div>Visualization that explores the impacts of this study on insurers. How much does the yield distribution change? How does that impact insurers?</div>
                 </div>
             </section>
             <section id="conclusion">
                 <h2>Conclusion</h2>
                 <div class="interactive">
-                    <div id="sketch-load-message-conclusion">Loading...</div>
-                    <canvas id="sketch-canvas-conclusion"></canvas>
+                    <div class="app-intro">
+                        <div class="instruction">This section contains interactive components. It will take just a moment to load the data.</div>
+                        <a href="" class="load-app-link">Load Interactives >></a>
+                    </div>
+                    <div class="sketch">
+                        <div id="sketch-load-message-conclusion">
+                            Loading...
+                            <progress class="sketch-load-progress" max="20" value="0"></progress>
+                        </div>
+                        <canvas id="sketch-canvas-conclusion"></canvas>
+                    </div>
                     <div>Visualization that explores how using mean and standard deviation influences different behavior. Which kinds of growing patterns does each seem to encourage?</div>
-                </div>
-            </section>
-            <section id="green-days">
-                <h2>Green Days</h2>
-                <div>Looking at green days at a high level:</div>
-                <div class="diagram">
-                    <img src="/img/gd1.png" alt="Sum of months in green days">
-                </div>
-                <div>Breaking it down by calendar month:</div>
-                <div class="diagram">
-                    <img src="/img/gd2.png" alt="Calendar month view into green days">
                 </div>
             </section>
         </main>
@@ -168,36 +179,6 @@
 
     <script src="/third_party/tabby.js"></script>
     <script src="/third_party/tiny_slider.js"></script>
-
-    <script>
-        const tabs = new Tabby("[data-tabs]");
-        var slider = tns({
-            container: '.intro-slider',
-            items: 1,
-            slideBy: 'page',
-            autoplay: false,
-            nav: false
-        });
-    </script>
-
-    <script type="py">
-        import sweep_viz
-        sweep_viz.SweepMainPresenter('sketch-canvas-methods', 'sketch-load-message-methods')
-    </script>
-
-    <script type="py">
-        import hist_viz
-        hist_viz.MainPresenter('sketch-canvas-results', 'sketch-load-message-results')
-    </script>
-
-    <script type="py">
-        import results_viz
-        results_viz.ResultsVizPresenter('sketch-canvas-discussion', 'sketch-load-message-discussion')
-    </script>
-
-    <script type="py">
-        import history_viz
-        history_viz.HistoryMainPresenter('sketch-canvas-conclusion', 'sketch-load-message-conclusion')
-    </script>
+    <script src="driver.js?v=EPOCH"></script>
 
 </html>
