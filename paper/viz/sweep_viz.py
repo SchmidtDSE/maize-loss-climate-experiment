@@ -29,7 +29,8 @@ class SweepMainPresenter:
             self._sketch,
             const.WIDTH - 260,
             5,
-            lambda config: self._update_config(config)
+            lambda config: self._update_config(config),
+            lambda: self._show_all()
         )
 
         mouse = self._sketch.get_mouse()
@@ -48,6 +49,9 @@ class SweepMainPresenter:
 
     def _update_config(self, config):
         self._scatter_presenter.show_config(config)
+
+    def _show_all(self):
+        self._scatter_presenter.show_all()
 
     def _draw(self):
         mouse = self._sketch.get_mouse()
@@ -198,11 +202,12 @@ def load_data(sketch):
 
 class ConfigPresenter:
 
-    def __init__(self, sketch, x, y, on_config_change):
+    def __init__(self, sketch, x, y, on_config_change, on_run_sweep):
         self._sketch = sketch
         self._x = x
         self._y = y
         self._on_config_change = on_config_change
+        self._on_run_sweep = on_run_sweep
 
         y = 50
         self._layers_buttons = buttons.ToggleButtonSet(
@@ -227,7 +232,7 @@ class ConfigPresenter:
                 '0.010',
                 '0.100'
             ],
-            '0.010',
+            'No L2',
             lambda x: self._change_l2(x)
         )
 
@@ -244,7 +249,7 @@ class ConfigPresenter:
                 '0.10',
                 '0.50'
             ],
-            '0.05',
+            'No Dropout',
             lambda x: self._change_dropout(x)
         )
 
@@ -272,7 +277,7 @@ class ConfigPresenter:
         )
 
         self._filter_config = FilterConfig(
-            5,
+            3,
             0,
             0,
             'all attrs'
@@ -285,6 +290,15 @@ class ConfigPresenter:
             y,
             'Try Model >>',
             lambda x: self._try_model()
+        )
+
+        y += const.BUTTON_HEIGHT + 10
+        self._sweep_button = buttons.Button(
+            self._sketch,
+            260 / 2 - const.BUTTON_WIDTH / 2,
+            y,
+            'Run Sweep >>',
+            lambda x: self._run_sweep()
         )
 
     def draw(self, mouse_x, mouse_y, click_waiting):
@@ -300,6 +314,7 @@ class ConfigPresenter:
         self._drop_buttons.step(mouse_x, mouse_y, click_waiting)
         self._data_buttons.step(mouse_x, mouse_y, click_waiting)
         self._attempt_button.step(mouse_x, mouse_y, click_waiting)
+        self._sweep_button.step(mouse_x, mouse_y, click_waiting)
 
         self._sketch.pop_style()
         self._sketch.pop_transform()
@@ -326,6 +341,20 @@ class ConfigPresenter:
 
     def _try_model(self):
         self._on_config_change(self._filter_config)
+
+    def _run_sweep(self):
+        self._layers_buttons.set_value('3 layers')
+        self._l2_buttons.set_value('0.100')
+        self._drop_buttons.set_value('0.05')
+        self._data_buttons.set_value('All Data')
+        self._filter_config = FilterConfig(
+            3,
+            0.1,
+            0.05,
+            'all attrs'
+        )
+        self._on_run_sweep()
+        self._try_model()
 
 
 class ScatterPresenter:
@@ -363,15 +392,28 @@ class ScatterPresenter:
             return
 
         matched = matching[0]
-        self._points.append({
-            'mean': matched.get_mean_error(),
-            'std': matched.get_std_err(),
-            'trainMean': matched.get_train_std_err(),
-            'trainStd': matched.get_train_std_err(),
-        })
+        self._points.append(self._convert_point(matched))
 
         self._request_draw()
         self._requires_refresh = True
+
+    def show_all(self):
+        converted_points = map(
+            lambda x: self._convert_point(x),
+            self._data
+        )
+        self._points = list(converted_points)
+
+        self._request_draw()
+        self._requires_refresh = True
+
+    def _convert_point(self, target):
+        return {
+            'mean': target.get_mean_error(),
+            'std': target.get_std_err(),
+            'trainMean': target.get_train_std_err(),
+            'trainStd': target.get_train_std_err(),
+        }
 
     def _draw_contents(self):
         if self._requires_refresh:

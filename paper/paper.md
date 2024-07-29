@@ -109,7 +109,7 @@ We choose our model using each candidate’s capability to predict into future y
 - Use 2014 and 2016 as a validation set to compare among the 2,400 candidate models.
 - Test in which 2013 and 2015 serve as a fully hidden set in order to estimate how the chosen model may perform in the future.
 
-This involves trying different model parameter permutations like L2 and Dropout rates while fitting with a relatively small training set in order to offer a separate fully hidden test set. Therefore, having performed model selection, we further evaluate our chosen regressor through three additional tests which more practically estimate performance in different ways one may consider using this method (see Table @tbl:posthoc) while using a larger and, thus, more representative training set.
+This involves trying different model parameter permutations like L2 and Dropout rates while fitting with a relatively small training set in order to offer a separate fully hidden test set. Therefore, having performed model selection, we further evaluate our chosen regressor through three additional tests which more practically estimate performance in different ways one may consider using this method (see Table @tbl:posthoc) while using a larger training set.
 
 | **Trial**             | **Purpose**                                               | **Train**                                                                                                   | **Test**                                         |
 | ------------------------------------------------------------------------ | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
@@ -137,7 +137,7 @@ With slight bias towards the mean prediction task, we select {{numLayers}} layer
 
 Table: Results of chosen configuration during the "sweep" for model selection. {#tbl:sweep}
 
-The selected model sees some overfit but meta-parameter optimization uses fewer training data points than the simulations' model. Therefore, having chosen this set of hyper-parameters, we further evaluate regression performance through varied definitions of test sets representing different tasks while using a larger training set more representative of expectations for Monte Carlo.
+The selected model sees some overfit but, as described in supplemental, further follow-up exploration of higher values of L2 beyond 0.1 did not yield improved results. Also, meta-parameter optimization uses fewer training data points than the simulations' model. Therefore, having chosen this set of hyper-parameters, we further evaluate regression performance through varied definitions of test sets representing different tasks while using a larger training set.
 
 | **Task**              | **Test Mean Pred MAE** | **Test Std Pred MAE** | **% of Units in Test Set** |
 | --------------------- | ---------------------- | --------------------- | -------------------------- |
@@ -147,8 +147,7 @@ The selected model sees some overfit but meta-parameter optimization uses fewer 
 
 Table: Results of tests after model selection. {#tbl:posthocresults}
 
-In these trials as outlined in Table @tbl:posthocresults, the temporal task best resembles expected error in simulations.
-
+In these trials as outlined in Table @tbl:posthocresults, the temporal task best resembles expected error in simulations. After this evaluation, Monte Carlo uses a model trained on all available data using the selected configuration.
 
 ## Simulation outcomes
 Despite the conservative nature of the Bonferroni correction [@mcdonald_handbook_2014] and the 1km sample assumption, {{percentSignificant}} of maize acreage in SSP245 falls within a neighborhood with significant changes to claim probability ($p < 0.05 / n$) at some point during the 2050 series simulations. That said, we observe that some of the remaining neighborhoods failing to meet that threshold have less land dedicated to maize within their area and, thus, a smaller sample size in our simulations.

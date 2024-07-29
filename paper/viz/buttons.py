@@ -387,6 +387,9 @@ class ToggleButtonSet:
         self._make_rows = make_rows
         self._narrow = narrow
 
+    def set_value(self, option):
+        self._selected = option
+
     def step(self, mouse_x, mouse_y, clicked):
         self._sketch.push_transform()
         self._sketch.push_style()

@@ -274,7 +274,7 @@ class UploadHistoricTrainingFrame(luigi.Task):
             f.write('success')
 
 
-class SweepTask(luigi.Task):
+class SweepTemplateTask(luigi.Task):
 
     def requires(self):
         return {
@@ -283,14 +283,21 @@ class SweepTask(luigi.Task):
         }
 
     def output(self):
-        return luigi.LocalTarget(const.get_file_location('sweep.csv'))
+        return luigi.LocalTarget(const.get_file_location(self.get_filename()))
 
     def run(self):
-        num_layers = DEFAULT_NUM_LAYERS
-        l2_regs = DEFAULT_REGULARIZATION
-        dropouts = DEFAULT_DROPOUT
+        num_layers = self.get_num_layers()
+        l2_regs = self.get_l2_regs()
+        dropouts = self.get_dropouts()
 
-        combinations = itertools.product(num_layers, l2_regs, dropouts, BLOCKS, [True, False])
+        combinations = itertools.product(
+            num_layers,
+            l2_regs,
+            dropouts,
+            self.get_blocks(),
+            [True, False]
+        )
+        
         combinations_realized = list(combinations)
         random.shuffle(combinations_realized)
 
@@ -298,7 +305,7 @@ class SweepTask(luigi.Task):
         access_secret = os.environ['CLIMATE_ACCESS_SECRET']
 
         cluster = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=10, maximum=500)
+        cluster.adapt(minimum=10, maximum=self.get_max_workers())
         
         client = cluster.get_client()
         outputs = client.map(
@@ -322,3 +329,63 @@ class SweepTask(luigi.Task):
             for output in map(lambda x: x.result(), outputs):
                 writer.writerow(output)
                 f.flush()
+
+    def get_filename(self):
+        raise NotImplementedError('Must use implementor.')
+
+    def get_num_layers(self):
+        raise NotImplementedError('Must use implementor.')
+    
+    def get_l2_regs(self):
+        raise NotImplementedError('Must use implementor.')
+    
+    def get_dropouts(self):
+        raise NotImplementedError('Must use implementor.')
+
+    def get_blocks(self):
+        raise NotImplementedError('Must use implementor.')
+
+    def get_max_workers(self):
+        raise NotImplementedError('Must use implementor.')
+
+
+class SweepTask(SweepTemplateTask):
+
+    def get_filename(self):
+        return 'sweep.csv'
+
+    def get_num_layers(self):
+        return DEFAULT_NUM_LAYERS
+    
+    def get_l2_regs(self):
+        return DEFAULT_REGULARIZATION
+    
+    def get_dropouts(self):
+        return DEFAULT_DROPOUT
+
+    def get_blocks(self):
+        return BLOCKS
+
+    def get_max_workers(self):
+        return 500
+
+
+class SweepExtendedTask(SweepTemplateTask):
+
+    def get_filename(self):
+        return 'sweep_extended.csv'
+
+    def get_num_layers(self):
+        return DEFAULT_NUM_LAYERS
+    
+    def get_l2_regs(self):
+        return [0.1, 0.2, 0.3]
+    
+    def get_dropouts(self):
+        return DEFAULT_DROPOUT
+
+    def get_blocks(self):
+        return ['all attrs']
+
+    def get_max_workers(self):
+        return 100
