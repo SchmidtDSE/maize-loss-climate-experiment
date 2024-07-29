@@ -27,3 +27,8 @@ The [SCYM]() and [CHC-CMIP6]() datasets are quite large and require data access 
 
 ### Tools
 Written in [Sketchingpy](), the tools can be executed locally on your computer, in a static context for building the paper, or through a web browser. There are two options for executing the tools:
+
+ - **Docker**: You can run the web-based visualizations through a simple Docker file in the `paper/viz` directory.
+ - **Local**: You can execute the visualizations manually by running them directly as Python scripts. The entry points are `hist_viz.py`, `history_viz.py`, `results_viz_entry.py`, and `sweep_viz.py`. Simply run them without any command line arguments for defaults.
+
+Note that the visualizations are also invoked through `paper/viz/render_images.sh` for the paper.
