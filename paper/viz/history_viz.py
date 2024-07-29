@@ -531,12 +531,14 @@ class SummaryPresenter:
 
 
 def main():
-    if len(sys.argv) != NUM_ARGS + 1:
+    if len(sys.argv) == 1:
+        presenter = HistoryMainPresenter('History Viz', None)
+    elif len(sys.argv) != NUM_ARGS + 1:
         print(USAGE_STR)
         sys.exit(1)
-    
-    csv_loc = sys.argv[1]
-    presenter = HistoryMainPresenter('History Viz', None, csv_loc=csv_loc)
+    else:
+        csv_loc = sys.argv[1]
+        presenter = HistoryMainPresenter('History Viz', None, csv_loc=csv_loc)
 
 
 if __name__ == '__main__':

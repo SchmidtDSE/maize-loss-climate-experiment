@@ -13,14 +13,14 @@ TOP_COLOR = '#404040'
 BOTTOM_COLOR = '#707070'
 SUMMARY_FIELDS = ['claimsMpci', 'claimsSco', 'mean', 'cnt', 'claimsRate']
 
-NUM_ARGS = 4
-USAGE_STR = 'python hist_viz.py [csv location] [default year] [default coverage] [output location]'
+NUM_ARGS = 6
+USAGE_STR = 'python hist_viz.py [csv location] [default year] [default coverage] [unit] [comparison] [output location]'
 
 
 class MainPresenter:
 
     def __init__(self, target, loading_id, csv_loc=None, default_year=None, default_coverage=None,
-        output_loc=None):
+        unit=unit, comparison=comparison, output_loc=None):
         if output_loc:
             self._sketch = sketchingpy.Sketch2DStatic(
                 SUB_CHART_WIDTH + 80 + 11,
@@ -80,24 +80,24 @@ class MainPresenter:
             lambda x: self._change_loss(x)
         )
 
-        self._comparison = 'vs counterfact'
+        self._comparison = comparison
         self._comparison_buttons = buttons.ToggleButtonSet(
             self._sketch,
             5,
             bottom_button_y,
             'Comparison',
-            ['vs counterfact', 'vs historical'],
+            ['vs counterfact', 'vs historic'],
             str(self._comparison),
             lambda x: self._change_comparison(x)
         )
 
-        self._geohash_size = '4 char geohash'
+        self._geohash_size = unit
         self._geohash_buttons = buttons.ToggleButtonSet(
             self._sketch,
             SUB_CHART_WIDTH + 80 - const.BUTTON_WIDTH * 2,
             bottom_button_y,
             'Geohash',
-            ['4 char geohash', 'approx 5 char'],
+            ['unit risk', 'sub-unit risk'],
             str(self._geohash_size),
             lambda x: self._change_geohash_size(x)
         )
@@ -235,8 +235,8 @@ class MainPresenter:
         raw_records = self._cached_raw
         
         target_geohash_size = {
-            '4 char geohash': 4,
-            'approx 5 char': 5
+            'risk unit': 4,
+            'sub-unit risk': 5
         }[self._geohash_size]
         
         raw_records_right_size = filter(
@@ -244,7 +244,7 @@ class MainPresenter:
             raw_records
         )
 
-        use_historic = self._comparison == 'vs historical'
+        use_historic = self._comparison == 'vs historic'
         
         def get_is_in_target_series(target):
             is_target_set = target['set'] == self._target_set
@@ -473,7 +473,7 @@ class MainPresenter:
         self._sketch.rotate(-90)
         self._sketch.set_text_align('center', 'center')
 
-        if self._comparison == 'vs historical':
+        if self._comparison == 'vs historic':
             self._sketch.draw_text(0, 0, 'Historic Values (Approx 2007)')
         else:
             self._sketch.draw_text(0, 0, 'Climate Change Stop at 2024')
@@ -672,7 +672,9 @@ def main():
         csv_loc = sys.argv[1]
         year = sys.argv[2]
         coverage = sys.argv[3]
-        output_loc = sys.argv[4]
+        risk_unit = sys.argv[4]
+        comparison = sys.argv[5]
+        output_loc = sys.argv[6]
         
         presenter = MainPresenter(
             'Simulation Outcomes',
@@ -680,7 +682,9 @@ def main():
             csv_loc=csv_loc,
             default_year=year,
             default_coverage=coverage,
-            output_loc=output_loc
+            output_loc=output_loc,
+            unit='unit risk' if risk_unit == 'unit' else 'sub-unit risk',
+            comparison='vs counterfact' if comparison == 'counterfactual' else 'vs historic'
         )
 
 
