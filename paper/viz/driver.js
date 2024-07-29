@@ -47,6 +47,11 @@ function main() {
 
     const loadLinks = document.querySelectorAll(".load-app-link");
     loadLinks.forEach((x) => x.addEventListener("click", openWebApp));
+
+    const advanceLinks = document.querySelectorAll(".advance-button");
+    advanceLinks.forEach((x) => x.addEventListener("click", (event) => {
+        tabs.toggle(x.getAttribute("tab"));
+    }));
 }
 
 

@@ -11,7 +11,7 @@
         <link rel="stylesheet" href="/third_party/tabby.css">
         <link rel="stylesheet" href="/third_party/tiny_slider.css">
 
-        <title>Climate-Driven Doubling of Maize Loss Probability in USA Crop Insurance: Spatiotemporal Prediction and Possible Policy Responses</title>
+        <title>Climate Change to Double U.S. Crop Insurance Claims for Maize</title>
 
         <link rel="stylesheet" href="base.css?v=EPOCH">
     </head>
@@ -41,41 +41,98 @@
         </py-config>
 
         <header>
-            <h1>Climate-Driven Doubling of Maize Loss Probability in USA Crop Insurance: Spatiotemporal Prediction and Possible Policy Responses</h1>
+            <h1>Climate Change to Double U.S. Crop Insurance Claims for Maize</h1>
+            <div class="body-text">
+                
+            </div>
         </header>
         
         <nav>
             <ul data-tabs>
-                <li><a data-tabby-default href="#introduction">Introduction</a></li>
+                <li><a data-tabby-default href="#introduction">Intro</a></li>
+                <li><a href="#background">Background</a></li>
                 <li><a href="#methods">Methods</a></li>
                 <li><a href="#results">Results</a></li>
                 <li><a href="#discussion">Discussion</a></li>
                 <li><a href="#conclusion">Conclusion</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#settings">Settings</a></li>
             </ul>
         </nav>
         
         <main class="presentation">
             <section id="introduction">
-                <h2>Introduction</h2>
+                <h2>🌽 Corn is in trouble.</h2>
+                <div class="body-text">
+                    <p>
+                        <span class="emphasis">Climate change threatens the future of corn.</span> Studies expect planet-wide maize yields to drop by up to 24% by the end of this century (<a href="https://www.nature.com/articles/s43016-021-00400-y" target="_blank">Jägermeyr et al. 2021</a>). Why might this happen? Climate change alters growing conditions (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>) and can include a higher frequency and severity of stressful weather (<a href="https://www.nature.com/articles/nclimate1633" target="_blank">Dai 2013</a>). Of course, all of this can impact farmer revenue (<a href="https://farmdocdaily.illinois.edu/2023/07/extreme-heat-and-kansas-farm-income.html" target="_blank">Sajid et al 2023</a>). However, these changes can also challenge the institutions tasked with protecting and helping those growers (<a href="https://farmpolicynews.illinois.edu/2024/02/crop-insurance-costs-projected-to-jump-29/" target="_blank">Hanrahan 2024</a>).
+                    </p>
+                    <p>
+                        <span class="emphasis">What might this future look like and how can we prepare for it?</span> This "explorable explanation" (<a href="http://worrydream.com/ExplorableExplanations/" target="_blank">Victor 2011</a>) walks you through an analysis of future maize yields from the perspective of one of these institutions: the US Federal Crop Insurance Program. This crucial resource for farmers and the broader US food system is increasingly threatened by climate change (<a href="https://www.nature.com/articles/ncomms6989" target="_blank">Ray et al 2015</a>). In this online tool, we will go step by step to build and then play with artifical intelligence to understand how we might respond to these threats:
+
+                        <ul>
+                            <li>We will predict the probability and severity of maize loss within the <a href="https://www.ncei.noaa.gov/access/monitoring/reference-maps/corn-belt" target="_blank">U.S. Corn Belt</a> (<a href="https://www.ncei.noaa.gov/access/monitoring/reference-maps/corn-belt" target="_blank">NCEI</a>) by simulating the Multiple Peril Crop Insurance Program, "the oldest and most common form of federal crop insurance" (<a href="https://www.policyarchive.org/download/4403" target="_blank">Chite 2006</a>).</li>
+                            <li>We will use those results to see how insurer risk will change under the Yield Protection (YP) plan. This covers farmers in the event of yield losses due to an insured cause (<a href="https://farms.extension.wisc.edu/articles/crop-insurance-policy-types/" target="_blank">Reuss</a>).</li>
+                            <li>We will contrast those simulations to an alternative which imagines a future where climate change stops today. This will let us quantitatively highlight the insurer-relevant effects of climate change in the 2030 and 2050 timeframes.</li>
+                            <li>We will use these data to design possible policy changes to help mitigate and enable adaptation to the specific climate-fueled risks we observe in our results.</li>
+                        </ul>
+
+                        You don't need to install any special software. We can do all of this from within your web browser! All that said, this online experience complements a more traditional <a href="">scientific paper (preprint)</a> which you may also review.
+                    </p>
+
+                    <p class="next-button-holder">
+                        <a href="#background" tab="background" class="advance-button">Let's get started >></a>
+                    </p>
+
+                    <details class="citations">
+                        <summary>Citations for intro</summary>
+                        <p>
+                            The citations for the links on this introduction section ("corn is in trouble") are as follows:
+                            <ul>
+                                <li>R. Chite, “Agricultural Issues in the 110th Congress.” Congressional Research Service, Dec. 11, 2006. [Online]. Available: https://www.policyarchive.org/download/4403</li>
+                                <li>A. Dai, “Increasing drought under global warming in observations and models,” Nature Clim Change, vol. 3, no. 1, pp. 52–58, Jan. 2013, doi: 10.1038/nclimate1633.</li>
+                                <li>R. Hanrahan, “Crop Insurance Costs Projected to Jump 29%.” University of Illinois, Feb. 15, 2024. [Online]. Available: https://farmpolicynews.illinois.edu/2024/02/crop-insurance-costs-projected-to-jump-29/</li>
+                                <li>J. Jägermeyr et al., “Climate impacts on global agriculture emerge earlier in new generation of climate and crop models,” Nat Food, vol. 2, no. 11, pp. 873–885, Nov. 2021, doi: 10.1038/s43016-021-00400-y.</li>
+                                <li>NCEI, “Corn Belt.” NOAA, 2024. [Online]. Available: https://www.ncei.noaa.gov/access/monitoring/reference-maps/corn-belt</li>
+                                <li>D. K. Ray, J. S. Gerber, G. K. MacDonald, and P. C. West, “Climate variation explains a third of global crop yield variability,” Nat Commun, vol. 6, no. 1, p. 5989, Jan. 2015, doi: 10.1038/ncomms6989.</li>
+                                <li>S. Reuss, “Crop Insurance Policy Types.” [Online]. Available: https://farms.extension.wisc.edu/articles/crop-insurance-policy-types/</li>
+                                <li>O. Sajid, A. Ortiz-Bobea, J. Ifft, and V. Gauthier, “Extreme Heat and Kansas Farm Income.” Farmdoc Daily of Department of Agricultural and Consumer Economics, University of Illinois at Urbana-Champaign, Jul. 26, 2023. [Online]. Available: https://farmdocdaily.illinois.edu/2023/07/extreme-heat-and-kansas-farm-income.html</li>
+                                <li>B. Victor, “Explorable Explanations.” Bret Victor, Mar. 10, 2011. [Online]. Available: http://worrydream.com/ExplorableExplanations/</li>
+                                <li>E. Williams, C. Funk, P. Peterson, and C. Tuholske, “High resolution climate change observations and projections for the evaluation of heat-related extremes,” Sci Data, vol. 11, no. 1, p. 261, Mar. 2024, doi: 10.1038/s41597-024-03074-w.</li>
+                            </ul>
+                        </p>
+                    </details>
+                </div>
+            </section>
+            <section id="background">
+                <h2>📚 First, some background.</h2>
+                <div class="body-text separated">
+                    Before we build that artifical intelligence, we have to get some background information about crop insurance out of the way. We will also review a diagram describing the model that we will construct. Use the previous and next buttons below to navigate through some short slides with that preliminary walkthrough.
+                </div>
                 <div class="intro-slider">
                     <div>
                         <h3>
                             Some terms:
                         </h3>
+                        <div class="body-text">As with any government program, there are some acronyms. Here is some vocabulary to have in mind as we make our way forward:</div>
                         <div class="block-quote">
                             <ul>
-                                <li><span class="vocab">MPCI</span>: Multi-peril crop insurance. The largest in the US (444 million acres) that typically covers up to 75% of an APH with some areas allowed to cover up to 85%.</li>
-                                <li><span class="vocab">APH</span>: Actual production history. Typically the average of the last ten years of crop yields.</li>
-                                <li><span class="vocab">Catastrophic loss</span>: MPCI loss where the govenment steps in. Typically 25% loss.</li>
-                                <li><span class="vocab">Shallow loss</span>: Other loss which may still (typically) incur a loss. Typically 15% loss.</li>
-                                <li><span class="vocab">508h</span>: Process by which new insurance products can be suggested like supplemental policies covering 85% to 75%.</li>
+                                <li><span class="vocab">MPCI</span>: Multi-peril crop insurance. Covering 494 million acres (<a href="https://www.ers.usda.gov/topics/farm-practices-management/risk-management/crop-insurance-at-a-glance/" target="_blank">Tsiboe and Turner 2023</a>), this is the most common program in the US (<a href="https://www.policyarchive.org/download/4403" target="_blank">Chite 2006</a>) that typically covers up to 75% of an APH with some areas allowed to cover up to 85% (<a href="https://smallgrains.wsu.edu/understanding-the-price-side-of-revenue-crop-insurance/" target="_blank">Osiensky 2021</a>).</li>
+                                <li><span class="vocab">APH</span>: Actual production history. For our purposes, this is the average of the last ten years of crop yields (<a href="https://www.rma.usda.gov/-/media/RMA/Publications/Risk-Management-Publications/rma_glossary.ashx?la=en">FCIC 2020</a>).</li>
+                                <li><span class="vocab">Catastrophic loss</span>: MPCI loss where the govenment typically steps in. Typically 25% loss meaning it kicks in when yields drop below 75% of APH (<a href="https://smallgrains.wsu.edu/understanding-the-price-side-of-revenue-crop-insurance/" target="_blank">Osiensky 2021</a>; <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-44.html" target="_blank">Plastina and Johnson 2022</a>).</li>
+                                <li><span class="vocab">Shallow loss</span>: Other loss which may still incur a claim under other insurance plans. For our purposes, we assume a 15% loss threshold meaning it kicks in when yields drop below 85% of APH (<a href="https://www.extension.iastate.edu/agdm/crops/html/a1-44.html" target="_blank">Plastina and Johnson 2022</a>).</li>
+                                <li><span class="vocab">508h</span>: Process by which new insurance products can be suggested like supplemental policies covering 85% to 75% (<a href="https://farmdocdaily.illinois.edu/2023/03/privately-developed-crop-insurance-products-and-the-next-farm-bill.html" target="_blank">Schnitkey et al 2023</a>).</li>
                             </ul>
                         </div>
+                        <div class="body-text">We are going to focus on catastrophic loss and MPCI for maize and explore what can be done for policy changes either through 508h or by changing the law directly.</div>
                     </div>
                     <div>
                         <h3>
                             Dictated by US Code 1508:
                         </h3>
+                        <div class="body-text">
+                            It's worth mentioning that some of these structures are actually set by US law (<a href="https://uscode.house.gov/view.xhtml?req=(title:7%20section:1508%20edition:prelim)" target="_blank">CFR and USC</a>). For example, here is what we currently have to work with:
+                        </div>
                         <div class="block-quote">
                             the level of coverage ... may be purchased at any level not to exceed 85 percent of the [expected] individual yield ... the yield for a crop shall be based on the actual production history for the crop
                         </div>
@@ -84,30 +141,72 @@
                         <h3>
                             Study's alternative:
                         </h3>
+                        <div class="body-text">
+                            We will build up to this conclusion but what the results we will construct together in a moment may suggest that the law could change to:
+                        </div>
                         <div class="block-quote">
-                            the level of coverage ... may be purchased at any level not to exceed 0.5 standard deviations below the [expected] individual yield ... the yield for a crop shall be based on the actual production history for the crop
+                            the level of coverage ... may be purchased at any level not to exceed 2.1 standard deviations below the [expected] individual yield ... the yield for a crop shall be based on the actual production history for the crop
                         </div>
                     </div>
                     <div>
                         <h3>
                             What this means:
                         </h3>
+                        <div class="body-text">
+                            To understand this change, you can think of MPCI as using a mixture of different information to determine what price a grower pays for a certain amount of coverage (<a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards 2020</a>). Generally, there's some information at the county-level but the APH for a farm being insured can change that price along with other adjustment and subsidies. Right now the horizontal axis that defines how much coverage a grower wants is defined in terms of a percent of APH but we will explore what happens if this is defined by <a href="ttps://www.investopedia.com/terms/s/standarddeviation.asp" target="_blank">standard deviation</a> (<a href="https://www.investopedia.com/terms/s/standarddeviation.asp" target="_blank">Hargrave 2024</a>) where this value is smaller the more stable a grower's yields are.
+                        </div>
                         <div class="diagram">
-                            <img src="/img/policy_abstract.png" alt="Abstracted descsription of a common policy scenario">
+                            <img src="/img/policy_abstract.png" alt="Abstracted description of a common policy scenario">
                         </div>
                     </div>
                     <div>
                         <h3>
                             How we find it:
                         </h3>
+                        <div class="body-text">
+                            We will use a form of AI called a neural network. Modeled after how human brains work, there are different neurons connected to each other. Artifical neural networks in a computer have multiple layers of neurons that learn by example, changing the connections ("weights") between those neurons based on "training" data. For more information see the <a href="https://natureofcode.com/neural-networks/">Nature of Code</a> (<a href="https://natureofcode.com" target="_blank">Shiffman 2024</a>). Regardless, we will feed in information on historic growing conditions using data from a data product called CHC-CMIP6 (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>) and the resulting maize yields as estimated by a model called SCYM (<a href="https://linkinghub.elsevier.com/retrieve/pii/S0034425715001637" target="_blank">Lobell et al 2015</a>). Then, we will use climate projections from CHC-CMIP6 (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>) to predict what future yields might look like. Finally, we will simulate the MPCI through a method called Monte Carlo (<a href="https://towardsdatascience.com/monte-carlo-simulation-a-practical-guide-85da45597f0e" target="_blank">Kwiatkowski 2022</a>).
+                        </div>
                         <div class="diagram">
                             <img src="/img/diagram.png" alt="Data flow diagram">
                         </div>
                     </div>
+                    <div>
+                        <h3>
+                            You are ready.
+                        </h3>
+                        <div class="body-text">
+                            <p class="next-button-holder">
+                                <a href="#method" tab="method" class="advance-button">Train a neural network >></a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="body-text">
+                    <details class="citations">
+                        <summary>Citations for background</summary>
+                        <p>
+                            The citations for the links on this background section ("first, some background") are as follows:
+                            <ul>
+                                <li>CFR and USC, Crop insurance. [Online]. Available: https://uscode.house.gov/view.xhtml?req=(title:7%20section:1508%20edition:prelim)</li>
+                                <li>R. Chite, “Agricultural Issues in the 110th Congress.” Congressional Research Service, Dec. 11, 2006. [Online]. Available: https://www.policyarchive.org/download/4403</li>
+                                <li>FCIC, “Common Crop Insurance Policy 21.1-BR.” United States Department of Agriculture, Nov. 2020. [Online]. Available: https://www.rma.usda.gov/-/media/RMA/Publications/Risk-Management-Publications/rma_glossary.ashx?la=en</li>
+                                <li>M. Hargrave, “Standard Deviation Formula and Uses vs. Variance.” Investopedia, May 23, 2024. [Online]. Available: https://www.investopedia.com/terms/s/standarddeviation.asp</li>
+                                <li>R. Kwiatkowski, “Monte Carlo Simulation — a practical guide.” Jan. 30, 2022. [Online]. Available: https://towardsdatascience.com/monte-carlo-simulation-a-practical-guide-85da45597f0e</li>
+                                <li>D. B. Lobell, D. Thau, C. Seifert, E. Engle, and B. Little, “A scalable satellite-based crop yield mapper,” Remote Sensing of Environment, vol. 164, pp. 324–333, Jul. 2015, doi: 10.1016/j.rse.2015.04.021.</li>
+                                <li>J. Osiensky, “Understanding the Price Side of Revenue Crop Insurance.” Washington State University, Aug. 19, 2021. [Online]. Available: https://smallgrains.wsu.edu/understanding-the-price-side-of-revenue-crop-insurance/</li>
+                                <li>A. Plastina and W. Edwards, “Yield Protection Crop Insurance.” Iowa State University Extension and Outreach, Dec. 2020. [Online]. Available: https://www.extension.iastate.edu/agdm/crops/html/a1-52.html</li>
+                                <li>A. Plastina and S. Johnson, “Supplemental Coverage Option (SCO) and Enhanced Coverage Option (ECO).” Iowa State University Extension and Outreach, Oct. 2022. [Online]. Available: https://www.extension.iastate.edu/agdm/crops/html/a1-44.html</li>
+                                <li>G. Schnitkey, N. Paulson, and C. Zulauf, “Privately Developed Crop Insurance Products and the Next Farm Bill.” Unviersity of Illinois, Mar. 14, 2023. [Online]. Available: https://farmdocdaily.illinois.edu/2023/03/privately-developed-crop-insurance-products-and-the-next-farm-bill.html</li>
+                                <li>D. Shiffman, The nature of code: simulating natural systems with JavaScript. San Francisco: No Starch Press, 2024.</li>
+                                <li>F. Tsiboe and D. Turner, “Crop Insurance at a Glance.” Economic Research Service, USDA, May 03, 2023. [Online]. Available: https://www.ers.usda.gov/topics/farm-practices-management/risk-management/crop-insurance-at-a-glance/</li>
+                                <li>E. Williams, C. Funk, P. Peterson, and C. Tuholske, “High resolution climate change observations and projections for the evaluation of heat-related extremes,” Sci Data, vol. 11, no. 1, p. 261, Mar. 2024, doi: 10.1038/s41597-024-03074-w.</li>
+                            </ul>
+                        </p>
+                    </details>
                 </div>
             </section>
             <section id="methods">
-                <h2>Methods</h2>
+                <h2>✨ Next, a neural network.</h2>
                 <div class="interactive">
                     <div class="app-intro">
                         <div class="instruction">This section contains interactive components. It will take just a moment to load the data.</div>
@@ -124,7 +223,7 @@
                 </div>
             </section>
             <section id="results">
-                <h2>Results</h2>
+                <h2>🔭 Let's explore what we predicted.</h2>
                 <div class="interactive">
                     <div class="app-intro">
                         <div class="instruction">This section contains interactive components. It will take just a moment to load the data.</div>
@@ -141,7 +240,7 @@
                 </div>
             </section>
             <section id="discussion">
-                <h2>Discussion</h2>
+                <h2>📝 How we might address these problems?</h2>
                 <div class="interactive">
                     <div class="app-intro">
                         <div class="instruction">This section contains interactive components. It will take just a moment to load the data.</div>
@@ -158,7 +257,7 @@
                 </div>
             </section>
             <section id="conclusion">
-                <h2>Conclusion</h2>
+                <h2>💡 What does this all mean?</h2>
                 <div class="interactive">
                     <div class="app-intro">
                         <div class="instruction">This section contains interactive components. It will take just a moment to load the data.</div>
@@ -173,6 +272,20 @@
                     </div>
                     <div>Visualization that explores how using mean and standard deviation influences different behavior. Which kinds of growing patterns does each seem to encourage?</div>
                 </div>
+            </section>
+            <section id="about">
+                <h2>ℹ️ About this interactive.</h2>
+                <div class="body-text">
+                    <details>
+                        <summary>Scientific abstract</summary>
+                        <p>
+                            To understand the impacts of climate change on agriculture, sophisticated predictive models build detailed projections from historic observations spanning many spatiotemporal variables. These crucial forecasts inform institutions such as government entities tasked with insuring grower livelihoods and supporting response to continued global warming. To help these decision makers engage these complex and often opaque predictive systems, our web-based open-source explorable explanation guides scientists, producers, policy makers, and other stakeholders through a data science pipeline in which an artificial neural network predicts future maize yields in the U.S. Corn Belt. Furthermore, after manipulating underlying assumptions and observing how changes impact model behavior, readers iteratively refine regulatory structures to confront a calamitous doubling in Yield Protection losses predicted at mid-century. Supported through game design principles of loop-based interaction and juxtaposition gratification, this experience not only explains AI mechanics and the specific shape of threats confronting the food system but also invites readers to experiment with different legal structures which may influence those outcomes. Altogether, supporting learning model mechanics before fostering play to refine regulation, these visualizations allow users to build understanding of crop insurance and predictive AI while supporting design of important policy structures needed for climate change adaptation.
+                        </p>
+                    </details>
+                </div>
+            </section>
+            <section id="settings">
+                <h2>⚙️ Configure settings.</h2>
             </section>
         </main>
     </body>
