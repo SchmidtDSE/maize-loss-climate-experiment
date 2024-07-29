@@ -235,7 +235,7 @@ class MainPresenter:
         raw_records = self._cached_raw
         
         target_geohash_size = {
-            'risk unit': 4,
+            'unit risk': 4,
             'sub-unit risk': 5
         }[self._geohash_size]
         
