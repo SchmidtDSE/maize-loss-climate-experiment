@@ -13,7 +13,7 @@ import const
 import normalize_tasks
 
 DEFAULT_NUM_LAYERS = [1, 2, 3, 4, 5, 6]
-DEFAULT_REGULARIZATION = [0.000, 0.001, 0.010, 0.100]
+DEFAULT_REGULARIZATION = [0.000, 0.001, 0.010, 0.100, 0.200]
 DEFAULT_DROPOUT = [0.00, 0.01, 0.05, 0.10, 0.50]
 BLOCKS = [
     'all attrs',
@@ -24,8 +24,8 @@ BLOCKS = [
     'tmin',
     'chirps',
     'svp',
-    'vpt',
-    'wbgt'
+    'vpd',
+    'wbgtmax'
 ]
 BLOCKED_ATTRS = {
     'geohash',
@@ -85,11 +85,11 @@ def build_model(num_layers, num_inputs, l2_reg, dropout):
         )
     
     layers = [
-        build_layer(512),
         build_layer(256),
         build_layer(128),
         build_layer(64),
         build_layer(32),
+        build_layer(16),
         build_layer(8)
     ][-num_layers:]
     
@@ -379,7 +379,7 @@ class SweepExtendedTask(SweepTemplateTask):
         return DEFAULT_NUM_LAYERS
     
     def get_l2_regs(self):
-        return [0.1, 0.2, 0.3]
+        return [0.2, 0.3, 0.4]
     
     def get_dropouts(self):
         return DEFAULT_DROPOUT

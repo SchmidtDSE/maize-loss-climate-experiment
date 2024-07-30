@@ -262,7 +262,6 @@ class ConfigPresenter:
             [
                 'All Data',
                 'no year',
-                'no soil',
                 'no rhn',
                 'no rhx',
                 'no tmax',
@@ -336,6 +335,8 @@ class ConfigPresenter:
             interpreted = 'all attrs'
         else:
             interpreted = new_val.split(' ')[-1]
+            if interpreted == 'wbgt':
+                interpreted = 'wbgtmax'
 
         self._filter_config = self._filter_config.get_with_data_filter(interpreted)
 
@@ -452,7 +453,7 @@ class ScatterPresenter:
                 )
 
                 if final_point:
-                    self._sketch.set_text_font(const.FONT_SRC, 9)
+                    self._sketch.set_text_font(const.FONT_SRC, 11)
                     
                     self._sketch.set_text_align('center', 'bottom')
                     self._sketch.draw_text(

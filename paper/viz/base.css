@@ -14,7 +14,7 @@ a:hover, a:focus, a:active {
 html {
     font-family: PublicSans-Regular;
     font-size: 15px;
-    color: #555555;
+    color: #333333;
     background-color: #F0F0F0;
 }
 
@@ -28,7 +28,25 @@ body {
 
 details {
     margin-top: 15px;
-} 
+}
+
+details summary.button {
+    color: #5050C0;
+}
+
+details summary.button:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+details .sub-content {
+    color: #606060;
+    margin-left: 10px;
+}
+
+details .sub-content .vocab {
+    color: #505050;
+}
 
 h1 {
     font-size: 30px;
@@ -78,7 +96,7 @@ th, td {
 
 .app-intro {
     padding: 10px;
-    font-size: 16px;
+    font-size: 17px;
     border: 1px solid #A0A0A0;
     border-radius: 5px;
     color: #000000;
@@ -153,6 +171,7 @@ th, td {
 
 .emphasis {
     font-weight: bold;
+    color: black;
 }
 
 .inline-header {
@@ -221,4 +240,5 @@ th, td {
 
 .vocab {
     font-weight: bold;
+    color: black;
 }

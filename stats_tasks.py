@@ -10,7 +10,7 @@ import export_tasks
 import selection_tasks
 import sim_tasks
 
-NEURONS_PER_LAYER = [512, 256, 128, 64, 32, 8]
+NEURONS_PER_LAYER = [256, 128, 64, 32, 16, 8]
 
 
 def format_percent(target):
