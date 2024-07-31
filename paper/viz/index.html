@@ -344,7 +344,8 @@
 
                                     <ul>
                                         <li>
-                                            <span class="vocab">Prepare</span>: Create the grid of cells on which the neural network will operate.</li>
+                                            <span class="vocab">Prepare</span>: Create the grid of cells on which the neural network will operate.
+                                        </li>
                                         <li>
                                             <span class="vocab">Split</span>: Divide our data by year where our training set includes 1999 to 2012, our validation set includes 2014 and 2016, and our fully hidden test set includes 2013 and 2015 (<a href="https://towardsdatascience.com/train-validation-and-test-sets-72cb40cba9e7" target="_blank">Shah 2017</a>).
                                         </li>
@@ -376,8 +377,23 @@
                         <summary>Citations for methods</summary>
                         <p>
                             The citations for the links on this methods section ("next, a neural network") are as follows:
+                            
                             <ul>
-                                
+                                <li>P. Baheti, “The Essential Guide to Neural Network Architectures.” V7Labs, Jul. 08, 2021. [Online]. Available: https://www.v7labs.com/blog/neural-network-architectures-guide</li>
+                                <li>J. Brownlee, “How Much Training Data is Required for Machine Learning?” Guiding Tech Media, May 23, 2019. [Online]. Available: https://machinelearningmastery.com/much-training-data-required-machine-learning/</li>
+                                <li>J. Brownlee, “How to Control Neural Network Model Capacity With Nodes and Layers.” Guiding Tech Media, Aug. 25, 2020. [Online]. Available: https://machinelearningmastery.com/how-to-control-neural-network-model-capacity-with-nodes-and-layers/</li>
+                                <li>B. Haugen, “Geohash Size Variation by Latitude.” Mar. 14, 2020. [Online]. Available: https://bhaugen.com/blog/geohash-sizes/</li>
+                                <li>R. Joseph, “Grid Search for Model Tuning.” Towards Data Science, Dec. 29, 2018. [Online]. Available: https://towardsdatascience.com/grid-search-for-model-tuning-3319b259367e</li>
+                                <li>S. Karanam, “Curse of Dimensionality — A ‘Curse’ to Machine Learning.” Towards Data Science, Aug. 10, 2021. [Online]. Available: https://towardsdatascience.com/curse-of-dimensionality-a-curse-to-machine-learning-c122ee33bfeb</li>
+                                <li>D. P. Kingma and J. Ba, “Adam: A Method for Stochastic Optimization,” 2014. doi: 10.48550/ARXIV.1412.6980.</li>
+                                <li>D. B. Lobell, D. Thau, C. Seifert, E. Engle, and B. Little, “A scalable satellite-based crop yield mapper,” Remote Sensing of Environment, vol. 164, pp. 324–333, Jul. 2015, doi: 10.1016/j.rse.2015.04.021.</li>
+                                <li>A. Maas, A. Hannun, and A. Ng, “Rectifier Nonlinearities Improve Neural Network Acoustic Models,” in Proceedings of the 30th International Conference on Machine Learning, Atlanta, Georgia: JMLR, 2013.</li>
+                                <li>NCEI, “Corn Belt.” NOAA, 2024. [Online]. Available: https://www.ncei.noaa.gov/access/monitoring/reference-maps/corn-belt</li>
+                                <li>G. Niemeyer, “geohash.org is public!” Labix Blog, Feb. 26, 2008. [Online]. Available: https://web.archive.org/web/20080305102941/http://blog.labix.org/2008/02/26/geohashorg-is-public/</li>
+                                <li>A. Oppermann, “Regularization in Deep Learning — L1, L2, and Dropout.” Towards Data Science, Feb. 19, 2020. [Online]. Available: https://towardsdatascience.com/regularization-in-deep-learning-l1-l2-and-dropout-377e75acc036</li>
+                                <li>T. Shah, “About Train, Validation and Test Sets in Machine Learning.” Towards Data Science, Dec. 06, 2017. [Online]. Available: https://towardsdatascience.com/train-validation-and-test-sets-72cb40cba9e7</li>
+                                <li>N. Srivastava, G. Hinton, A. Krizhevsky, I. Sutskever, and R. Salakhutdinov, “Dropout: A Simple Way to Prevent Neural Networks from Overfitting,” Journal of Machine Learning Research, vol. 15, no. 56, pp. 1929–1958, 2014.</li>
+                                <li>E. Williams, C. Funk, P. Peterson, and C. Tuholske, “High resolution climate change observations and projections for the evaluation of heat-related extremes,” Sci Data, vol. 11, no. 1, p. 261, Mar. 2024, doi: 10.1038/s41597-024-03074-w.</li>
                             </ul>
                         </p>
                     </details>
@@ -385,6 +401,11 @@
             </section>
             <section id="results">
                 <h2>🔭 Let's explore what we predicted.</h2>
+                <div class="body-text">
+                    <p>
+                        With <a href="#methods" tab="methods" class="advance-button">predictions of yields in place</a>, the Monte Carlo <a href="#background" tab="background" class="advance-button">discussed earlier</a> can simulate what crop insurance outcomes might look like in the future. In this process, we <span tabindex="0" class="tooltip" data-tippy-content="Randomly draw from the distribution of expected or predicted values.">sample</span> the neural network's outputs. However, to account for uncertainty caused by our model, we also <span tabindex="0" class="tooltip" data-tippy-content="Randomly draw from the distribution of expected or predicted values.">sample</span> the measurements of errors we've seen from our neural network (<a href="http://link.springer.com/10.1007/s10021-010-9315-8" target="_blank">Yanai 2010</a>). Finally, we also account for the <span tabindex="0" class="tooltip" data-tippy-content="We sample 2023 insured unit sizes to estimate how yields might mix together to change overall claims risk.">size</span> of <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together. This is sometimes also called a risk unit.">insured units</span> (<a href="https://www.rma.usda.gov/SummaryOfBusiness/StateCountyCrop" target="_blank">RMA 2024</a>) since policies cover collections of fields and not geohashes or individual fields. Altogether, this paints a picture of changes to yield relative to <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> at the 2030 and 2050 timeframes. For more details, see our <a href="" target="_blank">scientific paper (preprint)</a>.
+                    </p>
+                </div>
                 <div class="interactive">
                     <div class="app-intro">
                         <div class="instruction">⚡ This section contains interactive components. It will take just a moment to load the lab.</div>
@@ -398,6 +419,45 @@
                         <canvas id="sketch-canvas-results"></canvas>
                     </div>
                     <div>Visualization that explores the details of the results in depth. Which type of loss on which time horizon are we most worried about?</div>
+                </div>
+                <div class="body-text">
+                    <p>
+                        These data tell many different stories but consider a few different factors at play in these simulations:
+
+                        <ul>
+                            <li>
+                                <span class="emphasis">Time</span>: As we move into the 2030 and then 2050 series, climate change further progresses but <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APHs</span> also change.
+                            </li>
+                            <li>
+                                <span class="emphasis">Coverage levels</span>: The picture may look different for policies insuring 75% of yield versus 85% of yield due to the way that the edges of the distribution or "tails" are changing.
+                            </li>
+                            <li>
+                                <span class="emphasis">Unit size</span>: The effects of climate change become less pronounced when simulating with the full insured unit where there may be more fields in a single policy compared to sub-unit which simulates closer to field-level. This is due to the "protfolio effect" where larger units offer more chances for high performing fields to offset fields with worse outcomes (<a href="http://www.jstor.org/stable/40647972" target="_blank">Knight et al 2024</a>).
+                            </li>
+                            <li>
+                                <span class="emphasis">Reference point</span>: As yields generally improve over time (<a href="https://www.agry.purdue.edu/ext/corn/news/timeless/yieldtrends.html" target="_blank">Nielsen 2023</a>), things look different depending on what we compare against. Contrasting to a "counterfactual" which is a simulated future where climate change stops today expects those yield improvements to continue. Comparing to "historic" values in the recent past does not show those improvements. In any case, climate change wipes out most of the increases we would otherwise expect over time.
+                            </li>
+                        </ul>
+
+                        Altogether, we see that the average yield does not necessarily change dramatically from the historic <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> but the ends of the distribution of yield outcomes or "tails" evolve. This represents less yield stability in the future such that the <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> does not necessarily capture a risk increase even as the rate of claims for which <span tabindex="0" class="tooltip" data-tippy-content="Yield Protection. This coverage option within MPCI typically guarantees yield itself up to 75% of an APH (Osiensky 2021)">YP</span> pays out more than doubles in the 2050 series. This specific pairing of unchanged average yields but higher volatility is at the center of the risk posed to crop insurance. That in mind, we will next explore possible policy adaptations.
+                    </p>
+                    <p class="next-button-holder">
+                        <a href="#discussion" tab="discussion" class="advance-button">Find policy solutions >></a>
+                    </p>
+
+                    <details class="citations">
+                        <summary>Citations for results</summary>
+                        <p>
+                            The citations for the links on this methods section ("let's explore what we predicted") are as follows:
+                            
+                            <ul>
+                                <li>T. O. Knight, K. H. Coble, B. K. Goodwin, R. M. Rejesus, and S. Seo, “Developing Variable Unit-Structure Premium Rate Differentials in Crop Insurance,” American Journal of Agricultural Economics, vol. 92, no. 1, pp. 141–151, 2010.</li>
+                                <li>R. L. Nielsen, “Historical Corn Grain Yields in the U.S.” Purdue University, Feb. 2023. [Online]. Available: https://www.agry.purdue.edu/ext/corn/news/timeless/yieldtrends.html</li>
+                                <li>RMA, “State/County/Crop Summary of Business.” United States Department of Agriculture, 2024. [Online]. Available: https://www.rma.usda.gov/SummaryOfBusiness/StateCountyCrop</li>
+                                <li>R. D. Yanai, J. J. Battles, A. D. Richardson, C. A. Blodgett, D. M. Wood, and E. B. Rastetter, “Estimating Uncertainty in Ecosystem Budget Calculations,” Ecosystems, vol. 13, no. 2, pp. 239–248, Mar. 2010, doi: 10.1007/s10021-010-9315-8.</li>
+                            </ul>
+                        </p>
+                    </details>
                 </div>
             </section>
             <section id="discussion">

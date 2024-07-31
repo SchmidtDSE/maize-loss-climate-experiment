@@ -197,7 +197,8 @@ def parse_record(raw_record):
 
 def load_data(sketch):
     data = sketch.get_data_layer().get_csv('data/sweep_ag_all.csv')
-    return [parse_record(x) for x in data]
+    data_in_scope = filter(lambda x: x['allowCount'] == '0', data)
+    return [parse_record(x) for x in data_in_scope]
 
 
 class ConfigPresenter:

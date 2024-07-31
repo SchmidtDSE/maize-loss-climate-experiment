@@ -13,7 +13,7 @@ import const
 import normalize_tasks
 
 DEFAULT_NUM_LAYERS = [1, 2, 3, 4, 5, 6]
-DEFAULT_REGULARIZATION = [0.000, 0.001, 0.010, 0.100, 0.200]
+DEFAULT_REGULARIZATION = [0.00, 0.05, 0.10, 0.15, 0.20]
 DEFAULT_DROPOUT = [0.00, 0.01, 0.05, 0.10, 0.50]
 BLOCKS = [
     'all attrs',
@@ -85,11 +85,11 @@ def build_model(num_layers, num_inputs, l2_reg, dropout):
         )
     
     layers = [
+        build_layer(512),
         build_layer(256),
         build_layer(128),
         build_layer(64),
         build_layer(32),
-        build_layer(16),
         build_layer(8)
     ][-num_layers:]
     
@@ -106,7 +106,7 @@ def build_model(num_layers, num_inputs, l2_reg, dropout):
 
 
 def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, filename,
-    additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=30,
+    additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=20,
     blocked_attrs=BLOCKED_ATTRS):
     import csv
     import os

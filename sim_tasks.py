@@ -783,15 +783,6 @@ class ProjectHistoricTask(luigi.Task):
             'yieldObservations'
         ]].to_csv(self.output().path)
 
-    def get_target_task(self):
-        raise NotImplementedError('Use implementor.')
-    
-    def get_base_year(self):
-        raise NotImplementedError('Use implementor.')
-
-    def get_filename(self):
-        raise NotImplementedError('Use implementor.')
-
 
 class Project2030Task(ProjectTaskTemplate):
     
