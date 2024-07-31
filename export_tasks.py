@@ -294,19 +294,27 @@ def is_default_config_record(target, threshold, geohash_sim_size=4, historic=Fal
 class SweepExportTask(luigi.Task):
 
     def requires(self):
-        return training_tasks.SweepTask()
+        return {
+            'normal': training_tasks.SweepTask(),
+            'extended': training_tasks.SweepExtendedTask()
+        }
 
     def output(self):
         return luigi.LocalTarget(const.get_file_location('export_sweep.csv'))
 
     def run(self):
-        with self.input().open('r') as f_in:
-            reader = csv.DictReader(f_in)
-            transformed_rows = map(lambda x: self._transform_row(x), reader)
+        with self.output().open('w') as f_out:
+            writer = csv.DictWriter(f_out, fieldnames=SWEEP_OUTPUT_COLS)
+            writer.writeheader()
 
-            with self.output().open('w') as f_out:
-                writer = csv.DictWriter(f_out, fieldnames=SWEEP_OUTPUT_COLS)
-                writer.writeheader()
+            with self.input()['normal'].open('r') as f_in:
+                reader = csv.DictReader(f_in)
+                transformed_rows = map(lambda x: self._transform_row(x), reader)
+                writer.writerows(transformed_rows)
+
+            with self.input()['extended'].open('r') as f_in:
+                reader = csv.DictReader(f_in)
+                transformed_rows = map(lambda x: self._transform_row(x), reader)
                 writer.writerows(transformed_rows)
 
     def _transform_row(self, target):

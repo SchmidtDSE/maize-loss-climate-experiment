@@ -197,7 +197,7 @@ def parse_record(raw_record):
 
 def load_data(sketch):
     data = sketch.get_data_layer().get_csv('data/sweep_ag_all.csv')
-    data_in_scope = filter(lambda x: x['allowCount'] == '0', data)
+    data_in_scope = filter(lambda x: x['allowCount'] == '1', data)
     return [parse_record(x) for x in data_in_scope]
 
 
@@ -216,7 +216,7 @@ class ConfigPresenter:
             0,
             y,
             'Layers',
-            ['1 layer', '2 layers', '3 layers', '4 layers', '5 layers'],
+            ['1 layer', '2 layers', '3 layers', '4 layers', '5 layers', '6 layers'],
             '3 layers',
             lambda x: self._change_layers(x)
         )
@@ -229,9 +229,11 @@ class ConfigPresenter:
             'L2',
             [
                 'No L2',
-                '0.001',
-                '0.010',
-                '0.100'
+                '0.05',
+                '0.01',
+                '0.10',
+                '0.15',
+                '0.20'
             ],
             'No L2',
             lambda x: self._change_l2(x)
@@ -345,14 +347,14 @@ class ConfigPresenter:
         self._on_config_change(self._filter_config)
 
     def _run_sweep(self):
-        self._layers_buttons.set_value('3 layers')
-        self._l2_buttons.set_value('0.100')
-        self._drop_buttons.set_value('0.05')
+        self._layers_buttons.set_value('4 layers')
+        self._l2_buttons.set_value('0.10')
+        self._drop_buttons.set_value('0.01')
         self._data_buttons.set_value('All Data')
         self._filter_config = FilterConfig(
-            3,
+            4,
             0.1,
-            0.05,
+            0.01,
             'all attrs'
         )
         self._on_run_sweep()
@@ -479,14 +481,14 @@ class ScatterPresenter:
         self._sketch.draw_buffer(0, 0, 'sweep-points')
 
     def _get_x(self, val):
-        if val > 0.4:
-            val = 0.4
-        return val * 100 / 40 * (self._width - 80 - 20) + 80
+        if val > 0.2:
+            val = 0.2
+        return val * 100 / 20 * (self._width - 80 - 20) + 80
 
     def _get_y(self, val):
-        if val > 0.4:
-            val = 0.4
-        offset = val * 100 / 40 * (self._height - 50 - 20) + 50
+        if val > 0.2:
+            val = 0.2
+        offset = val * 100 / 20 * (self._height - 50 - 20) + 50
         return self._height - offset
 
     def _draw_horiz_axis(self):
@@ -498,19 +500,19 @@ class ScatterPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 11)
         self._sketch.set_text_align('center', 'top')
 
-        tick_points_int = range(0, 45, 5)
+        tick_points_int = range(0, 25, 5)
         tick_points_float = map(lambda x: x / 100, tick_points_int)
         for val in tick_points_float:
             self._sketch.draw_text(
                 self._get_x(val),
                 self._height - 45,
-                ('>' if val >= 0.399 else '') + ('%d%%' % round(val * 100))
+                ('>' if val >= 0.199 else '') + ('%d%%' % round(val * 100))
             )
 
         self._sketch.set_text_align('center', 'center')
         self._sketch.push_transform()
         self._sketch.translate(
-            self._get_x(0.20),
+            self._get_x(0.10),
             self._height - 20
         )
         self._sketch.draw_text(
@@ -532,13 +534,13 @@ class ScatterPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 11)
         self._sketch.set_text_align('right', 'center')
 
-        tick_points_int = range(0, 45, 5)
+        tick_points_int = range(0, 25, 5)
         tick_points_float = map(lambda x: x / 100, tick_points_int)
         for val in tick_points_float:
             self._sketch.draw_text(
                 48,
                 self._get_y(val),
-                ('>' if val >= 0.399 else '') + ('%d%%' % round(val * 100))
+                ('>' if val >= 0.199 else '') + ('%d%%' % round(val * 100))
             )
 
         self._sketch.set_text_align('center', 'center')
@@ -546,7 +548,7 @@ class ScatterPresenter:
         self._sketch.set_angle_mode('degrees')
         self._sketch.translate(
             12,
-            self._get_y(0.20)
+            self._get_y(0.10)
         )
         self._sketch.rotate(-90)
         self._sketch.draw_text(

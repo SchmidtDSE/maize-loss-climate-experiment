@@ -15,8 +15,8 @@ STR_META_ATTRS = {
     'block',
     'allowCount'
 }
-CONSTRAINED_LAYERS = set(range(2, 7))
-CONSTRAINED_ATTRS = ['all attrs', 'year']
+CONSTRAINED_LAYERS = set(range(3, 7))
+CONSTRAINED_ATTRS = ['all attrs']
 
 
 class SelectConfigurationTask(luigi.Task):
@@ -47,7 +47,7 @@ class SelectConfigurationTask(luigi.Task):
         def score_option(option):
             mean_z = option['validMean']  # (option['validMean'] - mean_mean) / mean_std
             std_z = option['validStd']  # (option['validStd'] - std_mean) / std_std
-            return mean_z + std_z / 2
+            return mean_z + std_z / 3
 
         unconstrained_selection_row = min(rows, key=score_option)
 
@@ -59,6 +59,7 @@ class SelectConfigurationTask(luigi.Task):
                     x['l2Reg'] > 0
                     or x['dropout'] > 0
                 )
+                and x['allowCount'].lower() == 'true'
             ),
             rows
         )
@@ -120,7 +121,7 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
         model.fit(
             train_inputs,
             train_outputs,
-            epochs=20,
+            epochs=30,
             verbose=None,
             sample_weight=train_data[const.SAMPLE_WEIGHT_ATTR]
         )
@@ -293,7 +294,7 @@ class TrainFullModel(luigi.Task):
         model.fit(
             train_inputs,
             train_outputs,
-            epochs=20,
+            epochs=30,
             verbose=None,
             sample_weight=input_frame[const.SAMPLE_WEIGHT_ATTR]
         )

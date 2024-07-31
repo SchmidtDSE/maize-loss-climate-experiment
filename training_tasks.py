@@ -16,7 +16,9 @@ DEFAULT_NUM_LAYERS = [1, 2, 3, 4, 5, 6]
 DEFAULT_REGULARIZATION = [0.00, 0.05, 0.10, 0.15, 0.20]
 DEFAULT_DROPOUT = [0.00, 0.01, 0.05, 0.10, 0.50]
 BLOCKS = [
-    'all attrs',
+    'all attrs'
+]
+BLOCKS_EXTENDED = [
     'year',
     'rhn',
     'rhx',
@@ -100,13 +102,13 @@ def build_model(num_layers, num_inputs, l2_reg, dropout):
     
     model.add(keras.layers.Dense(2, activation='linear'))
 
-    model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+    model.compile(optimizer='adamw', loss='mae', metrics=['mae'])
 
     return model
 
 
 def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, filename,
-    additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=20,
+    additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=30,
     blocked_attrs=BLOCKED_ATTRS):
     import csv
     import os
@@ -295,7 +297,7 @@ class SweepTemplateTask(luigi.Task):
             l2_regs,
             dropouts,
             self.get_blocks(),
-            [True, False]
+            self.get_allow_counts()
         )
         
         combinations_realized = list(combinations)
@@ -348,6 +350,9 @@ class SweepTemplateTask(luigi.Task):
     def get_max_workers(self):
         raise NotImplementedError('Must use implementor.')
 
+    def get_allow_counts(self):
+        raise NotImplementedError('Must use implementor.')
+
 
 class SweepTask(SweepTemplateTask):
 
@@ -367,7 +372,10 @@ class SweepTask(SweepTemplateTask):
         return BLOCKS
 
     def get_max_workers(self):
-        return 500
+        return 300
+
+    def get_allow_counts(self):
+        return [True, False]
 
 
 class SweepExtendedTask(SweepTemplateTask):
@@ -379,13 +387,16 @@ class SweepExtendedTask(SweepTemplateTask):
         return DEFAULT_NUM_LAYERS
     
     def get_l2_regs(self):
-        return [0.2, 0.3, 0.4]
+        return DEFAULT_REGULARIZATION
     
     def get_dropouts(self):
         return DEFAULT_DROPOUT
 
     def get_blocks(self):
-        return ['all attrs']
+        return BLOCKS_EXTENDED
 
     def get_max_workers(self):
-        return 100
+        return 500
+
+    def get_allow_counts(self):
+        return [True]
