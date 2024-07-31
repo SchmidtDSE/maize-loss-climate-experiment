@@ -476,7 +476,7 @@ class MainPresenter:
         if self._comparison == 'vs historic':
             self._sketch.draw_text(0, 0, 'Historic Values (Approx 2007)')
         else:
-            self._sketch.draw_text(0, 0, 'Climate Change Stop at 2024')
+            self._sketch.draw_text(0, 0, 'Climate Change Stops')
         
         self._sketch.pop_transform()
         
@@ -530,7 +530,7 @@ class MainPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 9)
 
         is_catastrophic = self._target_threshold == '75% cov'
-        max_val = 20 if is_catastrophic else 25
+        max_val = 10 if is_catastrophic else 25
         
         y = SUB_CHART_HEIGHT - self._get_y(30)
         start_x = self._get_x(-100)
@@ -566,7 +566,7 @@ class MainPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 9)
 
         is_catastrophic = self._target_threshold == '75% cov'
-        max_val = 20 if is_catastrophic else 25
+        max_val = 10 if is_catastrophic else 25
         
         y = self._get_y(30)
         start_x = self._get_x(-100)
@@ -596,7 +596,7 @@ class MainPresenter:
         self._sketch.draw_text(start_x, y + 2, '%d%%' % max_val)
         
         self._sketch.set_text_align('center', 'top')
-        self._sketch.draw_text((start_x + end_x) / 2, y + 2, 'Catastrophic Loss Probability')
+        self._sketch.draw_text((start_x + end_x) / 2, y + 2, 'Loss Probability')
         
         self._sketch.pop_style()
         self._sketch.pop_transform()

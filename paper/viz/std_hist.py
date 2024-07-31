@@ -44,7 +44,7 @@ def main():
         label='2050 Series'
     )
     matplotlib.pyplot.xlabel('Percent From Expected Yield Equivalent to 1 Standard Deviation', fontproperties=font_properties)
-    matplotlib.pyplot.ylabel('Number of Neighbhorhoods', fontproperties=font_properties)
+    matplotlib.pyplot.ylabel('Number of Geohashes', fontproperties=font_properties)
 
     matplotlib.pyplot.legend(prop=font_properties)
 

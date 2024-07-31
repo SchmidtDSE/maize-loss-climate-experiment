@@ -230,7 +230,6 @@ class ConfigPresenter:
             [
                 'No L2',
                 '0.05',
-                '0.01',
                 '0.10',
                 '0.15',
                 '0.20'
@@ -436,15 +435,16 @@ class ScatterPresenter:
 
                 color = '#1f78b4A0' if final_point else '#C0C0C080'
 
-                self._sketch.clear_fill()
-                self._sketch.set_stroke(color)
-                self._sketch.set_stroke_weight(1)
-                self._sketch.draw_line(
-                    self._get_x(point['mean']),
-                    self._get_y(point['std']),
-                    self._get_x(point['trainMean']),
-                    self._get_y(point['trainStd'])
-                )
+                if final_point:
+                    self._sketch.clear_fill()
+                    self._sketch.set_stroke(color)
+                    self._sketch.set_stroke_weight(1)
+                    self._sketch.draw_line(
+                        self._get_x(point['mean']),
+                        self._get_y(point['std']),
+                        self._get_x(point['trainMean']),
+                        self._get_y(point['trainStd'])
+                    )
 
                 self._sketch.set_fill(color)
                 self._sketch.clear_stroke()
