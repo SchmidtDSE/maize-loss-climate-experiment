@@ -3,6 +3,7 @@
 mkdir deploy
 cp *.py deploy
 cp *.css deploy
+cp *.js deploy
 cp *.html deploy
 # cp *.md deploy
 # cp *.txt deploy
