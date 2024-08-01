@@ -146,7 +146,7 @@ The selected model sees some overfit but meta-parameter optimization uses fewer 
 
 Table: Results of tests after model selection. {#tbl:posthocresults}
 
-From the trials outlined in Table @tbl:posthocresults, the temporal task best resembles expected error in simulations as they predict into the future.
+From the trials outlined in Table @tbl:posthocresults, the temporal task best resembles expected error in simulations as they predict into the future. As described in supplemental, we do not see clear bias in error by geography or climate variable.
 
 ## Simulation outcomes
 After retraining on all available data using the selected configuration from our sweep, Monte Carlo simulates overall outcomes. Despite the conservative nature of the Bonferroni correction [@mcdonald_handbook_2014] and the 1km sample assumption, {{percentSignificant}} of maize acreage in SSP245 falls within a neighborhood with significant changes to claim probability ($p < 0.05 / n$) at some point during the 2050 series simulations. That said, we observe that some of the remaining neighborhoods failing to meet that threshold have less land dedicated to maize within their area and, thus, a smaller sample size in our simulations.
@@ -261,7 +261,7 @@ Then, continuing to "presentation" within @unwin_why_2020, we next release these
 
 ![One of the interactive explorations where users can see how hypothetical risk units would fare under $l_{\%}$ and $l_{\sigma}$. The example shown demonstrates how a high stability unit could see a claim for a bad year under $l_{\sigma}$ but not $l_{\%}$.](./img/yield_sim.png "One of the interactive explorations where users can see how hypothetical risk units would fare under $l_{\%}$ and $l_{\sigma}$. The example shown demonstrates how a high stability unit could see a claim for a bad year under $l_{\sigma}$ but not $l_{\%}$."){ width=95% #fig:stdev }
 
-These public interactive visualizations allow for further exploration of our modeling such as different loss thresholds for other insurance products, finding relationships of outcomes to different climate variables, answering geographically specific questions beyond the scope of this study, and modification of machine learning parameters to understand performance. In preparation for this open science release, our Supplemental Materials also report briefly on experiences from a 9 person "real-world" workshop co-exploring these results similar to @pottinger_combining_2023, offering feedback^[We collect information about the tool only, falling under "quality assurance" activity. IRB questionnaire on file.] on and refining tool design.
+These public interactive visualizations allow for further exploration of our modeling such as different loss thresholds for other insurance products, finding relationships of outcomes to different climate variables, answering geographically specific questions beyond the scope of this study, and modification of machine learning parameters to understand performance. In preparation for this open science release, supplemental also reports briefly on experiences from a 9 person "real-world" workshop co-exploring these results similar to @pottinger_combining_2023, offering feedback^[We collect information about the tool only, falling under "quality assurance" activity. IRB questionnaire on file.] on and refining tool design.
 
 \bigskip
 
