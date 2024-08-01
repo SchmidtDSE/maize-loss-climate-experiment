@@ -76,6 +76,12 @@ function main() {
         event.preventDefault();
         document.getElementById("finish-slide").focus();
     });
+    
+    document.getElementById("expand-rate-var-link").addEventListener("click", (event) => {
+        document.getElementById("rate-var-details").setAttribute("open", true);
+        document.getElementById("rate-var-details").focus();
+        event.preventDefault();
+    });
 }
 
 

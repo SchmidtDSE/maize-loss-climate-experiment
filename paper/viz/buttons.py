@@ -375,8 +375,8 @@ class ConfigurationPresenter:
 
 class ToggleButtonSet:
 
-    def __init__(self, sketch, x, y, label, options, selected, on_change, make_rows = True,
-        narrow = False):
+    def __init__(self, sketch, x, y, label, options, selected, on_change, make_rows=True,
+        narrow=False, show_label=False):
         self._sketch = sketch
         self._x = x
         self._y = y
@@ -386,6 +386,7 @@ class ToggleButtonSet:
         self._selected = selected
         self._make_rows = make_rows
         self._narrow = narrow
+        self._show_label = show_label
 
     def set_value(self, option):
         self._selected = option
@@ -399,12 +400,19 @@ class ToggleButtonSet:
         self._sketch.set_stroke_weight(1)
         self._sketch.set_rect_mode('corner')
         self._sketch.set_text_font(const.FONT_SRC, 14)
-        self._sketch.set_text_align('center', 'baseline')
 
         button_x = 0
-        button_y = 0
+        button_y = 20 if self._show_label else 0
         mouse_x = mouse_x - self._x
         mouse_y = mouse_y - self._y
+
+        if self._show_label:
+            self._sketch.clear_stroke()
+            self._sketch.set_fill(const.INACTIVE_TEXT_COLOR)
+            self._sketch.set_text_align('left', 'baseline')
+            self._sketch.draw_text(0, 14, self._label)
+
+        self._sketch.set_text_align('center', 'baseline')
 
         def get_stroke_color(is_hovering, is_active):
             if is_hovering:
@@ -462,9 +470,14 @@ class ToggleButtonSet:
     def get_height(self):
         if self._make_rows:
             rows = math.ceil(len(self._options) / 3)
-            return const.BUTTON_HEIGHT * rows
+            height = const.BUTTON_HEIGHT * rows
         else:
-            return const.BUTTON_HEIGHT
+            height = const.BUTTON_HEIGHT
+
+        if self._show_label:
+            height += 20
+
+        return height
 
 
 class Button:

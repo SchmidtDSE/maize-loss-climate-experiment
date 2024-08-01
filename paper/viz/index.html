@@ -31,6 +31,7 @@
                 "/legend.py?v=EPOCH": "legend.py",
                 "/map_viz.py?v=EPOCH": "map_viz.py",
                 "/preprocess.py?v=EPOCH": "preprocess.py",
+                "/rates_viz.py?v=EPOCH": "rates_viz.py",
                 "/results_viz_entry.py?v=EPOCH": "results_viz_entry.py",
                 "/results_viz.py?v=EPOCH": "results_viz.py",
                 "/scatter.py?v=EPOCH": "scatter.py",
@@ -150,14 +151,65 @@
                         </h3>
                         <div class="body-text">
                             <p>
-                                (Slide 2 of 5) To understand how all of this comes together to set rates and coverage, we will walk through the structure of <span tabindex="0" class="tooltip" data-tippy-content="Multi-Peril Crop Insurance. Covering 494 million acres (Tsiboe and Turner 2023), this is the 'oldest and most common form of federal crop insurance' (Chite et al 2005)">MPCI</span>'s <span tabindex="0" class="tooltip" data-tippy-content="Yield Protection. This coverage option within MPCI typically guarantees yield itself up to 75% of an APH (Osiensky 2021)">YP</span> option. A mixture of different information determines what price a grower pays for a certain amount of protection (<a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards 2020</a>). In other words, based on data about their <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together. This is sometimes also called a risk unit.">insured unit</span>, a grower can pay for different coverage levels that determine the <span tabindex="0" class="tooltip" data-tippy-content="Covered loss is the amount of crop loss for which YP pays out. For our purposes, this insurance begins paying out to a grower when the yields of their insured unit drop below 75% of that unit's APH (Osiensky 2021; Plastina and Johnson 2022).">YP loss</span>. Generally, this involves county-level data, the <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> for a <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together in a policy. This is sometimes also called a risk unit.">insured unit</span>, and a series of adjustment and subsidies. The producer can choose how much of their <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> they want to insure (horizontal axis in the <a href="#policy-abstract">figure below</a>) and, based on all of the factors, this sets a price (vertical axis in the <a href="#policy-abstract">figure below</a>).
+                                (Slide 2 of 5) A grower can pay for different levels of coverage based on data about their <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together. This is sometimes also called a risk unit.">insured unit</span>. To understand how all of this works to set rates and losses, we will walk through the structure of <span tabindex="0" class="tooltip" data-tippy-content="Multi-Peril Crop Insurance. Covering 494 million acres (Tsiboe and Turner 2023), this is the 'oldest and most common form of federal crop insurance' (Chite et al 2005)">MPCI</span>'s <span tabindex="0" class="tooltip" data-tippy-content="Yield Protection. This coverage option within MPCI typically guarantees yield itself up to 75% of an APH (Osiensky 2021)">YP</span> option.
                             </p>
+                            <p>
+                                In actuality, a mixture of many variables determines the price a producer pays for insurance (<a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards 2020</a>). The grower chooses how much of their <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> they want to insure (horizontal axis in the <a href="#policy-abstract">figure below</a>). However, county-level data, the <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> for a <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together in a policy. This is sometimes also called a risk unit.">insured unit</span>, and a series of adjustment and subsidies all play a role. By combining everything together, this sets a price and a subsidy they recieve from the government (vertical axis in the <a href="#policy-abstract">interactive</a>)
+                            </p>
+                            <p>
+                                In this first interactive, we will explore these factors that influence that subsidy in detail. For explanations for each variable involved, see <a href="#rate-var-details" id="expand-rate-var-link">details about variables used for rate setting</a>.
+                            </p>
+
+                            <details id="rate-var-details">
+                                <summary class="button">Details about variables used for rate setting >></summary>
+                                <div class="sub-content">
+                                    <p>
+                                        These are not technical definitions but, conceptually, here are simplified meanings of each variable in rate setting and the hypothetical rate interactive.
+
+                                        <ul>
+                                            <li>
+                                                <span class="vocab">Insured Unit APH</span>: <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> for the set of fields in the <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together. This is sometimes also called a risk unit.">insured unit</span> for which a policy is being created.
+                                            </li>
+                                            <li>
+                                                <span class="vocab">County average yield</span>: The average yield (<span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> equivalent) for all fields in the county.
+                                            </li>
+                                            <li>
+                                                <span class="vocab">Projected price</span>: The "spring" projected price is the expected price at which the crop will sell based on daily futures market data.
+                                            </li>
+                                            <li>
+                                                <span class="vocab">County preimum rate</span>: Based on the crop and county, how much it costs to insure one future dollar of expected crop. A value of 4% means 4 cents for each dollar insured.
+                                            </li>
+                                            <li>
+                                                <span class="vocab">Subsidy rate</span>: What percent of the overall policy cost is covered by subsidy. A value of 55% means that the grower pays for 45% of the overall cost of the policy.
+                                            </li>
+                                            <li>
+                                                <span class="vocab">Coverage amount</span>: Up to what percent of <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> will be covered. If one sees a yield that is only 75% of <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> then the policy will pay out 75% - 70% or 5% of <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span>.
+                                            </li>
+                                        </ul> 
+
+                                        Again, these are non-technical working explanations. For precise definitions, see <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a>.
+                                    </p>
+                                </div>
+                            </details>
+                        </div>
+                        <div class="interactive" id="policy-abstract">
+                            <div class="app-intro">
+                                <div class="instruction">⚡ This section contains interactive components. It will take just a moment to load the lab.</div>
+                                <a href="" class="load-app-link">Load Interactives >></a>
+                            </div>
+                            <div class="sketch">
+                                <div id="sketch-load-message-rates">
+                                    Loading...
+                                    <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                </div>
+                                <canvas id="sketch-canvas-rates"></canvas>
+                            </div>
+                            <div>Visualization showing how subsidy changes according to different parameters either in an average-based APH or the proposed standard deviation-based APH.</div>
+                        </div>
+                        <div class="body-text">
                             <p>
                                 All that said, the horizontal axis in the <a href="#policy-abstract">figure below</a> representing how much coverage a grower wants is currently defined in terms of a percent of <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span>. However, we will explore what happens if this includes an understanding of yield volatility. More specifically, <a href="https://www.investopedia.com/terms/s/standarddeviation.asp" target="_blank">standard deviation</a> (<a href="https://www.investopedia.com/terms/s/standarddeviation.asp" target="_blank">Hargrave 2024</a>) gets smaller as a grower's yields become more stable, offering a way to quanitfy risk. Including this variable in <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span>-based coverage levels could happen by <span data-tippy-content="Process by which new insurance products can be suggested. This could include supplemental policies covering more than 75% of yields (Schnitkey et al 2023) though typically programs cannot cover more than 85% as we will see in a moment." class="tooltip">508h</span> or by changing the law.
                             </p>
-                        </div>
-                        <div class="diagram" id="policy-abstract">
-                            <img src="/img/policy_abstract.png" alt="Abstracted description of a common policy scenario">
                         </div>
                     </div>
                     <div>
@@ -355,7 +407,7 @@
                             <li><span class="vocab">Blocks</span>: Sometimes certain data can be distracting to the model or simply having a large number of variables can become overwhelming (<a href="https://towardsdatascience.com/curse-of-dimensionality-a-curse-to-machine-learning-c122ee33bfeb" target="_blank">Karanam 2021</a>). This option lets us take out individual climate variables.</li>
                         </ul>
 
-                        This first interactive lets us try out different depths, L2s, dropouts, and blocks. Clicking the "Try Model" button will test a new model where we split the historic data such that the network trains from one piece (called the "training set") before we grade it on the part it has not seen before (called the "validation set"), scoring performance with <span tabindex="0" class="tooltip" data-tippy-content="This is a simple average of the error magnitude. In other words, it indicates, on average, how far off predictions from the network are from actuals regardless of if the model was too high or too low.">mean absolute error</span>. Our goal: go left on the horizontal axis (minimize error predicting <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span>) and to the bottom on the vertical axis (minimize error predicting <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of yields is expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">std</span>).
+                        This interactive lets us try out different depths, L2s, dropouts, and blocks. Clicking the "Try Model" button will test a new model where we split the historic data such that the network trains from one piece (called the "training set") before we grade it on the part it has not seen before (called the "validation set"), scoring performance with <span tabindex="0" class="tooltip" data-tippy-content="This is a simple average of the error magnitude. In other words, it indicates, on average, how far off predictions from the network are from actuals regardless of if the model was too high or too low.">mean absolute error</span>. Our goal: go left on the horizontal axis (minimize error predicting <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span>) and to the bottom on the vertical axis (minimize error predicting <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of yields is expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">std</span>).
 
                         <details>
                             <summary class="button">How to optimize model preformance >></summary>

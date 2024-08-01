@@ -1139,3 +1139,52 @@ class DetermineEquivalentStdTask(luigi.Task):
             return level / predicted_std
         else:
             return None
+
+
+class DetermineEquivalentStdExtendedTask(luigi.Task):
+
+    def requires(self):
+        return InterpretProjectHistoricTask()
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('stats_equivalent_raw_extended.json'))
+
+    def run(self):
+
+        def execute_threshold(level):
+            with self.input().open() as f:
+                reader = csv.DictReader(f)
+                equivalencies = map(lambda x: {
+                    'equivalent': self._get_equivalent_std(x, level),
+                    'num': int(x['yieldObservations'])
+                }, reader)
+
+                equivalencies_valid = filter(
+                    lambda x: x['equivalent'] is not None,
+                    equivalencies
+                )
+
+                def combine(a, b):
+                    total = a['num'] + b['num']
+                    return {
+                        'equivalent': (a['equivalent'] * a['num'] + b['equivalent'] * b['num']) / total,
+                        'num': total
+                    }
+
+                overall_equivalency = functools.reduce(combine, equivalencies_valid)['equivalent']
+
+                return overall_equivalency
+
+        with self.output().open('w') as f:
+            ret_dict = {}
+            for threshold in range(15, 55, 5):
+                ret_dict[threshold / 100] = execute_threshold(threshold / 100)
+            json.dump(ret_dict, f)
+
+    def _get_equivalent_std(self, target, level):
+        predicted_std = float(target['predictedStd'])
+
+        if predicted_std > 0:
+            return level / predicted_std
+        else:
+            return None

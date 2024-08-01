@@ -127,6 +127,11 @@ HISTORY_INSTRUCTION = ' '.join([
     'What behavior does std or average encourage?'
 ])
 
+RATES_INSTRUCTION = ' '.join([
+    'Create a scenario and see how it changes the subsidy for a grower.',
+    'How does increasing or decreasing a grower APH change that outlook?'
+])
+
 HISTORY_BODY_COLOR = '#1f78b4'
 HISTORY_BODY_LOSS_COLOR = '#33a02c'
 HISTORY_PENDING_COLOR = '#a6cee3'
