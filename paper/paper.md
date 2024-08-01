@@ -175,15 +175,15 @@ In addition to highlighting future work opportunities, we observe a number of po
 ## Adaptation and policy structure
 Adaptation to these adverse conditions is imperative for both farmers and insurers [@oconnor_covering_2017; @mcbride_redefining_2020.]. In order to confront this alarming increase in climate-driven risk, preparations may include:
 
- - Altered planting dates [@mangani_projecting_2023].
- - Physically moving operations [@butler_adaptation_2013].(Claims Rate)
+ - Altering planting dates [@mangani_projecting_2023].
+ - Physically moving operations [@butler_adaptation_2013].
  - Employing stress-resistant varieties [@tian_genome_2023].
  - Modifying pesticide usage [@keronen_management_2023].
  - Adopting risk-mitigating regenerative farming systems [@renwick_long-term_2021].
 
 Most notably, regenerative practices can reduce risks through diverse crop rotations [@bowles_long-term_2020] and improvements to soil health [@renwick_long-term_2021]. These important steps may provide output stability in addition to other environmental benefits [@hunt_fossil_2020], valuable resilience given that our results see higher claims not through overall reduced averages but higher volatility. Still, significant structural and financial barriers inhibit adoption of such systems [@mcbride_redefining_2020]. In particular, though the magnitude remains the subject of empirical investigation [@connor_crop_2022], financial safety net programs like crop insurance may reduce adoption [@wang_warming_2021; @chemeris_insurance_2022] despite likely benefits for both farmers and insurers [@oconnor_covering_2017].
 
-One specific feature of U.S. crop insurance policy may be partly responsible for this disincentive: average-based production histories (FCIC 2020) structurally reward increases in mean yield but not necessarily yield stability. Indeed, regenerative agricultural practices may not always improve mean yields or can even come at the cost of a slightly reduced average (Deines et al. 2023) even though they guard against elevations in the probability of loss events [@renwick_long-term_2021].
+One specific feature of U.S. crop insurance policy may be partly responsible for this disincentive: average-based production histories [@fcic_common_2020v] structurally reward increases in mean yield but not necessarily yield stability. Indeed, regenerative agricultural practices may not always improve mean yields or can even come at the cost of a slightly reduced average [@deines_recent_2023] even though they guard against elevations in the probability of loss events [@renwick_long-term_2021].
 
 That in mind, if coverage levels are redefined from the current percentage based approach ($l_{\%}$) to variance ($l_{\sigma}$) as shown in Table @tbl:covformula, then improvements both in average yield and stability could be rewarded. For example, using historic values as guide, {{equivalentStd}} standard deviations ($c_\sigma$) would achieve the current system-wide coverage levels ($c_\% = 0.75$) but realign incentives towards a balance between a long-standing aggregate output incentive and a new resilience reward that could recognize regenerative systems and other strategies that reduce variability, valuing the stability offered by some producers for the broader food system [@renwick_long-term_2021].
 

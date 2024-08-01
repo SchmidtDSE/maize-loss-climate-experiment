@@ -64,6 +64,18 @@ function main() {
         window.scrollTo(0, 0);
         event.preventDefault();
     }));
+
+    document.getElementById("model-skip-link").addEventListener("click", (event) => {
+        slider.goTo(3);
+        event.preventDefault();
+        document.getElementById("model-overview").focus();
+    });
+
+    document.getElementById("finish-slides-link").addEventListener("click", (event) => {
+        slider.goTo("last");
+        event.preventDefault();
+        document.getElementById("finish-slide").focus();
+    });
 }
 
 
