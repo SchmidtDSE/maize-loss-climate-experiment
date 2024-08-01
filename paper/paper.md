@@ -72,13 +72,13 @@ As YP operates at unit-level, modeling these formulations requires highly local 
 We align these variables to a common grid in order to create the discrete instances needed for model training and evaluation. More specifically, we create "neighborhoods" [@manski_diversified_2024] of geographically proximate fields paired with climate data through 4 character^[We also evaluate alternative neighborhood sizes in supplemental materials.] geohashing [@niemeyer_geohashorg_2008], defining small populations in a grid of cells roughly 28 by 20 kilometers for use within statistical tests [@haugen_geohash_2020]. Having created these spatial groups, we model against observed deviations from yield expectations which YP defines through historic yield ($y_{expected}$). This creates a distribution of changes or "yield deltas" which we summarize as neighborhood-level means and standard deviations, helping ensure dimensionality is appropriate for the size of the input dataset. Finally, we similarly describe climate variable deltas as min, max, mean and standard deviation per month.
 
 ## Regression
-With these data in mind, we next build predictive models for use in simulations of future insurance outcomes. Using machine learning per @leng_predicting_2020, we build regressors by fitting ($f$) neighborhood-level climate variables ($C$) and year ($x$) against z-normalized yield deltas [@kim_investigating_2024].
+With these data in mind, we next build predictive models for use in simulations of future insurance outcomes. Using machine learning per @leng_predicting_2020, we build regressors ($f$) by fitting neighborhood-level climate variables ($C$) and year ($x$) against neighborhood-level mean and standard deviation of yield changes [@kim_investigating_2024].
 
 $y_{\Delta\%}(x) = \frac{y_{actual} - y_{expected}}{y_{expected}} = \frac{y_{\Delta}}{y_{\mu-historic}} = f(C, x, z_{\mu-historic}, z_{\sigma-historic})$
 
 For $f$, we use feed forward artificial neural networks [@baheti_essential_2021] as they support:
 
-- Multi-variable output [@brownlee_deep_2020], helpful as we need to predict both future neighborhood mean and standard deviation together.
+- Multi-variable output [@brownlee_deep_2020], helpful as we need to predict both mean and standard deviation.
 - Out-of-sample range estimation [@mwiti_random_2023], important as warming may incur growing conditions outside the historical conditions seen in the input domain.
 
 Many different kinds of neural network structures and configurations could meet these criteria. Therefore, we try various combinations of "hyper-parameters" in a grid search sweep [@joseph_grid_2018]. 
@@ -92,14 +92,14 @@ Many different kinds of neural network structures and configurations could meet 
 
 Table: Parameters which try in different permutations to find an optimal configuration. {#tbl:sweepparam}
 
-The options we consider in our sweep as documented in Table @tbl:sweepparam: typically address "overfitting" in which regressors learn non-generalizable trends from input data. This performance-optimizing algorithm permutes these parameters (different numbers of layers, dropout rates [@srivastava_dropout_2014], L2 regularization strengths [@tewari_regularization_2021], and removal of input attributes) before we select a preferred configuration^[All non-output neurons use Leaky ReLU activation per @maas_rectifier_2013 and we use AdamW optimizer [@kingma_adam_2014; @loshchilov_decoupled_2017].] from 1,500 candidate models. Finally, with meta-parameters selected, we can then retrain on all available data ahead of simulations.
+We permute different option combinations from Table @tbl:sweepparam before we select a preferred configuration^[All non-output neurons use Leaky ReLU activation per @maas_rectifier_2013 and we use AdamW optimizer [@kingma_adam_2014; @loshchilov_decoupled_2017].] from 1,500 candidate models. Finally, with meta-parameters chosen, we can then retrain on all available data ahead of simulations.
 
 ## Simulation
-After training machine learning models using historical data, predictions of future distributions feed into Monte Carlo simulations [@metropolis_beginning_1987; @kwiatkowski_monte_2022] in the 2030 and 2050 CHC-CMIP6 series [@williams_high_2024] as described in Figure @fig:pipeline. With trials consisting of sampling at the neighborhood scale, this approach allows us to consider many possible values to understand what the distribution of outcomes may look like in the future and make probability statements about insurance-relevant events. In addition to sampling climate variables and model error residuals to propagate uncertainty [@yanai_estimating_2010], we also draw multiple times from a neighborhood to approximate the size of an insured unit^[In this operation, we also draw the unit size itself randomly per trial from historic data [@rma_statecountycrop_2024].] as the exact geospatial risk unit structure is not publicly known. Altogether, this simulates a single unit per year for 5 years.
+After training machine learning models using historical data, predictions of future distributions feed into Monte Carlo simulations [@metropolis_beginning_1987; @kwiatkowski_monte_2022] in the 2030 and 2050 CHC-CMIP6 series [@williams_high_2024] as described in Figure @fig:pipeline. With trials consisting of sampling at the neighborhood scale, this approach allows us to consider many possible values to understand what the distribution of outcomes may look like in the future and make probability statements about insurance-relevant events. In addition to sampling climate variables and model error residuals to propagate uncertainty [@yanai_estimating_2010], we also draw multiple times to approximate the size of an insured unit^[In this operation, we also draw the unit size itself randomly per trial from historic data [@rma_statecountycrop_2024].] as the exact geospatial risk unit structure is not publicly known. Altogether, this simulates a single unit per year for 5 years. Finally, we determine significance via Bonferroni-corrected [@bonferroni_il_1935] Mann Whitney U [@mann_test_1947] per neighborhood per year as variance may differ between the two expected and counterfactual sets [@mcdonald_handbook_2014]. 
 
 ![Model pipeline overview diagram. Code released as open source.](./img/pipeline.png "Model pipeline overview diagram. Code released as open source."){ width=80% #fig:pipeline }
 
-Finally, we determine significance via Bonferroni-corrected [@bonferroni_il_1935] Mann Whitney U [@mann_test_1947] per neighborhood per year as variance may differ between the two expected and counterfactual sets [@mcdonald_handbook_2014]. Note that, though offering predictions at 30 meter scale, SYCM uses Daymet variables at 1 km resolution [@thornton_daymet_2014] and, thus, we more conservatively assume this 1km granularity in determining sample sizes.
+Note that, though offering predictions at 30 meter scale, SYCM uses Daymet variables at 1 km resolution [@thornton_daymet_2014] and, thus, we more conservatively assume this 1km granularity in determining sample sizes.
 
 ## Evaluation
 We choose our model using each candidate’s capability to predict into future years, a "sweep temporal displacement" task representative of the Monte Carlo simulations [@brownlee_what_2020]:
@@ -123,10 +123,10 @@ These post-hoc trials use only training and test sets as we fully retrain models
 \bigskip
 
 # Results
-We project loss probabilities to more than double ({{experimentalProbability2050}} claims rate) under SSP245 at mid-century in comparison to the no additional warming counterfactual scenario ({{counterfactualProbability2050}} claims rate) even as the average yield sees only minor changes from current values under the climate change simulation.
+We project loss probabilities to more than double ({{experimentalProbability2050}} claims rate) under SSP245 at mid-century in comparison to the no additional warming counterfactual scenario ({{counterfactualProbability2050}} claims rate).
 
 ## Neural network outcomes
-With bias towards performance in mean prediction, we select {{numLayers}} layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with performance described in Table @tbl:sweep. Blocking attributes offers limited benefit so we use all variables.
+With bias towards performance in mean prediction, we select {{numLayers}} layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. Table @tbl:sweep describes performance for the chosen configuration.
 
 | **Set**    | **MAE for Mean Prediction** | **MAE for Std Prediction** |
 | ---------- | ----------------------- | ---------------------- |
@@ -149,7 +149,7 @@ Table: Results of tests after model selection. {#tbl:posthocresults}
 From the trials outlined in Table @tbl:posthocresults, the temporal task best resembles expected error in simulations as they predict into the future.
 
 ## Simulation outcomes
-After retraining a model on all available data using the selected configuration from our sweep, Monte Carlo simulates overall outcomes where, despite the conservative nature of the Bonferroni correction [@mcdonald_handbook_2014] and the 1km sample assumption, {{percentSignificant}} of maize acreage in SSP245 falls within a neighborhood with significant changes to claim probability ($p < 0.05 / n$) at some point during the 2050 series simulations. That said, we observe that some of the remaining neighborhoods failing to meet that threshold have less land dedicated to maize within their area and, thus, a smaller sample size in our simulations.
+After retraining on all available data using the selected configuration from our sweep, Monte Carlo simulates overall outcomes. Despite the conservative nature of the Bonferroni correction [@mcdonald_handbook_2014] and the 1km sample assumption, {{percentSignificant}} of maize acreage in SSP245 falls within a neighborhood with significant changes to claim probability ($p < 0.05 / n$) at some point during the 2050 series simulations. That said, we observe that some of the remaining neighborhoods failing to meet that threshold have less land dedicated to maize within their area and, thus, a smaller sample size in our simulations.
 
 | **Scenario**   | **Year** | **Unit mean yield change** | **Unit loss probability**         | **Avg covered loss severity**  |
 | ---------------------------- | -------- | -------------------------- | --------------------------------- | ------------------------------ |
@@ -161,46 +161,31 @@ After retraining a model on all available data using the selected configuration 
 
 Table: Overview of Monte Carlo simulation results. Counterfactual is a future without continued warming in contrast to SSP245. {#tbl:simresults}
 
-Regardless, with Table @tbl:simresults highlighting these climate threats, these simulations suggest that warming disrupts historic trends of increasing average yield [@nielsen_historical_2023]. Furthermore, in addition to wiping out these gains that our neural network would otherwise expect without climate change, the loss probability increases in both of the time frames considered for SSP245.
+Regardless, with Table @tbl:simresults highlighting these climate threats, these simulations suggest that warming disrupts historic trends of increasing average yield [@nielsen_historical_2023]. Furthermore, in addition to wiping out the gains that our neural network would otherwise expect without climate change, the loss probability increases in both of the time frames considered for SSP245.
 
-![One of our interactive tools showing 2050 outcomes distribution relative to $y_{expected}$ highlighting loss with and without climate change, revealing the loss of an expected increase in yield following historic trends and an increase in loss probability.](./img/hist.png "One of our interactive tools showing 2050 outcomes distribution relative to $y_{expected}$ highlighting loss with and without climate change."){ width=95% #fig:hist }
+![Interactive tool screenshot showing 2050 outcomes distribution (changes from $y_{expected}$), highlighting loss with and without climate change. In addition to showing increased claims rate, this also depicts climate change reducing the expected increase in yields that would otherwise follow historic trends.](./img/hist.png "One of our interactive tools showing 2050 outcomes distribution relative to $y_{expected}$ highlighting loss with and without climate change."){#fig:hist }
 
-Notably, the SSP245 yield means remain similar to the historic baseline even as Figure @fig:hist the distribution tails differ more substantially. This shows how a sharp increase in loss probability (2050 series vs counterfactual) could emerge without necessarily changing  average yields.
+As shown in Figure @fig:hist, the SSP245 overall yield mean remains similar to the historic baseline even as distribution tails differ more substantially. This shows how a sharp increase in loss probability (2050 series vs counterfactual) could emerge without necessarily changing  average yields.
 
 \bigskip
 
 # Discussion
 In addition to highlighting future work opportunities, we observe a number of policy-relevant dynamics within our simulations.
 
-## Heat and drought stress
-Our model shows depressed yields during combined warmer and drier conditions, combinations similar to 2012 and historically poor maize production [@ers_weather_2013]. In this context, precipitation may serve as a protective factor: neighborhoods with drier July conditions are more likely to see higher loss probability ($p < 0.05 / 2$) in both the 2030 and 2050 series via rank correlation [@spearman_proof_1904]. Our predictions thus reflect empirical studies that document the negative impacts of heat stress and water deficits on maize yields [@sinsawat_effect_2004; @marouf_effects_2013]. These outputs may also reveal geographically and temporally specific outlines of these threats, possibly useful for insurer and grower adaptation.
-
-![Screenshot of an interactive tool showing precipitation and loss probability changes. The horizontal axis is change in precipitation and the vertical axis is the change in claims rate (probability of covered loss).](./img/scatter.png "Screenshot of an interactive tool showing precipitation and loss probability changes. The horizontal axis is change in precipitation and the vertical axis is the change in claims rate (probability of covered loss)."){ width=95% #fig:chirps }
-
-Even so, as seen in Figure @fig:chirps, we caution that analysis finds significant but weak rank correlations in both series, indicating that model expectations cannot be described by temperature and precipitation alone.
-
-
-## Geographic bias
-Neighborhoods with significant results ($p < 0.05 / n$) may be more common in some areas as shown in Figure @fig:geo. This spatial pattern may partially reflect that a number of neighborhoods have less land dedicated to maize so simulations have smaller sample sizes and fail to reach significance. In other cases, this geographic effect may also reflect disproportionate stress or other changes relative to historic conditions.
-
-![Interactive geographic view. Color describes type of change and larger dots are larger areas of maize growing activity. Band of increased risk concentrates in Iowa, Illinois, and Indiana.](./img/map.png "Interactive geographic view. Color describes type of change and larger dots are larger areas of maize growing activity. Band of increased risk concentrates in Iowa, Illinois, and Indiana."){ width=95% #fig:geo }
-
-In particular, as further explorable in our interactive tools, we note some geographic bias in changes to precipitation, temperature, and VPD / SVP.
-
 ## Adaptation and policy structure
 Adaptation to these adverse conditions is imperative for both farmers and insurers [@oconnor_covering_2017; @mcbride_redefining_2020.]. In order to confront this alarming increase in climate-driven risk, preparations may include:
 
  - Altered planting dates [@mangani_projecting_2023].
- - Physically moving operations [@butler_adaptation_2013].
+ - Physically moving operations [@butler_adaptation_2013].(Claims Rate)
  - Employing stress-resistant varieties [@tian_genome_2023].
  - Modifying pesticide usage [@keronen_management_2023].
  - Adopting risk-mitigating regenerative farming systems [@renwick_long-term_2021].
 
-Most notably, regenerative practices can reduce risks through diverse crop rotations [@bowles_long-term_2020] and improvements to soil health [@renwick_long-term_2021]. Still, even though those these important steps may provide output stability in addition to other environmental benefits [@hunt_fossil_2020], significant structural and financial barriers inhibit adoption of such systems [@mcbride_redefining_2020]. In particular, though the magnitude remains the subject of empirical investigation [@connor_crop_2022], financial safety net programs like crop insurance may reduce  adoption [@wang_warming_2021; @chemeris_insurance_2022] despite likely benefits for both farmers and insurers [@oconnor_covering_2017].
+Most notably, regenerative practices can reduce risks through diverse crop rotations [@bowles_long-term_2020] and improvements to soil health [@renwick_long-term_2021]. These important steps may provide output stability in addition to other environmental benefits [@hunt_fossil_2020], valuable resilience given that our results see higher claims not through overall reduced averages but higher volatility. Still, significant structural and financial barriers inhibit adoption of such systems [@mcbride_redefining_2020]. In particular, though the magnitude remains the subject of empirical investigation [@connor_crop_2022], financial safety net programs like crop insurance may reduce adoption [@wang_warming_2021; @chemeris_insurance_2022] despite likely benefits for both farmers and insurers [@oconnor_covering_2017].
 
-One specific feature of U.S. crop insurance policy may be partly responsible for this disincentive: average-based production histories (FCIC 2020) structurally reward increases in mean yield but not yield stability unless practice changes also raise that average. Indeed, regenerative agricultural practices may not always improve mean yields or can even come at the cost of a slightly reduced average (Deines et al. 2023) but may guard against elevations in the probability of loss events [@renwick_long-term_2021].
+One specific feature of U.S. crop insurance policy may be partly responsible for this disincentive: average-based production histories (FCIC 2020) structurally reward increases in mean yield but not necessarily yield stability. Indeed, regenerative agricultural practices may not always improve mean yields or can even come at the cost of a slightly reduced average (Deines et al. 2023) even though they guard against elevations in the probability of loss events [@renwick_long-term_2021].
 
-That in mind, if coverage levels were redefined from the current percentage based approach ($l_{\%}$) to variance ($l_{\sigma}$) as shown in Table @tbl:covformula, then improvements both in average yield and stability could be rewarded. For example, using historic values as guide, {{equivalentStd}} standard deviations ($c_\sigma$) would achieve the current system-wide coverage levels ($c_\% = 0.75$) but realign incentives towards a balance between a long-standing aggregate output incentive and a new resilience reward that could recognize regenerative systems and other strategies that reduce variability, valuing the stability offered by some producers for the broader food system [@renwick_long-term_2021].
+That in mind, if coverage levels are redefined from the current percentage based approach ($l_{\%}$) to variance ($l_{\sigma}$) as shown in Table @tbl:covformula, then improvements both in average yield and stability could be rewarded. For example, using historic values as guide, {{equivalentStd}} standard deviations ($c_\sigma$) would achieve the current system-wide coverage levels ($c_\% = 0.75$) but realign incentives towards a balance between a long-standing aggregate output incentive and a new resilience reward that could recognize regenerative systems and other strategies that reduce variability, valuing the stability offered by some producers for the broader food system [@renwick_long-term_2021].
 
 | **Current formulation**                           | **Possible proposal**                                                        |
 | -------------------------------------------------------- | ---------------------------------------------------------------------------- |
@@ -210,18 +195,30 @@ Table: Change in coverage formulas. {#tbl:covformula}
 
 Figure @fig:stdev further describes this translation between standard deviation and historic coverage levels. Even so, federal statute may cap coverage levels as percentages of production history [@cfr_crop_nodate]. Therefore, though regulators may make improvements like through 508h without congressional action, our simulations possibly suggest that the ability to incorporate climate adaptation variability may remain limited without statutory change.
 
+![Histogram showing percent change from $y_{expected}$ for one standard deviation in each simulated unit.](./img/std.png "Histogram showing percent change from $y_{expected}$ for one standard deviation in each simulated unit."){ width=95% #fig:stdev }
+
 Regardless, $l_\sigma$ enables rate setters to directly reward outcomes instead of individual practices and combining across management tools may address unintended consequences of elevating individual risk management options [@connor_crop_2022]. Though recognizing the limits of insurance alone and echoing prior calls for multi-modal support for regenerative systems [@mcbride_redefining_2020], this outcomes-based approach may enable insurance to more directly support climate adaptation without picking specific systems or practices to incentivize.
 
-![Histogram showing percent change from $y_{expected}$ for one standard deviation in each simulated unit.](./img/std.png "Histogram showing percent change from $y_{expected}$ for one standard deviation in each simulated unit."){ width=80% #fig:stdev }
+## Geographic bias
+Neighborhoods with significant results ($p < 0.05 / n$) may be more common in some areas as shown in Figure @fig:geo. This spatial pattern may partially reflect that a number of neighborhoods have less land dedicated to maize so simulations have smaller sample sizes and fail to reach significance. In other cases, this geographic effect may also reflect disproportionate stress or other changes relative to historic conditions. In particular, as further explorable in our interactive tools, we note some geographic bias in changes to precipitation, temperature, and VPD / SVP.
+
+![Interactive geographic view. Color describes type of change and larger dots are larger areas of maize growing activity. Band of increased risk concentrates in Iowa, Illinois, and Indiana.](./img/map.png "Interactive geographic view. Color describes type of change and larger dots are larger areas of maize growing activity. Band of increased risk concentrates in Iowa, Illinois, and Indiana."){#fig:geo }
 
 ## Trend-adjustment
-As mentioned, prior work suggests that historic trends would anticipate continued increases in maize outputs [@nielsen_historical_2023]. However, our simulations predict climate change to wipe out the {{ counterfactualMean2050 }} yield increase that our neural network would otherwise expect within the counterfactual simulation without further warming. This flattening of yield increases may impact not just aggregate output but also how growers choose options such as trend adjustment  [@plastina_trend-adjusted_2014] if yields do not show consistent improvement in the future.
+@nielsen_historical_2023 suggests that historic trends would anticipate continued increases in maize outputs but our simulations predict climate change to wipe out the {{ counterfactualMean2050 }} yield increase that our neural network would otherwise expect within the counterfactual simulation without further warming. This flattening of yield increases may impact not just aggregate output but also how growers choose options such as trend adjustment  [@plastina_trend-adjusted_2014].
+
+## Heat and drought stress
+Our model shows depressed yields during combined warmer and drier conditions, combinations similar to 2012 and historically poor maize production [@ers_weather_2013]. In this context, precipitation may serve as a protective factor: neighborhoods with drier July conditions see higher loss probability ($p < 0.05 / 2$) in both the 2030 and 2050 series via rank correlation [@spearman_proof_1904]. Our predictions thus reflect empirical studies that document the negative impacts of heat stress and water deficits on maize yields [@sinsawat_effect_2004; @marouf_effects_2013].
+
+![Screenshot of an interactive tool showing precipitation and loss probability changes. The horizontal axis is change in precipitation and the vertical axis is the change in claims rate (probability of covered loss).](./img/scatter.png "Screenshot of an interactive tool showing precipitation and loss probability changes. The horizontal axis is change in precipitation and the vertical axis is the change in claims rate (probability of covered loss)."){#fig:chirps}
+
+These outputs may also reveal geographically and temporally specific outlines of these protective factors, possibly useful for insurer and grower adaptation. Even so, as pictured in Figure @fig:chirps, we caution that analysis finds significant but weak rank correlations in both series, indicating that model expectations cannot be described by precipitation alone.
 
 ## Risk unit size
 Prior work expects larger insured units to reduce risk [@knight_developing_2010] and we similarly observe a claims rate decrease as the acreage included in an insured unit grows. As this structure may change in the future, we run post-hoc experiments altering unit size to determine robustness of our findings:
 
- - Simulate outcomes as if units contain approximately single fields to decrease aggregation.
- - Simulate outcomes with removal of smaller Optional Units [@zulauf_importance_2023] to increase aggregation. 
+ - Simulate outcomes as if units contain approximately single fields, decreasing aggregation.
+ - Simulate outcomes with removal of smaller Optional Units [@zulauf_importance_2023], increasing aggregation. 
 
 In both cases, a gap persists in claims rates between the counterfactual and SSP245, suggesting concerns remain relevant even as unit sizes evolve.
 
@@ -260,7 +257,11 @@ Having broken this experience into multiple micro-apps, we follow the framework 
 
 Table: Observations we made from our own tools in the "exploratory" graphic context of @unwin_why_2020. {#tbl:insights}
 
-Then, continuing to "presentation" within @unwin_why_2020, we next release these tools into a open source website at [https://ag-adaptation-study.pub](https://ag-adaptation-study.pub). These public interactive visualizations allow for further exploration of our modeling such as different loss thresholds for other insurance products, finding relationships of outcomes to different climate variables, answering geographically specific questions beyond the scope of this study (see Figure @tbl:apps), and modification of machine learning parameters to understand performance. In preparation for this open science release, our Supplemental Materials also report briefly on experiences from a 9 person "real-world" workshop co-exploring these results similar to @pottinger_combining_2023, offering feedback^[We collect information about the tool only, falling under "quality assurance" activity. IRB questionnaire on file.] on and refining tool design.
+Then, continuing to "presentation" within @unwin_why_2020, we next release these tools into a open source website at [https://ag-adaptation-study.pub](https://ag-adaptation-study.pub). One such example interactive is shown in Figure @fig:stdev.
+
+![One of the interactive explorations where users can see how hypothetical risk units would fare under $l_{\%}$ and $l_{\sigma}$. The example shown demonstrates how a high stability unit could see a claim for a bad year under $l_{\sigma}$ but not $l_{\%}$.](./img/yield_sim.png "One of the interactive explorations where users can see how hypothetical risk units would fare under $l_{\%}$ and $l_{\sigma}$. The example shown demonstrates how a high stability unit could see a claim for a bad year under $l_{\sigma}$ but not $l_{\%}$."){ width=95% #fig:stdev }
+
+These public interactive visualizations allow for further exploration of our modeling such as different loss thresholds for other insurance products, finding relationships of outcomes to different climate variables, answering geographically specific questions beyond the scope of this study, and modification of machine learning parameters to understand performance. In preparation for this open science release, our Supplemental Materials also report briefly on experiences from a 9 person "real-world" workshop co-exploring these results similar to @pottinger_combining_2023, offering feedback^[We collect information about the tool only, falling under "quality assurance" activity. IRB questionnaire on file.] on and refining tool design.
 
 \bigskip
 
