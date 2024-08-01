@@ -29,7 +29,8 @@ class SweepMainPresenter:
             self._sketch,
             const.WIDTH - 260,
             5,
-            lambda config: self._update_config(config)
+            lambda config: self._update_config(config),
+            lambda: self._show_all()
         )
 
         mouse = self._sketch.get_mouse()
@@ -48,6 +49,9 @@ class SweepMainPresenter:
 
     def _update_config(self, config):
         self._scatter_presenter.show_config(config)
+
+    def _show_all(self):
+        self._scatter_presenter.show_all()
 
     def _draw(self):
         mouse = self._sketch.get_mouse()
@@ -193,16 +197,18 @@ def parse_record(raw_record):
 
 def load_data(sketch):
     data = sketch.get_data_layer().get_csv('data/sweep_ag_all.csv')
-    return [parse_record(x) for x in data]
+    data_in_scope = filter(lambda x: x['allowCount'] == '1', data)
+    return [parse_record(x) for x in data_in_scope]
 
 
 class ConfigPresenter:
 
-    def __init__(self, sketch, x, y, on_config_change):
+    def __init__(self, sketch, x, y, on_config_change, on_run_sweep):
         self._sketch = sketch
         self._x = x
         self._y = y
         self._on_config_change = on_config_change
+        self._on_run_sweep = on_run_sweep
 
         y = 50
         self._layers_buttons = buttons.ToggleButtonSet(
@@ -210,7 +216,7 @@ class ConfigPresenter:
             0,
             y,
             'Layers',
-            ['1 layer', '2 layers', '3 layers', '4 layers', '5 layers'],
+            ['1 layer', '2 layers', '3 layers', '4 layers', '5 layers', '6 layers'],
             '3 layers',
             lambda x: self._change_layers(x)
         )
@@ -223,11 +229,12 @@ class ConfigPresenter:
             'L2',
             [
                 'No L2',
-                '0.001',
-                '0.010',
-                '0.100'
+                '0.05',
+                '0.10',
+                '0.15',
+                '0.20'
             ],
-            '0.010',
+            'No L2',
             lambda x: self._change_l2(x)
         )
 
@@ -244,7 +251,7 @@ class ConfigPresenter:
                 '0.10',
                 '0.50'
             ],
-            '0.05',
+            'No Dropout',
             lambda x: self._change_dropout(x)
         )
 
@@ -257,7 +264,6 @@ class ConfigPresenter:
             [
                 'All Data',
                 'no year',
-                'no soil',
                 'no rhn',
                 'no rhx',
                 'no tmax',
@@ -272,7 +278,7 @@ class ConfigPresenter:
         )
 
         self._filter_config = FilterConfig(
-            5,
+            3,
             0,
             0,
             'all attrs'
@@ -285,6 +291,15 @@ class ConfigPresenter:
             y,
             'Try Model >>',
             lambda x: self._try_model()
+        )
+
+        y += const.BUTTON_HEIGHT + 10
+        self._sweep_button = buttons.Button(
+            self._sketch,
+            260 / 2 - const.BUTTON_WIDTH / 2,
+            y,
+            'Run Sweep >>',
+            lambda x: self._run_sweep()
         )
 
     def draw(self, mouse_x, mouse_y, click_waiting):
@@ -300,6 +315,7 @@ class ConfigPresenter:
         self._drop_buttons.step(mouse_x, mouse_y, click_waiting)
         self._data_buttons.step(mouse_x, mouse_y, click_waiting)
         self._attempt_button.step(mouse_x, mouse_y, click_waiting)
+        self._sweep_button.step(mouse_x, mouse_y, click_waiting)
 
         self._sketch.pop_style()
         self._sketch.pop_transform()
@@ -321,11 +337,27 @@ class ConfigPresenter:
             interpreted = 'all attrs'
         else:
             interpreted = new_val.split(' ')[-1]
+            if interpreted == 'wbgt':
+                interpreted = 'wbgtmax'
 
         self._filter_config = self._filter_config.get_with_data_filter(interpreted)
 
     def _try_model(self):
         self._on_config_change(self._filter_config)
+
+    def _run_sweep(self):
+        self._layers_buttons.set_value('4 layers')
+        self._l2_buttons.set_value('0.10')
+        self._drop_buttons.set_value('0.01')
+        self._data_buttons.set_value('All Data')
+        self._filter_config = FilterConfig(
+            4,
+            0.1,
+            0.01,
+            'all attrs'
+        )
+        self._on_run_sweep()
+        self._try_model()
 
 
 class ScatterPresenter:
@@ -363,15 +395,28 @@ class ScatterPresenter:
             return
 
         matched = matching[0]
-        self._points.append({
-            'mean': matched.get_mean_error(),
-            'std': matched.get_std_err(),
-            'trainMean': matched.get_train_std_err(),
-            'trainStd': matched.get_train_std_err(),
-        })
+        self._points.append(self._convert_point(matched))
 
         self._request_draw()
         self._requires_refresh = True
+
+    def show_all(self):
+        converted_points = map(
+            lambda x: self._convert_point(x),
+            self._data
+        )
+        self._points = list(converted_points)
+
+        self._request_draw()
+        self._requires_refresh = True
+
+    def _convert_point(self, target):
+        return {
+            'mean': target.get_mean_error(),
+            'std': target.get_std_err(),
+            'trainMean': target.get_train_std_err(),
+            'trainStd': target.get_train_std_err(),
+        }
 
     def _draw_contents(self):
         if self._requires_refresh:
@@ -390,15 +435,16 @@ class ScatterPresenter:
 
                 color = '#1f78b4A0' if final_point else '#C0C0C080'
 
-                self._sketch.clear_fill()
-                self._sketch.set_stroke(color)
-                self._sketch.set_stroke_weight(1)
-                self._sketch.draw_line(
-                    self._get_x(point['mean']),
-                    self._get_y(point['std']),
-                    self._get_x(point['trainMean']),
-                    self._get_y(point['trainStd'])
-                )
+                if final_point:
+                    self._sketch.clear_fill()
+                    self._sketch.set_stroke(color)
+                    self._sketch.set_stroke_weight(1)
+                    self._sketch.draw_line(
+                        self._get_x(point['mean']),
+                        self._get_y(point['std']),
+                        self._get_x(point['trainMean']),
+                        self._get_y(point['trainStd'])
+                    )
 
                 self._sketch.set_fill(color)
                 self._sketch.clear_stroke()
@@ -410,7 +456,7 @@ class ScatterPresenter:
                 )
 
                 if final_point:
-                    self._sketch.set_text_font(const.FONT_SRC, 9)
+                    self._sketch.set_text_font(const.FONT_SRC, 11)
                     
                     self._sketch.set_text_align('center', 'bottom')
                     self._sketch.draw_text(
@@ -435,14 +481,14 @@ class ScatterPresenter:
         self._sketch.draw_buffer(0, 0, 'sweep-points')
 
     def _get_x(self, val):
-        if val > 0.4:
-            val = 0.4
-        return val * 100 / 40 * (self._width - 80 - 20) + 80
+        if val > 0.2:
+            val = 0.2
+        return val * 100 / 20 * (self._width - 80 - 20) + 80
 
     def _get_y(self, val):
-        if val > 0.4:
-            val = 0.4
-        offset = val * 100 / 40 * (self._height - 50 - 20) + 50
+        if val > 0.2:
+            val = 0.2
+        offset = val * 100 / 20 * (self._height - 50 - 20) + 50
         return self._height - offset
 
     def _draw_horiz_axis(self):
@@ -454,19 +500,19 @@ class ScatterPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 11)
         self._sketch.set_text_align('center', 'top')
 
-        tick_points_int = range(0, 45, 5)
+        tick_points_int = range(0, 25, 5)
         tick_points_float = map(lambda x: x / 100, tick_points_int)
         for val in tick_points_float:
             self._sketch.draw_text(
                 self._get_x(val),
                 self._height - 45,
-                ('>' if val >= 0.399 else '') + ('%d%%' % round(val * 100))
+                ('>' if val >= 0.199 else '') + ('%d%%' % round(val * 100))
             )
 
         self._sketch.set_text_align('center', 'center')
         self._sketch.push_transform()
         self._sketch.translate(
-            self._get_x(0.20),
+            self._get_x(0.10),
             self._height - 20
         )
         self._sketch.draw_text(
@@ -488,13 +534,13 @@ class ScatterPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 11)
         self._sketch.set_text_align('right', 'center')
 
-        tick_points_int = range(0, 45, 5)
+        tick_points_int = range(0, 25, 5)
         tick_points_float = map(lambda x: x / 100, tick_points_int)
         for val in tick_points_float:
             self._sketch.draw_text(
                 48,
                 self._get_y(val),
-                ('>' if val >= 0.399 else '') + ('%d%%' % round(val * 100))
+                ('>' if val >= 0.199 else '') + ('%d%%' % round(val * 100))
             )
 
         self._sketch.set_text_align('center', 'center')
@@ -502,7 +548,7 @@ class ScatterPresenter:
         self._sketch.set_angle_mode('degrees')
         self._sketch.translate(
             12,
-            self._get_y(0.20)
+            self._get_y(0.10)
         )
         self._sketch.rotate(-90)
         self._sketch.draw_text(

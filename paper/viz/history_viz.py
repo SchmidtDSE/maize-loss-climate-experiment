@@ -10,8 +10,8 @@ import const
 HIGH_VARIABILITY_SCENARIO = [200, 140, 240, 190, 270, 135, 270, 170, 290, 20]
 LOW_VARIABILITY_SCENARIO =  [190, 200, 190, 195, 200, 210, 200, 205, 220, 160]
 
-NUM_ARGS = 1
-USAGE_STR = 'python history_viz.py [csv location]'
+NUM_ARGS = 4
+USAGE_STR = 'python history_viz.py [csv location] [output location] [threshold] [scenario]'
 
 
 class SummaryDataFacade:
@@ -53,8 +53,14 @@ class SummaryDataFacade:
 
 class HistoryMainPresenter:
 
-    def __init__(self, target, loading_id, csv_loc=None):
-        self._sketch = sketchingpy.Sketch2D(const.WIDTH, const.HEIGHT, target, loading_id)
+    def __init__(self, target, loading_id, csv_loc=None, output_loc=None,
+        default_threshold='average', default_scenario='high'):
+        if output_loc:
+            self._sketch = sketchingpy.Sketch2DStatic(const.WIDTH, const.HEIGHT)
+        else:
+            self._sketch = sketchingpy.Sketch2D(const.WIDTH, const.HEIGHT, target, loading_id)
+
+
         self._sketch.set_fps(10)
 
         self._click_waiting = False
@@ -87,40 +93,53 @@ class HistoryMainPresenter:
             self._data_facade
         )
 
+        threshold_label = 'Average-based' if default_threshold == 'average' else 'Stdev-based'
         self._threshold_type_buttons = buttons.ToggleButtonSet(
             self._sketch,
             5,
             const.HEIGHT - (const.BUTTON_HEIGHT + 7),
             'Threshold',
             ['Average-based', 'Stdev-based'],
-            'Average-based',
+            threshold_label,
             lambda new_val: self._update_threshold(new_val)
         )
+        self._update_threshold(threshold_label)
 
+        scenario_label = 'High Stability' if default_scenario == 'high' else 'Low Stability'
         self._scenario_buttons = buttons.ToggleButtonSet(
             self._sketch,
             const.WIDTH - 10 - const.BUTTON_WIDTH * 2,
             const.HEIGHT - (const.BUTTON_HEIGHT + 7),
             'Example',
             ['Low Stability', 'High Stability'],
-            'High Stability',
+            scenario_label,
             lambda new_val: self._update_stability(new_val)
         )
+        self._update_stability(scenario_label)
 
-        mouse = self._sketch.get_mouse()
+        if output_loc:
+            self._step()
+            self._sketch.save_image(output_loc)
+        else:
+            mouse = self._sketch.get_mouse()
 
-        def set_mouse_clicked(mouse):
-            self._click_waiting = True
+            def set_mouse_clicked(mouse):
+                self._click_waiting = True
 
-        mouse.on_button_press(set_mouse_clicked)
+            mouse.on_button_press(set_mouse_clicked)
 
-        self._sketch.on_step(lambda x: self._step())
-        self._sketch.show()
+            self._sketch.on_step(lambda x: self._step())
+            self._sketch.show()
 
     def _step(self):
         mouse = self._sketch.get_mouse()
-        mouse_x = mouse.get_pointer_x()
-        mouse_y = mouse.get_pointer_y()
+
+        if mouse:
+            mouse_x = mouse.get_pointer_x()
+            mouse_y = mouse.get_pointer_y()
+        else:
+            mouse_x = 0
+            mouse_y = 0
         
         mouse_x_same = mouse_x == self._last_mouse_x
         mouse_y_same = mouse_y == self._last_mouse_y
@@ -531,12 +550,24 @@ class SummaryPresenter:
 
 
 def main():
-    if len(sys.argv) != NUM_ARGS + 1:
+    if len(sys.argv) == 1:
+        presenter = HistoryMainPresenter('History Viz', None)
+    elif len(sys.argv) != NUM_ARGS + 1:
         print(USAGE_STR)
         sys.exit(1)
-    
-    csv_loc = sys.argv[1]
-    presenter = HistoryMainPresenter('History Viz', None, csv_loc=csv_loc)
+    else:
+        csv_loc = sys.argv[1]
+        output_loc = sys.argv[2]
+        threshold = sys.argv[3]
+        scenario = sys.argv[4]
+        presenter = HistoryMainPresenter(
+            'History Viz',
+            None,
+            csv_loc=csv_loc,
+            output_loc=output_loc,
+            default_threshold=threshold,
+            default_scenario=scenario
+        )
 
 
 if __name__ == '__main__':

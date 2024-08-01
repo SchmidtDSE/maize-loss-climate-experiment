@@ -13,10 +13,12 @@ import const
 import normalize_tasks
 
 DEFAULT_NUM_LAYERS = [1, 2, 3, 4, 5, 6]
-DEFAULT_REGULARIZATION = [0.000, 0.001, 0.010, 0.100]
+DEFAULT_REGULARIZATION = [0.00, 0.05, 0.10, 0.15, 0.20]
 DEFAULT_DROPOUT = [0.00, 0.01, 0.05, 0.10, 0.50]
 BLOCKS = [
-    'all attrs',
+    'all attrs'
+]
+BLOCKS_EXTENDED = [
     'year',
     'rhn',
     'rhx',
@@ -24,8 +26,8 @@ BLOCKS = [
     'tmin',
     'chirps',
     'svp',
-    'vpt',
-    'wbgt'
+    'vpd',
+    'wbgtmax'
 ]
 BLOCKED_ATTRS = {
     'geohash',
@@ -100,7 +102,7 @@ def build_model(num_layers, num_inputs, l2_reg, dropout):
     
     model.add(keras.layers.Dense(2, activation='linear'))
 
-    model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+    model.compile(optimizer='adamw', loss='mae', metrics=['mae'])
 
     return model
 
@@ -274,7 +276,7 @@ class UploadHistoricTrainingFrame(luigi.Task):
             f.write('success')
 
 
-class SweepTask(luigi.Task):
+class SweepTemplateTask(luigi.Task):
 
     def requires(self):
         return {
@@ -283,14 +285,21 @@ class SweepTask(luigi.Task):
         }
 
     def output(self):
-        return luigi.LocalTarget(const.get_file_location('sweep.csv'))
+        return luigi.LocalTarget(const.get_file_location(self.get_filename()))
 
     def run(self):
-        num_layers = DEFAULT_NUM_LAYERS
-        l2_regs = DEFAULT_REGULARIZATION
-        dropouts = DEFAULT_DROPOUT
+        num_layers = self.get_num_layers()
+        l2_regs = self.get_l2_regs()
+        dropouts = self.get_dropouts()
 
-        combinations = itertools.product(num_layers, l2_regs, dropouts, BLOCKS, [True, False])
+        combinations = itertools.product(
+            num_layers,
+            l2_regs,
+            dropouts,
+            self.get_blocks(),
+            self.get_allow_counts()
+        )
+        
         combinations_realized = list(combinations)
         random.shuffle(combinations_realized)
 
@@ -298,7 +307,7 @@ class SweepTask(luigi.Task):
         access_secret = os.environ['CLIMATE_ACCESS_SECRET']
 
         cluster = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=10, maximum=500)
+        cluster.adapt(minimum=10, maximum=self.get_max_workers())
         
         client = cluster.get_client()
         outputs = client.map(
@@ -322,3 +331,72 @@ class SweepTask(luigi.Task):
             for output in map(lambda x: x.result(), outputs):
                 writer.writerow(output)
                 f.flush()
+
+    def get_filename(self):
+        raise NotImplementedError('Must use implementor.')
+
+    def get_num_layers(self):
+        raise NotImplementedError('Must use implementor.')
+    
+    def get_l2_regs(self):
+        raise NotImplementedError('Must use implementor.')
+    
+    def get_dropouts(self):
+        raise NotImplementedError('Must use implementor.')
+
+    def get_blocks(self):
+        raise NotImplementedError('Must use implementor.')
+
+    def get_max_workers(self):
+        raise NotImplementedError('Must use implementor.')
+
+    def get_allow_counts(self):
+        raise NotImplementedError('Must use implementor.')
+
+
+class SweepTask(SweepTemplateTask):
+
+    def get_filename(self):
+        return 'sweep.csv'
+
+    def get_num_layers(self):
+        return DEFAULT_NUM_LAYERS
+    
+    def get_l2_regs(self):
+        return DEFAULT_REGULARIZATION
+    
+    def get_dropouts(self):
+        return DEFAULT_DROPOUT
+
+    def get_blocks(self):
+        return BLOCKS
+
+    def get_max_workers(self):
+        return 300
+
+    def get_allow_counts(self):
+        return [True, False]
+
+
+class SweepExtendedTask(SweepTemplateTask):
+
+    def get_filename(self):
+        return 'sweep_extended.csv'
+
+    def get_num_layers(self):
+        return DEFAULT_NUM_LAYERS
+    
+    def get_l2_regs(self):
+        return DEFAULT_REGULARIZATION
+    
+    def get_dropouts(self):
+        return DEFAULT_DROPOUT
+
+    def get_blocks(self):
+        return BLOCKS_EXTENDED
+
+    def get_max_workers(self):
+        return 500
+
+    def get_allow_counts(self):
+        return [True]

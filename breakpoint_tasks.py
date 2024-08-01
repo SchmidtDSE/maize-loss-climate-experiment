@@ -66,6 +66,15 @@ class RunThroughSweepTask(cluster_tasks.EndClusterTask):
         return 'end_sweep'
 
 
+class RunThroughExtendedSweepTask(cluster_tasks.EndClusterTask):
+
+    def get_prereq(self):
+        return training_tasks.SweepExtendedTask()
+
+    def get_task_name(self):
+        return 'end_sweep_ext'
+
+
 class RunThroughHistoricProject(cluster_tasks.EndClusterTask):
 
     def get_prereq(self):
