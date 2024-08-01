@@ -2,6 +2,7 @@
 
 mkdir deploy
 cp *.py deploy
+cp *.pyscript deploy
 cp *.css deploy
 cp *.js deploy
 cp *.html deploy

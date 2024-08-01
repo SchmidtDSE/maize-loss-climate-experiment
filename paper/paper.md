@@ -54,7 +54,7 @@ Before modeling these systems, we articulate specific mathematical definitions o
 
 $l = max(c * y_{expected} - y_{actual}, 0)$
 
-We use up to 10 years of historic yields data ($d=10$) with 75% coverage level ($c=0.75$) per Federal Crop Insurance Corporation guidelines [@fcic_crop_2023], with supplemental materials considering different coverage levels.
+We use up to 10 years of historic yields data ($d=10$) with 75% coverage level ($c=0.75$) per Federal Crop Insurance Corporation guidelines [@fcic_crop_2023], with our interactive tools allowing for consideration of different coverage levels.
 
 $y_{expected} = \frac{y_{historic}[-d:]}{d}$
 
