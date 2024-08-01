@@ -298,7 +298,7 @@ class RatesChartPresenter:
             self._sketch.draw_text(
                 self._get_x(30),
                 self._height - 14,
-                'Insured Level (% Below APH)'
+                'Loss Threshold (% Below APH)'
             )
 
             for percent in range(15, 55, 5):
@@ -308,7 +308,7 @@ class RatesChartPresenter:
             self._sketch.draw_text(
                 self._get_x(30),
                 self._height - 14,
-                'Insured Level (Std Below APH)'
+                'Loss Threshold (Std Below APH)'
             )
 
             for percent in range(15, 55, 5):
