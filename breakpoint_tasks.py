@@ -123,6 +123,19 @@ class ExecuteSupplementalTasks(luigi.Task):
             f.write('done')
 
 
+class ExecuteSignificantLongTask(luigi.Task):
+    
+    def requires(self):
+        return stats_tasks.DeterminePercentSignificantLongTask()
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('long_sig.txt'))
+
+    def run(self):
+        with self.output().open('w') as f:
+            f.write('done')
+
+
 class ExecuteSupplementalTasksWithCluster(cluster_tasks.EndClusterTask):
 
     def get_prereq(self):

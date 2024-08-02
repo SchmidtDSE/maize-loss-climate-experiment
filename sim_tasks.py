@@ -784,6 +784,18 @@ class ProjectHistoricTask(luigi.Task):
         ]].to_csv(self.output().path)
 
 
+class ProjectHistoricModelTask(ProjectTaskTemplate):
+    
+    def get_target_task(self):
+        return NormalizeRefHistoricTrainingFrameTask()
+    
+    def get_base_year(self):
+        return 2007
+
+    def get_filename(self):
+        return 'historic_project_dist_model.csv'
+
+
 class Project2030Task(ProjectTaskTemplate):
     
     def get_target_task(self):

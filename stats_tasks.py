@@ -139,13 +139,13 @@ class ExportPosthocTestTask(luigi.Task):
         }
 
 
-class DeterminePercentSignificantTask(luigi.Task):
+class DeterminePercentSignificantTemplateTask(luigi.Task):
 
     def requires(self):
-        return export_tasks.SummaryExportTask()
+        return self.get_target()
 
     def output(self):
-        return luigi.LocalTarget(const.get_file_location('stats_significant.json'))
+        return luigi.LocalTarget(const.get_file_location(self.get_filename()))
 
     def run(self):
         
@@ -170,6 +170,30 @@ class DeterminePercentSignificantTask(luigi.Task):
 
         with self.output().open('w') as f:
             json.dump(output_record, f)
+
+    def get_filename(self):
+        raise NotImplementedErorr('Use implementor.')
+
+    def get_target(self):
+        raise NotImplementedErorr('Use implementor.')
+
+
+class DeterminePercentSignificantTask(DeterminePercentSignificantTemplateTask):
+
+    def get_filename(self):
+        return 'stats_significant.json'
+
+    def get_target(self):
+        return export_tasks.SummaryExportTask()
+
+
+class DeterminePercentSignificantLongTask(DeterminePercentSignificantTemplateTask):
+
+    def get_filename(self):
+        return 'stats_significant_5char.json'
+
+    def get_target(self):
+        return export_tasks.SummaryExportLongTask()
 
 
 class ExtractSimStatsTask(luigi.Task):

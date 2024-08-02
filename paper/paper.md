@@ -136,7 +136,7 @@ With bias towards performance in mean prediction, we select {{numLayers}} layers
 
 Table: Results of chosen configuration during the "sweep" for model selection. {#tbl:sweep}
 
-The selected model sees some overfit but meta-parameter optimization uses fewer training data points than the simulations' model. Therefore, having chosen this set of hyper-parameters, we further evaluate regression performance through varied definitions of test sets representing different tasks while using a larger training set.
+That said, meta-parameter optimization uses fewer training data points than the simulations' model. Therefore, having chosen this set of hyper-parameters, we further evaluate regression performance through varied definitions of test sets representing different tasks.
 
 | **Task**              | **Test Mean Pred MAE** | **Test Std Pred MAE** | **% of Units in Test Set** |
 | --------------------- | ---------------------- | --------------------- | -------------------------- |
@@ -146,7 +146,7 @@ The selected model sees some overfit but meta-parameter optimization uses fewer 
 
 Table: Results of tests after model selection. {#tbl:posthocresults}
 
-From the trials outlined in Table @tbl:posthocresults, the temporal task best resembles expected error in simulations as they predict into the future. As described in the interactive tools, we do not see clear bias in error by geography or climate variable.
+From the trials outlined in Table @tbl:posthocresults, the temporal task best resembles expected error in simulations as they predict into the future. The interactive tools website allows for further examination of error.
 
 ## Simulation outcomes
 After retraining on all available data using the selected configuration from our sweep, Monte Carlo simulates overall outcomes. Despite the conservative nature of the Bonferroni correction [@mcdonald_handbook_2014] and the 1km sample assumption, {{percentSignificant}} of maize acreage in SSP245 falls within a neighborhood with significant changes to claim probability ($p < 0.05 / n$) at some point during the 2050 series simulations. That said, we observe that some of the remaining neighborhoods failing to meet that threshold have less land dedicated to maize within their area and, thus, a smaller sample size in our simulations.
@@ -165,7 +165,7 @@ Regardless, with Table @tbl:simresults highlighting these climate threats, these
 
 ![Interactive tool screenshot showing 2050 outcomes distribution (changes from $y_{expected}$), highlighting loss with and without climate change. In addition to showing increased claims rate, this also depicts climate change reducing the expected increase in yields that would otherwise follow historic trends.](./img/hist.png "One of our interactive tools showing 2050 outcomes distribution relative to $y_{expected}$ highlighting loss with and without climate change."){#fig:hist }
 
-As shown in Figure @fig:hist, the SSP245 overall yield mean remains similar to the historic baseline even as distribution tails differ more substantially. This shows how a sharp increase in loss probability (2050 series vs counterfactual) could emerge without necessarily changing  average yields.
+As shown in Figure @fig:hist, the SSP245 overall yield mean remains similar to the historic baseline even as distribution tails differ more substantially. This shows how a sharp increase in loss probability (2050 series vs counterfactual) could emerge without necessarily changing average yields.
 
 \bigskip
 

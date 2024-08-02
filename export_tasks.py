@@ -555,7 +555,7 @@ class HistExportTask(luigi.Task):
                     writer.writerows(reader)
 
 
-class SummaryExportTask(luigi.Task):
+class SummaryExportTemplateTask(luigi.Task):
 
     def requires(self):
         return {
@@ -564,7 +564,7 @@ class SummaryExportTask(luigi.Task):
         }
 
     def output(self):
-        return luigi.LocalTarget(const.get_file_location('export_summary.csv'))
+        return luigi.LocalTarget(const.get_file_location(self.get_filename()))
 
     def run(self):
         with self.input()['familySize'].open() as f:
@@ -572,7 +572,7 @@ class SummaryExportTask(luigi.Task):
 
         with self.input()['sim'].open() as f:
             records = csv.DictReader(f)
-            records_allowed = filter(lambda x: is_default_config_record(x, None), records)
+            records_allowed = filter(lambda x: self._get_is_record_allowed(x), records)
             inputs = map(lambda x: self._simplify_input(x, family_sizes), records_allowed)
             reduced = toolz.itertoolz.reduceby(
                 lambda x: self._get_input_key(x),
@@ -586,6 +586,12 @@ class SummaryExportTask(luigi.Task):
             writer = csv.DictWriter(f, fieldnames=TOOL_OUTPUT_COLS)
             writer.writeheader()
             writer.writerows(reduced_with_location)
+
+    def get_filename(self):
+        raise NotImplementedError('Use implementor.')
+
+    def get_geohash_size(self):
+        raise NotImplementedError('Use implementor.')
 
     def _simplify_input(self, target, family_sizes):
         is_counterfactual = '_counterfactual' in target['series']
@@ -690,6 +696,27 @@ class SummaryExportTask(luigi.Task):
             'lat': geohash_decoded.lat,
             'lng': geohash_decoded.lon
         }
+
+    def _get_is_record_allowed(self, target):
+        return is_default_config_record(target, None, geohash_sim_size=self.get_geohash_size())
+
+
+class SummaryExportTask(SummaryExportTemplateTask):
+
+    def get_filename(self):
+        return 'export_summary.csv'
+
+    def get_geohash_size(self):
+        return 4
+
+
+class SummaryExportLongTask(SummaryExportTemplateTask):
+
+    def get_filename(self):
+        return 'export_summary_5char.csv'
+
+    def get_geohash_size(self):
+        return 5
 
 
 class CombinedTasksRecordTask(luigi.Task):
