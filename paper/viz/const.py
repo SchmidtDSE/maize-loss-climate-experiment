@@ -128,7 +128,7 @@ HISTORY_INSTRUCTION = ' '.join([
 ])
 
 RATES_INSTRUCTION = ' '.join([
-    'Create a scenario and see how it changes the subsidy for a grower.',
+    'Modify the variables below to see what leads to the highest subsidy.',
     'How does increasing or decreasing a grower APH change that outlook?'
 ])
 
