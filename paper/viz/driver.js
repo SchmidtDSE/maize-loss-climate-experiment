@@ -56,8 +56,8 @@ function main() {
     const loadLinks = document.querySelectorAll(".load-app-link");
     loadLinks.forEach((x) => x.addEventListener("click", openWebApp));
 
-    const advanceLinks = document.querySelectorAll(".advance-button");
-    advanceLinks.forEach((x) => x.addEventListener("click", (event) => {
+    const tabAdvanceLinks = document.querySelectorAll(".advance-button");
+    tabAdvanceLinks.forEach((x) => x.addEventListener("click", (event) => {
         const tabName = x.getAttribute("tab");
         tabs.toggle(tabName);
         window.location.hash = "#" + tabName;
@@ -65,15 +65,24 @@ function main() {
         event.preventDefault();
     }));
 
+    const slideAdvanceLinks = document.querySelectorAll(".slide-advance-link");
+    slideAdvanceLinks.forEach((x) => x.addEventListener("click", (event) => {
+        slider.goTo("next");
+        document.getElementById("#intro-slider").scrollIntoView({"behavior": "smooth", "block": "start"});
+        event.preventDefault();
+    }));
+
     document.getElementById("model-skip-link").addEventListener("click", (event) => {
         slider.goTo(3);
         event.preventDefault();
+        document.getElementById("#intro-slider").scrollIntoView({"behavior": "smooth", "block": "start"});
         document.getElementById("model-overview").focus();
     });
 
     document.getElementById("finish-slides-link").addEventListener("click", (event) => {
         slider.goTo("last");
         event.preventDefault();
+        document.getElementById("#intro-slider").scrollIntoView({"behavior": "smooth", "block": "start"});
         document.getElementById("finish-slide").focus();
     });
     
