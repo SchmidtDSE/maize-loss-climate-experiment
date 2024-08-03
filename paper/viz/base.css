@@ -215,6 +215,15 @@ th, td {
     text-align: left;
     background-color: #F5F5F5;
     margin-top: 10px;
+    display: none;
+}
+
+.keyboard-controls.visible {
+    display: block;
+}
+
+.keyboard-controls.override {
+    display: none;
 }
 
 .major-section {

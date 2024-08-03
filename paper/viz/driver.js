@@ -153,17 +153,39 @@ function initAccessibility() {
     vizRadios.forEach((x) => x.addEventListener("change", function () {
         if (this.checked) {
             const defaultVizs = document.querySelectorAll(".default-viz");
+            const keyboardControls = document.querySelectorAll(".keyboard-controls");
             const vizAlternatives = document.querySelectorAll(".viz-alternative");
+            const keyboardSettings = document.getElementById("keyboard-setting");
 
             const hide = (x) => x.style.display = "none";
             const show = (x) => x.style.display = "block";
 
             if (this.value === "hide") {
                 defaultVizs.forEach(hide);
+                keyboardControls.forEach((x) => x.classList.add("override"));
                 vizAlternatives.forEach(show);
+                hide(keyboardSettings);
             } else {
                 defaultVizs.forEach(show);
+                keyboardControls.forEach((x) => x.classList.remove("override"));
                 vizAlternatives.forEach(hide);
+                show(keyboardSettings);
+            }
+        }
+    }));
+
+    const keyboardRadios = document.querySelectorAll(".keyboard-setting-radio");
+    keyboardRadios.forEach((x) => x.addEventListener("change", function () {
+        if (this.checked) {
+            const keyboardControls = document.querySelectorAll(".keyboard-controls");
+
+            const hide = (x) => x.classList.remove("visible");
+            const show = (x) => x.classList.add("visible");
+
+            if (this.value === "hide") {
+                keyboardControls.forEach(hide);
+            } else {
+                keyboardControls.forEach(show);
             }
         }
     }));
