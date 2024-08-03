@@ -251,6 +251,22 @@ th, td {
     display: none;
 }
 
+.skip-link {
+    background: rgba(255, 255, 255, 0.5);
+    height: 20px;
+    padding: 4px;
+    left: 0;
+    top: 0;
+    position: absolute;
+    transform: translateY(-100%);
+    z-index: 1;
+}
+  
+.skip-link:focus {
+    transform: translateY(0%);
+    z-index: 1;
+}
+
 .tooltip {
     text-decoration: underline;
     text-decoration-style: dotted;

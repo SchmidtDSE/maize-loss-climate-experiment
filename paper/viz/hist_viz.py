@@ -38,7 +38,7 @@ class MainPresenter:
             csv_loc = './data/sim_hist.csv'
 
         if default_year is None:
-            default_year = 2030
+            default_year = 2050
 
         if default_coverage is None:
             default_coverage = '75'
