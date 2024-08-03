@@ -40,6 +40,7 @@ details summary.button:hover {
 details .sub-content {
     color: #606060;
     margin-left: 10px;
+    margin-top: 10px;
 }
 
 details .sub-content .vocab {
@@ -247,6 +248,10 @@ th, td {
 
 .next-button-holder a:hover {
     text-decoration: underline;
+}
+
+.paragraph {
+    margin-bottom: 14px;
 }
 
 .page {
