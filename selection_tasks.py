@@ -203,6 +203,31 @@ class PostHocTestRawDataTemporalCountTask(PostHocTestRawDataTemplateTask):
         return False
 
 
+class PostHocTestRawDataRetrainCountTask(PostHocTestRawDataTemplateTask):
+
+    def get_set_assign(self, record):
+        return 'test' if record['year'] in [2013, 2015] else 'train'
+
+    def get_filename(self):
+        return 'post_hoc_retrain_with_count.csv'
+
+    def get_output_cols(self):
+        # Weighting by unit
+        return [
+            'setAssign',
+            'yieldMean',
+            'yieldStd',
+            'predictedMean',
+            'predictedStd',
+            'meanResidual',
+            'stdResidual',
+            'yieldObservations'
+        ]
+
+    def output_test_only(self):
+        return False
+
+
 class PostHocTestRawDataRandomCountTask(PostHocTestRawDataTemplateTask):
 
     def get_set_assign(self, record):

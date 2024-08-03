@@ -128,15 +128,18 @@ We project loss probabilities to more than double ({{experimentalProbability2050
 ## Neural network outcomes
 With bias towards performance in mean prediction, we select {{numLayers}} layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. Table @tbl:sweep describes performance for the chosen configuration.
 
-| **Set**    | **MAE for Mean Prediction** | **MAE for Std Prediction** |
-| ---------- | ----------------------- | ---------------------- |
-| Train      | {{trainMeanMae}}        | {{trainStdMae}}        |
-| Validation | {{validationMeanMae}}   | {{validationStdMae}}   |
-| Test       | {{testMeanMae}}         | {{testStdMae}}         |
+| **Set**             | **MAE for Mean Prediction** | **MAE for Std Prediction** |
+| ------------------- | ----------------------- | ---------------------- |
+| Train               | {{trainMeanMae}}        | {{trainStdMae}}        |
+| Validation          | {{validationMeanMae}}   | {{validationStdMae}}   |
+| Test before retrain | {{testMeanMae}}         | {{testStdMae}}         |
+| Test after retrain  | {{retrainMeanMae}}      | {{retrainStdMae}}      |
 
 Table: Results of chosen configuration during the "sweep" for model selection. {#tbl:sweep}
 
-That said, meta-parameter optimization uses fewer training data points than the simulations' model. Therefore, having chosen this set of hyper-parameters, we further evaluate regression performance through varied definitions of test sets representing different tasks.
+After retraining with train and validation together, we see {{retrainMeanMae}} when predicting neighborhood mean and {{retrainStdMae}} when predicting neighborhood standard deviation when using the fully hidden test set.
+
+Next, having chosen this set of hyper-parameters, we also evaluate regression performance through varied definitions of test sets representing different tasks.
 
 | **Task**              | **Test Mean Pred MAE** | **Test Std Pred MAE** | **% of Units in Test Set** |
 | --------------------- | ---------------------- | --------------------- | -------------------------- |

@@ -106,7 +106,7 @@ class ExecuteSupplementalTasks(luigi.Task):
 
     def requires(self):
         return {
-            'text': stats_tasks.CombineStatsTask(),
+            'stats': stats_tasks.CombineStatsTask(),
             'climate': export_tasks.ClimateExportTask(),
             'sweep': export_tasks.SweepExportTask(),
             'hist': export_tasks.HistExportTask(),

@@ -68,6 +68,7 @@ class ExportPosthocTestTask(luigi.Task):
 
     def requires(self):
         return {
+            'retrain': selection_tasks.PostHocTestRawDataRetrainCountTask(),
             'temporal': selection_tasks.PostHocTestRawDataTemporalCountTask(),
             'random': selection_tasks.PostHocTestRawDataRandomCountTask(),
             'spatial': selection_tasks.PostHocTestRawDataSpatialCountTask()
@@ -80,6 +81,7 @@ class ExportPosthocTestTask(luigi.Task):
         temporal_record = self._summarize_post_hoc('temporal')
         random_record = self._summarize_post_hoc('random')
         spatial_record = self._summarize_post_hoc('spatial')
+        retrain_record = self._summarize_post_hoc('retrain')
 
         output_record = {
             'temporalMeanMae': format_percent(temporal_record['meanMae']),
@@ -99,7 +101,13 @@ class ExportPosthocTestTask(luigi.Task):
             'randomStdMae': format_percent(spatial_record['stdMae']),
             'randomStdMdae': format_percent(spatial_record['stdMdae']),
             'randomCount': round(spatial_record['count']),
-            'randomPercent': format_percent(spatial_record['percent'])
+            'randomPercent': format_percent(spatial_record['percent']),
+            'retrainMeanMae': format_percent(retrain_record['meanMae']),
+            'retrainMeanMdae': format_percent(retrain_record['meanMdae']),
+            'retrainStdMae': format_percent(retrain_record['stdMae']),
+            'retrainStdMdae': format_percent(retrain_record['stdMdae']),
+            'retrainCount': round(retrain_record['count']),
+            'retrainPercent': format_percent(retrain_record['percent'])
         }
 
         with self.output().open('w') as f:
@@ -332,6 +340,12 @@ class CombineStatsTask(luigi.Task):
             'validationStdMae': model_inputs['validationStdMae'],
             'testMeanMae': model_inputs['testMeanMae'],
             'testStdMae': model_inputs['testStdMae'],
+            'retrainMeanMae': posthoc_inputs['retrainMeanMae'],
+            'retrainMeanMdae': posthoc_inputs['retrainMeanMdae'],
+            'retrainStdMae': posthoc_inputs['retrainStdMae'],
+            'retrainStdMdae': posthoc_inputs['retrainStdMdae'],
+            'retrainCount': posthoc_inputs['retrainCount'],
+            'retrainPercent': posthoc_inputs['retrainPercent'],
             'temporalMeanMae': posthoc_inputs['temporalMeanMae'],
             'temporalMeanMdae': posthoc_inputs['temporalMeanMdae'],
             'temporalStdMae': posthoc_inputs['temporalStdMae'],
