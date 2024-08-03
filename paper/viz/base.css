@@ -258,6 +258,26 @@ th, td {
 
 .tooltip:hover {
     cursor: pointer;
+    text-decoration-style: dashed;
+}
+
+.viz-alternative {
+    padding: 10px;
+    font-size: 17px;
+    border: 1px solid #A0A0A0;
+    border-radius: 5px;
+    color: #000000;
+    text-align: left;
+    background-color: #F5F5F5;
+    display: none;
+}
+
+.viz-alternative a:link, .viz-alternative a:visited {
+    color: black;
+}
+
+.viz-alternative a:active, .viz-alternative a:hover {
+    color: #0000C0;
 }
 
 .vocab {

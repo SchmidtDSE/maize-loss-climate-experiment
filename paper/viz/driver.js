@@ -121,6 +121,25 @@ function initAccessibility() {
             }
         }
     }));
+
+    const vizRadios = document.querySelectorAll(".visualizations-setting-radio");
+    vizRadios.forEach((x) => x.addEventListener("change", function () {
+        if (this.checked) {
+            const defaultVizs = document.querySelectorAll(".default-viz");
+            const vizAlternatives = document.querySelectorAll(".viz-alternative");
+
+            const hide = (x) => x.style.display = "none";
+            const show = (x) => x.style.display = "block";
+
+            if (this.value === "hide") {
+                defaultVizs.forEach(hide);
+                vizAlternatives.forEach(show);
+            } else {
+                defaultVizs.forEach(show);
+                vizAlternatives.forEach(hide);
+            }
+        }
+    }));
 }
 
 

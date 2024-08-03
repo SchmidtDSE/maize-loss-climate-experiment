@@ -198,18 +198,39 @@
                                     </details>
                                 </div>
                                 <div class="interactive" id="policy-abstract">
-                                    <div class="app-intro">
-                                        <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
-                                        <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
-                                    </div>
-                                    <div class="sketch">
-                                        <div id="sketch-load-message-rates">
-                                            Loading...
-                                            <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                    <div class="default-viz">
+                                        <div class="app-intro">
+                                            <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                            <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
                                         </div>
-                                        <canvas id="sketch-canvas-rates"></canvas>
+                                        <div class="sketch">
+                                            <div id="sketch-load-message-rates">
+                                                Loading...
+                                                <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                            </div>
+                                            <canvas id="sketch-canvas-rates"></canvas>
+                                        </div>
+                                        <div>Visualization showing how subsidy changes according to different parameters either in an average-based APH or the proposed standard deviation-based APH. Uses <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a> as a starting point.</div>
                                     </div>
-                                    <div>Visualization showing how subsidy changes according to different parameters either in an average-based APH or the proposed standard deviation-based APH.</div>
+                                    <div class="viz-alternative">
+                                        <span class="emoji" aria-hidden="true">💻</span> The formulas which can conceptually simulate rate setting:
+                                        
+                                        <ul>
+                                            <li><span class="vocab">overall price</span> = insured unit aph * projected price * county preimum rate * coverage amount</li>
+                                            <li><span class="vocab">subsidy</span> = subsidy rate * overall price</li>
+                                            <li><span class="vocab">cost to grower</span> = (1 - subsidy rate) * overall price</li>
+                                        </ul>
+                                        
+                                        This is an alternative to a visualization which evaluates these equations for some examples. One such set of examples:
+                                        
+                                        <ul>
+                                            <li><span class="vocab">overall price</span> = 200 bushel / acre * $4 / bushel * 4% * 75% = $24 / acre</li>
+                                            <li><span class="vocab">subsidy</span> = 55% * $24 / acre = $13.20 / acre</li>
+                                            <li><span class="vocab">cost to grower</span> = (1 - 55%) * $24 = $10.80 / acre</li>
+                                        </ul>
+                                        
+                                        The subsidy increases as <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> increases. Uses <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a> as a starting point.
+                                    </div>
                                 </div>
                                 <div class="body-text">
                                     <p>
@@ -437,18 +458,29 @@
                         </p>
                     </div>
                     <div class="interactive" id="sweep-viz-holder">
-                        <div class="app-intro">
-                            <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
-                            <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
-                        </div>
-                        <div class="sketch">
-                            <div id="sketch-load-message-methods">
-                                Loading...
-                                <progress class="sketch-load-progress" max="20" value="0"></progress>
+                        <div class="default-viz">
+                            <div class="app-intro">
+                                <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
                             </div>
-                            <canvas id="sketch-canvas-methods"></canvas>
+                            <div class="sketch">
+                                <div id="sketch-load-message-methods">
+                                    Loading...
+                                    <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                </div>
+                                <canvas id="sketch-canvas-methods"></canvas>
+                            </div>
+                            <div>Visualization that allows users to try different neural network configurations and see their validation set performance. How would you balance the error between predicted mean and predicted <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of yields is expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">standard deviation</span>?</div>
                         </div>
-                        <div>Visualization that allows users to try different neural network configurations and see their validation set performance. How would you balance the error between predicted mean and predicted <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of yields is expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">standard deviation</span>?</div>
+                        <div class="viz-alternative">
+                            <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
+                            
+                            <ul>
+                                <li><a href="/data/sweep_ag_all.csv">Sweep Ag All</a>: Information about candidates considered in our model sweep.</li>
+                            </ul>
+
+                            These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
+                        </div>
                     </div>
                     <div class="body-text">
                         <p>
@@ -554,6 +586,19 @@
                                 Tooltip citations are in <a href="#background" tab="background" class="advance-button">background</a>.
                             </p>
                         </details>
+
+                        <details class="data-downloads">
+                            <summary>Data downloads for methods</summary>
+                            <p>
+                                The data downloads for this methods section ("next, a neural network") are as follows:
+                                
+                                <ul>
+                                    <li><a href="/data/sweep_ag_all.csv">sweep_ag_all.csv</a>: Information about candidates considered in our model sweep.</li>
+                                </ul>
+
+                                These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
+                            </p>
+                        </details>
                     </div>
                 </section>
                 <section id="results">
@@ -573,18 +618,29 @@
                         </p>
                     </div>
                     <div class="interactive">
-                        <div class="app-intro">
-                            <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
-                            <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
-                        </div>
-                        <div class="sketch">
-                            <div id="sketch-load-message-results">
-                                Loading...
-                                <progress class="sketch-load-progress" max="20" value="0"></progress>
+                        <div class="default-viz">
+                            <div class="app-intro">
+                                <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
                             </div>
-                            <canvas id="sketch-canvas-results"></canvas>
+                            <div class="sketch">
+                                <div id="sketch-load-message-results">
+                                    Loading...
+                                    <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                </div>
+                                <canvas id="sketch-canvas-results"></canvas>
+                            </div>
+                            <div>Visualization that explores the details of the results in depth. Which type of loss on which time horizon are we most worried about?</div>
                         </div>
-                        <div>Visualization that explores the details of the results in depth. Which type of loss on which time horizon are we most worried about?</div>
+                        <div class="viz-alternative">
+                            <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
+                            
+                            <ul>
+                                <li><a href="/data/sim_hist.csv">Sim Hist</a>: Frequency information about changes from historic average geohash yields. Predicted refers to simulations with climate change and counterfactual refers to simulations without further warming.</li>
+                            </ul>
+
+                            These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
+                        </div>
                     </div>
                     <div class="body-text">
                         <p>
@@ -658,6 +714,18 @@
                                 Tooltip citations are in <a href="#background" tab="background" class="advance-button">background</a>.
                             </p>
                         </details>
+                        <details class="data-downloads">
+                            <summary>Data downloads for results</summary>
+                            <p>
+                                The data downloads for this results section ("let's explore what we predicted") are as follows:
+                                
+                                <ul>
+                                    <li><a href="/data/sim_hist.csv">sim_hist.csv</a>: Frequency information about changes from historic average geohash yields. Predicted refers to simulations with climate change and counterfactual refers to simulations without further warming.</li>
+                                </ul>
+
+                                These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
+                            </p>
+                        </details>
                     </div>
                 </section>
                 <section id="discussion">
@@ -692,18 +760,29 @@
                         </p>
                     </div>
                     <div class="interactive">
-                        <div class="app-intro">
-                            <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
-                            <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
-                        </div>
-                        <div class="sketch">
-                            <div id="sketch-load-message-conclusion">
-                                Loading...
-                                <progress class="sketch-load-progress" max="20" value="0"></progress>
+                        <div class="default-viz">
+                            <div class="app-intro">
+                                <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
                             </div>
-                            <canvas id="sketch-canvas-conclusion"></canvas>
+                            <div class="sketch">
+                                <div id="sketch-load-message-conclusion">
+                                    Loading...
+                                    <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                </div>
+                                <canvas id="sketch-canvas-conclusion"></canvas>
+                            </div>
+                            <div>Visualization that explores how using mean and standard deviation influences different behavior. Which kinds of growing patterns does each seem to encourage?</div>
                         </div>
-                        <div>Visualization that explores how using mean and standard deviation influences different behavior. Which kinds of growing patterns does each seem to encourage?</div>
+                        <div class="viz-alternative">
+                            <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
+                            
+                            <ul>
+                                <li><a href="/data/export_claims.csv">export_claims.csv</a>: The claims rate expected under different scenarios. Here threshold refers to coverage level (YP is 0.25 meaning 25% below average), thresholdStd refers to the translation of an average-based <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> to <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields is expected to be in a grid cell.">std</span>, and offsetBaseline refers to if this includes <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> changes over time (we recommend using "always").</li>
+                            </ul>
+
+                            These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
+                        </div>
                     </div>
                     <div class="body-text">
                         <p>
@@ -753,6 +832,18 @@
                                 Tooltip citations are in <a href="#background" tab="background" class="advance-button">background</a>.
                             </p>
                         </details>
+                        <details class="data-downloads">
+                            <summary>Data downloads for discussion</summary>
+                            <p>
+                                The data downloads for this discussion section ("how might we address these concerns") are as follows:
+                                
+                                <ul>
+                                    <li><a href="/data/export_claims.csv">export_claims.csv</a>: The claims rate expected under different scenarios. Here threshold refers to coverage level (YP is 0.25 meaning 25% below average), thresholdStd refers to the translation of an average-based <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> to <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields is expected to be in a grid cell.">std</span>, and offsetBaseline refers to if this includes <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> changes over time (we recommend using "always").</li>
+                                </ul>
+
+                                These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
+                            </p>
+                        </details>
                     </div>
                 </section>
                 <section id="conclusion">
@@ -781,18 +872,30 @@
                         </p>
                     </div>
                     <div class="interactive">
-                        <div class="app-intro">
-                            <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
-                            <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
-                        </div>
-                        <div class="sketch">
-                            <div id="sketch-load-message-discussion">
-                                Loading...
-                                <progress class="sketch-load-progress" max="20" value="0"></progress>
+                        <div class="default-viz">
+                            <div class="app-intro">
+                                <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
                             </div>
-                            <canvas id="sketch-canvas-discussion"></canvas>
+                            <div class="sketch">
+                                <div id="sketch-load-message-discussion">
+                                    Loading...
+                                    <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                </div>
+                                <canvas id="sketch-canvas-discussion"></canvas>
+                            </div>
+                            <div>Visualization that explores the impacts of this study on insurers. How much does the yield distribution change? How does that impact insurers?</div>
                         </div>
-                        <div>Visualization that explores the impacts of this study on insurers. How much does the yield distribution change? How does that impact insurers?</div>
+                        <div class="viz-alternative">
+                            <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
+                            
+                            <ul>
+                                <li><a href="/data/climate.csv">climate.csv</a>: Information about expected changes to climate.</li>
+                                <li><a href="/data/tool.csv">tool.csv</a>: <span tabindex="0" class="tooltip" data-tippy-content="We create a grid through a process called geohashing (Niemeyer 2008) where all of the US Corn Belt gets assigned to a cell. Longer geohashes mean smaller cells and, in the 4 character version, each cell is the size of about 28 by 20 kilometers (Haugen 2020)">Geohash</span>-level simulation outcomes.</li>
+                            </ul>
+
+                            These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
+                        </div>
                     </div>
                     <div class="body-text">
                         <p>
@@ -834,6 +937,19 @@
                                 </ul>
 
                                 Tooltip citations are in <a href="#background" tab="background" class="advance-button">background</a>.
+                            </p>
+                        </details>
+                        <details class="data-downloads">
+                            <summary>Data downloads for conclusion</summary>
+                            <p>
+                                The data downloads for this discussion section ("what does this all mean") are as follows:
+                                
+                                <ul>
+                                    <li><a href="/data/climate.csv">climate.csv</a>: Information about expected changes to climate.</li>
+                                    <li><a href="/data/tool.csv">tool.csv</a>: <span tabindex="0" class="tooltip" data-tippy-content="We create a grid through a process called geohashing (Niemeyer 2008) where all of the US Corn Belt gets assigned to a cell. Longer geohashes mean smaller cells and, in the 4 character version, each cell is the size of about 28 by 20 kilometers (Haugen 2020)">Geohash</span>-level simulation outcomes.</li>
+                                </ul>
+
+                                These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
                             </p>
                         </details>
                     </div>
