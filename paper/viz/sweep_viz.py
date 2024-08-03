@@ -8,6 +8,7 @@ class SweepMainPresenter:
 
     def __init__(self, target, loading_id):
         self._click_waiting = False
+        self._key_waiting = None
         self._last_x = None
         self._last_y = None
         self._requires_refresh = False
@@ -40,6 +41,13 @@ class SweepMainPresenter:
 
         mouse.on_button_press(set_mouse_clicked)
 
+        keyboard = self._sketch.get_keyboard()
+
+        def set_key_waiting(button):
+            self._key_waiting = button.get_name()
+
+        keyboard.on_key_press(set_key_waiting)
+
         self._sketch.set_fps(10)
         self._sketch.on_step(lambda x: self._draw())
         self._sketch.show()
@@ -63,6 +71,7 @@ class SweepMainPresenter:
             mouse_x != self._last_x,
             mouse_y != self._last_y,
             self._click_waiting,
+            self._key_waiting is not None,
             self._scatter_presenter.get_awaiting_draw()
         ]
         requires_draw_factors_valid = filter(
@@ -87,13 +96,17 @@ class SweepMainPresenter:
 
         self._sketch.clear(const.BACKGROUND_COLOR)
         self._scatter_presenter.draw(mouse_x, mouse_y, self._click_waiting)
-        self._config_presenter.draw(mouse_x, mouse_y, self._click_waiting)
+        self._config_presenter.draw(mouse_x, mouse_y, self._click_waiting, self._key_waiting)
 
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
         if self._click_waiting:
             self._click_waiting = False
+            self._requires_refresh = True
+
+        if self._key_waiting is not None:
+            self._key_waiting = None
             self._requires_refresh = True
 
 
@@ -218,7 +231,8 @@ class ConfigPresenter:
             'Layers',
             ['1 layer', '2 layers', '3 layers', '4 layers', '5 layers', '6 layers'],
             '3 layers',
-            lambda x: self._change_layers(x)
+            lambda x: self._change_layers(x),
+            keyboard_button='n'
         )
 
         y += self._layers_buttons.get_height() + 30
@@ -235,7 +249,8 @@ class ConfigPresenter:
                 '0.20'
             ],
             'No L2',
-            lambda x: self._change_l2(x)
+            lambda x: self._change_l2(x),
+            keyboard_button='l'
         )
 
         y += self._l2_buttons.get_height() + 30
@@ -252,7 +267,8 @@ class ConfigPresenter:
                 '0.50'
             ],
             'No Dropout',
-            lambda x: self._change_dropout(x)
+            lambda x: self._change_dropout(x),
+            keyboard_button='d'
         )
 
         y += self._drop_buttons.get_height() + 30
@@ -274,7 +290,8 @@ class ConfigPresenter:
                 'no wbgt'
             ],
             'All Data',
-            lambda x: self._change_data_filter(x)
+            lambda x: self._change_data_filter(x),
+            keyboard_button='b'
         )
 
         self._filter_config = FilterConfig(
@@ -290,7 +307,8 @@ class ConfigPresenter:
             260 / 2 - const.BUTTON_WIDTH / 2,
             y,
             'Try Model >>',
-            lambda x: self._try_model()
+            lambda x: self._try_model(),
+            keyboard_button='t'
         )
 
         y += const.BUTTON_HEIGHT + 10
@@ -299,10 +317,11 @@ class ConfigPresenter:
             260 / 2 - const.BUTTON_WIDTH / 2,
             y,
             'Run Sweep >>',
-            lambda x: self._run_sweep()
+            lambda x: self._run_sweep(),
+            keyboard_button='s'
         )
 
-    def draw(self, mouse_x, mouse_y, click_waiting):
+    def draw(self, mouse_x, mouse_y, click_waiting, keypress):
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -310,12 +329,12 @@ class ConfigPresenter:
         mouse_y = mouse_y - self._y
 
         self._sketch.translate(self._x, self._y)
-        self._layers_buttons.step(mouse_x, mouse_y, click_waiting)
-        self._l2_buttons.step(mouse_x, mouse_y, click_waiting)
-        self._drop_buttons.step(mouse_x, mouse_y, click_waiting)
-        self._data_buttons.step(mouse_x, mouse_y, click_waiting)
-        self._attempt_button.step(mouse_x, mouse_y, click_waiting)
-        self._sweep_button.step(mouse_x, mouse_y, click_waiting)
+        self._layers_buttons.step(mouse_x, mouse_y, click_waiting, keypress)
+        self._l2_buttons.step(mouse_x, mouse_y, click_waiting, keypress)
+        self._drop_buttons.step(mouse_x, mouse_y, click_waiting, keypress)
+        self._data_buttons.step(mouse_x, mouse_y, click_waiting, keypress)
+        self._attempt_button.step(mouse_x, mouse_y, click_waiting, keypress)
+        self._sweep_button.step(mouse_x, mouse_y, click_waiting, keypress)
 
         self._sketch.pop_style()
         self._sketch.pop_transform()

@@ -494,15 +494,16 @@ class ToggleButtonSet:
 
 class Button:
 
-    def __init__(self, sketch, x, y, label, on_click, narrow=False):
+    def __init__(self, sketch, x, y, label, on_click, narrow=False, keyboard_button=None):
         self._sketch = sketch
         self._x = x
         self._y = y
         self._label = label
         self._on_click = on_click
         self._narrow = narrow
+        self._keyboard_button = keyboard_button
 
-    def step(self, mouse_x, mouse_y, clicked):
+    def step(self, mouse_x, mouse_y, clicked, keypress=None):
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -551,7 +552,9 @@ class Button:
             str(self._label)
         )
 
-        if is_hovering and clicked:
+        button_pressed = (self._keyboard_button is not None) and self._keyboard_button == keypress
+
+        if (is_hovering and clicked) or button_pressed:
             self._on_click(self._label)
 
         self._sketch.pop_style()
