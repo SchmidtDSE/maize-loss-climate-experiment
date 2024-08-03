@@ -105,7 +105,7 @@
                         </p>
 
                         <p>
-                            <span class="emphasis">Let's get started.</span> Every section of this website dives into one step of the <span tabindex="0" class="tooltip" data-tippy-content="This is the type of mathematical science in which we build models like through artifical intelligence to make sense of data and predict the future.">data science</span> pipeline. Each includes a "mini-lab" in which you will control the anslysis and uncover insights. All that said, this online "interactive article" complements a more traditional <a href="">scientific paper (preprint)</a>.
+                            <span class="emphasis">Let's get started.</span> Every section of this website dives into one step of the <span tabindex="0" class="tooltip" data-tippy-content="This is the type of mathematical science in which we build models like through artifical intelligence to make sense of data and predict the future.">data science</span> pipeline. Each includes a "mini-lab" in which you will control the anslysis and uncover insights. All that said, this online "interactive article" complements a more traditional <a href="">scientific paper (preprint)</a> and readers may also <a href="#settings" tab="settings" class="advance-button">configure settings and accessibility options <span class="chevron" aria-hidden="true">>></span></a>.
                         </p>
 
                         <p class="next-button-holder">
@@ -254,7 +254,7 @@
                                     What US law says:
                                 </h3>
                                 <div class="body-text">
-                                    (Slide 3 of 5) It's worth mentioning that some of these structures are actually set by US <span class="tooltip" data-tippy-content="Some pieces of crop insurance are dictated by statute / legislation. See US Code 1508.">law</span> (<a href="https://uscode.house.gov/view.xhtml?req=(title:7%20section:1508%20edition:prelim)" target="_blank">CFR and USC</a>). For example:
+                                    (Slide 3 of 5) It's worth mentioning that some of these structures may be set by US <span class="tooltip" data-tippy-content="Some pieces of crop insurance are dictated by statute / legislation. See US Code 1508.">law</span> (<a href="https://uscode.house.gov/view.xhtml?req=(title:7%20section:1508%20edition:prelim)" target="_blank">CFR and USC</a>). For example:
                                 </div>
                                 <div class="block-quote">
                                     the level of coverage ... may be purchased at any level not to exceed 85 percent of the [expected] individual yield ... the yield for a crop shall be based on the actual production history for the crop
@@ -1033,19 +1033,55 @@
                         The following options may help some more comfortably engage with this content. When you are done configuring your preferred experience, you can <a href="#introduction" tab="introduction" class="advance-button">return to the start of this interactive lab</a>.
 
                         <section class="setting">
+                            <h3>Slide shows</h3>
+                            
+                            Some readers may prefer to navigate the slide show on the <a href="#background" tab="background" class="advance-button">background</a> tab as a regular article.
+
+                            <div class="option-set">
+                                <div>
+                                    <input type="radio" name="slider-settings" class="slider-setting-radio" id="show-slider" value="show" checked>
+                                    <label for="show-slider">Use slide show format for <a href="#background" tab="background" class="advance-button">background</a>.</label>
+                                </div>
+
+                                <div>
+                                    <input type="radio" name="slider-settings" class="slider-setting-radio" id="hide-slider" value="hide">
+                                    <label for="hide-slider">Use regular article format for <a href="#background" tab="background" class="advance-button">background</a>.</label>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="setting">
+                            <h3>Tooltips</h3>
+                            
+                            Some words displayed with dotted underline will show additional text when either hovered over, tapped / clicked on, or given focus. This may be distracting for some users and may be disabled.
+
+                            <div class="option-set">
+                                <div>
+                                    <input type="radio" name="tooltips-settings" class="tooltips-setting-radio" id="show-tooltips" value="show" checked>
+                                    <label for="show-tooltips">Enable tooltips</label>
+                                </div>
+
+                                <div>
+                                    <input type="radio" name="tooltips-settings" class="tooltips-setting-radio" id="hide-tooltips" value="hide">
+                                    <label for="hide-tooltips">Disable tooltips</label>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="setting">
                             <h3>Keyboard controls</h3>
                             
-                            Readers who prefer to use the keyboard instead of mouse can have keyboard controls enabled by default.
+                            Readers who prefer to use the keyboard instead of a mouse or their finger for a touchscreen can elect to have those controls shown for interactive visualizations.
 
                             <div class="option-set">
                                 <div>
                                     <input type="radio" name="keyboard-settings" class="keyboard-setting-radio" id="show-keyboard" value="show">
-                                    <label for="show-keyboard">Show keyboard controls by default</label>
+                                    <label for="show-keyboard">Show keyboard controls</label>
                                 </div>
 
                                 <div>
                                     <input type="radio" name="keyboard-settings" class="keyboard-setting-radio" id="hide-keyboard" value="hide" checked>
-                                    <label for="hide-keyboard">Hide keyboard controls by default</label>
+                                    <label for="hide-keyboard">Hide keyboard controls</label>
                                 </div>
                             </div>
                         </section>

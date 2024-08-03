@@ -283,6 +283,15 @@ th, td {
     text-decoration-style: dashed;
 }
 
+.tooltip.disabled {
+    text-decoration: none;
+}
+
+.tooltip.disabled:hover {
+    cursor: default;
+    text-decoration: none;
+}
+
 .viz-alternative {
     padding: 10px;
     font-size: 17px;

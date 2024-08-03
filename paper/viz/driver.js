@@ -1,3 +1,8 @@
+let globalTooltips = null;
+let globalTabs = null;
+let globalSlider = null;
+
+
 /**
  * Start the web application.
  */
@@ -36,7 +41,7 @@ function openWebApp(event) {
 
 
 function initTabs() {
-    const tabs = new Tabby("[data-tabs]");
+    globalTabs = new Tabby("[data-tabs]");
 
     document.addEventListener("tabby", function (event) {
         const url = new URL(event.target.href);
@@ -47,18 +52,18 @@ function initTabs() {
     const tabAdvanceLinks = document.querySelectorAll(".advance-button");
     tabAdvanceLinks.forEach((x) => x.addEventListener("click", (event) => {
         const tabName = x.getAttribute("tab");
-        tabs.toggle(tabName);
+        globalTabs.toggle(tabName);
         window.location.hash = "#" + tabName;
         window.scrollTo(0, 0);
         event.preventDefault();
     }));
 
-    return tabs;
+    return globalTabs;
 }
 
 
 function initSlider() {
-    const slider = tns({
+    globalSlider = tns({
         container: ".intro-slider",
         items: 1,
         slideBy: "page",
@@ -68,24 +73,26 @@ function initSlider() {
 
     const slideAdvanceLinks = document.querySelectorAll(".slide-advance-link");
     slideAdvanceLinks.forEach((x) => x.addEventListener("click", (event) => {
-        slider.goTo("next");
-        document.getElementById("#intro-slider").scrollIntoView({"behavior": "smooth", "block": "start"});
+        globalSlider.goTo("next");
+        document.getElementById("intro-slider").scrollIntoView({"behavior": "smooth", "block": "start"});
         event.preventDefault();
     }));
 
     document.getElementById("model-skip-link").addEventListener("click", (event) => {
-        slider.goTo(3);
+        globalSlider.goTo(3);
         event.preventDefault();
-        document.getElementById("#intro-slider").scrollIntoView({"behavior": "smooth", "block": "start"});
+        document.getElementById("intro-slider").scrollIntoView({"behavior": "smooth", "block": "start"});
         document.getElementById("model-overview").focus();
     });
 
     document.getElementById("finish-slides-link").addEventListener("click", (event) => {
-        slider.goTo("last");
+        globalSlider.goTo("last");
         event.preventDefault();
-        document.getElementById("#intro-slider").scrollIntoView({"behavior": "smooth", "block": "start"});
+        document.getElementById("intro-slider").scrollIntoView({"behavior": "smooth", "block": "start"});
         document.getElementById("finish-slide").focus();
     });
+
+    return globalSlider;
 }
 
 
@@ -95,7 +102,7 @@ function initInteractivesLinks() {
 }
 
 
-function initBespokeControls(tabs) {
+function initBespokeControls() {
     document.getElementById("expand-rate-var-link").addEventListener("click", (event) => {
         document.getElementById("rate-var-details").setAttribute("open", true);
         document.getElementById("rate-var-details").focus();
@@ -103,7 +110,7 @@ function initBespokeControls(tabs) {
     });
 
     document.getElementById("toc-link").addEventListener("click", (event) => {
-        tabs.toggle("introduction");
+        globalTabs.toggle("introduction");
         document.getElementById("toc").setAttribute("open", true);
         document.getElementById("toc").focus();
     });
@@ -148,16 +155,42 @@ function initAccessibility() {
             }
         }
     }));
+
+    const sliderRadios = document.querySelectorAll(".slider-setting-radio");
+    sliderRadios.forEach((x) => x.addEventListener("change", function () {
+        if (this.checked) {
+            if (this.value === "show") {
+                initSlider();
+            } else {
+                globalSlider.destroy();
+            }
+        }
+    }));
+
+    const tooltipRadios = document.querySelectorAll(".tooltips-setting-radio");
+    tooltipRadios.forEach((x) => x.addEventListener("change", function () {
+        if (this.checked) {
+            const tooltipElems = document.querySelectorAll(".tooltip");
+            if (this.value === "show") {
+                globalTooltips.forEach((x) => x.enable());
+                tooltipElems.forEach((x) => x.classList.remove("disabled"));
+                tooltipElems.forEach((x) => x.setAttribute("tabindex", 0));
+            } else {
+                globalTooltips.forEach((x) => x.disable());
+                tooltipElems.forEach((x) => x.classList.add("disabled"));
+                tooltipElems.forEach((x) => x.removeAttribute("tabindex"));
+            }
+        }
+    }));
 }
 
 
 function main() {
-    tippy("[data-tippy-content]");
-
-    const tabs = initTabs();
-    initSlider();
+    globalTooltips = tippy("[data-tippy-content]");
+    globalTabs = initTabs();
+    globalSlider = initSlider();
     initInteractivesLinks();
-    initBespokeControls(tabs);
+    initBespokeControls();
     initAccessibility();
 }
 
