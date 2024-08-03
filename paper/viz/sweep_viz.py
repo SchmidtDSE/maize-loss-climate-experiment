@@ -475,7 +475,7 @@ class ScatterPresenter:
                 )
 
                 if final_point:
-                    self._sketch.set_text_font(const.FONT_SRC, 11)
+                    self._sketch.set_text_font(const.FONT_SRC, 12)
                     
                     self._sketch.set_text_align('center', 'bottom')
                     self._sketch.draw_text(

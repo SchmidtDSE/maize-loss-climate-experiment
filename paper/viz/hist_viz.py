@@ -7,7 +7,7 @@ import buttons
 import const
 
 SERIES = ['predicted', 'counterfactual']
-SUB_CHART_WIDTH = 700
+SUB_CHART_WIDTH = 700 - 10
 SUB_CHART_HEIGHT = 200
 TOP_COLOR = '#404040'
 BOTTOM_COLOR = '#707070'
@@ -185,7 +185,7 @@ class MainPresenter:
         self._redraw_required = True
 
     def _get_x(self, value):
-        offset = value + 100
+        offset = value + 105
         return offset / 200 * SUB_CHART_WIDTH
 
     def _get_y(self, value):
@@ -308,7 +308,7 @@ class MainPresenter:
         self._sketch.set_rect_mode('corner')
         self._sketch.set_text_align('center', 'center')
         self._sketch.set_angle_mode('degrees')
-        self._sketch.set_text_font(const.FONT_SRC, 9)
+        self._sketch.set_text_font(const.FONT_SRC, 11)
 
         is_catastrophic = self._target_threshold == '75% cov'
         claim_threshold = -25 if is_catastrophic else -15
@@ -334,8 +334,10 @@ class MainPresenter:
             )
             
             if is_claim:
+                self._sketch.set_text_font(const.FONT_SRC, 9)
+
                 self._sketch.push_transform()
-                self._sketch.translate(x, SUB_CHART_HEIGHT - height - 15)
+                self._sketch.translate(x, SUB_CHART_HEIGHT - height - 17)
                 self._sketch.rotate(-90)
                 self._sketch.draw_text(0, 0, '%.1f%%' % percent)
                 self._sketch.pop_transform()
@@ -351,7 +353,7 @@ class MainPresenter:
         self._sketch.set_rect_mode('corner')
         self._sketch.set_text_align('center', 'center')
         self._sketch.set_angle_mode('degrees')
-        self._sketch.set_text_font(const.FONT_SRC, 9)
+        self._sketch.set_text_font(const.FONT_SRC, 11)
 
         is_catastrophic = self._target_threshold == '75% cov'
         claim_threshold = -25 if is_catastrophic else -15
@@ -376,6 +378,8 @@ class MainPresenter:
             )
             
             if is_claim:
+                self._sketch.set_text_font(const.FONT_SRC, 9)
+
                 self._sketch.push_transform()
                 self._sketch.translate(x, height + 15)
                 self._sketch.rotate(-90)
@@ -393,7 +397,7 @@ class MainPresenter:
         self._sketch.clear_stroke()
         self._sketch.set_fill(TOP_COLOR)
         self._sketch.set_text_align('center', 'center')
-        self._sketch.set_text_font(const.FONT_SRC, 11)
+        self._sketch.set_text_font(const.FONT_SRC, 13)
         self._sketch.set_ellipse_mode('radius')
         
         for bucket in range(-100, 120, 20):
@@ -413,7 +417,7 @@ class MainPresenter:
             )
         
         self._sketch.set_text_align('center', 'top')
-        self._sketch.set_text_font(const.FONT_SRC, 9)
+        self._sketch.set_text_font(const.FONT_SRC, 11)
         self._sketch.draw_text(
             self._get_x(80),
             7,
@@ -426,7 +430,7 @@ class MainPresenter:
         )
         
         self._sketch.set_text_align('left', 'center')
-        self._sketch.set_text_font(const.FONT_SRC, 9)
+        self._sketch.set_text_font(const.FONT_SRC, 11)
         
         self._sketch.set_fill(TOP_COLOR)
         self._sketch.clear_stroke()
@@ -469,12 +473,12 @@ class MainPresenter:
         self._sketch.clear_stroke()
         self._sketch.set_fill(BOTTOM_COLOR)
         self._sketch.set_text_align('right', 'center')
-        self._sketch.set_text_font(const.FONT_SRC, 11)
+        self._sketch.set_text_font(const.FONT_SRC, 13)
         
         for percent in range(0, 35, 5):
             height = self._get_y(percent)
             self._sketch.draw_text(
-                0,
+                5,
                 height,
                 '%d%%' % round(percent)
             )
@@ -503,19 +507,19 @@ class MainPresenter:
         self._sketch.clear_stroke()
         self._sketch.set_fill(TOP_COLOR)
         self._sketch.set_text_align('right', 'center')
-        self._sketch.set_text_font(const.FONT_SRC, 11)
+        self._sketch.set_text_font(const.FONT_SRC, 13)
         
         for percent in range(0, 35, 5):
             height = self._get_y(percent)
             self._sketch.draw_text(
-                0,
+                5,
                 SUB_CHART_HEIGHT - height,
                 '%d%%' % round(percent)
             )
         
         self._sketch.set_text_align('left', 'center')
         self._sketch.draw_text(
-            2,
+            8,
             SUB_CHART_HEIGHT - self._get_y(15),
             'of risk units'
         )
@@ -539,13 +543,13 @@ class MainPresenter:
         self._sketch.clear_stroke()
         self._sketch.set_rect_mode('corner')
         self._sketch.set_text_align('center', 'center')
-        self._sketch.set_text_font(const.FONT_SRC, 9)
+        self._sketch.set_text_font(const.FONT_SRC, 11)
 
         is_catastrophic = self._target_threshold == '75% cov'
         max_val = 10 if is_catastrophic else 25
         
         y = SUB_CHART_HEIGHT - self._get_y(30)
-        start_x = self._get_x(-100)
+        start_x = self._get_x(-100) - 5
         end_x = self._get_x(-25 if is_catastrophic else -15)
         
         self._sketch.set_stroke(TOP_COLOR)
@@ -575,7 +579,7 @@ class MainPresenter:
         self._sketch.translate(50, 20 + SUB_CHART_HEIGHT + 50)
         self._sketch.clear_stroke()
         self._sketch.set_rect_mode('corner')
-        self._sketch.set_text_font(const.FONT_SRC, 9)
+        self._sketch.set_text_font(const.FONT_SRC, 11)
 
         is_catastrophic = self._target_threshold == '75% cov'
         max_val = 10 if is_catastrophic else 25

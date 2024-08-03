@@ -35,7 +35,7 @@ class LegendPresenter:
 
         self._sketch.draw_rect(0, 0, self._legend_width, self._legend_height)
 
-        self._sketch.set_text_font(const.FONT_SRC, 11)
+        self._sketch.set_text_font(const.FONT_SRC, 12)
         self._sketch.set_text_align('left', 'baseline')
         self._sketch.set_ellipse_mode('radius')
 
@@ -108,7 +108,7 @@ class LegendPresenter:
                 i += 1
 
             self._sketch.set_fill('#A0A0A0')
-            self._sketch.set_text_font(const.FONT_SRC, 11)
+            self._sketch.set_text_font(const.FONT_SRC, 12)
             self._sketch.set_text_align('right', 'center')
             self._sketch.draw_text(37, y + 5, '-%.1f' % extent_val)
             self._sketch.set_text_align('left', 'center')

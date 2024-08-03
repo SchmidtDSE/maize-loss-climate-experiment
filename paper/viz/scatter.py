@@ -277,7 +277,7 @@ class ScatterMainPresenter:
             self._sketch.push_transform()
             self._sketch.push_style()
 
-            self._sketch.set_text_font(const.FONT_SRC, 11)
+            self._sketch.set_text_font(const.FONT_SRC, 12)
             self._sketch.set_text_align('center', 'top')
             self._sketch.clear_stroke()
             self._sketch.set_rect_mode('corner')
@@ -296,7 +296,7 @@ class ScatterMainPresenter:
                 x_pos = get_x_pos(current_value)
                 self._sketch.draw_text(
                     x_pos,
-                    effective_height + 12,
+                    effective_height + 15,
                     format_str_x(current_value)
                 )
                 
@@ -310,7 +310,7 @@ class ScatterMainPresenter:
                 if height > 0.1:
                     self._sketch.draw_rect(
                         x_pos - 5,
-                        effective_height + 25,
+                        effective_height + 28,
                         10,
                         height
                     )
@@ -321,7 +321,7 @@ class ScatterMainPresenter:
             self._sketch.set_text_align('right', 'center')
             self._sketch.draw_text(
                 get_x_pos(min_value_x),
-                effective_height + 24 + get_hist_size(1),
+                effective_height + 27 + get_hist_size(1),
                 '100%'
             )
 
@@ -340,7 +340,7 @@ class ScatterMainPresenter:
             self._sketch.push_transform()
             self._sketch.push_style()
 
-            self._sketch.set_text_font(const.FONT_SRC, 11)
+            self._sketch.set_text_font(const.FONT_SRC, 12)
             self._sketch.set_text_align('right', 'center')
             self._sketch.clear_stroke()
             self._sketch.set_rect_mode('corner')

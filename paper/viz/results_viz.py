@@ -242,7 +242,7 @@ class ResultsVizPresenter:
 
         self._sketch.set_fill('#333333')
         self._sketch.clear_stroke()
-        self._sketch.set_text_font(const.FONT_SRC, 11)
+        self._sketch.set_text_font(const.FONT_SRC, 12)
         self._sketch.set_text_align('left', 'center')
         self._sketch.draw_text(130, 17, const.SELECTION_INSTRUCTION)
         self._sketch.draw_text(130, 29, self._get_description())
