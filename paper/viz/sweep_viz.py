@@ -516,7 +516,7 @@ class ScatterPresenter:
 
         self._sketch.clear_stroke()
         self._sketch.set_fill('#333333')
-        self._sketch.set_text_font(const.FONT_SRC, 11)
+        self._sketch.set_text_font(const.FONT_SRC, 12)
         self._sketch.set_text_align('center', 'top')
 
         tick_points_int = range(0, 25, 5)
@@ -537,7 +537,7 @@ class ScatterPresenter:
         self._sketch.draw_text(
             0,
             0,
-            'Error predicting yield distribution mean (%, MAE)'
+            'Error predicting yield distribution mean (% of yield, MAE)'
         )
         self._sketch.pop_transform()
 
@@ -550,7 +550,7 @@ class ScatterPresenter:
 
         self._sketch.clear_stroke()
         self._sketch.set_fill('#333333')
-        self._sketch.set_text_font(const.FONT_SRC, 11)
+        self._sketch.set_text_font(const.FONT_SRC, 12)
         self._sketch.set_text_align('right', 'center')
 
         tick_points_int = range(0, 25, 5)
@@ -573,7 +573,7 @@ class ScatterPresenter:
         self._sketch.draw_text(
             0,
             0,
-            'Error predicting yield distribution std (%, MAE)'
+            'Error predicting yield distribution std (% of yield, MAE)'
         )
         self._sketch.pop_transform()
 
