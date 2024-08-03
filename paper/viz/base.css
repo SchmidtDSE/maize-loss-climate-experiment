@@ -136,6 +136,12 @@ th, td {
     padding-bottom: 10px;
 }
 
+.bottom-links {
+    text-align: center;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
 .bottom-section {
     margin-top: 25px;
     padding-bottom: 25px;

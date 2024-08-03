@@ -77,18 +77,22 @@
                         <p>
                             <span class="emphasis">How might we use AI to understand this future and prepare for it?</span> This "explorable explanation" (<a href="http://worrydream.com/ExplorableExplanations/" target="_blank">Victor 2011</a>) walks through an analysis of future maize yields from the perspective of one of these important institutions: the US Federal Crop Insurance Program. Climate change increasingly threatens this crucial resource for farmers and the broader US food system (<a href="https://www.nature.com/articles/ncomms6989" target="_blank">Ray et al 2015</a>). In this online notebook, we will go step by step through a machine learning / artifical intelligence experiment predicting what might happen to the Yield Protection option within this program in the 2030 and 2050 timeframes. Specifically, we will use a series of small tools to build a neural network to understand this problem. After creating our model, we will then examine its predictions to determine how we might respond to these climate-driven threats.
                         </p>
-                        <details>
-                            <summary class="button">Outline of this interactive experiment <span class="chevron" aria-hidden="true">>></span></summary>
+                        <details id="toc">
+                            <summary class="button">Table of contents <span class="chevron" aria-hidden="true">>></span></summary>
                             <div class="sub-content">
                                 <p>
-                                    Here's an outline of what we will explore:
+                                    Here's an outline of what is available on this website:
 
                                     <ul>
-                                        <li>We will first <a href="#background" tab="background" class="advance-button">learn about how crop insurance works</a> in the US prior to trying to simulate it.</li>
-                                        <li>We will then <a href="#methods" tab="methods" class="advance-button">build a neural network</a> to predict the probability and severity of maize loss within the <a href="https://www.ncei.noaa.gov/access/monitoring/reference-maps/corn-belt" target="_blank">U.S. Corn Belt</a> (<a href="https://www.ncei.noaa.gov/access/monitoring/reference-maps/corn-belt" target="_blank">NCEI</a>) by forecasting the Multiple Peril Crop Insurance Program, "the oldest and most common form of federal crop insurance" (<a href="https://www.policyarchive.org/download/4403" target="_blank">Chite et al 2005</a>).</li>
-                                        <li>We will <a href="#results" tab="results" class="advance-button">use those results</a> to see how insurer risk may change under the Yield Protection (YP) plan. This covers farmers in the event of yield losses due to an insured cause (<a href="https://farms.extension.wisc.edu/articles/crop-insurance-policy-types/" target="_blank">Reuss</a>). Specifically, we will contrast simulations with climate change to those without further warming. This will let us quantitatively highlight the insurer-relevant effects of climate change in the 2030 and 2050 timeframes.</li>
-                                        <li>We will use these data to <a href="#discussion" tab="discussion" class="advance-button">design possible policy changes</a> to help mitigate and enable adaptation to the specific climate-fueled risks we observe in our results.</li>
-                                        <li>We will end by <a href="#conclusion" tab="conclusion" class="advance-button">exploring other trends</a> in the data which may inform policy action.</li>
+                                        <li><a href="#introduction" tab="introduction" class="advance-button">Introduction</a>: This is the tab you are currently on which introduces this problem at a high level and hints at what the outcomes of the experiment might be.</li>
+                                        <li><a href="#background" tab="background" class="advance-button">Background</a>: We will first learn about how crop insurance works in the US prior to trying to simulate it.</li>
+                                        <li><a href="#methods" tab="methods" class="advance-button">Methods</a>:  We will then build a neural network to predict the probability and severity of maize loss within the <a href="https://www.ncei.noaa.gov/access/monitoring/reference-maps/corn-belt" target="_blank">U.S. Corn Belt</a> (<a href="https://www.ncei.noaa.gov/access/monitoring/reference-maps/corn-belt" target="_blank">NCEI</a>) by forecasting the Multiple Peril Crop Insurance Program, "the oldest and most common form of federal crop insurance" (<a href="https://www.policyarchive.org/download/4403" target="_blank">Chite et al 2005</a>).</li>
+                                        <li><a href="#results" tab="results" class="advance-button">Results</a>: We will use those results to see how insurer risk may change under the Yield Protection (YP) plan. This covers farmers in the event of yield losses due to an insured cause (<a href="https://farms.extension.wisc.edu/articles/crop-insurance-policy-types/" target="_blank">Reuss</a>). Specifically, we will contrast simulations with climate change to those without further warming. This will let us quantitatively highlight the insurer-relevant effects of climate change in the 2030 and 2050 timeframes.</li>
+                                        <li><a href="#discussion" tab="discussion" class="advance-button">Discussion</a>: We will use these data to design possible policy changes to help mitigate and enable adaptation to the specific climate-fueled risks we observe in our results.</li>
+                                        <li><a href="#conclusion" tab="conclusion" class="advance-button">Conclusion</a>: We will end by exploring other trends in the data which may inform policy action.</li>
+                                        <li><a href="#about" tab="about" class="advance-button">About</a>: Information about this webpage is also available including licensing information. This tab includes data downloads.</li>
+                                        <li><a href="#settings" tab="settings" class="advance-button">Settings</a>: Finally, settings including those for accessiblity can be changed for this application.</li>
+                                        <li><a href="/terms.html">Terms and Privacy</a>: More information about terms of service and privacy policy.</li>
                                     </ul>
 
                                     Our model will likely find that climate change will increase the rate at which farmers file insurance claims. However, we will also discover small tweaks to insurance formulas to include yield variance that could help mitigate these threats, benefitting both growers and insurers as they work to reduce the level of future crop loss and safeguard our food system.
@@ -1084,6 +1088,10 @@
                     </div>
                 </section>
             </main>
+        </div>
+
+        <div class="bottom-links">
+            <a href="#toc" id="toc-link">table of contents</a> / <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment" target="_blank">open source</a> / <a href="terms.html" target="_blank">terms and privacy</a> / <a href="#settings" tab="settings" class="advance-button">accessibility</a>
         </div>
     </body>
 

@@ -52,6 +52,8 @@ function initTabs() {
         window.scrollTo(0, 0);
         event.preventDefault();
     }));
+
+    return tabs;
 }
 
 
@@ -93,11 +95,17 @@ function initInteractivesLinks() {
 }
 
 
-function initBespokeControls() {
+function initBespokeControls(tabs) {
     document.getElementById("expand-rate-var-link").addEventListener("click", (event) => {
         document.getElementById("rate-var-details").setAttribute("open", true);
         document.getElementById("rate-var-details").focus();
         event.preventDefault();
+    });
+
+    document.getElementById("toc-link").addEventListener("click", (event) => {
+        tabs.toggle("introduction");
+        document.getElementById("toc").setAttribute("open", true);
+        document.getElementById("toc").focus();
     });
 }
 
@@ -146,10 +154,10 @@ function initAccessibility() {
 function main() {
     tippy("[data-tippy-content]");
 
-    initTabs();
+    const tabs = initTabs();
     initSlider();
     initInteractivesLinks();
-    initBespokeControls();
+    initBespokeControls(tabs);
     initAccessibility();
 }
 
