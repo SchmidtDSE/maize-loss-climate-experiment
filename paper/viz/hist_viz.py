@@ -49,11 +49,15 @@ class MainPresenter:
 
         self._redraw_required = True
         self._click_waiting = False
+        self._key_waiting = None
         self._last_mouse_x = None
         self._last_mouse_y = None
 
         def set_mouse_clicked(mouse):
             self._click_waiting = True
+
+        def set_key_waiting(button):
+            self._key_waiting = button.get_name()
 
         top_button_y = 5
         bottom_button_y = SUB_CHART_HEIGHT * 2 + 50 + 25 * 2 + 2 + 10
@@ -66,7 +70,8 @@ class MainPresenter:
             'Year',
             ['2030', '2050'],
             str(default_year),
-            lambda x: self._change_year(x)
+            lambda x: self._change_year(x),
+            keyboard_button='y'
         )
 
         self._target_threshold = default_coverage + '% cov'
@@ -77,7 +82,8 @@ class MainPresenter:
             'Threshold',
             ['85% cov', '75% cov'],
             default_coverage + '% cov',
-            lambda x: self._change_loss(x)
+            lambda x: self._change_loss(x),
+            keyboard_button='c'
         )
 
         self._comparison = comparison
@@ -88,7 +94,8 @@ class MainPresenter:
             'Comparison',
             ['vs counterfact', 'vs historic'],
             str(self._comparison),
-            lambda x: self._change_comparison(x)
+            lambda x: self._change_comparison(x),
+            keyboard_button='v'
         )
 
         self._geohash_size = unit
@@ -99,7 +106,8 @@ class MainPresenter:
             'Geohash',
             ['unit risk', 'sub-unit risk'],
             str(self._geohash_size),
-            lambda x: self._change_geohash_size(x)
+            lambda x: self._change_geohash_size(x),
+            keyboard_button='u'
         )
 
         self._records = self._get_records()
@@ -110,6 +118,9 @@ class MainPresenter:
         else:
             mouse = self._sketch.get_mouse()
             mouse.on_button_press(set_mouse_clicked)
+
+            keyboard = self._sketch.get_keyboard()
+            keyboard.on_key_press(set_key_waiting)
 
             self._sketch.set_fps(10)
             self._sketch.on_step(lambda x: self.draw())
@@ -128,7 +139,7 @@ class MainPresenter:
         mouse_x_changed = self._last_mouse_x != mouse_x
         mouse_y_changed = self._last_mouse_y != mouse_y
         mouse_changed = mouse_x_changed or mouse_y_changed
-        change_waiting = self._click_waiting or self._redraw_required
+        change_waiting = self._click_waiting or self._redraw_required or self._key_waiting
         draw_skippable = not (change_waiting or mouse_changed)
         if draw_skippable:
             return
@@ -139,12 +150,13 @@ class MainPresenter:
         self._sketch.clear(const.BACKGROUND_COLOR)
         self._draw_viz()
 
-        self._year_buttons.step(mouse_x, mouse_y, self._click_waiting)
-        self._threshold_buttons.step(mouse_x, mouse_y, self._click_waiting)
-        self._comparison_buttons.step(mouse_x, mouse_y, self._click_waiting)
-        self._geohash_buttons.step(mouse_x, mouse_y, self._click_waiting)
+        self._year_buttons.step(mouse_x, mouse_y, self._click_waiting, self._key_waiting)
+        self._threshold_buttons.step(mouse_x, mouse_y, self._click_waiting, self._key_waiting)
+        self._comparison_buttons.step(mouse_x, mouse_y, self._click_waiting, self._key_waiting)
+        self._geohash_buttons.step(mouse_x, mouse_y, self._click_waiting, self._key_waiting)
 
         self._click_waiting = False
+        self._key_waiting = None
 
         self._sketch.pop_style()
         self._sketch.pop_transform()

@@ -64,6 +64,7 @@ class HistoryMainPresenter:
         self._sketch.set_fps(10)
 
         self._click_waiting = False
+        self._key_waiting = None
 
         if csv_loc is None:
             csv_loc = './data/export_claims.csv'
@@ -101,7 +102,8 @@ class HistoryMainPresenter:
             'Threshold',
             ['Average-based', 'Stdev-based'],
             threshold_label,
-            lambda new_val: self._update_threshold(new_val)
+            lambda new_val: self._update_threshold(new_val),
+            keyboard_button='t'
         )
         self._update_threshold(threshold_label)
 
@@ -113,7 +115,8 @@ class HistoryMainPresenter:
             'Example',
             ['Low Stability', 'High Stability'],
             scenario_label,
-            lambda new_val: self._update_stability(new_val)
+            lambda new_val: self._update_stability(new_val),
+            keyboard_button='s'
         )
         self._update_stability(scenario_label)
 
@@ -127,6 +130,13 @@ class HistoryMainPresenter:
                 self._click_waiting = True
 
             mouse.on_button_press(set_mouse_clicked)
+
+            keyboard = self._sketch.get_keyboard()
+
+            def set_key_waiting(button):
+                self._key_waiting = button.get_name()
+
+            keyboard.on_key_press(set_key_waiting)
 
             self._sketch.on_step(lambda x: self._step())
             self._sketch.show()
@@ -143,7 +153,7 @@ class HistoryMainPresenter:
         
         mouse_x_same = mouse_x == self._last_mouse_x
         mouse_y_same = mouse_y == self._last_mouse_y
-        click_clear = not self._click_waiting
+        click_clear = (not self._click_waiting) and (self._key_waiting is None)
         mouse_same = mouse_x_same and mouse_y_same and click_clear
         if mouse_same and not self._change_waiting:
             return
@@ -160,13 +170,14 @@ class HistoryMainPresenter:
         self._draw_annotation()
         self._chart_presenter.step(mouse_x, mouse_y, self._click_waiting)
         self._summary_presenter.step(mouse_x, mouse_y, self._click_waiting)
-        self._threshold_type_buttons.step(mouse_x, mouse_y, self._click_waiting)
-        self._scenario_buttons.step(mouse_x, mouse_y, self._click_waiting)
+        self._threshold_type_buttons.step(mouse_x, mouse_y, self._click_waiting, self._key_waiting)
+        self._scenario_buttons.step(mouse_x, mouse_y, self._click_waiting, self._key_waiting)
 
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
         self._click_waiting = False
+        self._key_waiting = None
 
     def _draw_annotation(self):
         self._sketch.push_transform()

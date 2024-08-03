@@ -221,7 +221,7 @@
                                             </div>
                                             <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-rates"></canvas>
                                         </div>
-                                        <div>Visualization showing how subsidy changes according to different parameters either in an average-based APH or the proposed standard deviation-based APH. Uses <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a> as a starting point.</div>
+                                        <div>Rates: Visualization showing how subsidy changes according to different parameters either in an average-based APH or the proposed standard deviation-based APH. Uses <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a> as a starting point.</div>
                                     </div>
                                     <div class="viz-alternative">
                                         <span class="emoji" aria-hidden="true">💻</span> The formulas which can conceptually simulate rate setting:
@@ -440,14 +440,14 @@
                                                 <span class="vocab">Learn</span>: Train a neural network by providing yield baselines (historic mean / std dev) and CHC-CMIP6 (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>) data on actual historic growing conditions and SCYM (<a href="https://linkinghub.elsevier.com/retrieve/pii/S0034425715001637" target="_blank">Lobell et al 2015</a>) estimations of yield going grid cell by grid cell.
                                             </li>
                                             <li>
-                                                <span class="vocab">Evaluate and retrain</span>: Use the validation set to choose <span tabindex="0" class="tooltip" data-tippy-content="Typically parameters refer to the weight of connections between neurons and meta-parameters refer to things like L2 and Dropout values.">meta-parameters</span> and retrain on all data.
+                                                <span class="vocab">Evaluate and retrain</span>: Use the validation set to choose <span tabindex="0" class="tooltip" data-tippy-content="Typically parameters refer to the weight of connections between neurons and hyper-parameters refer to things like L2 and Dropout values.">hyper-parameters</span> and retrain on all data.
                                             </li>
                                             <li>
                                                 <span class="vocab">Predict</span>: Use that neural network to predict future yields in a predicted future climate (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>). This is a prediction of <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> and <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of yields is expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">std</span> per 4 character geohash used for Monte Carlo.
                                             </li>
                                         </ul>
 
-                                        Of course, all of this is a high level overview. For more information see the <a href="https://natureofcode.com/neural-networks/">Nature of Code</a> (<a href="https://natureofcode.com" target="_blank">Shiffman 2024</a>). Our <a href="">scientific paper (preprint)</a> further details the neural network including training as well as multiple different test sets for different kinds of operations that describe expected performance for different situations. For data scientists wanting to get deep into the details, note that the model specifically estimates <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> and <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields is expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">std</span> of percent change from <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> for a grid cell, explaining why the meta-parameter interactive reports <span tabindex="0" class="tooltip" data-tippy-content="Mean Absolute Error: this is a simple average of the error magnitude. In other words, it indicates, on average, how far off predictions from the network are from actuals regardless of if the model was too high or too low.">MAEs</span> in percents. Furthermore, we use relu activation functions for hidden nodes (<a href="https://ai.stanford.edu/~amaas/papers/relu_hybrid_icml2013_final.pdf" target="_blank">Maas et al 2013</a>) with the AdamM optimizer (<a href="https://arxiv.org/abs/1412.6980" target="_blank">Kingma 2014</a>; <a href="https://api.semanticscholar.org/CorpusID:53592270" target="_blank">Loshchilov and Hutter</a>) and when we say "1 layer" we refer to one hidden layer.
+                                        Of course, all of this is a high level overview. For more information see the <a href="https://natureofcode.com/neural-networks/">Nature of Code</a> (<a href="https://natureofcode.com" target="_blank">Shiffman 2024</a>). Our <a href="">scientific paper (preprint)</a> further details the neural network including training as well as multiple different test sets for different kinds of operations that describe expected performance for different situations. For data scientists wanting to get deep into the details, note that the model specifically estimates <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> and <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields is expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">std</span> of percent change from <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> for a grid cell, explaining why the hyper-parameter interactive reports <span tabindex="0" class="tooltip" data-tippy-content="Mean Absolute Error: this is a simple average of the error magnitude. In other words, it indicates, on average, how far off predictions from the network are from actuals regardless of if the model was too high or too low.">MAEs</span> in percents. Furthermore, we use relu activation functions for hidden nodes (<a href="https://ai.stanford.edu/~amaas/papers/relu_hybrid_icml2013_final.pdf" target="_blank">Maas et al 2013</a>) with the AdamM optimizer (<a href="https://arxiv.org/abs/1412.6980" target="_blank">Kingma 2014</a>; <a href="https://api.semanticscholar.org/CorpusID:53592270" target="_blank">Loshchilov and Hutter</a>) and when we say "1 layer" we refer to one hidden layer.
                                     </p>
                                 </div>
                             </details>
@@ -498,7 +498,7 @@
                                 </div>
                                 <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-methods"></canvas>
                             </div>
-                            <div>Visualization that allows users to try different neural network configurations and see their validation set performance. How would you balance the error between predicted mean and predicted <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of yields is expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">standard deviation</span>?</div>
+                            <div>Hyper-parameters: Visualization that allows users to try different neural network configurations and see their validation set performance. How would you balance the error between predicted mean and predicted <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of yields is expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">standard deviation</span>?</div>
                         </div>
                         <div class="viz-alternative">
                             <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
@@ -510,7 +510,7 @@
                             These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
                         </div>
                         <div class="keyboard-controls">
-                            <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-methods">meta-parameters visualization</a> has the following controls:
+                            <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-methods">hyper-parameters visualization</a> has the following controls:
 
                             <ul>
                                 <li><span class="vocab">Esc</span>: Exit the visualization</li>
@@ -543,7 +543,7 @@
                                                 After chosing a model configuration, we retrain with all available data so do we want to emphasize a model with the best metrics in the <span tabindex="0" class="tooltip" data-tippy-content="The data witheld from model training used to compare candidates found during the model sweep.">validation set</span> or one that has just slightly worse performance but less <span tabindex="0" class="tooltip" data-tippy-content="An overfit model has mistaken noise in the training examples as actual trends so may perform poorly when predicting outcomes for data it has not seen before.">overfit</span> so might do better with more examples to learn from?
                                             </li>
                                             <li>
-                                                Do we want a <span tabindex="0" class="tooltip" data-tippy-content="A deeper model contains more layers and more neurons. Requiring more data to train, deeper models often can also learn more complex trends from data.">deeper</span> model which might benefit from more data or a <span tabindex="0" class="tooltip" data-tippy-content="A shalower model contains fewer layers and fewer neurons. Requiring less data to train, shallower models often cannot learn as complex trends from data compared to deeper models.">shallower</span> model that seems to perform well in the smaller <span tabindex="0" class="tooltip" data-tippy-content="The set of examples shown to each candidate model while learning during a model sweep.">training</span> dataset used in the <span tabindex="0" class="tooltip" data-tippy-content="Asking the computer to try different combinations of options or meta-parameters to see how different model configurations perform.">sweep</span>?
+                                                Do we want a <span tabindex="0" class="tooltip" data-tippy-content="A deeper model contains more layers and more neurons. Requiring more data to train, deeper models often can also learn more complex trends from data.">deeper</span> model which might benefit from more data or a <span tabindex="0" class="tooltip" data-tippy-content="A shalower model contains fewer layers and fewer neurons. Requiring less data to train, shallower models often cannot learn as complex trends from data compared to deeper models.">shallower</span> model that seems to perform well in the smaller <span tabindex="0" class="tooltip" data-tippy-content="The set of examples shown to each candidate model while learning during a model sweep.">training</span> dataset used in the <span tabindex="0" class="tooltip" data-tippy-content="Asking the computer to try different combinations of options or hyper-parameters to see how different model configurations perform.">sweep</span>?
                                             </li>
                                         </ul>
 
@@ -673,7 +673,7 @@
                                 </div>
                                 <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-results"></canvas>
                             </div>
-                            <div>Visualization that explores the details of the results in depth. Which type of loss on which time horizon are we most worried about?</div>
+                            <div>Distribution: Visualization that explores the details of the results in depth. Which type of loss on which time horizon are we most worried about?</div>
                         </div>
                         <div class="viz-alternative">
                             <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
@@ -683,6 +683,19 @@
                             </ul>
 
                             These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
+                        </div>
+                        <div class="keyboard-controls">
+                            <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-results">distribution visualization</a> has the following controls:
+
+                            <ul>
+                                <li><span class="vocab">Esc</span>: Exit the visualization</li>
+                                <li><span class="vocab">y</span>: Change year</li>
+                                <li><span class="vocab">c</span>: Change coverage</li>
+                                <li><span class="vocab">v</span>: Change vs historic or counterfactual</li>
+                                <li><span class="vocab">u</span>: Change unit size</li>
+                            </ul>
+
+                            The visualization will need focus in order to recieve keyboard commands.
                         </div>
                     </div>
                     <div class="body-text">
@@ -815,7 +828,7 @@
                                 </div>
                                 <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-conclusion"></canvas>
                             </div>
-                            <div>Visualization that explores how using mean and standard deviation influences different behavior. Which kinds of growing patterns does each seem to encourage?</div>
+                            <div>Claims: Visualization that explores how using mean and standard deviation influences different behavior. Which kinds of growing patterns does each seem to encourage?</div>
                         </div>
                         <div class="viz-alternative">
                             <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
@@ -825,6 +838,17 @@
                             </ul>
 
                             These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
+                        </div>
+                        <div class="keyboard-controls">
+                            <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-conclusion">claims visualization</a> has the following controls:
+
+                            <ul>
+                                <li><span class="vocab">Esc</span>: Exit the visualization</li>
+                                <li><span class="vocab">t</span>: Change type</li>
+                                <li><span class="vocab">s</span>: Change between high and low stability</li>
+                            </ul>
+
+                            The visualization will need focus in order to recieve keyboard commands.
                         </div>
                     </div>
                     <div class="body-text">
@@ -927,7 +951,7 @@
                                 </div>
                                 <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-discussion"></canvas>
                             </div>
-                            <div>Visualization that explores the impacts of this study on insurers. How much does the yield distribution change? How does that impact insurers?</div>
+                            <div>Neighborhood: Visualization that explores the impacts of this study on insurers at the geohash level. How much does the yield distribution change? How does that impact insurers?</div>
                         </div>
                         <div class="viz-alternative">
                             <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
@@ -938,6 +962,25 @@
                             </ul>
 
                             These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
+                        </div>
+                        <div class="keyboard-controls">
+                            <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-discussion">neighborhood visualization</a> has the following controls:
+
+                            <ul>
+                                <li><span class="vocab">Esc</span>: Exit the visualization</li>
+                                <li><span class="vocab">v</span>: Change visualization (map, scatter)</li>
+                                <li><span class="vocab">o</span>: Change output (yield, risk)</li>
+                                <li><span class="vocab">c</span>: Change coverage level (scatter only)</li>
+                                <li><span class="vocab">y</span>: Change year</li>
+                                <li><span class="vocab">s</span>: Change sample (avg year, all years)</li>
+                                <li><span class="vocab">t</span>: Change threshold (p < 0.05 or p < 0.10)</li>
+                                <li><span class="vocab">b</span>: Disable / enable Bonferroni correction</li>
+                                <li><span class="vocab">f</span>: Disable / enable significance filter</li>
+                                <li><span class="vocab">g</span>: Change growing condition variable</li>
+                                <li><span class="vocab">m</span>: Change month (only if growing condition var selected)</li>
+                            </ul>
+
+                            The visualization will need focus in order to recieve keyboard commands.
                         </div>
                     </div>
                     <div class="body-text">

@@ -121,6 +121,7 @@ class ResultsVizPresenter:
         )
 
         self._clicked = False
+        self._key_waiting = None
 
         if output_loc:
             self._refresh_data()
@@ -133,6 +134,13 @@ class ResultsVizPresenter:
                 self._clicked = True
             
             mouse.on_button_press(set_mouse_clicked)
+
+            keyboard = self._sketch.get_keyboard()
+
+            def set_key_waiting(button):
+                self._key_waiting = button.get_name()
+
+            keyboard.on_key_press(set_key_waiting)
 
             self._sketch.on_step(lambda x: self._step())
             self._sketch.show()
@@ -190,7 +198,8 @@ class ResultsVizPresenter:
 
         mouse_x_same = mouse_x == self._last_mouse_x
         mouse_y_same = mouse_y == self._last_mouse_y
-        mouse_same = mouse_x_same and mouse_y_same and not self._clicked
+        event_waiting = (self._clicked) or (self._key_waiting is not None)
+        mouse_same = mouse_x_same and mouse_y_same and (not event_waiting)
         if mouse_same and not self._change_waiting:
             return
         else:
@@ -208,7 +217,7 @@ class ResultsVizPresenter:
         else:
             self._map_presenter.step(mouse_x, mouse_y, self._clicked)
         
-        self._configuration_pesenter.step(mouse_x, mouse_y, self._clicked)
+        self._configuration_pesenter.step(mouse_x, mouse_y, self._clicked, self._key_waiting)
         self._legend_presenter.step(mouse_x, mouse_y, self._clicked)
 
         if not self._selecting:
@@ -220,6 +229,7 @@ class ResultsVizPresenter:
         self._sketch.pop_transform()
 
         self._clicked = False
+        self._key_waiting = None
 
     def _start_fields_selection(self):
         self._scatter_presenter.start_selecting()

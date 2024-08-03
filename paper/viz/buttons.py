@@ -208,7 +208,8 @@ class ConfigurationPresenter:
             'Visualization',
             ['scatter', 'map'],
             self._config.get_visualization(),
-            lambda x: self._set_config(self._config.get_with_visualization(x))
+            lambda x: self._set_config(self._config.get_with_visualization(x)),
+            keyboard_button='v'
         )
 
         current_y += self._viz_buttons.get_height() + 12
@@ -220,7 +221,8 @@ class ConfigurationPresenter:
             'Metric',
             ['yield', 'risk'], #['yield', 'risk', 'adaptation'],
             self._config.get_metric(),
-            lambda x: self._set_config(self._config.get_with_metric(x))
+            lambda x: self._set_config(self._config.get_with_metric(x)),
+            keyboard_button='o'
         )
 
         current_y += self._metric_buttons.get_height() + 12
@@ -232,7 +234,8 @@ class ConfigurationPresenter:
             'Loss',
             ['75% cov', '85% cov'],
             self._config.get_loss(),
-            lambda x: self._set_config(self._config.get_with_loss(x))
+            lambda x: self._set_config(self._config.get_with_loss(x)),
+            keyboard_button='c'
         )
 
         current_y += self._viz_buttons.get_height() + 25
@@ -244,7 +247,8 @@ class ConfigurationPresenter:
             'Scenario',
             ['2030 series', '2050 series'],
             self._config.get_scenario(),
-            lambda x: self._set_config(self._config.get_with_scenario(x))
+            lambda x: self._set_config(self._config.get_with_scenario(x)),
+            keyboard_button='y'
         )
 
         current_y += self._scenario_buttons.get_height() + 12
@@ -256,7 +260,8 @@ class ConfigurationPresenter:
             'Range of Risk',
             ['Sample 1 Year', 'Avg All Years'],
             self._config.get_risk_range(),
-            lambda x: self._set_config(self._config.get_with_risk_range(x))
+            lambda x: self._set_config(self._config.get_with_risk_range(x)),
+            keyboard_button='s'
         )
 
         current_y += self._range_buttons.get_height() + 25
@@ -268,7 +273,8 @@ class ConfigurationPresenter:
             'Threshold',
             ['p <  0.05', 'p <  0.10'],
             self._config.get_threshold(),
-            lambda x: self._set_config(self._config.get_with_threshold(x))
+            lambda x: self._set_config(self._config.get_with_threshold(x)),
+            keyboard_button='t'
         )
 
         current_y += self._threshold_buttons.get_height() + 12
@@ -280,7 +286,8 @@ class ConfigurationPresenter:
             'Adjustment',
             ['Bonferroni', 'no correction'],
             self._config.get_adjustment(),
-            lambda x: self._set_config(self._config.get_with_adjustment(x))
+            lambda x: self._set_config(self._config.get_with_adjustment(x)),
+            keyboard_button='b'
         )
 
         current_y += self._adj_buttons.get_height() + 12
@@ -292,7 +299,8 @@ class ConfigurationPresenter:
             'Filter',
             ['significant only', 'all'],
             self._config.get_sig_filter(),
-            lambda x: self._set_config(self._config.get_with_sig_filter(x))
+            lambda x: self._set_config(self._config.get_with_sig_filter(x)),
+            keyboard_button='f'
         )
 
         current_y += self._filter_buttons.get_height() + 25
@@ -313,7 +321,8 @@ class ConfigurationPresenter:
                 'wbgtmax'
             ],
             self._config.get_var(),
-            lambda x: self._set_config(self._config.get_with_var(x))
+            lambda x: self._set_config(self._config.get_with_var(x)),
+            keyboard_button='g'
         )
 
         self._month_buttons = ToggleButtonSet(
@@ -338,32 +347,33 @@ class ConfigurationPresenter:
             self._config.get_month(),
             lambda x: self._set_config(self._config.get_with_month(x)),
             make_rows=False,
-            narrow=True
+            narrow=True,
+            keyboard_button='m'
         )
 
-    def step(self, mouse_x, mouse_y, clicked):
+    def step(self, mouse_x, mouse_y, clicked, keypress):
         self._sketch.push_transform()
         self._sketch.push_style()
 
         if self._config.get_var() != 'no var':
-            self._month_buttons.step(mouse_x, mouse_y, clicked)
+            self._month_buttons.step(mouse_x, mouse_y, clicked, keypress)
 
         self._sketch.translate(self._x, self._y)
 
         mouse_x = mouse_x - self._x
         mouse_y = mouse_y - self._y
 
-        self._scenario_buttons.step(mouse_x, mouse_y, clicked)
-        self._range_buttons.step(mouse_x, mouse_y, clicked)
-        self._metric_buttons.step(mouse_x, mouse_y, clicked)
-        self._viz_buttons.step(mouse_x, mouse_y, clicked)
-        self._threshold_buttons.step(mouse_x, mouse_y, clicked)
-        self._adj_buttons.step(mouse_x, mouse_y, clicked)
-        self._filter_buttons.step(mouse_x, mouse_y, clicked)
-        self._var_buttons.step(mouse_x, mouse_y, clicked)
+        self._scenario_buttons.step(mouse_x, mouse_y, clicked, keypress)
+        self._range_buttons.step(mouse_x, mouse_y, clicked, keypress)
+        self._metric_buttons.step(mouse_x, mouse_y, clicked, keypress)
+        self._viz_buttons.step(mouse_x, mouse_y, clicked, keypress)
+        self._threshold_buttons.step(mouse_x, mouse_y, clicked, keypress)
+        self._adj_buttons.step(mouse_x, mouse_y, clicked, keypress)
+        self._filter_buttons.step(mouse_x, mouse_y, clicked, keypress)
+        self._var_buttons.step(mouse_x, mouse_y, clicked, keypress)
 
         if self._config.get_metric() != 'yield':
-            self._loss_buttons.step(mouse_x, mouse_y, clicked)
+            self._loss_buttons.step(mouse_x, mouse_y, clicked, keypress)
 
         self._sketch.pop_style()
         self._sketch.pop_transform()
