@@ -159,9 +159,9 @@
                                         <li><span class="vocab">US Corn Belt</span>: A multi-state area within the United States with substantial corn growing activity (<a href="https://www.ncei.noaa.gov/access/monitoring/reference-maps/corn-belt" target="_blank">NCEI 2024</a>).</li>
                                     </ul>
                                 </div>
-                                <div class="body-text">In many cases, there's more nuance to these terms and programs than these short descriptions can capture. Still, these high level definitions are workable enough for the sake of our simulations. All that in mind, we are going to focus on MPCI for maize and YP loss, exploring policy changes either through 508h or by changing the law directly. Anyway, <a href="#" class="slide-advance-link">next let's examine the structure of MPCI</a>.</div>
+                                <div class="body-text">In many cases, there's more nuance to these terms and programs than these short descriptions can capture. Still, these high level definitions are workable enough for the sake of our simulations. All that in mind, we are going to focus on MPCI for maize and YP loss, exploring policy changes either through 508h or by changing the law directly. Anyway, <a href="#rates-slide" class="slide-advance-link">next let's examine the structure of MPCI</a>.</div>
                             </div>
-                            <div>
+                            <div id="rates-slide">
                                 <h3>
                                     How rates are set:
                                 </h3>
@@ -245,11 +245,11 @@
                                 </div>
                                 <div class="body-text">
                                     <p>
-                                        Before we move on, note that the horizontal axis in the <a href="#policy-abstract">interactive</a> representing desired coverage level is currently defined as a percent of <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span>. We will later explore what happens if this includes an understanding of yield volatility. More specifically, <a href="https://www.investopedia.com/terms/s/standarddeviation.asp" target="_blank">standard deviation</a> (<a href="https://www.investopedia.com/terms/s/standarddeviation.asp" target="_blank">Hargrave 2024</a>) gets smaller as a grower's yields become more stable, offering a way to quantify stability. Including <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields is expected to be in a grid cell.">std</span> in <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span>-based coverage levels could happen by <span data-tippy-content="Process by which new insurance products can be suggested. This could include supplemental policies covering more than 75% of yields (Schnitkey et al 2023) though typically programs cannot cover more than 85% as we will see in a moment." class="tooltip">508h</span> or by changing the law. With that in mind, let's <a href="#" class="slide-advance-link">look at the law</a>.
+                                        Before we move on, note that the horizontal axis in the <a href="#policy-abstract">interactive</a> representing desired coverage level is currently defined as a percent of <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span>. We will later explore what happens if this includes an understanding of yield volatility. More specifically, <a href="https://www.investopedia.com/terms/s/standarddeviation.asp" target="_blank">standard deviation</a> (<a href="https://www.investopedia.com/terms/s/standarddeviation.asp" target="_blank">Hargrave 2024</a>) gets smaller as a grower's yields become more stable, offering a way to quantify stability. Including <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields is expected to be in a grid cell.">std</span> in <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span>-based coverage levels could happen by <span data-tippy-content="Process by which new insurance products can be suggested. This could include supplemental policies covering more than 75% of yields (Schnitkey et al 2023) though typically programs cannot cover more than 85% as we will see in a moment." class="tooltip">508h</span> or by changing the law. With that in mind, let's <a href="#law-slide" class="slide-advance-link">look at the law</a>.
                                     </p>
                                 </div>
                             </div>
-                            <div>
+                            <div id="law-slide">
                                 <h3>
                                     What US law says:
                                 </h3>
@@ -266,14 +266,14 @@
                                     the level of coverage ... may be purchased at any level not to exceed 2.1 standard deviations below the [expected] individual yield ... the yield for a crop shall be based on the actual production history for the crop
                                 </div>
                                 <div class="body-text">
-                                    We will come back to this question after we do some modeling. Speaking of, let's turn our attention to <a href="#" class="slide-advance-link">how we will make these predictions</a>.
+                                    We will come back to this question after we do some modeling. Speaking of, let's turn our attention to <a href="#model-overview" class="slide-advance-link">how we will make these predictions</a>.
                                 </div>
                             </div>
-                            <div>
+                            <div id="model-overview">
                                 <h3>
                                     How we will predict the future:
                                 </h3>
-                                <div class="body-text" id="model-overview">
+                                <div class="body-text">
                                     <p>
                                         (Slide 4 of 5) We will have a neural network predict yields. It will be trained on historic growing conditions using data from a public resource called CHC-CMIP6 (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>) and the resulting maize yields as estimated by a model called SCYM (<a href="https://linkinghub.elsevier.com/retrieve/pii/S0034425715001637" target="_blank">Lobell et al 2015</a>). Then, we will use climate projections from CHC-CMIP6 (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>) to predict what future growing outcomes might look like. Finally, we will simulate <span tabindex="0" class="tooltip" data-tippy-content="Yield Protection. This coverage option within MPCI typically guarantees yield itself up to 75% of an APH (Osiensky 2021)">YP</span> across the <span tabindex="0" class="tooltip" data-tippy-content="A multi-state area within the United States that frequently grows corn (NCEI 2024)">US Corn Belt</span> through a method called Monte Carlo (<a href="https://towardsdatascience.com/monte-carlo-simulation-a-practical-guide-85da45597f0e" target="_blank">Kwiatkowski 2022</a>).
                                     </p>
@@ -331,7 +331,7 @@
                                 </h3>
                                 <div class="body-text">
                                     <p class="next-button-holder">
-                                        <a href="#method" tab="method" class="advance-button">Build a neural network <span class="chevron" aria-hidden="true">>></span></a>
+                                        <a href="#methods" tab="methods" class="advance-button">Build a neural network <span class="chevron" aria-hidden="true">>></span></a>
                                     </p>
                                 </div>
                             </div>
