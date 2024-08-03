@@ -376,7 +376,7 @@ class ConfigurationPresenter:
 class ToggleButtonSet:
 
     def __init__(self, sketch, x, y, label, options, selected, on_change, make_rows=True,
-        narrow=False, show_label=False):
+        narrow=False, show_label=False, keyboard_button=None):
         self._sketch = sketch
         self._x = x
         self._y = y
@@ -387,11 +387,12 @@ class ToggleButtonSet:
         self._make_rows = make_rows
         self._narrow = narrow
         self._show_label = show_label
+        self._keyboard_button = keyboard_button
 
     def set_value(self, option):
         self._selected = option
 
-    def step(self, mouse_x, mouse_y, clicked):
+    def step(self, mouse_x, mouse_y, clicked, keypress=None):
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -463,6 +464,17 @@ class ToggleButtonSet:
                 button_x += button_width + 5
 
             i += 1
+
+        if self._keyboard_button is not None and self._keyboard_button == keypress:
+            index = self._options.index(self._selected)
+            
+            new_index = index + 1
+            if new_index >= len(self._options):
+                new_index = 0
+            
+            option = self._options[new_index]
+            self._selected = option
+            self._on_change(option)
 
         self._sketch.pop_style()
         self._sketch.pop_transform()

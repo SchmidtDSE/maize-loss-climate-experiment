@@ -206,6 +206,17 @@ th, td {
     border-radius: 5px;
 }
 
+.keyboard-controls {
+    padding: 10px;
+    font-size: 17px;
+    border: 1px solid #A0A0A0;
+    border-radius: 5px;
+    color: #000000;
+    text-align: left;
+    background-color: #F5F5F5;
+    margin-top: 10px;
+}
+
 .major-section {
     border-bottom: 1px dotted #555555;
     margin-top: 25px;

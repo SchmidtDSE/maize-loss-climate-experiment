@@ -195,6 +195,16 @@ function initAccessibility() {
             }
         }
     }));
+
+    const canvases = document.querySelectorAll(".focus-canvas");
+    canvases.forEach((canvas) => {
+        canvas.addEventListener('keyup', (event) => {
+            const isEscape = event.key === "Escape" || event.key === "Esc";
+            if (isEscape || isTab) {
+                canvas.blur();
+            }
+        });
+    });
 }
 
 

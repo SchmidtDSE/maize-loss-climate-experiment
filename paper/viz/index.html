@@ -219,7 +219,7 @@
                                                 Loading...
                                                 <progress class="sketch-load-progress" max="20" value="0"></progress>
                                             </div>
-                                            <canvas id="sketch-canvas-rates"></canvas>
+                                            <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-rates"></canvas>
                                         </div>
                                         <div>Visualization showing how subsidy changes according to different parameters either in an average-based APH or the proposed standard deviation-based APH. Uses <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a> as a starting point.</div>
                                     </div>
@@ -241,6 +241,23 @@
                                         </ul>
                                         
                                         The subsidy increases as <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> increases. Uses <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a> as a starting point.
+                                    </div>
+                                    <div class="keyboard-controls">
+                                        <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-rates">rates visualization</a> has the following controls:
+
+                                        <ul>
+                                            <li><span class="vocab">Esc</span>: Exit the visualization</li>
+                                            <li><span class="vocab">i</span>: Change insured unit APH</li>
+                                            <li><span class="vocab">c</span>: Change county average yield</li>
+                                            <li><span class="vocab">p</span>: Change projected price</li>
+                                            <li><span class="vocab">r</span>: Change county premium rate</li>
+                                            <li><span class="vocab">s</span>: Change subsidy rate</li>
+                                            <li><span class="vocab">a</span>: Change coverage amount</li>
+                                            <li><span class="vocab">t</span>: Change APH type</li>
+                                            <li><span class="vocab">o</span>: Change output variable</li>
+                                        </ul>
+
+                                        The visualization will need focus in order to recieve keyboard commands.
                                     </div>
                                 </div>
                                 <div class="body-text">
@@ -479,7 +496,7 @@
                                     Loading...
                                     <progress class="sketch-load-progress" max="20" value="0"></progress>
                                 </div>
-                                <canvas id="sketch-canvas-methods"></canvas>
+                                <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-methods"></canvas>
                             </div>
                             <div>Visualization that allows users to try different neural network configurations and see their validation set performance. How would you balance the error between predicted mean and predicted <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of yields is expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">standard deviation</span>?</div>
                         </div>
@@ -639,7 +656,7 @@
                                     Loading...
                                     <progress class="sketch-load-progress" max="20" value="0"></progress>
                                 </div>
-                                <canvas id="sketch-canvas-results"></canvas>
+                                <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-results"></canvas>
                             </div>
                             <div>Visualization that explores the details of the results in depth. Which type of loss on which time horizon are we most worried about?</div>
                         </div>
@@ -781,7 +798,7 @@
                                     Loading...
                                     <progress class="sketch-load-progress" max="20" value="0"></progress>
                                 </div>
-                                <canvas id="sketch-canvas-conclusion"></canvas>
+                                <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-conclusion"></canvas>
                             </div>
                             <div>Visualization that explores how using mean and standard deviation influences different behavior. Which kinds of growing patterns does each seem to encourage?</div>
                         </div>
@@ -893,7 +910,7 @@
                                     Loading...
                                     <progress class="sketch-load-progress" max="20" value="0"></progress>
                                 </div>
-                                <canvas id="sketch-canvas-discussion"></canvas>
+                                <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-discussion"></canvas>
                             </div>
                             <div>Visualization that explores the impacts of this study on insurers. How much does the yield distribution change? How does that impact insurers?</div>
                         </div>
@@ -1071,7 +1088,7 @@
                         <section class="setting">
                             <h3>Keyboard controls</h3>
                             
-                            Readers who prefer to use the keyboard instead of a mouse or their finger for a touchscreen can elect to have those controls shown for interactive visualizations.
+                            Readers who prefer to use the keyboard instead of a mouse or their finger for a touchscreen can still manipulate the interactives. They may also elect to have a list of keyboard controls shown below each interactive visualization. Press escape to leave an interactive.
 
                             <div class="option-set">
                                 <div>

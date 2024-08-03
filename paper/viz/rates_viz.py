@@ -148,6 +148,7 @@ class RatesMainPresenter:
         self._sketch.set_fps(10)
 
         self._click_waiting = False
+        self._key_waiting = None
         
         self._last_mouse_x = None
         self._last_mouse_y = None
@@ -161,7 +162,7 @@ class RatesMainPresenter:
             0.55,
             0.75,
             'Average-based',
-            'Subsidy'
+            'Subsidy',
         )
 
         self._chart_presenter = RatesChartPresenter(
@@ -188,6 +189,13 @@ class RatesMainPresenter:
 
         mouse.on_button_press(set_mouse_clicked)
 
+        keyboard = self._sketch.get_keyboard()
+
+        def set_key_waiting(button):
+            self._key_waiting = button.get_name()
+
+        keyboard.on_key_press(set_key_waiting)
+
         self._sketch.on_step(lambda x: self._step())
         self._sketch.show()
 
@@ -203,7 +211,7 @@ class RatesMainPresenter:
         
         mouse_x_same = mouse_x == self._last_mouse_x
         mouse_y_same = mouse_y == self._last_mouse_y
-        click_clear = not self._click_waiting
+        click_clear = (not self._click_waiting) and (not self._key_waiting)
         mouse_same = mouse_x_same and mouse_y_same and click_clear
         if mouse_same and not self._change_waiting:
             return
@@ -219,12 +227,13 @@ class RatesMainPresenter:
 
         self._draw_annotation()
         self._chart_presenter.step(mouse_x, mouse_y, self._click_waiting)
-        self._config_presenter.step(mouse_x, mouse_y, self._click_waiting)
+        self._config_presenter.step(mouse_x, mouse_y, self._click_waiting, self._key_waiting)
         
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
         self._click_waiting = False
+        self._key_waiting = None
 
     def _draw_annotation(self):
         self._sketch.push_transform()
@@ -491,7 +500,8 @@ class ConfigPresenter:
             ['175', '200', '225'],
             '200',
             lambda x: self._change_aph(x),
-            show_label=True
+            show_label=True,
+            keyboard_button='i'
         )
 
         y += self._aph_buttons.get_height() + 30
@@ -503,7 +513,8 @@ class ConfigPresenter:
             ['150', '175', '200'],
             '175',
             lambda x: self._change_county_yield(x),
-            show_label=True
+            show_label=True,
+            keyboard_button='c'
         )
 
         y += self._county_yield_buttons.get_height() + 30
@@ -519,7 +530,8 @@ class ConfigPresenter:
             ],
             '$4',
             lambda x: self._change_price(x),
-            show_label=True
+            show_label=True,
+            keyboard_button='p'
         )
 
         y += self._price_buttons.get_height() + 30
@@ -535,7 +547,8 @@ class ConfigPresenter:
             ],
             '4%',
             lambda x: self._change_county_rate(x),
-            show_label=True
+            show_label=True,
+            keyboard_button='r'
         )
 
         y += self._county_rate_buttons.get_height() + 30
@@ -551,7 +564,8 @@ class ConfigPresenter:
             ],
             '55%',
             lambda x: self._change_subsidy(x),
-            show_label=True
+            show_label=True,
+            keyboard_button='s'
         )
 
         y += self._subsidy_buttons.get_height() + 30
@@ -567,7 +581,8 @@ class ConfigPresenter:
             ],
             '75%',
             lambda x: self._change_coverage(x),
-            show_label=True
+            show_label=True,
+            keyboard_button='a'
         )
 
         y += self._coverage_buttons.get_height() + 30
@@ -582,7 +597,8 @@ class ConfigPresenter:
             ],
             'Average-based',
             lambda x: self._change_type(x),
-            show_label=True
+            show_label=True,
+            keyboard_button='t'
         )
 
         y += self._type_buttons.get_height() + 30
@@ -597,12 +613,13 @@ class ConfigPresenter:
             ],
             'Subsidy',
             lambda x: self._change_perspective(x),
-            show_label=True
+            show_label=True,
+            keyboard_button='o'
         )
 
         self._config = start_config
 
-    def step(self, mouse_x, mouse_y, click_waiting):
+    def step(self, mouse_x, mouse_y, click_waiting, keypress):
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -610,14 +627,14 @@ class ConfigPresenter:
         mouse_y = mouse_y - self._y
 
         self._sketch.translate(self._x, self._y)
-        self._aph_buttons.step(mouse_x, mouse_y, click_waiting)
-        self._county_yield_buttons.step(mouse_x, mouse_y, click_waiting)
-        self._price_buttons.step(mouse_x, mouse_y, click_waiting)
-        self._county_rate_buttons.step(mouse_x, mouse_y, click_waiting)
-        self._subsidy_buttons.step(mouse_x, mouse_y, click_waiting)
-        self._type_buttons.step(mouse_x, mouse_y, click_waiting)
-        self._coverage_buttons.step(mouse_x, mouse_y, click_waiting)
-        self._perspective_buttons.step(mouse_x, mouse_y, click_waiting)
+        self._aph_buttons.step(mouse_x, mouse_y, click_waiting, keypress)
+        self._county_yield_buttons.step(mouse_x, mouse_y, click_waiting, keypress)
+        self._price_buttons.step(mouse_x, mouse_y, click_waiting, keypress)
+        self._county_rate_buttons.step(mouse_x, mouse_y, click_waiting, keypress)
+        self._subsidy_buttons.step(mouse_x, mouse_y, click_waiting, keypress)
+        self._type_buttons.step(mouse_x, mouse_y, click_waiting, keypress)
+        self._coverage_buttons.step(mouse_x, mouse_y, click_waiting, keypress)
+        self._perspective_buttons.step(mouse_x, mouse_y, click_waiting, keypress)
 
         self._sketch.pop_style()
         self._sketch.pop_transform()
