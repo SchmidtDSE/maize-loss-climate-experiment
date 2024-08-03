@@ -173,6 +173,10 @@ th, td {
     color: black;
 }
 
+.header-subtext {
+    padding-bottom: 40px;
+}
+
 .inline-header {
     font-size: 15px;
     color: #000000;
@@ -229,6 +233,18 @@ th, td {
 .presentation {
     text-align: center;
     color: #333333;
+}
+
+.setting {
+    margin-top: 40px;
+}
+
+.setting h3 {
+    margin-bottom: 10px;
+}
+
+.setting .option-set {
+    margin-top: 10px;
 }
 
 .sketch {
