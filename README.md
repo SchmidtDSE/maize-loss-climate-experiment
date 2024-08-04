@@ -1,5 +1,5 @@
 # Maize Loss Climate Experiment
-Study looking at insurance changing loss rates in climate change.
+Study looking at how climate change may change loss rates for insurance by simulating maize outcomes via a neural network and Monte Carlo.
 
 <br>
 
@@ -15,20 +15,34 @@ These are described in detail below.
 <br>
 
 ## Usage
-The easiest way to engage with these results is through the web-based interactive explorable explanation which is housed for the public at . The paper preprint can also be found at. We also publish our [raw pipeline output]().
+The easiest way to engage with these results is through the web-based interactive explorable explanation which is housed for the public at . The paper preprint can also be found at. We also publish our [raw pipeline output](). Otherwise, see local setup.
 
 <br>
 
 ## Local setup
-For those wishing to extend this work, you can execute this pipeline locally by checking out this repository (). Due to the large datasets involved and various licensing constraints, there are different steps for each part of this repository.
+For those wishing to extend this work, you can execute this pipeline locally by checking out this repository ().
 
-### Local pipeline setup
-The [SCYM]() and [CHC-CMIP6]() datasets are quite large and require data access permission due to licensing and privacy constraints. Therefore, by default, this work assumes those data are hosted remotely in an AWS bucket defined by the `PIPELINE_BUCKET_NAME` environment variable and we use [Coiled]() to execute the computation. First, install the Python requirements (), optionally within a [virtual environment](). Then, after setting the environment variable () and setting up Coiled, simply execute the [Luigi]() pipeline via `bash run.sh` or similar. This is the only part of the pipeline which cannot execute using fully open source components. Even so, this can also be executed independently of the other components of this repository.
+### Local pipeline
+First, get access to the [SCYM]() and [CHC-CMIP6]() datasets and download all of the geotiffs to an AWS S3 Bucket or another location which can be accessed via the file system. This will allow you to choose from two execution options:
 
-### Tools
-Written in [Sketchingpy](), the tools can be executed locally on your computer, in a static context for building the paper, or through a web browser. There are two options for executing the tools:
+ - **Setup for Coiled**: This will execute via AWS if the `USE_AWS` environment variable is set to 1. This assumes data are hosted remotely in an AWS bucket defined by the `SOURCE_DATA_LOC` environment variable and we use [Coiled]() to execute the computation. After setting the environment variables for access credientials (`AWS_ACCESS_KEY` and `AWS_ACCESS_SECRET`) and setting up Coiled, simply execute the [Luigi]() pipeline as described below.
+ - **Setup for local**: If the `USE_AWS` environment variable is set to 0, this will run using a local Dask cluster. This assumes that `SOURCE_DATA_LOC` is a path to the directory housing the input geotiffs. After setting up Coiled, simply execute the [Luigi]() pipeline as described below.
 
- - **Docker**: You can run the web-based visualizations through a simple Docker file in the `paper/viz` directory.
+You can then execute either by:
+
+ - **Run directly**: First, install the Python requirements () optionally within a [virtual environment](). Then, simply execute `bash run.sh` to execute the pipeline from start to finish. See also `breakpoint_tasks.py` for [Luigi]() targets for running subsets of the pipeline. 
+ - **Run through Docker**: Simply execute `bash run_docker.sh` to execute the pipeline from start to finish. See also `breakpoint_tasks.py` for [Luigi]() targets for running subsets of the pipeline and update `run.sh` which is executed within the container. Note that this will operate on the `workspace` directory.
+
+A summary of the pipeline is created in `stats.json`.
+
+### Interactive tools
+Written in [Sketchingpy](), the tools can be executed locally on your computer, in a static context for building the paper, or through a web browser. First, one needs to get data from the pipeline or download prior results:
+
+ - **Download prior results**: retrieve the 
+
+There are two options for executing the tools:
+
+ - **Docker**: You can run the web-based visualizations through a simple Docker file in the `paper/viz` directory ().
  - **Local**: You can execute the visualizations manually by running them directly as Python scripts. The entry points are `hist_viz.py`, `history_viz.py`, `results_viz_entry.py`, and `sweep_viz.py`. Simply run them without any command line arguments for defaults.
 
 Note that the visualizations are also invoked through `paper/viz/render_images.sh` for the paper.
