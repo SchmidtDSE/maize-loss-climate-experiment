@@ -404,16 +404,16 @@ class SweepExtendedTask(SweepTemplateTask):
         return 'sweep_extended.csv'
 
     def get_num_layers(self):
-        return [1]
+        return DEFAULT_NUM_LAYERS
     
     def get_l2_regs(self):
-        return [0]
+        return DEFAULT_REGULARIZATION
     
     def get_dropouts(self):
-        return [0]
+        return DEFAULT_DROPOUT
 
     def get_blocks(self):
-        return ['all attrs']
+        return BLOCKS_EXTENDED
 
     def get_max_workers(self):
         return 500
