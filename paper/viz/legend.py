@@ -77,10 +77,15 @@ class LegendPresenter:
 
             draw_series(8, y - 7, fill_color, name)
 
+            if len(name) > 35:
+                name_cut = name[:35] + '...'
+            else:
+                name_cut = name
+
             self._sketch.clear_stroke()
             self._sketch.set_fill(const.INACTIVE_TEXT_COLOR)
             percent_rounded = round(percent * 100)
-            self._sketch.draw_text(17, y - 2, '%d%% %s' % (percent_rounded, name))
+            self._sketch.draw_text(17, y - 2, '%d%% %s' % (percent_rounded, name_cut))
 
             if not use_symbols:
                 self._sketch.set_fill(const.EMBEDDED_BAR_COLOR)

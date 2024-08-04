@@ -38,11 +38,12 @@ A summary of the pipeline is created in `stats.json`.
 ### Interactive tools
 Written in [Sketchingpy](), the tools can be executed locally on your computer, in a static context for building the paper, or through a web browser. First, one needs to get data from the pipeline or download prior results:
 
- - **Download prior results**: retrieve the 
+ - **Download prior results**: Retrieve the latest results () and move them into the viz directory.
+ - **Use your own results**: Update the paper output data (see paper local setup below). The visualizations use the same files.
 
 There are two options for executing the tools:
 
- - **Docker**: You can run the web-based visualizations through a simple Docker file in the `paper/viz` directory ().
- - **Local**: You can execute the visualizations manually by running them directly as Python scripts. The entry points are `hist_viz.py`, `history_viz.py`, `results_viz_entry.py`, and `sweep_viz.py`. Simply run them without any command line arguments for defaults.
+ - **Docker**: You can run the web-based visualizations through a simple Docker file in the `paper/viz` directory (`bash run_docker.sh`).
+ - **Local apps**: You can execute the visualizations manually by running them directly as Python scripts. The entry points are `hist_viz.py`, `history_viz.py`, `results_viz_entry.py`, and `sweep_viz.py`. Simply run them without any command line arguments for defaults.
 
 Note that the visualizations are also invoked through `paper/viz/render_images.sh` for the paper.
