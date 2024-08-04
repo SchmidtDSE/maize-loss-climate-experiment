@@ -70,5 +70,5 @@ def remove_temp_file(temp_file_path, access_key, access_secret):
 
     if using_local:
         return
-
-    os.remove(temp_file_path)
+    else:
+        os.remove(temp_file_path)

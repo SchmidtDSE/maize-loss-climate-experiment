@@ -19,7 +19,7 @@
         <py-config>
         {
             "packages": [
-                "/third_party/sketchingpy-0.2.2-py3-none-any.whl",
+                "/third_party/sketchingpy-0.2.4-py3-none-any.whl",
                 "/third_party/toolz-0.12.1-py3-none-any.whl"
             ],
             "files": {
@@ -709,7 +709,7 @@
                                     <span class="emphasis">Reference point</span>: Things look different depending on what we compare against. Constrating the continued climate change scenario (SSP245) to "historic" values in the recent past sees average yields stay about the same but the risk of loss increase. On the other hand, comparing to the "counterfactual" (a simulated future where climate change stops today) has our neural network actually expecting yields to increase relative to SSP245. 
                                 </li>
                                 <li>
-                                    <span class="emphasis">Unit size</span>: The effects of climate change become less pronounced when simulating with the full <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together. This is sometimes also called a risk unit.">insured unit</span> where there may be more fields in a single policy compared to sub-unit which simulates closer to field-level. This is due to the "portfolio effect" where larger units offer more chances for high performing fields to offset fields with worse outcomes (<a href="http://www.jstor.org/stable/40647972" target="_blank">Knight et al 2024</a>).
+                                    <span class="emphasis">Unit size</span>: The effects of climate change become less pronounced when simulating with the full <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together. This is sometimes also called a risk unit.">insured unit</span> where there may be more fields in a single policy compared to sub-unit which simulates at a samller scale (simulates 5 character <span tabindex="0" class="tooltip" data-tippy-content="We create a grid through a process called geohashing (Niemeyer 2008) where all of the US Corn Belt gets assigned to a cell. Longer geohashes mean smaller cells and, in the 4 character version, each cell is the size of about 28 by 20 kilometers (Haugen 2020)">geohashes</span> and near-individual field samples). This is due to the "portfolio effect" where larger units offer more chances for high performing fields to offset fields with worse outcomes (<a href="http://www.jstor.org/stable/40647972" target="_blank">Knight et al 2024</a>).
                                 </li>
                             </ul>
 
@@ -735,7 +735,7 @@
 
                                         <ul>
                                             <li><span class="vocab">Making the grid cells larger</span>: Currently the data are finding <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means unlikely to have occurred by chance alone.">significant</span> results in 91% of grid cells so increasing the sample at the cost of predictive resolution offers very limited benefit.</li>
-                                            <li><span class="vocab">Making the grid cells smaller</span>: We attempt to approximate this in the sub-unit size simulation. That said, this lowers the frequency with which a grid cell sees as <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means unlikely to have occurred by chance alone.">significant</span> by more than half though this number can vary from simulation to simulation. This makes sense as the 5 character level nears the resolution of the underlying data so increasing resolution introduces unacceptable noise.</li>
+                                            <li><span class="vocab">Making the grid cells smaller</span>: We attempt to approximate this in the sub-unit size results with simulation of 5 character geohashes. That said, this lowers the frequency with which a grid cell sees as <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means unlikely to have occurred by chance alone.">significant</span> by more than half though this number can vary from simulation to simulation. This makes sense as the 5 character level nears the resolution of the underlying data so increasing resolution introduces unacceptable noise.</li>
                                         </ul>
 
                                         Altogether, we continue to suggest use of the 4 character <span tabindex="0" class="tooltip" data-tippy-content="We create a grid through a process called geohashing (Niemeyer 2008)  where all of the US Corn Belt gets assigned to a cell. Longer geohashes mean smaller cells and, in the 4 character version, each cell is the size of about 28 by 20 kilometers (Haugen 2020)">geohash</span>.

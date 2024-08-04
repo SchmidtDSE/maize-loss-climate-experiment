@@ -23,7 +23,6 @@ jobs:
         run: sudo apt-get install zip
       - name: Install wget
         run: sudo apt-get install wget
-      
       - name: Download pipeline summary outputs
         run: wget --user $user --password $pass https://ag-adaptation-study.pub/archive/outputs.zip
         env:
