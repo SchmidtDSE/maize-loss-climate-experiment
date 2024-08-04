@@ -3,12 +3,11 @@ import itertools
 import os
 import re
 
-import boto3
 import luigi
 import shapely
 import toolz.itertoolz
 
-import aws_util
+import file_util
 import const
 import cluster_tasks
 
@@ -23,23 +22,27 @@ def process_single(remote_filename, access_key, access_secret):
     import numpy
     import scipy.stats
 
-    import aws_util
+    import file_util
     import const
     import data_struct
 
-    def get_get_temporary_file(remote_filename):
-        return aws_util.save_file_tmp(
-            const.BUCKET_NAME,
+    def get_temporary_file(remote_filename):
+        return file_util.save_file_tmp(
+            const.BUCKET_OR_DIR,
             remote_filename,
             access_key,
             access_secret
         )
 
     def remove_temporary_file(temp_file_path):
-        os.remove(temp_file_path)
+        file_util.remove_temp_file(
+            temp_file_path,
+            access_key,
+            access_secret
+        )
 
     def run(remote_filename):
-        full_path = get_get_temporary_file(remote_filename)
+        full_path = get_temporary_file(remote_filename)
 
         assert os.path.isfile(full_path)
 
@@ -125,10 +128,10 @@ class GetYieldGeotiffsTask(luigi.Task):
             f.write(output_str)
 
     def _get_remote_file_listing(self):
-        access_key = os.environ['CLIMATE_ACCESS_KEY']
-        access_secret = os.environ['CLIMATE_ACCESS_SECRET']
-        bucket_name = const.BUCKET_NAME
-        return aws_util.get_bucket_files(bucket_name, access_key, access_secret)
+        access_key = os.environ.get('AWS_ACCESS_KEY', '')
+        access_secret = os.environ.get('AWS_ACCESS_SECRET', '')
+        bucket_name = const.BUCKET_OR_DIR
+        return file_util.get_bucket_files(bucket_name, access_key, access_secret)
 
 
 class PreprocessYieldGeotiffsTask(luigi.Task):
@@ -177,8 +180,8 @@ class PreprocessYieldGeotiffsTask(luigi.Task):
         cluster.adapt(minimum=10, maximum=50)
         client = cluster.get_client()
 
-        access_key = os.environ['CLIMATE_ACCESS_KEY']
-        access_secret = os.environ['CLIMATE_ACCESS_SECRET']
+        access_key = os.environ.get('AWS_ACCESS_KEY', '')
+        access_secret = os.environ.get('AWS_ACCESS_SECRET', '')
 
         futures = client.map(
             lambda x: process_single(x, access_key, access_secret),

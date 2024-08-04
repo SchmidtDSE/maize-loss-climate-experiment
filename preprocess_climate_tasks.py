@@ -40,13 +40,13 @@ def get_daily_geohash(bucket_name, tiff_info, geohashes, access_key, access_secr
     import numpy
     import scipy.stats
 
-    import aws_util
+    import file_util
     import data_struct
     import distribution_struct
 
     tiff_filename = tiff_info.get_filename()
 
-    temp_file_path = aws_util.save_file_tmp(
+    temp_file_path = file_util.save_file_tmp(
         bucket_name,
         tiff_filename,
         access_key,
@@ -59,7 +59,11 @@ def get_daily_geohash(bucket_name, tiff_info, geohashes, access_key, access_secr
         print('Failed to get for ' + tiff_filename)
 
         try:
-            os.remove(temp_file_path)
+            file_util.remove_temp_file(
+                temp_file_path,
+                access_key,
+                access_secret
+            )
         except:
             print('Could not remove ' + temp_file_path)
 
@@ -130,7 +134,11 @@ def get_daily_geohash(bucket_name, tiff_info, geohashes, access_key, access_secr
     summaries = map(lambda x: make_geohash_summary(x[0], x[1]), distributions)
     summaries_realized = list(summaries)
 
-    os.remove(temp_file_path)
+    file_util.remove_temp_file(
+        temp_file_path,
+        access_key,
+        access_secret
+    )
 
     return summaries_realized
 
@@ -220,14 +228,14 @@ class PreprocessClimateGeotiffTask(luigi.Task):
             for task in tasks:
                 results = run_job(
                     const.SAMPLE_DAY_GAP,
-                    const.BUCKET_NAME,
+                    const.BUCKET_OR_DIR,
                     task['years'],
                     task['variables'],
                     geohashes_set,
                     self.conditions,
                     cluster,
-                    os.environ['CLIMATE_ACCESS_KEY'],
-                    os.environ['CLIMATE_ACCESS_SECRET']
+                    os.environ.get('AWS_ACCESS_KEY', ''),
+                    os.environ.get('AWS_ACCESS_SECRET', '')
                 )
                 writer.writerows(results)
                 f.flush()

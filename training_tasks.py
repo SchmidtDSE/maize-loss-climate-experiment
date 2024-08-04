@@ -3,6 +3,7 @@ import itertools
 import json
 import os
 import random
+import shutil
 import sys
 
 import boto3
@@ -120,25 +121,34 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
     import toolz.itertoolz
 
     import const
+    import file_util
     import normalize_tasks
 
     random.seed(seed)
 
-    temp_file_path = '/tmp/' + filename
+    using_local = access_key == '' or secret_key == ''
+
+    if using_local:
+        temp_file_path = os.path.join(bucket_name, filename)
+    else:
+        temp_file_path = '/tmp/' + filename
 
     input_attrs = get_input_attrs(additional_block, allow_count)
 
     def get_data():
 
         if not os.path.isfile(temp_file_path):
-            s3 = boto3.resource(
-                's3',
-                aws_access_key_id=access_key,
-                aws_secret_access_key=secret_key
-            )
+            if using_local:
+                raise RuntimeError('Could not find ' + temp_file_path)
+            else:
+                s3 = boto3.resource(
+                    's3',
+                    aws_access_key_id=access_key,
+                    aws_secret_access_key=secret_key
+                )
 
-            s3_object = s3.Object(bucket_name, filename)
-            s3_object.download_file(temp_file_path)
+                s3_object = s3.Object(bucket_name, filename)
+                s3_object.download_file(temp_file_path)
 
         def assign_year(year):
             if year < 2013:
@@ -244,7 +254,11 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
         }
 
     if os.path.isfile(temp_file_path):
-        os.remove(temp_file_path)
+        file_util.remove_temp_file(
+            temp_file_path,
+            access_key,
+            secret_key
+        )
 
     split_data = get_data()
     model = build_model(num_layers, len(input_attrs), l2_reg, dropout)
@@ -261,16 +275,22 @@ class UploadHistoricTrainingFrame(luigi.Task):
         return luigi.LocalTarget(const.get_file_location('upload_historic_confirm.txt'))
 
     def run(self):
-        access_key = os.environ['CLIMATE_ACCESS_KEY']
-        access_secret = os.environ['CLIMATE_ACCESS_SECRET']
+        access_key = os.environ.get('AWS_ACCESS_KEY', '')
+        access_secret = os.environ.get('AWS_ACCESS_SECRET', '')
 
-        s3 = boto3.client(
-            's3',
-            aws_access_key_id=access_key,
-            aws_secret_access_key=access_secret
-        )
+        using_local = access_key == '' or access_secret == ''
+        if using_local:
+            input_path = self.input().path
+            output_path = os.path.join(const.BUCKET_OR_DIR, const.HISTORIC_TRAINING_FILENAME)
+            shutil.copy2(input_path, output_path)
+        else:
+            s3 = boto3.client(
+                's3',
+                aws_access_key_id=access_key,
+                aws_secret_access_key=access_secret
+            )
 
-        s3.upload_file(self.input().path, const.BUCKET_NAME, const.HISTORIC_TRAINING_FILENAME)
+            s3.upload_file(self.input().path, const.BUCKET_OR_DIR, const.HISTORIC_TRAINING_FILENAME)
 
         with self.output().open('w') as f:
             f.write('success')
@@ -303,8 +323,8 @@ class SweepTemplateTask(luigi.Task):
         combinations_realized = list(combinations)
         random.shuffle(combinations_realized)
 
-        access_key = os.environ['CLIMATE_ACCESS_KEY']
-        access_secret = os.environ['CLIMATE_ACCESS_SECRET']
+        access_key = os.environ.get('AWS_ACCESS_KEY', '')
+        access_secret = os.environ.get('AWS_ACCESS_SECRET', '')
 
         cluster = cluster_tasks.get_cluster()
         cluster.adapt(minimum=10, maximum=self.get_max_workers())
@@ -317,7 +337,7 @@ class SweepTemplateTask(luigi.Task):
                 x[0],
                 x[1],
                 x[2],
-                const.BUCKET_NAME,
+                const.BUCKET_OR_DIR,
                 const.HISTORIC_TRAINING_FILENAME,
                 x[3],
                 x[4]

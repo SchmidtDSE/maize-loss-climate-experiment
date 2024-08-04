@@ -6,7 +6,7 @@ GEOHASH_LEN = 4
 WORKSPACE_DIR = 'workspace'
 CLUSTER_NAME = 'maize-insurance-adapt-cluster'
 START_WORKERS = 10
-BUCKET_NAME = 'dse-chc-core-data'
+BUCKET_OR_DIR = os.environ['SOURCE_DATA_LOC']
 SAMPLE_DAY_GAP = 1
 
 HISTORIC_TRAINING_FILENAME = 'training_historic.csv'
