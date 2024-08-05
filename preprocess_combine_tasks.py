@@ -89,7 +89,7 @@ class TrainingInstanceBuilder:
         for key in self._keys:
             (var_rename, month) = key.split('/')
             get_output_key = lambda x: ''.join([var_rename, x, month])
-            
+
             output_dict[get_output_key('Mean')] = self._climate_means[key]
             output_dict[get_output_key('Std')] = self._climate_stds[key]
             output_dict[get_output_key('Min')] = self._climate_mins[key]
@@ -125,7 +125,7 @@ class CombineHistoricPreprocessTask(luigi.Task):
 
         with self.input()['yield'].open('r') as f:
             rows = csv.DictReader(f)
-            
+
             for row in rows:
                 year = int(row['year'])
                 geohash = str(row['geohash'])
@@ -147,7 +147,6 @@ class CombineHistoricPreprocessTask(luigi.Task):
                 year = int(row['year'])
                 month = int(row['month'])
                 var = str(row['var'])
-                condition = str(row['condition'])
                 mean = float(row['mean'])
                 std = float(row['std'])
                 min_val = float(row['min'])
@@ -203,7 +202,6 @@ class ReformatFuturePreprocessTask(luigi.Task):
                 year = int(row['year'])
                 month = int(row['month'])
                 var = str(row['var'])
-                condition = str(row['condition'])
                 mean = float(row['mean'])
                 std = float(row['std'])
                 min_val = float(row['min'])

@@ -1,5 +1,3 @@
-import sys
-
 import sketchingpy
 
 import buttons
@@ -18,10 +16,10 @@ class RatesConfig:
         self._coverage = coverage
         self._aph_type = aph_type
         self._perspective = perspective
-    
+
     def get_aph(self):
         return self._aph
-    
+
     def get_with_aph(self, aph):
         return RatesConfig(
             aph,
@@ -33,10 +31,10 @@ class RatesConfig:
             self.get_aph_type(),
             self.get_perspective()
         )
-    
+
     def get_county_yield(self):
         return self._county_yield
-    
+
     def get_with_county_yield(self, county_yield):
         return RatesConfig(
             self.get_aph(),
@@ -48,10 +46,10 @@ class RatesConfig:
             self.get_aph_type(),
             self.get_perspective()
         )
-    
+
     def get_price(self):
         return self._price
-    
+
     def get_with_price(self, price):
         return RatesConfig(
             self.get_aph(),
@@ -63,10 +61,10 @@ class RatesConfig:
             self.get_aph_type(),
             self.get_perspective()
         )
-    
+
     def get_county_rate(self):
         return self._county_rate
-    
+
     def get_with_county_rate(self, county_rate):
         return RatesConfig(
             self.get_aph(),
@@ -78,10 +76,10 @@ class RatesConfig:
             self.get_aph_type(),
             self.get_perspective()
         )
-    
+
     def get_subsidy(self):
         return self._subsidy
-    
+
     def get_with_subsidy(self, subsidy):
         return RatesConfig(
             self.get_aph(),
@@ -93,10 +91,10 @@ class RatesConfig:
             self.get_aph_type(),
             self.get_perspective()
         )
-    
+
     def get_coverage(self):
         return self._coverage
-    
+
     def get_with_coverage(self, coverage):
         return RatesConfig(
             self.get_aph(),
@@ -108,10 +106,10 @@ class RatesConfig:
             self.get_aph_type(),
             self.get_perspective()
         )
-    
+
     def get_aph_type(self):
         return self._aph_type
-    
+
     def get_with_aph_type(self, type):
         return RatesConfig(
             self.get_aph(),
@@ -123,10 +121,10 @@ class RatesConfig:
             type,
             self.get_perspective()
         )
-    
+
     def get_perspective(self):
         return self._perspective
-    
+
     def get_with_perspective(self, perspective):
         return RatesConfig(
             self.get_aph(),
@@ -149,7 +147,7 @@ class RatesMainPresenter:
 
         self._click_waiting = False
         self._key_waiting = None
-        
+
         self._last_mouse_x = None
         self._last_mouse_y = None
         self._change_waiting = False
@@ -208,7 +206,7 @@ class RatesMainPresenter:
         else:
             mouse_x = 0
             mouse_y = 0
-        
+
         mouse_x_same = mouse_x == self._last_mouse_x
         mouse_y_same = mouse_y == self._last_mouse_y
         click_clear = (not self._click_waiting) and (not self._key_waiting)
@@ -221,14 +219,14 @@ class RatesMainPresenter:
             self._change_waiting = False
 
         self._sketch.push_transform()
-        self._sketch.push_style() 
+        self._sketch.push_style()
 
         self._sketch.clear(const.BACKGROUND_COLOR)
 
         self._draw_annotation()
         self._chart_presenter.step(mouse_x, mouse_y, self._click_waiting)
         self._config_presenter.step(mouse_x, mouse_y, self._click_waiting, self._key_waiting)
-        
+
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
@@ -269,8 +267,6 @@ class RatesChartPresenter:
         self._sketch.push_style()
 
         self._sketch.translate(self._x, self._y)
-        mouse_x = mouse_x_abs - self._x
-        mouse_y = mouse_y_abs - self._y
 
         self._sketch.set_fill(const.PANEL_BG_COLOR)
         self._sketch.set_stroke(const.INACTIVE_BORDER)
@@ -373,7 +369,7 @@ class RatesChartPresenter:
         self._sketch.clear_stroke()
         self._sketch.set_fill('#A0A0A0')
         self._sketch.draw_text(
-             self._get_x(50),
+            self._get_x(50),
             county_y_start + (10 if grower_y_start < county_y_start else -15),
             'County'
         )
@@ -393,7 +389,7 @@ class RatesChartPresenter:
         self._sketch.clear_stroke()
         self._sketch.set_fill('#505050')
         self._sketch.draw_text(
-             self._get_x(15),
+            self._get_x(15),
             grower_y_end + (15 if grower_y_start < county_y_start else -10),
             'Grower'
         )
@@ -461,7 +457,7 @@ class RatesChartPresenter:
         price = self._config.get_price()
         county_rate = self._config.get_county_rate()
         subsidy = self._config.get_subsidy()
-        
+
         if perspective is None:
             perspective = self._config.get_perspective()
 
@@ -639,37 +635,36 @@ class ConfigPresenter:
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
-    
     def _change_aph(self, new_val):
         val_interpreted = int(new_val)
         self._config = self._config.get_with_aph(val_interpreted)
         self._on_config_change(self._config)
-    
+
     def _change_county_yield(self, new_val):
         val_interpreted = int(new_val)
         self._config = self._config.get_with_county_yield(val_interpreted)
         self._on_config_change(self._config)
-    
+
     def _change_price(self, new_val):
         val_interpreted = int(new_val.replace('$', ''))
         self._config = self._config.get_with_price(val_interpreted)
         self._on_config_change(self._config)
-    
+
     def _change_county_rate(self, new_val):
         val_interpreted = float(new_val.replace('%', '')) / 100
         self._config = self._config.get_with_county_rate(val_interpreted)
         self._on_config_change(self._config)
-    
+
     def _change_subsidy(self, new_val):
         val_interpreted = float(new_val.replace('%', '')) / 100
         self._config = self._config.get_with_subsidy(val_interpreted)
         self._on_config_change(self._config)
-    
+
     def _change_coverage(self, new_val):
         val_interpreted = float(new_val.replace('%', '')) / 100
         self._config = self._config.get_with_coverage(val_interpreted)
         self._on_config_change(self._config)
-    
+
     def _change_type(self, new_val):
         val_interpreted = str(new_val)
         self._config = self._config.get_with_aph_type(val_interpreted)
@@ -683,6 +678,7 @@ class ConfigPresenter:
 
 def main():
     presenter = RatesMainPresenter('Rates Viz', None)
+    assert presenter is not None
 
 
 if __name__ == '__main__':

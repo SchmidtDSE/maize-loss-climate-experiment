@@ -2,11 +2,6 @@ def draw_not_significant(sketch, x, y, color):
     sketch.push_transform()
     sketch.push_style()
 
-    #sketch.set_rect_mode('radius')
-    #sketch.set_fill(color)
-    #sketch.clear_stroke()
-    #sketch.draw_rect(x, y, 2, 1)
-
     sketch.pop_style()
     sketch.pop_transform()
 

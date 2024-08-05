@@ -62,11 +62,21 @@ class RiskComparison:
 
         self_control_risk = self.get_control_risk()
         other_control_risk = other.get_control_risk()
-        new_control_risk = combine_probs(self_control_risk, self_count, other_control_risk, other_count)
+        new_control_risk = combine_probs(
+            self_control_risk,
+            self_count,
+            other_control_risk,
+            other_count
+        )
 
         self_experimental_risk = self.get_experimental_risk()
         other_experimental_risk = other.get_experimental_risk()
-        new_experimental_risk = combine_probs(self_experimental_risk, self_count, other_experimental_risk, other_count)
+        new_experimental_risk = combine_probs(
+            self_experimental_risk,
+            self_count,
+            other_experimental_risk,
+            other_count
+        )
 
         new_count = self_count + other_count
 
@@ -105,7 +115,7 @@ class YieldDistribution:
             return other
         elif other_count == 0:
             return self
-        
+
         self_weighted_mean = self.get_mean() * self_count
         other_weighted_mean = other.get_mean() * other_count
         new_mean = (self_weighted_mean + other_weighted_mean) / (self_count + other_count)
@@ -173,22 +183,22 @@ class Record:
 
     def get_geohash(self):
         return self._geohash
-    
+
     def get_year(self):
         return self._year
-    
+
     def get_scenario(self):
         return self._scenario
-    
+
     def get_num(self):
         return self._num
-    
+
     def get_predicted_risk(self):
         return self._predicted_risk
-    
+
     def get_adapted_risk(self):
         return self._adapted_risk
-    
+
     def get_yield_comparison(self):
         return self._yield_comparison
 
@@ -203,10 +213,10 @@ class Record:
         ]
         pieces_str = map(lambda x: str(x), pieces)
         return '\t'.join(pieces_str)
-    
+
     def get_latitude(self):
         return self._latitude
-    
+
     def get_longitude(self):
         return self._longitude
 
@@ -231,7 +241,7 @@ def parse_record(raw_record):
     predicted_risk_rate = float(raw_record['predictedRisk'])
     adapted_risk_rate = predicted_risk_rate  # float(raw_record['adaptedRisk'])
     num = round(float(raw_record['num']))
-    
+
     predicted_risk = RiskComparison(
         counterfactual_risk_rate,
         predicted_risk_rate,
@@ -299,37 +309,37 @@ class ClimateDelta:
         self._svp = svp
         self._vpd = vpd
         self._wbgtmax = wbgtmax
-    
+
     def get_year(self):
         return self._year
-    
+
     def get_geohash(self):
         return self._geohash
-    
+
     def get_month(self):
         return self._month
-    
+
     def get_rhn(self):
         return self._rhn
-    
+
     def get_rhx(self):
         return self._rhx
-    
+
     def get_tmax(self):
         return self._tmax
-    
+
     def get_tmin(self):
         return self._tmin
-    
+
     def get_chirps(self):
         return self._chirps
-    
+
     def get_svp(self):
         return self._svp
-    
+
     def get_vpd(self):
         return self._vpd
-    
+
     def get_wbgtmax(self):
         return self._wbgtmax
 

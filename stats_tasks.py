@@ -45,7 +45,7 @@ class ExportModelInfoTask(luigi.Task):
         neurons = NEURONS_PER_LAYER[-num_layers_int:]
         neurons_strs = map(lambda x: '%d neurons' % x, neurons)
         neurons_str = ', '.join(neurons_strs)
-        
+
         output_record = {
             'numLayers': '%d' % num_layers,
             'layersDescription': neurons_str,
@@ -120,7 +120,7 @@ class ExportPosthocTestTask(luigi.Task):
         test_running = 0
         means = []
         stds = []
-        
+
         with self.input()[name].open() as f:
             rows = csv.DictReader(f)
 
@@ -129,7 +129,7 @@ class ExportPosthocTestTask(luigi.Task):
                 abs_error_mean = abs(float(row['meanResidual']))
                 abs_error_std = abs(float(row['stdResidual']))
                 count = float(row['yieldObservations']) / const.RESOLUTION_SCALER
-                
+
                 mean_running += count * abs_error_mean
                 std_running += count * abs_error_std
                 means.append(abs_error_mean)
@@ -156,7 +156,7 @@ class DeterminePercentSignificantTemplateTask(luigi.Task):
         return luigi.LocalTarget(const.get_file_location(self.get_filename()))
 
     def run(self):
-        
+
         with self.input().open() as f:
             records = csv.DictReader(f)
             records_mpci = filter(
@@ -170,7 +170,10 @@ class DeterminePercentSignificantTemplateTask(luigi.Task):
             sig_records = filter(lambda x: int(x['pMeets0.05n']) == 1, records_2050)
             sig_geohashes = set(map(lambda x: x['geohash'], sig_records))
 
-            sig_records_geohash = list(filter(lambda x: x['geohash'] in sig_geohashes, records_2050))
+            sig_records_geohash = list(filter(
+                lambda x: x['geohash'] in sig_geohashes,
+                records_2050
+            ))
             sig_count = sum(map(lambda x: float(x['num']), sig_records_geohash))
 
         percent = sig_count / total_count
@@ -180,10 +183,10 @@ class DeterminePercentSignificantTemplateTask(luigi.Task):
             json.dump(output_record, f)
 
     def get_filename(self):
-        raise NotImplementedErorr('Use implementor.')
+        raise NotImplementedError('Use implementor.')
 
     def get_target(self):
-        raise NotImplementedErorr('Use implementor.')
+        raise NotImplementedError('Use implementor.')
 
 
 class DeterminePercentSignificantTask(DeterminePercentSignificantTemplateTask):
@@ -230,18 +233,42 @@ class ExtractSimStatsTask(luigi.Task):
             )
 
         output_record = {
-            'counterfactualMean2030': format_percent(reduced_records['counterfactual2030']['mean']),
-            'counterfactualProbability2030': format_percent(reduced_records['counterfactual2030']['probability']),
-            'counterfactualSeverity2030': format_severity(reduced_records['counterfactual2030']['severity']),
-            'experimentalMean2030': format_percent(reduced_records['experimental2030']['mean']),
-            'experimentalProbability2030': format_percent(reduced_records['experimental2030']['probability']),
-            'experimentalSeverity2030': format_severity(reduced_records['experimental2030']['severity']),
-            'counterfactualMean2050': format_percent(reduced_records['counterfactual2050']['mean']),
-            'counterfactualProbability2050': format_percent(reduced_records['counterfactual2050']['probability']),
-            'counterfactualSeverity2050': format_severity(reduced_records['counterfactual2050']['severity']),
-            'experimentalMean2050': format_percent(reduced_records['experimental2050']['mean']),
-            'experimentalProbability2050': format_percent(reduced_records['experimental2050']['probability']),
-            'experimentalSeverity2050': format_severity(reduced_records['experimental2050']['severity'])
+            'counterfactualMean2030': format_percent(
+                reduced_records['counterfactual2030']['mean']
+            ),
+            'counterfactualProbability2030': format_percent(
+                reduced_records['counterfactual2030']['probability']
+            ),
+            'counterfactualSeverity2030': format_severity(
+                reduced_records['counterfactual2030']['severity']
+            ),
+            'experimentalMean2030': format_percent(
+                reduced_records['experimental2030']['mean']
+            ),
+            'experimentalProbability2030': format_percent(
+                reduced_records['experimental2030']['probability']
+            ),
+            'experimentalSeverity2030': format_severity(
+                reduced_records['experimental2030']['severity']
+            ),
+            'counterfactualMean2050': format_percent(
+                reduced_records['counterfactual2050']['mean']
+            ),
+            'counterfactualProbability2050': format_percent(
+                reduced_records['counterfactual2050']['probability']
+            ),
+            'counterfactualSeverity2050': format_severity(
+                reduced_records['counterfactual2050']['severity']
+            ),
+            'experimentalMean2050': format_percent(
+                reduced_records['experimental2050']['mean']
+            ),
+            'experimentalProbability2050': format_percent(
+                reduced_records['experimental2050']['probability']
+            ),
+            'experimentalSeverity2050': format_severity(
+                reduced_records['experimental2050']['severity']
+            )
         }
 
         with self.output().open('w') as f:
@@ -267,7 +294,7 @@ class ExtractSimStatsTask(luigi.Task):
 
     def _combine_records(self, a, b):
         assert self._get_record_key(a) == self._get_record_key(b)
-        
+
         a_num = float(a['num'])
         b_num = float(b['num'])
 
@@ -277,7 +304,7 @@ class ExtractSimStatsTask(luigi.Task):
                     return b_val
                 elif b_val == 0:
                     return a_val
-            
+
             return (a_val * a_num + b_val * b_num) / (a_num + b_num)
 
         return {

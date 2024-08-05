@@ -1,4 +1,5 @@
 cd viz
+bash update_data.sh
 bash render_images.sh
 cd ..
 
@@ -17,6 +18,9 @@ cp -r img arxiv/img
 cd arxiv
 zip arxiv.zip *.*
 cd ..
-mv arxiv/arxiv.zip arxiv.zip
+
+mkdir paper_rendered
+cp arxiv/arxiv.zip paper_rendered/arxiv.zip
+cp arxiv/arxiv.zip arxiv.zip
 
 rm paper_filled.*

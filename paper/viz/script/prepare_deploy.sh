@@ -7,7 +7,7 @@ cp *.css deploy
 cp *.js deploy
 cp *.html deploy
 # cp *.md deploy
-# cp *.txt deploy
+cp *.txt deploy
 
 python3 script/rename_py_files.py deploy
 python3 script/update_py_paths.py deploy/index.html deploy/index.html

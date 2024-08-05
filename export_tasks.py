@@ -138,8 +138,6 @@ class ClimateExportTask(luigi.Task):
             reader = csv.DictReader(f)
 
             for row in reader:
-                geohash = row['geohash']
-                
                 pieces = itertools.product(CLIMATE_ATTRS, MONTHS)
                 for attr, month in pieces:
                     row_key = '%sMean%d' % (attr, month)
@@ -147,10 +145,10 @@ class ClimateExportTask(luigi.Task):
 
                     if value_str != '-999':
                         value = float(value_str)
-                        
+
                         if attr not in historic_accumulators:
                             historic_accumulators[attr] = distribution_struct.WelfordAccumulator()
-                        
+
                         historic_accumulators[attr].add(value)
 
         output_rows = itertools.chain(
@@ -170,7 +168,7 @@ class ClimateExportTask(luigi.Task):
 
             for row in reader:
                 geohash = row['geohash']
-                
+
                 pieces = itertools.product(CLIMATE_ATTRS, MONTHS)
                 for attr, month in pieces:
                     row_key = '%sMean%d' % (attr, month)
@@ -195,7 +193,7 @@ class ClimateExportTask(luigi.Task):
             target_dict = self._parse_accumulator_key(key)
             target_dict['value'] = accumulators[key].get_mean()
             return target_dict
-        
+
         accumulator_dicts = map(get_accumulator_dict, accumulator_keys)
 
         def make_output_piece(input_dict):
@@ -414,7 +412,6 @@ class HistExportSubTask(luigi.Task):
                 rows_with_meta = map(lambda x: self._add_meta(x), rows_claims)
                 writer.writerows(rows_with_meta)
 
-
     def _simplify_input(self, target):
         num = float(target['num'])
         claims_rate = float(target['predictedClaims'])
@@ -437,7 +434,7 @@ class HistExportSubTask(luigi.Task):
 
         def get_weighted_avg(a_val, a_weight, b_val, b_weight):
             return (a_val * a_weight + b_val * b_weight) / (a_weight + b_weight)
-        
+
         ret_dict = {
             'series': a['series'],
             'num': a['num'] + b['num'],
@@ -464,7 +461,7 @@ class HistExportSubTask(luigi.Task):
             year = 2010
         else:
             year = int(target['series'].split('_')[0])
-        
+
         def make_record_for_bin(bin_val):
             key = 'bin%d' % bin_val
             value = target[key]
@@ -804,7 +801,7 @@ class ExportClaimsRatesTask(luigi.Task):
             b_num = b['num']
 
             return (a_val * a_num + b_val * b_num) / (a_num + b_num)
-        
+
         return {
             'offsetBaseline': a['offsetBaseline'],
             'year': a['year'],

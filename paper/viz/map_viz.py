@@ -20,7 +20,7 @@ class MapMainPresenter:
 
         self._selected_geohashes = selected_geohashes
         self._on_selection = on_selection
-        
+
         self._needs_redraw = False
         self._selecting = False
         self._placed_records = []
@@ -55,7 +55,7 @@ class MapMainPresenter:
         hovering_x = mouse_x_offset > 0 and mouse_x_offset < self._width
         hovering_y = mouse_y_offset > 0 and mouse_y_offset < self._height
         hovering = hovering_x and hovering_y
-        
+
         if hovering and self._selecting:
             self._sketch.clear_fill()
             self._sketch.set_stroke(const.SELECT_COLOR)
@@ -86,7 +86,7 @@ class MapMainPresenter:
     def _make_map_image(self, records, metric, var):
         usable_height = self._get_usable_height() - 2
         usable_width = self._width - 2
-        
+
         self._sketch.create_buffer('map', usable_width, usable_height, '#F8F8F8')
 
         self._sketch.push_transform()
@@ -111,7 +111,7 @@ class MapMainPresenter:
         for geo_polygon in geo_polygons:
             shape = geo_polygon.to_shape()
             self._sketch.draw_shape(shape)
-        
+
         max_count = const.MAX_COUNT
         total = sum(map(lambda x: x.get_count(), records))
 
@@ -131,7 +131,7 @@ class MapMainPresenter:
                 self._sketch.set_stroke_weight(1)
                 self._sketch.set_stroke('#C0C0C0')
                 self._sketch.set_fill(const.CATEGORY_COLORS[record.get_category()] + 'C0')
-            
+
             if record.get_geohash() in self._selected_geohashes:
                 self._sketch.set_stroke_weight(1)
                 self._sketch.set_stroke(const.SELECTED_COLOR)
@@ -142,7 +142,7 @@ class MapMainPresenter:
             r = get_radius(record.get_count() / total)
             self._sketch.draw_ellipse(x, y, r, r)
             self._placed_records.append(data_struct.PlacedRecord(x, y, record))
-        
+
         def draw_record_var(record):
             longitude = record.get_longitude()
             latitude = record.get_latitude()
@@ -169,7 +169,7 @@ class MapMainPresenter:
                 color = '#333333' if index < 2 else '#FFFFFF'
             else:
                 color = '#A0A0A0' if index < 2 else '#D0D0D0'
-            
+
             strategy(x, y, color)
             self._placed_records.append(data_struct.PlacedRecord(x, y, record))
 

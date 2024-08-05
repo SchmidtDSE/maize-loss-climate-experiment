@@ -2,7 +2,6 @@ import csv
 import json
 import random
 
-import keras
 import luigi
 import pandas
 
@@ -39,30 +38,25 @@ class SelectConfigurationTask(luigi.Task):
             mean_accumulator.add(row['validMean'])
             std_accumulator.add(row['validStd'])
 
-        mean_mean = mean_accumulator.get_mean()
-        mean_std = mean_accumulator.get_std()
-        std_mean = std_accumulator.get_mean()
-        std_std = std_accumulator.get_std()
-        
         def score_option(option):
-            mean_z = option['validMean']  # (option['validMean'] - mean_mean) / mean_std
-            std_z = option['validStd']  # (option['validStd'] - std_mean) / std_std
+            mean_z = option['validMean']
+            std_z = option['validStd']
             return mean_z + std_z / 3
 
         unconstrained_selection_row = min(rows, key=score_option)
 
-        constrained_candidates = filter(
-            lambda x: (
-                x['layers'] in CONSTRAINED_LAYERS
-                and x['block'] in CONSTRAINED_ATTRS
-                and (
-                    x['l2Reg'] > 0
-                    or x['dropout'] > 0
-                )
-                and x['allowCount'].lower() == 'true'
-            ),
-            rows
-        )
+        def is_in_constrained(x):
+            conditions = [
+                x['layers'] in CONSTRAINED_LAYERS,
+                x['block'] in CONSTRAINED_ATTRS,
+                (x['l2Reg'] > 0 or x['dropout'] > 0),
+                x['allowCount'].lower() == 'true'
+            ]
+            invalid_conditions = filter(lambda x: x is False, conditions)
+            count_invalid = sum(map(lambda x: 1, invalid_conditions))
+            return count_invalid == 0
+
+        constrained_candidates = filter(is_in_constrained, rows)
 
         constrained_selection_row = min(constrained_candidates, key=score_option)
 
@@ -75,7 +69,7 @@ class SelectConfigurationTask(luigi.Task):
     def _parse_row(self, row):
         fields = row.keys()
         fields_to_interpret = filter(lambda x: x not in STR_META_ATTRS, fields)
-        
+
         for field in fields_to_interpret:
             row[field] = float(row[field])
 
@@ -127,8 +121,8 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
         )
 
         combined_output = model.predict(input_frame[input_attrs])
-        input_frame['predictedMean'] = combined_output[:,0]
-        input_frame['predictedStd'] = combined_output[:,1]
+        input_frame['predictedMean'] = combined_output[:, 0]
+        input_frame['predictedStd'] = combined_output[:, 1]
         input_frame['meanResidual'] = input_frame['predictedMean'] - input_frame['yieldMean']
         input_frame['stdResidual'] = input_frame['predictedStd'] - input_frame['yieldStd']
 
@@ -302,7 +296,7 @@ class TrainFullModel(luigi.Task):
             configuration = json.load(f)['constrained']
 
         input_frame = pandas.read_csv(self.input()['training'].path)
-        
+
         additional_block = configuration['block']
         allow_count = configuration['allowCount'].lower() == 'true'
         num_layers = round(configuration['layers'])

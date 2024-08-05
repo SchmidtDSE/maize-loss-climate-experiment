@@ -6,10 +6,93 @@ permissions:
   contents: read
 
 jobs:
+  checkPipelineCode:
+    environment: build
+    runs-on: ubuntu-latest
+    name: Check pipline code
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install checks
+        run: pip install pycodestyle pyflakes nose2
+      - name: Install other dependencies
+        run: pip install -r requirements.txt
+      - name: Run pyflakes
+        run: pyflakes *.py
+      - name: Run pycodestyle
+        run: pycodestyle *.py
+      - name: Run unit tests
+        run: nose2
+  checkVizCodePython:
+    environment: build
+    runs-on: ubuntu-latest
+    name: Check viz code
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install checks
+        run: pip install pycodestyle pyflakes nose2
+      - name: Install other dependencies
+        run: pip install -r requirements.txt
+      - name: Run pyflakes
+        run: pyflakes paper/viz/*.py
+      - name: Run pycodestyle
+        run: pycodestyle paper/viz/*.py
+      - name: Update apt
+        run: sudo apt-get update
+      - name: Install zip
+        run: sudo apt-get install zip
+      - name: Install wget
+        run: sudo apt-get install wget
+      - name: Download pipeline summary outputs
+        run: wget --user $user --password $pass https://ag-adaptation-study.pub/archive/outputs.zip
+        env:
+          user: ${{ secrets.HttpUser }}
+          pass: ${{ secrets.HttpPass }}
+      - name: Unzip downloaded summary data
+        run: unzip outputs.zip
+      - name: Move downloaded summary data
+        run: mv outputs paper/outputs
+      - name: Download pipeline detailed outputs
+        run: wget --user $user --password $pass https://ag-adaptation-study.pub/archive/data.zip
+        env:
+          user: ${{ secrets.HttpUser }}
+          pass: ${{ secrets.HttpPass }}
+      - name: Unzip downloaded detailed data
+        run: unzip data.zip
+      - name: Move downloaded detailed data
+        run: mv data paper/viz/data
+      - name: Make font build dir
+        run: mkdir font_build
+      - name: Download font
+        run: cd font_build; wget https://github.com/uswds/public-sans/releases/download/v2.001/public-sans-v2.001.zip
+      - name: Unzip font
+        run: cd font_build; unzip public-sans-v2.001
+      - name: Make font destination
+        run: mkdir paper/viz/font
+      - name: Move font
+        run: mv font_build/fonts/otf/PublicSans-Regular.otf paper/viz/font/PublicSans-Regular.otf
+      - name: Install Python deps
+        run: cd paper/viz; pip install -r requirements.txt
+      - name: Make destination
+        run: mkdir paper/img
+      - name: Render images
+        run: cd paper/viz; bash render_images.sh
+      - name: Check images
+        run: cd paper/viz; bash script/check_images.sh
   buildPaper:
     environment: build
     runs-on: ubuntu-latest
     name: Build Paper
+    needs: [checkPipelineCode, checkVizCodePython]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -81,6 +164,7 @@ jobs:
   buildDeploy:
     environment: build
     runs-on: ubuntu-latest
+    needs: [checkPipelineCode, checkVizCodePython]
     name: Build Deploy
     steps:
       - name: Checkout

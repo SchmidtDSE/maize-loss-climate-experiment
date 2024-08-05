@@ -113,9 +113,8 @@ MAP_SCALE_NEGATIVE = ['#fde0efa0', '#f1b6daa0', '#de77aea0', '#c51b7da0']
 MAP_SCALE_POSITIVE = ['#e6f5d0a0', '#b8e186a0', '#7fbc41a0', '#4d9221a0']
 
 SELECTION_INSTRUCTION = ' '.join([
-    'Click select to find neighborhoods (dots below) good for a pilot.',
-    'Toggle yield, risk and adaptation or map vs scatter.',
-    'Do different views change your answer?'
+    'Click select to find neighborhoods (dots below) to highlight.',
+    'Toggle yield, risk and adaptation or map vs scatter.'
 ])
 
 FONT_SRC = './font/PublicSans-Regular.otf'

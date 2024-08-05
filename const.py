@@ -6,7 +6,7 @@ GEOHASH_LEN = 4
 WORKSPACE_DIR = 'workspace'
 CLUSTER_NAME = 'maize-insurance-adapt-cluster'
 START_WORKERS = 10
-BUCKET_OR_DIR = os.environ['SOURCE_DATA_LOC']
+BUCKET_OR_DIR = os.environ.get('SOURCE_DATA_LOC', '')
 SAMPLE_DAY_GAP = 1
 
 HISTORIC_TRAINING_FILENAME = 'training_historic.csv'
@@ -61,7 +61,7 @@ FUTURE_CONDITIONS = [
 
 FUTURE_REF_YEARS = [2003, 2005, 2007, 2009, 2011]
 
-YEARS = list(range(1999, 2016+1))
+YEARS = list(range(1999, 2016 + 1))
 
 YEAR_REGEX = re.compile('scymBiomass_beltStates_(\\d+)[^\\.]*\\.tif')
 
@@ -609,6 +609,7 @@ UNIT_SIZE_IN_PIXELS = 8404  # 1196
 RESOLUTION_SCALER = 1111  # 30m x 30m limited by 1km x 1km daily gridmet
 
 DEFAULT_P_THRESHOLD = 0.05
+
 
 def get_file_location(name):
     return os.path.join(WORKSPACE_DIR, name)

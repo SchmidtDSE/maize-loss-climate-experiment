@@ -1,5 +1,3 @@
-import random
-
 import toolz.itertoolz
 
 import const
@@ -62,22 +60,22 @@ class ScatterPoint(InterpretedRecord):
 
     def get_geohash(self):
         return self._geohash
-    
+
     def get_x_value(self):
         return self._x_value
-    
+
     def get_y_value(self):
         return self._y_value
-    
+
     def get_count(self):
         return self._count
-    
+
     def get_category(self):
         return self._category
-    
+
     def get_latitude(self):
         return self._latitude
-    
+
     def get_longitude(self):
         return self._longitude
 
@@ -139,6 +137,7 @@ def make_scatter_values(records, climate_deltas, configuration):
         p_threshold = p_threshold_naive
 
     month_num = const.MONTH_NUMS[configuration.get_month()]
+
     def get_climate_delta(record):
         geohash = record.get_geohash()
         return climate_deltas.get(geohash, target_year, month_num)
@@ -185,7 +184,7 @@ def make_scatter_values(records, climate_deltas, configuration):
     def make_point_risk(record):
         risk_change = record.get_predicted_risk().get_risk_change()
         risk_p = record.get_predicted_risk().get_p_value()
-        
+
         after_yield = record.get_yield_comparison().get_predicted().get_mean()
         before_yield = record.get_yield_comparison().get_prior().get_mean()
         yield_change = after_yield - before_yield
@@ -218,7 +217,7 @@ def make_scatter_values(records, climate_deltas, configuration):
     def make_point_adapt(record):
         predicted_change = record.get_predicted_risk().get_risk_change()
         predicted_p = record.get_predicted_risk().get_p_value()
-        
+
         adapted_change = record.get_adapted_risk().get_risk_change()
         adapted_p = record.get_adapted_risk().get_p_value()
 
@@ -261,7 +260,10 @@ def make_scatter_values(records, climate_deltas, configuration):
     points_valid = filter(lambda x: x.get_is_valid(), points)
 
     if configuration.get_sig_filter() == 'significant only':
-        points_filtered = filter(lambda x: x.get_category() != 'no significant change', points_valid)
+        points_filtered = filter(
+            lambda x: x.get_category() != 'no significant change',
+            points_valid
+        )
     else:
         points_filtered = points_valid
 

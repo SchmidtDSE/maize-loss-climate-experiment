@@ -1,5 +1,4 @@
 import csv
-import json
 import math
 
 import luigi
@@ -58,10 +57,10 @@ class GetHistoricAveragesTask(luigi.Task):
 
     def run(self):
         averages = {}
-        
+
         with self.input().open() as f:
             reader = csv.DictReader(f)
-            
+
             for row in reader:
                 geohash = row['geohash']
 
@@ -73,7 +72,7 @@ class GetHistoricAveragesTask(luigi.Task):
                         averages[key] = distribution_struct.WelfordAccumulator()
 
                     value = get_float_maybe(row[field])
-                    
+
                     if value is not None:
                         averages[key].add(value)
 
@@ -115,12 +114,12 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 if original_value is not None:
                     delta = original_value - average
                     row[key] = delta
-            
+
             return row
 
         def transform_row_response(row):
             geohash = row['geohash']
-            
+
             key = '%s.baselineYieldMean' % geohash
             original_mean = get_float_maybe(row['yieldMean'])
             original_std = get_float_maybe(row['yieldStd'])
@@ -135,7 +134,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
             row['yieldMean'] = new_mean
             row['yieldStd'] = new_std
-            
+
             return row
 
         with self.input()['target'].open() as f_in:
@@ -156,7 +155,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
 
 class GetHistoricAsDeltaTask(GetAsDeltaTaskTemplate):
-    
+
     def get_target(self):
         return preprocess_combine_tasks.CombineHistoricPreprocessTask()
 
@@ -287,7 +286,7 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
 
         for field in fields_allowed:
             original_value = row[field]
-            
+
             distribution = distributions[field]
             mean = distribution['mean']
             std = distribution['std']

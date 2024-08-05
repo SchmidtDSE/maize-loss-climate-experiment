@@ -1,6 +1,6 @@
 import sys
 
-import buttons
+import config_buttons
 import results_viz
 
 ARG_NAMES = [
@@ -10,7 +10,7 @@ ARG_NAMES = [
     'viz',
     'p',
     'adj',
-    'filter', 
+    'filter',
     'var',
     'month',
     'loss',
@@ -41,7 +41,7 @@ def main():
         climate_loc = sys.argv[11]
         output_loc = sys.argv[12]
 
-        default_configuration = buttons.Configuration(
+        default_configuration = config_buttons.Configuration(
             scenario,
             'Avg All Years',
             metric,
@@ -62,6 +62,8 @@ def main():
             climate_loc=climate_loc,
             output_loc=output_loc
         )
+
+        assert presenter is not None
 
 
 if __name__ == '__main__':

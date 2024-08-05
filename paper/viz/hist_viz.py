@@ -14,7 +14,15 @@ BOTTOM_COLOR = '#707070'
 SUMMARY_FIELDS = ['claimsMpci', 'claimsSco', 'mean', 'cnt', 'claimsRate']
 
 NUM_ARGS = 6
-USAGE_STR = 'python hist_viz.py [csv location] [default year] [default coverage] [unit] [comparison] [output location]'
+USAGE_PIECES = [
+    '[csv location]',
+    '[default year]',
+    '[default coverage]',
+    '[unit]',
+    '[comparison]',
+    '[output location]'
+]
+USAGE_STR = 'python hist_viz.py ' + (' '.join(USAGE_PIECES))
 
 
 class MainPresenter:
@@ -192,7 +200,7 @@ class MainPresenter:
         return value / 30 * (SUB_CHART_HEIGHT - 20)
 
     def _combine_dicts(self, a, b):
-        
+
         def combine_inner(a_inner, b_inner):
             if a_inner is None:
                 return b_inner
@@ -204,7 +212,7 @@ class MainPresenter:
                     lambda key: (key, a_inner.get(key, 0) + b_inner.get(key, 0)),
                     keys
                 ))
-        
+
         keys = set(a.keys()).union(set(b.keys()))
         return dict(map(
             lambda key: (key, combine_inner(a.get(key, None), b.get(key, None))),
@@ -212,7 +220,7 @@ class MainPresenter:
         ))
 
     def _get_percents(self, target, claims_key):
-        
+
         def get_precent_inner(inner_target):
             keys = inner_target.keys()
             keys_allowed = list(filter(lambda x: x not in SUMMARY_FIELDS, keys))
@@ -221,14 +229,14 @@ class MainPresenter:
                 lambda key: (key, inner_target[key] / total * 100),
                 keys_allowed
             ))
-            
+
             for key in SUMMARY_FIELDS:
                 ret_dict[key] = inner_target.get(key, -1)
 
             ret_dict['claimsRate'] = float(inner_target[claims_key]) / float(inner_target['cnt'])
-            
+
             return ret_dict
-        
+
         keys = target.keys()
         ret_tuples = map(lambda key: (key, target[key]), keys)
         ret_tuples_transform = map(
@@ -245,19 +253,19 @@ class MainPresenter:
 
     def _get_records(self):
         raw_records = self._cached_raw
-        
+
         target_geohash_size = {
             'unit risk': 4,
             'sub-unit risk': 5
         }[self._geohash_size]
-        
+
         raw_records_right_size = filter(
             lambda x: int(x['geohashSize']) == target_geohash_size,
             raw_records
         )
 
         use_historic = self._comparison == 'vs historic'
-        
+
         def get_is_in_target_series(target):
             is_target_set = target['set'] == self._target_set
             if use_historic:
@@ -267,28 +275,32 @@ class MainPresenter:
                     return target['series'] == 'predicted' and is_target_set
             else:
                 return target['series'] in SERIES and is_target_set
-        
+
         allowed_records = filter(
             get_is_in_target_series,
             raw_records_right_size
         )
-        
-        cast_records = map(
-            lambda x: {
-                'series': 'counterfactual' if (use_historic and x['set'] == '2010') else x['series'],
+
+        def cast_individual_record(x):
+            force_counterfactual = use_historic and x['set'] == '2010'
+            return {
+                'series': 'counterfactual' if force_counterfactual else x['series'],
                 'bin': self._interpret_bin(x['bin']),
                 'val': float(x['val'])
-            },
+            }
+
+        cast_records = map(
+            cast_individual_record,
             allowed_records
         )
-        
+
         nested_records = map(
             lambda x: {x['series']: {x['bin']: x['val']}},
             cast_records
         )
-        
+
         counts = functools.reduce(lambda a, b: self._combine_dicts(a, b), nested_records)
-        
+
         claims_key = 'claimsSco' if self._target_threshold == '85% cov' else 'claimsMpci'
 
         return self._get_percents(counts, claims_key)
@@ -301,7 +313,7 @@ class MainPresenter:
     def _draw_upper(self, histogram):
         self._sketch.push_transform()
         self._sketch.push_style()
-        
+
         self._sketch.translate(50, 20)
         self._sketch.clear_stroke()
         self._sketch.set_fill(TOP_COLOR)
@@ -312,10 +324,10 @@ class MainPresenter:
 
         is_catastrophic = self._target_threshold == '75% cov'
         claim_threshold = -25 if is_catastrophic else -15
-        
+
         for bucket, percent in self._get_body_fields(histogram):
             is_claim = bucket <= claim_threshold
-            
+
             if is_claim:
                 self._sketch.clear_stroke()
                 self._sketch.set_fill(TOP_COLOR)
@@ -332,7 +344,7 @@ class MainPresenter:
                 10,
                 height
             )
-            
+
             if is_claim:
                 self._sketch.set_text_font(const.FONT_SRC, 9)
 
@@ -341,14 +353,14 @@ class MainPresenter:
                 self._sketch.rotate(-90)
                 self._sketch.draw_text(0, 0, '%.1f%%' % percent)
                 self._sketch.pop_transform()
-        
+
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
     def _draw_lower(self, histogram):
         self._sketch.push_transform()
         self._sketch.push_style()
-        
+
         self._sketch.translate(50, 20 + SUB_CHART_HEIGHT + 50)
         self._sketch.set_rect_mode('corner')
         self._sketch.set_text_align('center', 'center')
@@ -357,7 +369,7 @@ class MainPresenter:
 
         is_catastrophic = self._target_threshold == '75% cov'
         claim_threshold = -25 if is_catastrophic else -15
-        
+
         for bucket, percent in self._get_body_fields(histogram):
             is_claim = bucket <= claim_threshold
             if is_claim:
@@ -367,7 +379,7 @@ class MainPresenter:
                 self._sketch.set_stroke(BOTTOM_COLOR)
                 self._sketch.set_stroke_weight(2)
                 self._sketch.clear_fill()
-            
+
             x = self._get_x(bucket)
             height = self._get_y(percent)
             self._sketch.draw_rect(
@@ -376,7 +388,7 @@ class MainPresenter:
                 10,
                 height
             )
-            
+
             if is_claim:
                 self._sketch.set_text_font(const.FONT_SRC, 9)
 
@@ -385,37 +397,37 @@ class MainPresenter:
                 self._sketch.rotate(-90)
                 self._sketch.draw_text(0, 0, '%.1f%%' % percent)
                 self._sketch.pop_transform()
-        
+
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
     def _draw_x_axis(self, top_mean, bottom_mean):
         self._sketch.push_transform()
         self._sketch.push_style()
-        
+
         self._sketch.translate(50, 20 + SUB_CHART_HEIGHT + 25)
         self._sketch.clear_stroke()
         self._sketch.set_fill(TOP_COLOR)
         self._sketch.set_text_align('center', 'center')
         self._sketch.set_text_font(const.FONT_SRC, 13)
         self._sketch.set_ellipse_mode('radius')
-        
+
         for bucket in range(-100, 120, 20):
             base_str = '+%d%%' % bucket if bucket > 0 else '%d%%' % bucket
-            
+
             if bucket == -100:
                 label = '<' + base_str
             elif bucket == 100:
                 label = '>' + base_str
             else:
                 label = base_str
-            
+
             self._sketch.draw_text(
                 self._get_x(bucket),
                 0,
                 label
             )
-        
+
         self._sketch.set_text_align('center', 'top')
         self._sketch.set_text_font(const.FONT_SRC, 11)
         self._sketch.draw_text(
@@ -428,10 +440,10 @@ class MainPresenter:
             7,
             'yield decrease'
         )
-        
+
         self._sketch.set_text_align('left', 'center')
         self._sketch.set_text_font(const.FONT_SRC, 11)
-        
+
         self._sketch.set_fill(TOP_COLOR)
         self._sketch.clear_stroke()
         self._sketch.draw_ellipse(
@@ -440,13 +452,13 @@ class MainPresenter:
             3,
             3
         )
-        
+
         self._sketch.draw_text(
             self._get_x(top_mean) + 5,
             -17,
             ('+' if top_mean > 0 else '') + ('%.0f%% Mean' % top_mean)
         )
-        
+
         self._sketch.set_fill(BOTTOM_COLOR)
         self._sketch.clear_stroke()
         self._sketch.draw_ellipse(
@@ -455,26 +467,26 @@ class MainPresenter:
             3,
             3
         )
-        
+
         self._sketch.draw_text(
             self._get_x(bottom_mean) + 5,
             17,
             ('+' if bottom_mean > 0 else '') + ('%.0f%% Mean' % bottom_mean)
         )
-        
+
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
     def _draw_axis_bottom(self):
         self._sketch.push_transform()
         self._sketch.push_style()
-        
+
         self._sketch.translate(45, 20 + SUB_CHART_HEIGHT + 50)
         self._sketch.clear_stroke()
         self._sketch.set_fill(BOTTOM_COLOR)
         self._sketch.set_text_align('right', 'center')
         self._sketch.set_text_font(const.FONT_SRC, 13)
-        
+
         for percent in range(0, 35, 5):
             height = self._get_y(percent)
             self._sketch.draw_text(
@@ -482,7 +494,7 @@ class MainPresenter:
                 height,
                 '%d%%' % round(percent)
             )
-        
+
         self._sketch.push_transform()
         self._sketch.translate(-35, self._get_y(16))
         self._sketch.set_angle_mode('degrees')
@@ -493,22 +505,22 @@ class MainPresenter:
             self._sketch.draw_text(0, 0, 'Historic Values (Approx 2007)')
         else:
             self._sketch.draw_text(0, 0, 'Climate Change Stops')
-        
+
         self._sketch.pop_transform()
-        
+
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
     def _draw_axis_upper(self):
         self._sketch.push_transform()
         self._sketch.push_style()
-        
+
         self._sketch.translate(45, 20)
         self._sketch.clear_stroke()
         self._sketch.set_fill(TOP_COLOR)
         self._sketch.set_text_align('right', 'center')
         self._sketch.set_text_font(const.FONT_SRC, 13)
-        
+
         for percent in range(0, 35, 5):
             height = self._get_y(percent)
             self._sketch.draw_text(
@@ -516,14 +528,14 @@ class MainPresenter:
                 SUB_CHART_HEIGHT - height,
                 '%d%%' % round(percent)
             )
-        
+
         self._sketch.set_text_align('left', 'center')
         self._sketch.draw_text(
             8,
             SUB_CHART_HEIGHT - self._get_y(15),
             'of risk units'
         )
-        
+
         self._sketch.push_transform()
         self._sketch.translate(-35, SUB_CHART_HEIGHT - self._get_y(10))
         self._sketch.set_angle_mode('degrees')
@@ -531,14 +543,14 @@ class MainPresenter:
         self._sketch.set_text_align('center', 'center')
         self._sketch.draw_text(0, 0, 'Continued Climate Change (SSP245)')
         self._sketch.pop_transform()
-        
+
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
     def _draw_top_claims(self, claims):
         self._sketch.push_transform()
         self._sketch.push_style()
-        
+
         self._sketch.translate(50, 20)
         self._sketch.clear_stroke()
         self._sketch.set_rect_mode('corner')
@@ -547,15 +559,15 @@ class MainPresenter:
 
         is_catastrophic = self._target_threshold == '75% cov'
         max_val = 10 if is_catastrophic else 25
-        
+
         y = SUB_CHART_HEIGHT - self._get_y(30)
         start_x = self._get_x(-100) - 5
         end_x = self._get_x(-25 if is_catastrophic else -15)
-        
+
         self._sketch.set_stroke(TOP_COLOR)
         self._sketch.set_stroke_weight(1)
         self._sketch.draw_line(start_x, y, end_x, y)
-        
+
         self._sketch.clear_stroke()
         self._sketch.set_fill(TOP_COLOR)
         width = claims / max_val * (end_x - start_x)
@@ -565,17 +577,17 @@ class MainPresenter:
             width,
             5
         )
-        
+
         self._sketch.set_text_align('right', 'top')
         self._sketch.draw_text(end_x, y + 8, '%.1f%% Loss Probability (Claims Rate)' % claims)
-        
+
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
     def _draw_bottom_claims(self, claims):
         self._sketch.push_transform()
         self._sketch.push_style()
-        
+
         self._sketch.translate(50, 20 + SUB_CHART_HEIGHT + 50)
         self._sketch.clear_stroke()
         self._sketch.set_rect_mode('corner')
@@ -583,15 +595,15 @@ class MainPresenter:
 
         is_catastrophic = self._target_threshold == '75% cov'
         max_val = 10 if is_catastrophic else 25
-        
+
         y = self._get_y(30)
         start_x = self._get_x(-100)
         end_x = self._get_x(-25 if is_catastrophic else -15)
-        
+
         self._sketch.set_stroke(BOTTOM_COLOR)
         self._sketch.set_stroke_weight(1)
         self._sketch.draw_line(start_x, y, end_x, y)
-        
+
         self._sketch.clear_stroke()
         self._sketch.set_fill(BOTTOM_COLOR)
         width = claims / max_val * (end_x - start_x)
@@ -601,26 +613,26 @@ class MainPresenter:
             width,
             5
         )
-        
+
         self._sketch.set_text_align('right', 'bottom')
         self._sketch.draw_text(end_x, y - 8, '%.1f%% Loss Probability (Claims Rate)' % claims)
-        
+
         self._sketch.set_text_align('right', 'top')
         self._sketch.draw_text(end_x, y + 2, '0%')
-        
+
         self._sketch.set_text_align('left', 'top')
         self._sketch.draw_text(start_x, y + 2, '%d%%' % max_val)
-        
+
         self._sketch.set_text_align('center', 'top')
         self._sketch.draw_text((start_x + end_x) / 2, y + 2, 'Loss Probability')
-        
+
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
     def _draw_title(self):
         self._sketch.push_transform()
         self._sketch.push_style()
-        
+
         self._sketch.clear_stroke()
         self._sketch.set_fill(TOP_COLOR)
         self._sketch.set_text_font(const.FONT_SRC, 16)
@@ -630,7 +642,7 @@ class MainPresenter:
             25,
             'Histogram of Change in Risk Unit-Level Yields Relative to Expected (Avg Yield)'
         )
-        
+
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
@@ -691,7 +703,7 @@ def main():
         risk_unit = sys.argv[4]
         comparison = sys.argv[5]
         output_loc = sys.argv[6]
-        
+
         presenter = MainPresenter(
             'Simulation Outcomes',
             None,
@@ -702,6 +714,8 @@ def main():
             unit='unit risk' if risk_unit == 'unit' else 'sub-unit risk',
             comparison='vs counterfact' if comparison == 'counterfactual' else 'vs historic'
         )
+
+    assert presenter is not None
 
 
 if __name__ == '__main__':

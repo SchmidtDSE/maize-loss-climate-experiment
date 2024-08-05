@@ -1,0 +1,31 @@
+/* TEAM */
+    Lead Author: Sam Pottinger
+    Site: gleap.org
+    Email: hello@ag-adaptation-study.pub
+    Twitter: @SamSpotsTime
+    Bluesky: @sampottinger.com
+    LinkedIn: in/sampottinger
+    GitHub: @sampottinger
+    Role: Software engineering, machine learning / artifical intelligence, lead UX / design, lead data visualization, CI / CD. Sam serves as the web admin.
+
+    Economics: Lawson Connor
+    Site: https://agribusiness.uark.edu/directory/index/uid/lconnor/name/Lawson+Connor/
+    Role: Agricultural economics and policy.
+
+    Modeling: Brookie Guzder-Williams
+    Site: https://dse.berkeley.edu/people/brookie-guzder-williams
+    Role: Machine learning / artifical intelligence.
+
+    Policy: Maya Weltman-Fahs
+    Site: https://dse.berkeley.edu/people/maya-weltman-fahs
+    Role: Policy and management.
+
+    Agroecology: Timothy Bowles
+    Site: https://ourenvironment.berkeley.edu/people/bowles
+    Role: Agroecology, soil health, and regenerative agriculture.
+
+/* SITE */
+    Last update: 2024/08/03
+    Language: English
+    Doctype: HTML5
+    Software: Sketchingpy, Vanilla JS, ANTLR, see more at https://github.com/SchmidtDSE/maize-loss-climate-experiment#open-source

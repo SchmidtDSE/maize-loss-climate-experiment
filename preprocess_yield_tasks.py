@@ -1,7 +1,6 @@
 import csv
 import itertools
 import os
-import re
 
 import luigi
 import shapely
@@ -13,7 +12,6 @@ import cluster_tasks
 
 
 def process_single(remote_filename, access_key, access_secret):
-
     import os
 
     import geotiff
