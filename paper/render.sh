@@ -19,6 +19,6 @@ zip arxiv.zip *.*
 cd ..
 
 mkdir paper_rendered
-mv arxiv/arxiv.zip paper_rendered/arxiv.zip
+cp arxiv/arxiv.zip paper_rendered/arxiv.zip
 
 rm paper_filled.*
