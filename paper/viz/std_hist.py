@@ -23,13 +23,6 @@ def main():
     bins = numpy.linspace(10, 20, 20)
     font_properties = matplotlib.font_manager.FontProperties(fname='./font/PublicSans-Regular.otf')
     matplotlib.pyplot.hist(
-        x=source[source['condition'] == 'historic']['percentEquivalent'],
-        bins=bins,
-        color='#a6cee3',
-        alpha=0.5,
-        label='Current'
-    )
-    matplotlib.pyplot.hist(
         x=source[source['condition'] == '2030_SSP245']['percentEquivalent'],
         bins=bins,
         color='#b2df8a',
