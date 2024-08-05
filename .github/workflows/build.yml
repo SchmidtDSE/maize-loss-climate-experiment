@@ -6,10 +6,49 @@ permissions:
   contents: read
 
 jobs:
+  checkPipelineCode:
+    environment: build
+    runs-on: ubuntu-latest
+    name: Check viz code
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install checks
+        run: pip install pycodestyle pyflakes
+      - name: Install other dependencies
+        run: pip install -r requirements.txt
+      - name: Run pyflakes
+        run: pyflakes *.py
+      - name: Run pycodestyle
+        run: pycodestyle *.py
+  checkVizCodePython:
+    environment: build
+    runs-on: ubuntu-latest
+    name: Check viz code
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install checks
+        run: pip install pycodestyle pyflakes
+      - name: Install other dependencies
+        run: pip install -r requirements.txt
+      - name: Run pyflakes
+        run: pyflakes paper/viz/*.py
+      - name: Run pycodestyle
+        run: pycodestyle paper/viz/*.py
   buildPaper:
     environment: build
     runs-on: ubuntu-latest
     name: Build Paper
+    needs: [checkPipelineCode, checkVizCodePython]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -81,6 +120,7 @@ jobs:
   buildDeploy:
     environment: build
     runs-on: ubuntu-latest
+    needs: [checkPipelineCode, checkVizCodePython]
     name: Build Deploy
     steps:
       - name: Checkout
