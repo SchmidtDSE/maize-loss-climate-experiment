@@ -50,6 +50,8 @@ details .sub-content .vocab {
 h1 {
     font-size: 30px;
     color: #000000;
+    margin-bottom: 10px;
+    font-weight: bold;
 }
 
 h2 {
@@ -182,6 +184,9 @@ th, td {
 
 .header-subtext {
     padding-bottom: 40px;
+    color: black;
+    font-size: 24px;
+    font-weight: bold;
 }
 
 .inline-header {
