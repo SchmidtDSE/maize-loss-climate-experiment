@@ -49,8 +49,12 @@ class RunThroughPreprocessFutureTask(cluster_tasks.EndClusterTask):
 
     def get_prereq(self):
         return {
-            '2030_SSP245': preprocess_combine_tasks.ReformatFuturePreprocessTask(condition='2030_SSP245'),
-            '2050_SSP245': preprocess_combine_tasks.ReformatFuturePreprocessTask(condition='2050_SSP245')
+            '2030_SSP245': preprocess_combine_tasks.ReformatFuturePreprocessTask(
+                condition='2030_SSP245'
+            ),
+            '2050_SSP245': preprocess_combine_tasks.ReformatFuturePreprocessTask(
+                condition='2050_SSP245'
+            )
         }
 
     def get_task_name(self):
@@ -124,7 +128,7 @@ class ExecuteSupplementalTasks(luigi.Task):
 
 
 class ExecuteSignificantLongTask(luigi.Task):
-    
+
     def requires(self):
         return stats_tasks.DeterminePercentSignificantLongTask()
 

@@ -83,7 +83,7 @@ def get_daily_geohash(bucket_name, tiff_info, geohashes, access_key, access_secr
         start_y = indicies[0][1]
         end_y = indicies[1][1]
 
-        raw_data_all = tiff_data[start_y:end_y,start_x:end_x]
+        raw_data_all = tiff_data[start_y:end_y, start_x:end_x]
         raw_data = numpy.extract(raw_data_all >= 0, raw_data_all)
 
         dist_count = raw_data.shape[0]

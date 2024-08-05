@@ -84,7 +84,7 @@ def build_model(num_layers, num_inputs, l2_reg, dropout):
             activation='leaky_relu',
             activity_regularizer=keras.regularizers.L2(l2_reg)
         )
-    
+
     layers = [
         build_layer(512),
         build_layer(256),
@@ -93,12 +93,12 @@ def build_model(num_layers, num_inputs, l2_reg, dropout):
         build_layer(32),
         build_layer(8)
     ][-num_layers:]
-    
+
     for layer in layers:
         model.add(layer)
         if dropout > 0:
             model.add(keras.layers.Dropout(dropout))
-    
+
     model.add(keras.layers.Dense(2, activation='linear'))
 
     model.compile(optimizer='adamw', loss='mae', metrics=['mae'])
@@ -150,7 +150,7 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
             else:
                 return 'test' if year % 2 == 0 else 'valid'
 
-        frame = pandas.read_csv(temp_file_path)        
+        frame = pandas.read_csv(temp_file_path)
         frame['setAssign'] = frame['year'].apply(assign_year)
         train = frame[frame['setAssign'] == 'train']
         valid = frame[frame['setAssign'] == 'valid']
@@ -190,7 +190,7 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
         def get_maes(target_inputs, target_outputs, weights):
             predictions = model.predict(target_inputs, verbose=None)
             paired_flat = list(zip(predictions, target_outputs.to_numpy(), weights))
-            
+
             paired_parsed = map(lambda x: {
                 'mean': get_abs_diff(x[0][0], x[1][0]),
                 'std': get_abs_diff(x[0][1], x[1][1]),
@@ -204,7 +204,7 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
                 lambda x: x['mean'] * x['weight'],
                 paired_parsed_realized
             )) / weight_sum
-            
+
             mean_std_errors = sum(map(
                 lambda x: x['std'] * x['weight'],
                 paired_parsed_realized
@@ -220,19 +220,19 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
             data_splits['train']['outputs'],
             data_splits['train']['weights']
         )
-        
+
         valid_errors = get_maes(
             data_splits['valid']['inputs'],
             data_splits['valid']['outputs'],
             data_splits['valid']['weights']
         )
-        
+
         test_errors = get_maes(
             data_splits['test']['inputs'],
             data_splits['test']['outputs'],
             data_splits['test']['weights']
         )
-        
+
         return {
             'block': additional_block,
             'layers': num_layers,
@@ -313,7 +313,7 @@ class SweepTemplateTask(luigi.Task):
             self.get_blocks(),
             self.get_allow_counts()
         )
-        
+
         combinations_realized = list(combinations)
         random.shuffle(combinations_realized)
 
@@ -322,7 +322,7 @@ class SweepTemplateTask(luigi.Task):
 
         cluster = cluster_tasks.get_cluster()
         cluster.adapt(minimum=10, maximum=self.get_max_workers())
-        
+
         client = cluster.get_client()
         outputs = client.map(
             lambda x: try_model(
@@ -351,10 +351,10 @@ class SweepTemplateTask(luigi.Task):
 
     def get_num_layers(self):
         raise NotImplementedError('Must use implementor.')
-    
+
     def get_l2_regs(self):
         raise NotImplementedError('Must use implementor.')
-    
+
     def get_dropouts(self):
         raise NotImplementedError('Must use implementor.')
 
@@ -375,10 +375,10 @@ class SweepTask(SweepTemplateTask):
 
     def get_num_layers(self):
         return DEFAULT_NUM_LAYERS
-    
+
     def get_l2_regs(self):
         return DEFAULT_REGULARIZATION
-    
+
     def get_dropouts(self):
         return DEFAULT_DROPOUT
 
@@ -399,10 +399,10 @@ class SweepExtendedTask(SweepTemplateTask):
 
     def get_num_layers(self):
         return DEFAULT_NUM_LAYERS
-    
+
     def get_l2_regs(self):
         return DEFAULT_REGULARIZATION
-    
+
     def get_dropouts(self):
         return DEFAULT_DROPOUT
 

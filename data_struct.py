@@ -6,7 +6,7 @@ import distribution_struct
 class GeohashClimateSummary:
 
     def __init__(self, geohash, year, month, var, condition, mean, std, var_min, var_max, count,
-        skew, kurtosis, day = None):
+        skew, kurtosis, day=None):
         self._geohash = geohash
         self._year = year
         self._month = month
@@ -26,31 +26,31 @@ class GeohashClimateSummary:
 
     def get_year(self):
         return self._year
-    
+
     def get_month(self):
         return self._month
-    
+
     def get_var(self):
         return self._var
 
     def get_condition(self):
         return self._condition
-    
+
     def get_mean(self):
         return self._mean
-    
+
     def get_std(self):
         return self._std
-    
+
     def get_min(self):
         return self._var_min
-    
+
     def get_max(self):
         return self._var_max
-    
+
     def get_count(self):
         return self._count
-    
+
     def get_day(self):
         return self._day
 
@@ -158,7 +158,7 @@ def parse_geohash_climate_summary(target_dict):
 
 
 class GeohashYieldSummary:
-    
+
     def __init__(self, year, geohash, mean, std, count, skew, kurtosis):
         self._year = year
         self._geohash = geohash
@@ -170,19 +170,19 @@ class GeohashYieldSummary:
 
     def get_year(self):
         return self._year
-    
+
     def get_geohash(self):
         return self._geohash
 
     def get_key(self):
         return '%s.%d' % (self.get_geohash(), self.get_year())
-    
+
     def get_mean(self):
         return self._mean
-    
+
     def get_std(self):
         return self._std
-    
+
     def get_count(self):
         return self._count
 
@@ -191,7 +191,7 @@ class GeohashYieldSummary:
 
     def get_kurtosis(self):
         return self._kurtosis
-    
+
     def to_dict(self):
         return {
             'year': self.get_year(),
@@ -254,13 +254,13 @@ class InputTiff:
         self._variable = variable
         self._condition = condition
         self._date = date
-    
+
     def get_variable(self):
         return self._variable
-    
+
     def get_condition(self):
         return self._condition
-    
+
     def get_date(self):
         return self._date
 

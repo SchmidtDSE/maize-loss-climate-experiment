@@ -14,16 +14,16 @@ class Distribution:
 
     def get_mean(self):
         return self._mean
-    
+
     def get_std(self):
         return self._std
 
     def get_count(self):
         return self._count
-    
+
     def get_min(self):
         return self._dist_min
-    
+
     def get_max(self):
         return self._dist_max
 
@@ -35,7 +35,7 @@ class Distribution:
 
     def combine(self, other):
         new_count = self.get_count() + other.get_count()
-        
+
         self_mean_weight = self.get_mean() * self.get_count()
         other_mean_weight = other.get_mean() * other.get_count()
         new_mean = (self_mean_weight + other_mean_weight) / new_count
@@ -100,10 +100,10 @@ class WelfordAccumulator:
 
     def add(self, value):
         pre_delta = value - self._mean
-        
+
         self._count += 1
         self._mean += pre_delta / self._count
-        
+
         post_delta = value - self._mean
 
         self._delta_accumulator += post_delta * post_delta
