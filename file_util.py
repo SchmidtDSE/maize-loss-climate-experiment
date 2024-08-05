@@ -29,7 +29,7 @@ def save_file_tmp(bucket_name, remote_filename, access_key, access_secret,
 
         try:
             s3_object.download_file(temp_file_path)
-        except botocore.exceptions.ClientError as e:
+        except botocore.exceptions.ClientError:
             raise RuntimeError('Failed to download ' + remote_filename)
 
         assert os.path.isfile(temp_file_path)
@@ -48,7 +48,7 @@ def get_bucket_files(bucket_name, access_key, access_secret):
 
     if using_local:
         all_items = os.listdir(bucket_name)
-        all_files = filter(lambda x: os.path.isfile(x), all_files)
+        all_files = filter(lambda x: os.path.isfile(x), all_items)
         return list(all_files)
     else:
         s3 = boto3.resource(

@@ -2,7 +2,6 @@ import csv
 import json
 import random
 
-import keras
 import luigi
 import pandas
 
@@ -38,15 +37,10 @@ class SelectConfigurationTask(luigi.Task):
         for row in rows:
             mean_accumulator.add(row['validMean'])
             std_accumulator.add(row['validStd'])
-
-        mean_mean = mean_accumulator.get_mean()
-        mean_std = mean_accumulator.get_std()
-        std_mean = std_accumulator.get_mean()
-        std_std = std_accumulator.get_std()
         
         def score_option(option):
-            mean_z = option['validMean']  # (option['validMean'] - mean_mean) / mean_std
-            std_z = option['validStd']  # (option['validStd'] - std_mean) / std_std
+            mean_z = option['validMean']
+            std_z = option['validStd']
             return mean_z + std_z / 3
 
         unconstrained_selection_row = min(rows, key=score_option)

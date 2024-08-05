@@ -1,10 +1,8 @@
 import csv
 import itertools
-import json
 import os
 import random
 import shutil
-import sys
 
 import boto3
 import luigi
@@ -111,18 +109,14 @@ def build_model(num_layers, num_inputs, l2_reg, dropout):
 def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, filename,
     additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=30,
     blocked_attrs=BLOCKED_ATTRS):
-    import csv
     import os
     import random
-    import statistics
 
     import boto3
     import pandas
-    import toolz.itertoolz
 
     import const
     import file_util
-    import normalize_tasks
 
     random.seed(seed)
 

@@ -9,7 +9,6 @@ import luigi
 import cluster_tasks
 import const
 import data_struct
-import distribution_struct
 import preprocess_yield_tasks
 
 
@@ -33,8 +32,6 @@ def get_input_tiffs(sample_day_gap, years, variables, conditions):
 
 
 def get_daily_geohash(bucket_name, tiff_info, geohashes, access_key, access_secret):
-    import os
-
     import geolib.geohash
     import geotiff
     import numpy

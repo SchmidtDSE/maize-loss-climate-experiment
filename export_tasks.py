@@ -138,8 +138,6 @@ class ClimateExportTask(luigi.Task):
             reader = csv.DictReader(f)
 
             for row in reader:
-                geohash = row['geohash']
-                
                 pieces = itertools.product(CLIMATE_ATTRS, MONTHS)
                 for attr, month in pieces:
                     row_key = '%sMean%d' % (attr, month)

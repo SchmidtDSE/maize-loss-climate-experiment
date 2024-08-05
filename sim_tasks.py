@@ -1,13 +1,10 @@
-import concurrent.futures
 import csv
 import functools
 import itertools
 import json
 import random
-import sqlite3
 import statistics
 
-import coiled
 import keras
 import luigi
 import pandas
@@ -1059,49 +1056,6 @@ class CombineSimulationsTasks(luigi.Task):
     def _add_series(self, series, row):
         row['series'] = series
         return row
-
-
-class MakeSingleYearStatistics(luigi.Task):
-
-    def requires(self):
-        return CombineSimulationsTasks()
-
-    def output(self):
-        return luigi.LocalTarget(const.get_file_location('sim_combined_summary_1_year.csv'))
-
-    def run(self):
-        with self.input().open('r') as f:
-            reader = csv.DictReader(f)
-
-            def is_equal(value, target):
-                value_float = float(value)
-                return abs(value_float - target) < 0.00001
-
-            right_threshold = filter(lambda x: is_equal(x['threshold'], 0.25), reader)
-            right_std = filter(lambda x: is_equal(x['stdMult'], 1), right_threshold)
-            right_geohash = filter(lambda x: is_equal(x['geohashSimSize'], 4), right_std)
-            rows = map(lambda x: self._parse_row(x), right_geohash)
-            rows_by_series = toolz.itertoolz.groupby('series', rows)
-
-        def make_weight_record(trial):
-            num = trial['num']
-            return {
-                'predictedLossWeightAcc': (1 - trial['predicted']) * num
-            }
-
-        def process_family(trials):
-            num_trials = len(trials)
-            threshold = 0.05 / num_trials
-            significant = filter(lambda x: x['pAdapted'] < threshold, trials)
-
-    def _parse_row(self, row):
-        return {
-            'series': row['series'],
-            'num': int(row['num']),
-            'predicted': float(row['predicted']),
-            'p': float(row['p']),
-            'pAdapted': float(row['pAdapted'])
-        }
 
 
 class DetermineEquivalentStdTask(luigi.Task):

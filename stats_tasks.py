@@ -180,10 +180,10 @@ class DeterminePercentSignificantTemplateTask(luigi.Task):
             json.dump(output_record, f)
 
     def get_filename(self):
-        raise NotImplementedErorr('Use implementor.')
+        raise NotImplementedError('Use implementor.')
 
     def get_target(self):
-        raise NotImplementedErorr('Use implementor.')
+        raise NotImplementedError('Use implementor.')
 
 
 class DeterminePercentSignificantTask(DeterminePercentSignificantTemplateTask):
