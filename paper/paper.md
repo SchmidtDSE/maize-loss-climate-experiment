@@ -164,11 +164,11 @@ After retraining on all available data using the selected configuration from our
 
 Table: Overview of Monte Carlo simulation results. Counterfactual is a future without continued warming in contrast to SSP245. {#tbl:simresults}
 
-Regardless, with Table @tbl:simresults highlighting these climate threats, these simulations suggest that warming disrupts historic trends of increasing average yield [@nielsen_historical_2023]. Furthermore, in addition to wiping out the gains that our neural network would otherwise expect without climate change, the loss probability increases in both of the time frames considered for SSP245.
+Regardless, with Table @tbl:simresults highlighting these climate threats, these simulations suggest that warming disrupts historic trends of increasing average yield [@nielsen_historical_2023].
 
 ![Interactive tool screenshot showing 2050 outcomes distribution (changes from $y_{expected}$), highlighting loss with and without climate change. In addition to showing increased claims rate, this also depicts climate change reducing the expected increase in yields that would otherwise follow historic trends.](./img/hist.png "One of our interactive tools showing 2050 outcomes distribution relative to $y_{expected}$ highlighting loss with and without climate change."){#fig:hist }
 
-As shown in Figure @fig:hist, the SSP245 overall yield mean remains similar to the historic baseline even as distribution tails differ more substantially. This shows how a sharp increase in loss probability (2050 series vs counterfactual) could emerge without necessarily changing average yields.
+Furthermore, in addition to wiping out the gains that our neural network would otherwise expect without climate change, the loss probability increases in both of the time frames considered for SSP245. Indeed, as shown in Figure @fig:hist, the SSP245 overall yield mean remains similar to the historic baseline even as distribution tails differ more substantially. This shows how a sharp increase in loss probability (2050 series vs counterfactual) could emerge without necessarily changing average yields.
 
 \bigskip
 
