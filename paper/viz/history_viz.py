@@ -502,8 +502,6 @@ class SummaryPresenter:
         self._sketch.push_style()
 
         self._sketch.translate(self._x, self._y)
-        mouse_x = mouse_x_abs - self._x
-        mouse_y = mouse_y_abs - self._y
 
         # Draw axis and title
         self._sketch.set_fill(const.PANEL_BG_COLOR + 'A0')
@@ -579,6 +577,8 @@ def main():
             default_threshold=threshold,
             default_scenario=scenario
         )
+
+    assert presenter is not None
 
 
 if __name__ == '__main__':

@@ -703,6 +703,8 @@ def main():
             comparison='vs counterfact' if comparison == 'counterfactual' else 'vs historic'
         )
 
+    assert presenter is not None
+
 
 if __name__ == '__main__':
     main()

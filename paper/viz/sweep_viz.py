@@ -595,6 +595,7 @@ class ScatterPresenter:
 
 def main():
     presenter = SweepMainPresenter('Sweep Viz', None)
+    assert presenter is not None
 
 
 if __name__ == '__main__':

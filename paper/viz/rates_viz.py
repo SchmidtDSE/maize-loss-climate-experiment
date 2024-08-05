@@ -1,5 +1,3 @@
-import sys
-
 import sketchingpy
 
 import buttons
@@ -269,8 +267,6 @@ class RatesChartPresenter:
         self._sketch.push_style()
 
         self._sketch.translate(self._x, self._y)
-        mouse_x = mouse_x_abs - self._x
-        mouse_y = mouse_y_abs - self._y
 
         self._sketch.set_fill(const.PANEL_BG_COLOR)
         self._sketch.set_stroke(const.INACTIVE_BORDER)
@@ -683,6 +679,7 @@ class ConfigPresenter:
 
 def main():
     presenter = RatesMainPresenter('Rates Viz', None)
+    assert presenter is not None
 
 
 if __name__ == '__main__':

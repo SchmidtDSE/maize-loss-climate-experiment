@@ -1,8 +1,7 @@
-import csv
-
 import sketchingpy
 
 import buttons
+import config_buttons
 import const
 import data_struct
 import legend
@@ -46,7 +45,7 @@ class ResultsVizPresenter:
         if default_configuration:
             self._config = default_configuration
         else:
-            self._config = buttons.Configuration(
+            self._config = config_buttons.Configuration(
                 '2050 series',
                 'Avg All Years',
                 'yield',
@@ -112,7 +111,7 @@ class ResultsVizPresenter:
             self._config.get_visualization()
         )
 
-        self._configuration_pesenter = buttons.ConfigurationPresenter(
+        self._configuration_pesenter = config_buttons.ConfigurationPresenter(
             self._sketch,
             const.MAIN_WIDTH + 30,
             50,
@@ -251,8 +250,6 @@ class ResultsVizPresenter:
         self._sketch.pop_transform()
 
     def _get_description(self):
-        metric = self._config.get_metric()
-        
         if self._config.get_risk_range() == '':
             agg_str = 'Averaging across all years.'
         else:

@@ -1,5 +1,3 @@
-import random
-
 import toolz.itertoolz
 
 import const
