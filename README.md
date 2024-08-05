@@ -114,7 +114,7 @@ Both the interactives and static visualization generation use the following:
  - [NumPy](https://numpy.org/) under the [BSD License](https://github.com/numpy/numpy/blob/main/LICENSE.txt).
  - [Pandas](https://pandas.pydata.org/) under the [BSD License](https://github.com/pandas-dev/pandas/blob/main/LICENSE).
  - [Pillow](https://python-pillow.org/) under the [HPND License](https://github.com/python-pillow/Pillow?tab=License-1-ov-file#readme).
- - pygame-ce
+ - [pygame-ce](https://pyga.me/) under the [LGPL License](https://pyga.me/docs/LGPL.txt).
  - [Sketchingpy](https://sketchingpy.org/) under the [BSD 3-Clause License](https://codeberg.org/sketchingpy/Sketchingpy/src/branch/main/LICENSE.md).
  - [toolz](https://github.com/pytoolz/toolz/) under the [BSD License](https://github.com/pytoolz/toolz/blob/master/LICENSE.txt).
 
