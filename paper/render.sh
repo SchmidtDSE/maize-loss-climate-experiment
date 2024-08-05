@@ -17,6 +17,8 @@ cp -r img arxiv/img
 cd arxiv
 zip arxiv.zip *.*
 cd ..
-mv arxiv/arxiv.zip arxiv.zip
+
+mkdir paper_rendered
+mv arxiv/arxiv.zip paper_rendered/arxiv.zip
 
 rm paper_filled.*

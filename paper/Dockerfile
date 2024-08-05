@@ -8,8 +8,8 @@ RUN apt-get install -y zip
 RUN apt-get install -y wget
 RUN apt-get install -y texlive-extra-utils texlive-fonts-recommended texlive-latex-base texlive-latex-extra texlive-bibtex-extra biber
 
-RUN mkdir /service
-WORKDIR /service
+RUN mkdir /workspace
+WORKDIR /workspace
 
 COPY . .
 

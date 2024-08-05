@@ -15,7 +15,7 @@ These are described in detail below.
 <br>
 
 ## Usage
-The easiest way to engage with these results is through the web-based interactive explorable explanation which is housed for the public at [ag-adaptation-study.pub](https://ag-adaptation-study.pub/). The paper preprint can also be found at. We also publish our [raw pipeline output](). Otherwise, see local setup.
+The easiest way to engage with these results is through the web-based interactive explorable explanation which is housed for the public at [ag-adaptation-study.pub](https://ag-adaptation-study.pub/). The paper preprint can also be found at. We also publish our [raw pipeline output](https://ag-adaptation-study.pub/archive/output.zip). Otherwise, see local setup.
 
 <br>
 
@@ -44,6 +44,14 @@ Written in [Sketchingpy](), the tools can be executed locally on your computer, 
 There are two options for executing the tools:
 
  - **Docker**: You can run the web-based visualizations through a simple Docker file in the `paper/viz` directory (`bash run_docker.sh`).
- - **Local apps**: You can execute the visualizations manually by running them directly as Python scripts. The entry points are `hist_viz.py`, `history_viz.py`, `results_viz_entry.py`, and `sweep_viz.py`. Simply run them without any command line arguments for defaults.
+ - **Local apps**: You can execute the visualizations manually by running them directly as Python scripts. The entry points are `hist_viz.py`, `history_viz.py`, `results_viz_entry.py`, and `sweep_viz.py`. Simply run them without any command line arguments for defaults. Note you may need to install python dependencies (`pip install -r requirements.txt`).
 
 Note that the visualizations are also invoked through `paper/viz/render_images.sh` for the paper.
+
+### Paper
+Due to the complexities of the software install, the only officially supported way to build the paper is through the Docker image. First update the data:
+
+ - **Download prior results**: Retrieve the latest results () and move them into the paper directory.
+ - **Use your own results**: Place the following in the `outputs` directory: `export_claims.csv`, `export_climate.csv`, `export_combined_tasks.csv`, `export_hist.csv`, `export_summary.csv`, `export_sweep.csv`, `stats.json`.
+
+Then, execute `render_docker.sh`.
