@@ -90,7 +90,7 @@ Many different kinds of neural network structures and configurations could meet 
 | L2                           | 0.00, 0.05, 0.10, 0.15, 0.20   | This L2 regularization strength applies across all hidden layer neuron connections.                                                                                   | Penalizing networks with edges that are "very strong" may confront overfitting without changing the structure of the network itself. |
 | Attr Drop                    | 10                           | Retraining where the sweep individually drops each of the input distributions or year or keeps all inputs.                                                      | Removing attributes helps determine if an input may be unhelpful.                                                                    |
 
-Table: Parameters which try in different permutations to find an optimal configuration. {#tbl:sweepparam}
+Table: Parameters which we try in different permutations to find an optimal configuration. {#tbl:sweepparam}
 
 We permute different option combinations from Table @tbl:sweepparam before we select a preferred configuration^[All non-output neurons use Leaky ReLU activation per @maas_rectifier_2013 and we use AdamW optimizer [@kingma_adam_2014; @loshchilov_decoupled_2017].] from 1,500 candidate models. Finally, with meta-parameters chosen, we can then retrain on all available data ahead of simulations.
 
