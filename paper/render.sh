@@ -1,4 +1,5 @@
 cd viz
+bash update_data.sh
 bash render_images.sh
 cd ..
 

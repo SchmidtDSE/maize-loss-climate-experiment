@@ -54,4 +54,27 @@ Due to the complexities of the software install, the only officially supported w
  - **Download prior results**: Retrieve the latest results () and move them into the paper directory.
  - **Use your own results**: Place the following in the `outputs` directory: `export_claims.csv`, `export_climate.csv`, `export_combined_tasks.csv`, `export_hist.csv`, `export_summary.csv`, `export_sweep.csv`, `stats.json`.
 
-Then, execute `render_docker.sh`.
+Then, execute `render_docker.sh` to drop the results into the `paper_rendered` directory.
+
+<br>
+
+## Testing
+TKTK
+
+<br>
+
+## Deployment
+TKTK
+
+<br>
+
+## Development standards
+TKTK
+
+<br>
+
+## Open source
+
+<br>
+
+## License
