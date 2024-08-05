@@ -47,6 +47,11 @@ details .sub-content .vocab {
     color: #505050;
 }
 
+dt {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
 h1 {
     font-size: 30px;
     color: #000000;
@@ -344,4 +349,12 @@ th, td {
 .vocab {
     font-weight: bold;
     color: black;
+}
+
+.vocab-bullet dd {
+    display: inline-block;
+}
+
+.vocab-bullet dt {
+    display: inline-block;
 }
