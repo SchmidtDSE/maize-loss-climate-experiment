@@ -78,7 +78,10 @@ function initSlider() {
         }
         
         globalSlider.goTo("next");
-        document.getElementById("intro-slider").scrollIntoView({"behavior": "smooth", "block": "start"});
+        document.getElementById("intro-slider").scrollIntoView({
+            "behavior": "smooth",
+            "block": "start"
+        });
         event.preventDefault();
     }));
 
@@ -88,7 +91,10 @@ function initSlider() {
         }
         
         globalSlider.goTo(3);
-        document.getElementById("intro-slider").scrollIntoView({"behavior": "smooth", "block": "start"});
+        document.getElementById("intro-slider").scrollIntoView({
+            "behavior": "smooth",
+            "block": "start"
+        });
         document.getElementById("model-overview").focus();
         event.preventDefault();
     });
@@ -99,7 +105,10 @@ function initSlider() {
         }
         
         globalSlider.goTo("last");
-        document.getElementById("intro-slider").scrollIntoView({"behavior": "smooth", "block": "start"});
+        document.getElementById("intro-slider").scrollIntoView({
+            "behavior": "smooth",
+            "block": "start"
+        });
         document.getElementById("finish-slide").focus();
         event.preventDefault();
     });
@@ -220,7 +229,7 @@ function initAccessibility() {
 
     const canvases = document.querySelectorAll(".focus-canvas");
     canvases.forEach((canvas) => {
-        canvas.addEventListener('keyup', (event) => {
+        canvas.addEventListener("keyup", (event) => {
             const isEscape = event.key === "Escape" || event.key === "Esc";
             if (isEscape || isTab) {
                 canvas.blur();
