@@ -8,7 +8,7 @@ import buttons
 import const
 
 HIGH_VARIABILITY_SCENARIO = [230, 150, 260, 210, 290, 155, 290, 190, 310, 35]
-LOW_VARIABILITY_SCENARIO =  [190, 200, 190, 195, 200, 210, 200, 205, 220, 160]
+LOW_VARIABILITY_SCENARIO = [190, 200, 190, 195, 200, 210, 200, 205, 220, 160]
 
 NUM_ARGS = 4
 USAGE_STR = 'python history_viz.py [csv location] [output location] [threshold] [scenario]'
@@ -60,7 +60,6 @@ class HistoryMainPresenter:
         else:
             self._sketch = sketchingpy.Sketch2D(const.WIDTH, const.HEIGHT, target, loading_id)
 
-
         self._sketch.set_fps(10)
 
         self._click_waiting = False
@@ -71,7 +70,7 @@ class HistoryMainPresenter:
 
         raw_rows = self._sketch.get_data_layer().get_csv(csv_loc)
         self._data_facade = SummaryDataFacade(raw_rows)
-        
+
         self._last_mouse_x = None
         self._last_mouse_y = None
         self._change_waiting = False
@@ -150,7 +149,7 @@ class HistoryMainPresenter:
         else:
             mouse_x = 0
             mouse_y = 0
-        
+
         mouse_x_same = mouse_x == self._last_mouse_x
         mouse_y_same = mouse_y == self._last_mouse_y
         click_clear = (not self._click_waiting) and (self._key_waiting is None)
@@ -163,7 +162,7 @@ class HistoryMainPresenter:
             self._change_waiting = False
 
         self._sketch.push_transform()
-        self._sketch.push_style() 
+        self._sketch.push_style()
 
         self._sketch.clear(const.BACKGROUND_COLOR)
 
@@ -346,7 +345,7 @@ class HistoryChartPresenter:
 
         shape = self._sketch.start_shape(self._get_x(1), self._get_y(new_values[0]))
         year = 2
-        
+
         for value in new_values[1:]:
             shape.add_line_to(self._get_x(year), self._get_y(value))
             year += 1
@@ -379,14 +378,14 @@ class HistoryChartPresenter:
         def draw_line():
             self._sketch.push_transform()
             self._sketch.push_style()
-        
+
             self._sketch.set_stroke(const.HISTORY_BODY_COLOR)
             self._sketch.clear_fill()
             self._sketch.set_stroke_weight(3)
 
             shape = self._sketch.start_shape(self._get_x(1), self._get_y(self._values[0]))
             year = 2
-            
+
             for value in self._values[1:]:
                 shape.add_line_to(self._get_x(year), self._get_y(value))
                 year += 1
@@ -400,7 +399,7 @@ class HistoryChartPresenter:
         def draw_dots():
             self._sketch.push_transform()
             self._sketch.push_style()
-        
+
             self._sketch.clear_stroke()
             self._sketch.set_ellipse_mode('radius')
             self._sketch.set_text_font(const.FONT_SRC, 12)
@@ -415,12 +414,12 @@ class HistoryChartPresenter:
                 delta = get_delta(value)
                 sign_str = '+' if delta > 0 else ''
                 percent_str = format_str % (sign_str, delta)
-                
+
                 if delta < threshold:
                     color = const.HISTORY_BODY_LOSS_COLOR
                 else:
                     color = const.HISTORY_BODY_COLOR
-                
+
                 self._sketch.set_fill(color)
                 self._sketch.draw_ellipse(x, y, 7, 7)
                 self._sketch.draw_text(x, y + text_offset, percent_str)
@@ -447,9 +446,9 @@ class HistoryChartPresenter:
             with_loss = filter(lambda x: (x - average) / std < -2.1, self._values)
         else:
             with_loss = filter(lambda x: (x - average) / average < -0.25, self._values)
-        
+
         losses = sum(map(lambda x: 1, with_loss))
-        
+
         y = self._get_y(average)
 
         self._sketch.clear_fill()
@@ -471,7 +470,6 @@ class HistoryChartPresenter:
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
-
     def _get_x(self, year):
         return 80 + (self._width - 80 - 100) * (year - 1) / 10
 
@@ -480,7 +478,7 @@ class HistoryChartPresenter:
         return self._height - offset
 
     def _invert_y(self, y):
-         return ((self._height - y - 40) * 400) / (self._height - 50)
+        return ((self._height - y - 40) * 400) / (self._height - 50)
 
 
 class SummaryPresenter:
@@ -551,7 +549,7 @@ class SummaryPresenter:
 
         self._sketch.set_rect_mode('corner')
         get_width = lambda x: x / 10 * (self._width - 8)
-        self._sketch.draw_rect(4, 41, get_width(historic_claims) , 3)
+        self._sketch.draw_rect(4, 41, get_width(historic_claims), 3)
         self._sketch.draw_rect(4, 65, get_width(future_claims), 3)
 
         self._sketch.pop_style()

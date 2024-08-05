@@ -21,7 +21,7 @@ class ScatterMainPresenter:
         self._variable = variable
         self._selected_geohashes = selected_geohashes
         self._on_selection = on_selection
-        
+
         self._needs_redraw = False
         self._selecting = False
         self._placed_records = []
@@ -60,13 +60,13 @@ class ScatterMainPresenter:
         hovering_x = mouse_x_offset > 0 and mouse_x_offset < self._width
         hovering_y = mouse_y_offset > 0 and mouse_y_offset < self._height
         hovering = hovering_x and hovering_y
-        
+
         if self._selecting:
             self._sketch.clear_fill()
             self._sketch.set_stroke(const.SELECT_COLOR)
             self._sketch.set_stroke_weight(2)
             self._sketch.set_ellipse_mode('radius')
-            
+
             if hovering:
                 self._sketch.draw_ellipse(mouse_x_offset, mouse_y_offset, 20, 20)
             else:
@@ -74,7 +74,7 @@ class ScatterMainPresenter:
 
             if clicked:
                 self._select_points(mouse_x_offset - 60, mouse_y_offset)
-        
+
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
@@ -96,7 +96,7 @@ class ScatterMainPresenter:
         usable_height = self._get_usable_height()
         effective_height = usable_height - 60
         effective_width = self._width - 80
-        
+
         self._sketch.create_buffer('scatter', self._width, usable_height)
 
         self._sketch.push_transform()
@@ -118,7 +118,10 @@ class ScatterMainPresenter:
             format_str_x = lambda x: '%+.0f%%' % (x * 100)
             format_str_y = lambda x: '%+.0f%%' % (x * 100)
             vert_title = 'Change from Yield Expectation (Climate Change)'
-            horiz_title = 'Change from Yield Expectation (Counterfactual - No Further Climate Change)'
+            horiz_title = ' '.join([
+                'Change from Yield Expectation',
+                '(Counterfactual - No Further Climate Change)'
+            ])
         elif metric == 'yieldVar':
             min_value_y = const.YIELD_CHANGE_MIN_VALUE
             max_value_y = const.YIELD_CHANGE_MAX_VALUE
@@ -176,7 +179,7 @@ class ScatterMainPresenter:
             format_str_x = lambda x: '%+.1f' % x
         else:
             raise RuntimeError('Unknown metric ' + metric)
-        
+
         max_count = const.MAX_COUNT
         total = sum(map(lambda x: x.get_count(), records))
 
@@ -244,7 +247,7 @@ class ScatterMainPresenter:
                 if is_highlighted:
                     self._sketch.set_stroke_weight(1)
                     self._sketch.set_stroke(const.SELECTED_COLOR)
-                
+
                 x = get_x_pos(record.get_x_value())
                 y = get_y_pos(record.get_y_value())
                 r = get_radius(record.get_count() / total)
@@ -252,7 +255,12 @@ class ScatterMainPresenter:
 
                 self._placed_records.append(data_struct.PlacedRecord(x, y, record))
 
-            for record in filter(lambda x: x.get_geohash() not in self._selected_geohashes, records):
+            records_to_draw = filter(
+                lambda x: x.get_geohash() not in self._selected_geohashes,
+                records
+            )
+
+            for record in records_to_draw:
                 draw_record(record, False)
 
             for record in filter(lambda x: x.get_geohash() in self._selected_geohashes, records):
@@ -291,7 +299,7 @@ class ScatterMainPresenter:
             while current_value <= max_value_x:
                 if abs(current_value - 0) < 0.00001:
                     current_value = 0
-                
+
                 self._sketch.set_fill(const.INACTIVE_TEXT_COLOR)
                 x_pos = get_x_pos(current_value)
                 self._sketch.draw_text(
@@ -299,14 +307,14 @@ class ScatterMainPresenter:
                     effective_height + 15,
                     format_str_x(current_value)
                 )
-                
+
                 self._sketch.set_fill(const.EMBEDDED_BAR_COLOR)
 
                 if total == 0:
                     height = 0
                 else:
                     height = get_hist_size(counts.get('%.1f' % current_value, 0) / total)
-                
+
                 if height > 0.1:
                     self._sketch.draw_rect(
                         x_pos - 5,
@@ -314,7 +322,7 @@ class ScatterMainPresenter:
                         10,
                         height
                     )
-                
+
                 current_value += increment_x
 
             self._sketch.set_fill(const.EMBEDDED_BAR_COLOR_TEXT)
@@ -356,7 +364,7 @@ class ScatterMainPresenter:
                     current_value = 0
 
                 y_pos = get_y_pos(current_value)
-                
+
                 self._sketch.set_fill(const.INACTIVE_TEXT_COLOR)
                 self._sketch.draw_text(
                     -1,
@@ -370,7 +378,7 @@ class ScatterMainPresenter:
                     width = 0
                 else:
                     width = get_hist_size(counts.get('%.1f' % current_value, 0) / total)
-                
+
                 if width > 0.1:
                     self._sketch.draw_rect(
                         -1 - width,

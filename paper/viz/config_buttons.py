@@ -16,7 +16,7 @@ class Configuration:
         self._var = var
         self._month = month
         self._loss = loss
-    
+
     def get_scenario(self):
         return self._scenario
 
@@ -33,7 +33,7 @@ class Configuration:
             self._month,
             self._loss
         )
-    
+
     def get_risk_range(self):
         return self._risk_range
 
@@ -50,7 +50,7 @@ class Configuration:
             self._month,
             self._loss
         )
-    
+
     def get_metric(self):
         return self._metric
 
@@ -67,7 +67,7 @@ class Configuration:
             self._month,
             self._loss
         )
-    
+
     def get_visualization(self):
         return self._visualization
 
@@ -84,7 +84,7 @@ class Configuration:
             self._month,
             self._loss
         )
-    
+
     def get_threshold(self):
         return self._threshold
 
@@ -101,7 +101,7 @@ class Configuration:
             self._month,
             self._loss
         )
-    
+
     def get_adjustment(self):
         return self._adjustment
 
@@ -118,7 +118,7 @@ class Configuration:
             self._month,
             self._loss
         )
-    
+
     def get_sig_filter(self):
         return self._sig_filter
 
@@ -218,7 +218,7 @@ class ConfigurationPresenter:
             0,
             current_y,
             'Metric',
-            ['yield', 'risk'], #['yield', 'risk', 'adaptation'],
+            ['yield', 'risk'],
             self._config.get_metric(),
             lambda x: self._set_config(self._config.get_with_metric(x)),
             keyboard_button='o'

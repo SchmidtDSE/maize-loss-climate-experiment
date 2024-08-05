@@ -117,25 +117,25 @@ class FilterConfig:
         self._l2 = l2
         self._dropout = dropout
         self._data_filter = data_filter
-    
+
     def get_layers(self):
         return self._layers
 
     def get_with_layers(self, new_layers):
         return FilterConfig(new_layers, self._l2, self._dropout, self._data_filter)
-    
+
     def get_l2(self):
         return self._l2
 
     def get_with_l2(self, new_l2):
         return FilterConfig(self._layers, new_l2, self._dropout, self._data_filter)
-    
+
     def get_dropout(self):
         return self._dropout
 
     def get_with_dropout(self, new_dropout):
         return FilterConfig(self._layers, self._l2, new_dropout, self._data_filter)
-    
+
     def get_data_filter(self):
         return self._data_filter
 
@@ -155,28 +155,28 @@ class SweepResult:
         self._std_err = std_err
         self._train_mean_error = train_mean_error
         self._train_std_err = train_std_err
-    
+
     def get_block(self):
         return self._block
-    
+
     def get_layers(self):
         return self._layers
-    
+
     def get_l2(self):
         return self._l2
-    
+
     def get_dropout(self):
         return self._dropout
-    
+
     def get_mean_error(self):
         return self._mean_error
-    
+
     def get_std_err(self):
         return self._std_err
 
     def get_train_mean_error(self):
         return self._train_mean_error
-    
+
     def get_train_std_err(self):
         return self._train_std_err
 
@@ -476,7 +476,7 @@ class ScatterPresenter:
 
                 if final_point:
                     self._sketch.set_text_font(const.FONT_SRC, 12)
-                    
+
                     self._sketch.set_text_align('center', 'bottom')
                     self._sketch.draw_text(
                         self._get_x(point['mean']),

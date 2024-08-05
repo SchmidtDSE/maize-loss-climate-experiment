@@ -10,7 +10,7 @@ ARG_NAMES = [
     'viz',
     'p',
     'adj',
-    'filter', 
+    'filter',
     'var',
     'month',
     'loss',

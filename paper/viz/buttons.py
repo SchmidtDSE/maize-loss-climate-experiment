@@ -59,11 +59,13 @@ class ToggleButtonSet:
             else:
                 return const.INACTIVE_TEXT_COLOR
 
+        many_options = len(self._options) > 2
+
         if self._narrow:
             button_width = const.BUTTON_WIDTH_NARROW
         else:
-            button_width = const.BUTTON_WIDTH_COMPACT if len(self._options) > 2 else const.BUTTON_WIDTH
-        
+            button_width = const.BUTTON_WIDTH_COMPACT if many_options else const.BUTTON_WIDTH
+
         i = 1
         for option in self._options:
             is_active = self._selected == option
@@ -97,11 +99,11 @@ class ToggleButtonSet:
 
         if self._keyboard_button is not None and self._keyboard_button == keypress:
             index = self._options.index(self._selected)
-            
+
             new_index = index + 1
             if new_index >= len(self._options):
                 new_index = 0
-            
+
             option = self._options[new_index]
             self._selected = option
             self._on_change(option)

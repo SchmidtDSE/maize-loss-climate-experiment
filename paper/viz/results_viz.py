@@ -29,7 +29,7 @@ class ResultsVizPresenter:
             self._climate_loc = climate_loc
         else:
             self._climate_loc = 'data/climate.csv'
-        
+
         self._sketch.set_fps(10)
         self._all_records = self._load_records()
         self._climate_deltas = self._load_climate_deltas()
@@ -71,7 +71,7 @@ class ResultsVizPresenter:
             'Select Fields',
             lambda x: self._start_fields_selection()
         )
-        
+
         self._scatter_presenter = scatter.ScatterMainPresenter(
             self._sketch,
             5,
@@ -131,7 +131,7 @@ class ResultsVizPresenter:
 
             def set_mouse_clicked(mouse):
                 self._clicked = True
-            
+
             mouse.on_button_press(set_mouse_clicked)
 
             keyboard = self._sketch.get_keyboard()
@@ -162,14 +162,14 @@ class ResultsVizPresenter:
             self._climate_deltas,
             self._config
         )
-        
+
         self._scatter_presenter.update_data(
             new_data,
             self._config.get_metric(),
             self._config.get_var(),
             self._selected_geohashes
         )
-        
+
         self._map_presenter.update_data(
             new_data,
             self._config.get_metric(),
@@ -215,7 +215,7 @@ class ResultsVizPresenter:
             self._scatter_presenter.step(mouse_x, mouse_y, self._clicked)
         else:
             self._map_presenter.step(mouse_x, mouse_y, self._clicked)
-        
+
         self._configuration_pesenter.step(mouse_x, mouse_y, self._clicked, self._key_waiting)
         self._legend_presenter.step(mouse_x, mouse_y, self._clicked)
 
