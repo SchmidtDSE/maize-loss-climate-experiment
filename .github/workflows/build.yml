@@ -87,7 +87,7 @@ jobs:
       - name: Render images
         run: cd paper/viz; bash render_images.sh
       - name: Check images
-        run: cd paper/viz; bash support/check_images.sh
+        run: cd paper/viz; bash script/check_images.sh
   buildPaper:
     environment: build
     runs-on: ubuntu-latest
