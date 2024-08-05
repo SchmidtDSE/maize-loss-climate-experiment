@@ -283,7 +283,7 @@ class MainPresenter:
 
         def cast_individual_record(x):
             force_counterfactual = use_historic and x['set'] == '2010'
-            {
+            return {
                 'series': 'counterfactual' if force_counterfactual else x['series'],
                 'bin': self._interpret_bin(x['bin']),
                 'val': float(x['val'])

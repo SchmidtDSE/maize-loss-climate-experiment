@@ -82,6 +82,8 @@ jobs:
         run: mv font_build/fonts/otf/PublicSans-Regular.otf paper/viz/font/PublicSans-Regular.otf
       - name: Install Python deps
         run: cd paper/viz; pip install -r requirements.txt
+      - name: Make destination
+        run: mkdir paper/img
       - name: Render images
         run: cd paper/viz; bash render_images.sh
       - name: Check images
