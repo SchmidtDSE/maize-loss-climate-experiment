@@ -118,8 +118,10 @@ jobs:
         run: unzip deploy.zip 
       - name: Unzip paper
         run: unzip arxiv.zip
+      - name: Make destination
+        run: mkdir deploy/literature
       - name: Move paper
-        run: mv paper_filled.pdf deploy/archive/preprint.pdf
+        run: mv paper_filled.pdf deploy/literature/preprint.pdf
       - name: Deploy
         uses: Creepios/sftp-action@v1.0.3
         with:
