@@ -137,7 +137,7 @@ With bias towards performance in mean prediction, we select {{numLayers}} layers
 
 Table: Results of chosen configuration during the "sweep" for model selection. {#tbl:sweep}
 
-After retraining with train and validation together, we see {{retrainMeanMae}} when predicting neighborhood mean and {{retrainStdMae}} when predicting neighborhood standard deviation when using the fully hidden test set.
+After retraining with train and validation together, we see {{retrainMeanMae}} MAE when predicting neighborhood mean and {{retrainStdMae}} when predicting neighborhood standard deviation when using the fully hidden test set.
 
 Next, having chosen this set of hyper-parameters, we also evaluate regression performance through varied definitions of test sets representing different tasks.
 
