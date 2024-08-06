@@ -260,15 +260,26 @@ th, td {
     text-decoration: underline;
 }
 
-.paragraph {
-    margin-bottom: 14px;
-}
-
 .page {
     background-color: #FFFFFF;
     filter: drop-shadow(0 0 0.7rem #C0C0C0);
     padding: 20px;
     margin: 10px;
+}
+
+.page-warning {
+    filter: drop-shadow(0 0 0.7rem #C0C0C0);
+    padding: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    background-color: white;
+    border: 1px solid black;
+}
+
+.paragraph {
+    margin-bottom: 14px;
 }
 
 .presentation {

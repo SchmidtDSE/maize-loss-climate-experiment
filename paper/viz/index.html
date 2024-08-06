@@ -63,6 +63,10 @@
             Skip to accessibility settings
         </a>
 
+        <div class="page-warning" id="browser-warning"><span class="emoji">💿</span> We don't recognize your browser. It may be out of date and unable to run the interactive elements on this page or it may just be a less common piece of software. If you run into issues, please consider updating or using Firefox!</div>
+
+        <div class="page-warning" id="mobile-warning"><span class="emoji">📱</span> Your screen or window is a little small. This experience is optimized for either tablet, laptop, or desktop. If you run into trouble, please try resizing and refreshing this page or visiting us again on a larger device.</div>
+
         <div class="page">
 
             <header>
@@ -1409,6 +1413,66 @@
             <a href="#toc" id="toc-link">table of contents</a> / <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment" target="_blank">open source</a> / <a href="terms.html" target="_blank">terms and privacy</a> / <a href="#settings" tab="settings" class="advance-button">accessibility</a> / <a href="#about" tab="about" class="advance-button">about</a>
         </div>
     </body>
+
+    <script type="text/javascript" src="third_party/ua-parser.min.js"></script>
+    <script type="text/javascript">
+        var SUPPORTED_OPTIONS = {
+            "Microsoft Edge": 100,
+            "Edge": 100,
+            "Firefox": 106,
+            "Chrome": 100,
+            "Opera": 86,
+            "Safari": 15,
+            "Mobile Safari": 15,
+            "Mobile Chrome": 95,
+            "Mobile Firefox": 114
+        };
+
+
+        function isSupported() {
+            try {
+                var uap = new UAParser();
+                var result = uap.getResult();
+                var browser = result.browser;
+
+                if (SUPPORTED_OPTIONS[browser.name] === undefined) {
+                    return false;
+                }
+
+                var minVersion = SUPPORTED_OPTIONS[browser.name];
+                var majorVersion = parseFloat(browser.major);
+
+                if (majorVersion < minVersion) {
+                    return false;
+                } else {
+                    return true;
+                }
+            } catch {
+                return false;
+            }
+        }
+
+
+        function checkBrowser() {
+            if (isSupported()) {
+                document.getElementById("browser-warning").style.display = "none";
+            }
+        }
+
+        function checkWindow() {
+            if (window.innerWidth > 950) {
+                document.getElementById("mobile-warning").style.display = "none";
+            } else {
+                document.getElementById("mobile-warning").style.display = "block";
+            }
+        }
+
+
+        checkBrowser();
+        checkWindow();
+
+        addEventListener("resize", (event) => checkWindow());
+    </script>
 
     <script src="/third_party/popper.min.js"></script>
     <script src="/third_party/tabby.js"></script>

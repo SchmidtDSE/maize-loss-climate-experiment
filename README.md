@@ -131,6 +131,7 @@ The web version also uses:
  - [Tiny-slider](https://github.com/ganlanyuan/tiny-slider) under the [MIT License](https://github.com/ganlanyuan/tiny-slider?tab=MIT-1-ov-file#readme).
  - [Tippy.js](https://atomiks.github.io/tippyjs/) under the [MIT License](https://github.com/atomiks/tippyjs?tab=MIT-1-ov-file#readme).
  - [toml (Jak Wings)](https://www.npmjs.com/package/tomlify-j0.4?activeTab=readme) under the [MIT License](https://www.npmjs.com/package/tomlify-j0.4?activeTab=code).
+ - [ua-parser 1.0.36](https://uaparser.js.org/) under the [MIT License](https://www.npmjs.com/package/ua-parser-js).
 
 ### Paper
 The paper uses the following open source dependencies to build the manuscript:
