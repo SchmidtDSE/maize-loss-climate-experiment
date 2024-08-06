@@ -53,7 +53,7 @@ dt {
 }
 
 h1 {
-    font-size: 30px;
+    font-size: 28px;
     color: #000000;
     margin-bottom: 10px;
     font-weight: bold;
@@ -190,7 +190,7 @@ th, td {
 .header-subtext {
     padding-bottom: 40px;
     color: black;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
 }
 
