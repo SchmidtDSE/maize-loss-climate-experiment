@@ -1,0 +1,14 @@
+cff-version: '1.1.0'
+message: 'Please cite the following works to reference this software.'
+abstract: 'Climate change not only threatens agricultural producers but also strains financial institutions. These important food system actors include government entities tasked with both insuring grower livelihoods and supporting response to continued global warming. We use an artificial neural network to predict future maize yields in the U.S. Corn Belt, finding alarming changes to institutional risk exposure within the Federal Crop Insurance Program. Specifically, our machine learning method anticipates more frequent and more severe yield losses that would result in the annual probability of Yield Protection (YP) claims to more than double at mid-century relative to simulations without continued climate change. Furthermore, our dual finding of relatively unchanged average yields paired with decreasing yield stability reveals targeted opportunities to adjust coverage formulas to include variability. This important structural shift may help regulators support grower adaptation to continued climate change by recognizing the value of risk-reducing strategies such as regenerative agriculture. Altogether, paired with open source interactive tools for deeper investigation, our risk profile simulations fill an actionable gap in current understanding, bridging granular historic yield estimation and climate-informed prediction of future insurer-relevant loss. '
+authors:
+  
+doi: '10.48550/ARXIV:2408.02217'
+identifiers:
+  - type: 'doi'
+    value: '10.48550/ARXIV:2408.02217'
+  - type: 'url'
+    value: 'https://arxiv.org/abs/2408.02217'
+title: 'Climate-Driven Doubling of Maize Loss Probability in U.S. Crop Insurance: Spatiotemporal Prediction and Possible Policy Responses'
+url: 'https://arxiv.org/abs/2408.02217'
+version: '2'
