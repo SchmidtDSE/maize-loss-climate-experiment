@@ -4,5 +4,5 @@ numpy~=1.26.4
 pandas~=2.2.2
 Pillow~=10.3.0
 pygame-ce~=2.5.0
-sketchingpy[minimal]~=0.2.5
+sketchingpy[minimal]~=0.3.0
 toolz~=0.12.1

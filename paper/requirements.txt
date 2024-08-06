@@ -5,5 +5,5 @@ pandas~=2.2.2
 pandoc-fignos~=2.4.0
 pandoc-tablenos~=2.3.0
 Pillow~=10.3.0
-sketchingpy[minimal]~=0.2.5
+sketchingpy[minimal]~=0.3.0
 toolz~=0.12.1
