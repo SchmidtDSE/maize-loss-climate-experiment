@@ -271,9 +271,9 @@ jobs:
       - name: Move paper
         run: mv paper_filled.pdf deploy/literature/preprint.pdf
       - name: Make social directory
-        run: mkdir social
+        run: mkdir deploy/social
       - name: Move card
-        run: mv map.png social/map.png
+        run: mv map.png deploy/social/map.png
       - name: Deploy
         uses: Creepios/sftp-action@v1.0.3
         with:
