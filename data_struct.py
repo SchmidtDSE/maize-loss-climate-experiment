@@ -158,7 +158,7 @@ class GeohashClimateSummary:
         return self._skew
 
     def get_kurtosis(self):
-        """Get the kurtosis measure of the distribution summarized. 
+        """Get the kurtosis measure of the distribution summarized.
 
         Returns:
             The kurtosis (width of tails) observed in the distribution summarized.
