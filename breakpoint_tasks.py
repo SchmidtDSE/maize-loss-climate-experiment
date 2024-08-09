@@ -1,6 +1,6 @@
 """Entrypoint tasks which complete either a segement of work or the full pipeline.
 
-Entrypoint tasks which complete either a segement of work or the full pipeline in which 
+Entrypoint tasks which complete either a segement of work or the full pipeline in which
 ExecuteSupplementalTasksWithCluster executes the entire cluster with outputs for tools. Many of
 these tasks will both start a cluster in Coiled before spinning it down after finishing work.
 
@@ -21,14 +21,14 @@ import training_tasks
 
 class SampleClimatePreprocessTask(cluster_tasks.EndClusterTask):
     """Task which completes through gneerating a subset of climate summaries.
-    
+
     Task which completes through gneerating a small sample of climate summaries as preprocessed
     geotiffs that go through geohashing as a testing step. This will end the cluster on completion.
     """
 
     def get_prereq(self):
         """Get the tasks that need to be completed.
-        
+
         Returns:
             Single task (PreprocessClimateGeotiffsTask) that is required to reach this breakpoint.
         """
@@ -40,7 +40,7 @@ class SampleClimatePreprocessTask(cluster_tasks.EndClusterTask):
 
     def get_task_name(self):
         """Get a machine friendly name for this task.
-        
+
         Returns:
             Machine-friendly name.
         """
@@ -49,14 +49,14 @@ class SampleClimatePreprocessTask(cluster_tasks.EndClusterTask):
 
 class FullClimatePreprocessTask(cluster_tasks.EndClusterTask):
     """Task which completes through gneerating a subset of climate summaries.
-    
+
     Task which completes through gneerating a small sample of climate summaries as preprocessed
     geotiffs that go through geohashing as a testing step. This will end the cluster on completion.
     """
 
     def get_prereq(self):
         """Get the tasks that need to be completed.
-        
+
         Returns:
             Single task (PreprocessClimateGeotiffsTask) that is required to reach this breakpoint.
         """
@@ -68,7 +68,7 @@ class FullClimatePreprocessTask(cluster_tasks.EndClusterTask):
 
     def get_task_name(self):
         """Get a machine friendly name for this task.
-        
+
         Returns:
             Machine-friendly name.
         """
@@ -77,7 +77,7 @@ class FullClimatePreprocessTask(cluster_tasks.EndClusterTask):
 
 class RunThroughPreprocessTask(cluster_tasks.EndClusterTask):
     """Run all preprocessing tasks on historic data.
-    
+
     Breakpoint which runs up until training (preprocessing tasks). This will end the cluster on
     completion. Note that this only includes historic acutals not future values predicted by third
     party models.
@@ -85,7 +85,7 @@ class RunThroughPreprocessTask(cluster_tasks.EndClusterTask):
 
     def get_prereq(self):
         """Get the tasks that need to be completed.
-        
+
         Returns:
             Single task (CombineHistoricPreprocessTask) that is required to reach this breakpoint.
         """
@@ -93,7 +93,7 @@ class RunThroughPreprocessTask(cluster_tasks.EndClusterTask):
 
     def get_task_name(self):
         """Get a machine friendly name for this task.
-        
+
         Returns:
             Machine-friendly name.
         """
@@ -102,7 +102,7 @@ class RunThroughPreprocessTask(cluster_tasks.EndClusterTask):
 
 class RunThroughPreprocessFutureTask(cluster_tasks.EndClusterTask):
     """Run all preprocessing tasks on future data.
-    
+
     Breakpoint which runs up until training (preprocessing tasks). This will end the cluster on
     completion. Note that this only includes future values predicted by third party models and not
     historic acutals.
@@ -110,7 +110,7 @@ class RunThroughPreprocessFutureTask(cluster_tasks.EndClusterTask):
 
     def get_prereq(self):
         """Get the tasks that need to be completed.
-        
+
         Returns:
             Tasks for 2030_SSP245 and 2050_SSP245.
         """
@@ -125,7 +125,7 @@ class RunThroughPreprocessFutureTask(cluster_tasks.EndClusterTask):
 
     def get_task_name(self):
         """Get a machine friendly name for this task.
-        
+
         Returns:
             Machine-friendly name.
         """
@@ -134,14 +134,14 @@ class RunThroughPreprocessFutureTask(cluster_tasks.EndClusterTask):
 
 class RunThroughSweepTask(cluster_tasks.EndClusterTask):
     """Run through a model sweep with all dependent tasks.
-    
+
     Run through a model sweep with all dependent tasks, closing the cluster afterwards upon
     completion.
     """
 
     def get_prereq(self):
         """Get the tasks that need to be completed.
-        
+
         Returns:
             Single task (SweepTask).
         """
@@ -149,7 +149,7 @@ class RunThroughSweepTask(cluster_tasks.EndClusterTask):
 
     def get_task_name(self):
         """Get a machine friendly name for this task.
-        
+
         Returns:
             Machine-friendly name.
         """
@@ -158,14 +158,14 @@ class RunThroughSweepTask(cluster_tasks.EndClusterTask):
 
 class RunThroughExtendedSweepTask(cluster_tasks.EndClusterTask):
     """Execute extended sweep.
-    
+
     Execute extended sweep for the set of meta-parameter combinations less likely to be successful
     before terminating the cluster.
     """
 
     def get_prereq(self):
         """Get the dependent task.
-        
+
         Returns:
             Single dependent task (SweepExtendedTask).
         """
@@ -173,7 +173,7 @@ class RunThroughExtendedSweepTask(cluster_tasks.EndClusterTask):
 
     def get_task_name(self):
         """Get a machine friendly name for this task.
-        
+
         Returns:
             Machine-friendly name.
         """
@@ -182,7 +182,7 @@ class RunThroughExtendedSweepTask(cluster_tasks.EndClusterTask):
 
 class RunThroughHistoricProject(cluster_tasks.EndClusterTask):
     """Task which executes through backwards projection.
-    
+
     Breakpoint which preprocesses, trains models, and makes projections backwards into historic
     data. This is largely useful for testing prior to making future predictions.  Will terminate
     cluster.
@@ -190,7 +190,7 @@ class RunThroughHistoricProject(cluster_tasks.EndClusterTask):
 
     def get_prereq(self):
         """Get the dependent task.
-        
+
         Returns:
             Single dependent task (ProjectHistoricTask).
         """
@@ -198,7 +198,7 @@ class RunThroughHistoricProject(cluster_tasks.EndClusterTask):
 
     def get_task_name(self):
         """Get a machine friendly name for this task.
-        
+
         Returns:
             Machine-friendly name.
         """
@@ -207,7 +207,7 @@ class RunThroughHistoricProject(cluster_tasks.EndClusterTask):
 
 class RunThroughSimTask(cluster_tasks.EndClusterTask):
     """Task which runs through simulation of future outcomes.
-    
+
     Breakpoint task which completes the data pipeline through Monte Carlo (includes preprocessing,
     model training, etc). This is largely useful for running the pipeline for raw predictions prior
     to generation of outputs for tools and visualizations. Will terminate cluster.
@@ -215,7 +215,7 @@ class RunThroughSimTask(cluster_tasks.EndClusterTask):
 
     def get_prereq(self):
         """Get the dependent task.
-        
+
         Returns:
             Single dependent task (CombineSimulationsTasks).
         """
@@ -223,7 +223,7 @@ class RunThroughSimTask(cluster_tasks.EndClusterTask):
 
     def get_task_name(self):
         """Get a machine friendly name for this task.
-        
+
         Returns:
             Machine-friendly name.
         """
@@ -232,7 +232,7 @@ class RunThroughSimTask(cluster_tasks.EndClusterTask):
 
 class RunThroughHistTask(cluster_tasks.EndClusterTask):
     """Run the pipeline to the point of generating future prediction system-wide histograms.
-    
+
     Run the pipeline through model training and simulation before summarizing results as system-wide
     histograms which can be used in tooling. Will terminate cluster. Unlike
     ExecuteSupplementalTasks, this covers only one tool.
@@ -240,7 +240,7 @@ class RunThroughHistTask(cluster_tasks.EndClusterTask):
 
     def get_prereq(self):
         """Get the dependent task.
-        
+
         Returns:
             Single dependent task (HistExportTask).
         """
@@ -248,7 +248,7 @@ class RunThroughHistTask(cluster_tasks.EndClusterTask):
 
     def get_task_name(self):
         """Get a machine friendly name for this task.
-        
+
         Returns:
             Machine-friendly name.
         """
@@ -257,7 +257,7 @@ class RunThroughHistTask(cluster_tasks.EndClusterTask):
 
 class ExecuteSupplementalTasks(luigi.Task):
     """Execute the pipeline through supplemental tasks.
-    
+
     Execute the pipeline and report on supplemental data outputs which can be used in the paper and'
     tools. Will not terminate the cluster and this task is largely useful for debugging the pipeline
     in its entirety.
@@ -276,7 +276,7 @@ class ExecuteSupplementalTasks(luigi.Task):
 
     def output(self):
         """Indicate where a status report file should be written.
-        
+
         Returns:
             Local target for the status file.
         """
@@ -290,7 +290,7 @@ class ExecuteSupplementalTasks(luigi.Task):
 
 class ExecuteSignificantLongTask(luigi.Task):
     """Execute the pipeline to determine the frequency of significant results with long geohashes.
-    
+
     Execute the pipeline to determine the frequency of significant results with long geohashes
     (5 character). This is largely useful for debugging or answering follow up questions from the
     pipeline. Does not terminate cluster.
@@ -298,7 +298,7 @@ class ExecuteSignificantLongTask(luigi.Task):
 
     def requires(self):
         """Get the task that needs to be completed for this breakpoint to be reached.
-        
+
         Returns:
             Single dependency (DeterminePercentSignificantLongTask).
         """
@@ -306,7 +306,7 @@ class ExecuteSignificantLongTask(luigi.Task):
 
     def output(self):
         """Indicate where a status report file should be written.
-        
+
         Returns:
             Local target for the status file.
         """
@@ -323,7 +323,7 @@ class ExecuteSupplementalTasksWithCluster(cluster_tasks.EndClusterTask):
 
     def get_prereq(self):
         """Get the task that needs to be completed for this breakpoint to be reached.
-        
+
         Returns:
             Single dependency (ExecuteSupplementalTasks).
         """
@@ -331,7 +331,7 @@ class ExecuteSupplementalTasksWithCluster(cluster_tasks.EndClusterTask):
 
     def get_task_name(self):
         """Get a machine friendly name for this task.
-        
+
         Returns:
             Machine-friendly name.
         """
