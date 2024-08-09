@@ -1,3 +1,9 @@
+"""Constants and simple utilities shared across pipeline task modules.
+
+License:
+    BSD
+"""
+
 import os
 import re
 
@@ -612,4 +618,12 @@ DEFAULT_P_THRESHOLD = 0.05
 
 
 def get_file_location(name):
+    """Get the location to where a workspace file can be found or should be written.
+    
+    Args:
+        name: The filename as a string.
+
+    Returns:
+        Relative path as string.
+    """
     return os.path.join(WORKSPACE_DIR, name)
