@@ -619,7 +619,7 @@ DEFAULT_P_THRESHOLD = 0.05
 
 def get_file_location(name):
     """Get the location to where a workspace file can be found or should be written.
-    
+
     Args:
         name: The filename as a string.
 
