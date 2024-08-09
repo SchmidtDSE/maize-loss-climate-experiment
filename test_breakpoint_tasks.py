@@ -1,3 +1,9 @@
+"""Simple test to check if tasks can be initialized.
+
+License:
+    BSD
+"""
+
 import unittest
 
 import breakpoint_tasks
