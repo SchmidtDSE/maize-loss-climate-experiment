@@ -13,7 +13,7 @@ import botocore
 def save_file_tmp(source_location, source_filename, access_key='', access_secret='',
     local_filename=None):
     """Ensure a file is available locally.
-    
+
     Ensure a file is available locally and, if it is transferred from remote, place it in a
     temporary filesystem.
 
@@ -28,7 +28,7 @@ def save_file_tmp(source_location, source_filename, access_key='', access_secret
             locally. Defaults to empty string.
         local_filename: The filename to use for this resource when saving locally. This is a
             suggestion and may be ignored depending on host system and conditions.
-    
+
     Returns:
         Full local path where the resource can be found.
     """
@@ -70,7 +70,7 @@ def save_file_tmp(source_location, source_filename, access_key='', access_secret
 
 def get_bucket_files(source_location, access_key='', access_secret=''):
     """Get all of the files in a location where there is a collection of resources.
-    
+
     Args:
         source_location: The name of the S3 buckets where the resource can be found or the path to
             where the files can be found locally. Interpreted as a local path if access_key or
@@ -79,7 +79,7 @@ def get_bucket_files(source_location, access_key='', access_secret=''):
             locally. Defaults to empty string.
         access_secret: The AWS or remote access secret or empty string if the collection should be
             found locally. Defaults to empty string.
-    
+
     Returns:
 
     """
@@ -106,7 +106,7 @@ def get_bucket_files(source_location, access_key='', access_secret=''):
 
 def remove_temp_file(temp_file_path, access_key='', access_secret=''):
     """Remove a local temporary file if in a temporary filesystem location.
-    
+
     Remove a local temporary file if in a temporary filesystem location or do nothing if the file is
     in the regular file system.
 
