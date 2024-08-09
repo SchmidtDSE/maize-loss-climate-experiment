@@ -1,6 +1,6 @@
 """Entrypoint tasks which complete either a segement of work or the full pipeline.
 
-Entrypoint tasks which complete either a segement of work or the full pipeline in which 
+Entrypoint tasks which complete either a segement of work or the full pipeline in which
 ExecuteSupplementalTasksWithCluster executes the entire cluster with outputs for tools. Many of
 these tasks will both start a cluster in Coiled before spinning it down after finishing work.
 
