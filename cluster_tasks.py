@@ -1,3 +1,12 @@
+"""Tasks for spinning up and turning off the cluster.
+
+Tasks for spinning up and turning off the cluster where behavior can be modified through environment
+variables: USE_AWS, AWS_ACCESS_KEY, AWS_ACCESS_SECRET, and SOURCE_DATA_LOC.
+
+License:
+    BSD
+"""
+
 import os
 
 import coiled
@@ -8,21 +17,47 @@ import const
 
 
 class SimulatedDaskCluster:
+    """Adapter which pretends to be a remote cluster but executes using local Dask distributed.
+    
+    Adapter which pretends to be a remote cluster but executes using Dask distributed, allowing for
+    execution of the pipeline optionally without remote machines.
+    """
 
     def __init__(self):
+        """Create a handle for a cluster that has not yet started."""
         self._cluster = None
 
     def get_client(self):
+        """Get the cluster client, starting the cluster if needed.
+        
+        Returns:
+            The cluster client.
+        """
         if self._cluster is None:
             self._cluster = dask.distributed.Client()
 
         return self._cluster
 
     def close(self, force_shutdown=True):
+        """Close this cluster.
+        
+        Args:
+            force_shutdown: Flag indicating if the the cluster should be hard-terminated if needed.
+                True if yes and false if no (which may leave the cluster running). Defaults to true.
+        """
         if self._cluster is not None:
             self._cluster.close()
 
     def adapt(self, minimum=10, maximum=500):
+        """Indicate the minimum and maximum resources usable by this cluster.
+        
+        Indicate the minimum and maximum resources usable by this cluster, ignored as non-applicable
+        by the local cluster.
+        
+        Args:
+            minimum: The minimum number of machines.
+            maximum: The maximum number of machines.
+        """
         pass
 
 
@@ -30,6 +65,11 @@ simulated_cluster = SimulatedDaskCluster()
 
 
 def get_cluster():
+    """Get the pipeline cluster or start it if it is not running.
+    
+    Returns:
+        Cluster after requesting it start or SimulatedDaskCluster if using local.
+    """
     using_local = os.environ['USE_AWS'] == '0'
     if using_local:
         return simulated_cluster
@@ -48,11 +88,22 @@ def get_cluster():
 
 
 class StartClusterTask(luigi.Task):
+    """Task to start the cluster."""
 
     def output(self):
+        """Indicate where status should be written.
+        
+        Returns:
+            LocalTarget where status should be written.
+        """
         return luigi.LocalTarget(const.get_file_location('cluster_start.txt'))
 
     def run(self):
+        """Run this step to start the cluster.
+        
+        Run this step to start the cluster, writing the status message with the cluster name and
+        dashboard link to the output file.
+        """
         cluster = get_cluster()
         client = cluster.get_client()
 
@@ -62,15 +113,27 @@ class StartClusterTask(luigi.Task):
 
 
 class EndClusterTask(luigi.Task):
+    """Abstract base class for tasks terminate the cluster."""
 
     def requires(self):
+        """Get the task that should be completed prior to termination.
+        
+        Returns:
+            The task that should complete prior to spinning down the cluster.
+        """
         return self.get_prereq()
 
     def output(self):
+        """Get the location where status should be written.
+        
+        Returns:
+            LocalTarget where status can be written.
+        """
         task_name = self.get_task_name()
         return luigi.LocalTarget(const.get_file_location('%s.txt' % task_name))
 
     def run(self):
+        """Terminate the cluster and write out status to disk."""
         cluster = get_cluster()
 
         cluster.close(force_shutdown=True)
@@ -79,4 +142,12 @@ class EndClusterTask(luigi.Task):
             f.write(const.CLUSTER_NAME + ' closed.')
 
     def get_prereq(self):
+        """Get the task that should be completed prior to termination.
+
+        Get the task that should be completed prior to termination, an abstract method to be
+        completed by implementor.
+        
+        Returns:
+            The task that should complete prior to spinning down the cluster.
+        """
         raise NotImplementedError('Use implementor.')
