@@ -219,7 +219,7 @@ class ExtractSimStatsTask(luigi.Task):
         with self.input().open() as f:
             records = csv.DictReader(f)
             records_allowed = filter(
-                lambda x: export_tasks.is_default_config_record(x, 0.25),
+                lambda x: export_tasks.is_record_in_scope(x, 0.25),
                 records
             )
             simplified_records = map(

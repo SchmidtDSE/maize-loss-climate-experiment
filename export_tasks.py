@@ -1,3 +1,9 @@
+"""Tasks which generate the data artifacts needed to run the tools and fill in the paper template.
+
+License:
+    BSD
+"""
+
 import csv
 import itertools
 import json
@@ -121,8 +127,14 @@ USE_UNIT_FOR_COUNTERFACTUAL = True
 
 
 class ClimateExportTask(luigi.Task):
+    """Task which exports a summary of climate variables in historic as well as predicted series."""
 
     def requires(self):
+        """Require that the climate data go through normalization for all series.
+
+        Returns:
+            Tasks required to run this task.
+        """
         return {
             'historic': normalize_tasks.NormalizeHistoricTrainingFrameTask(),
             '2030': normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2030_SSP245'),
@@ -130,9 +142,15 @@ class ClimateExportTask(luigi.Task):
         }
 
     def output(self):
+        """Indicate output location where the climate variable summaries will be written.
+
+        Returns:
+            LocalTarget for CSV file.
+        """
         return luigi.LocalTarget(const.get_file_location('export_climate.csv'))
 
     def run(self):
+        """Summarize the input climate data as a simplified CSV output."""
         historic_accumulators = {}
         with self.input()['historic'].open() as f:
             reader = csv.DictReader(f)
@@ -162,6 +180,15 @@ class ClimateExportTask(luigi.Task):
             writer.writerows(output_rows)
 
     def _build_export_for_year(self, year, historic_accumulators):
+        """Build a climate export for a single year.
+
+        Args:
+            year: The year to summarize.
+            historic_accumulators: Accumulators with data for the given year.
+
+        Returns:
+            Primitives-only dictionary summarizing all climate variables for a year.
+        """
         accumulators = {}
         with self.input()[str(year)].open() as f:
             reader = csv.DictReader(f)
@@ -247,6 +274,14 @@ class ClimateExportTask(luigi.Task):
         return filter(is_output_valid, output_rows)
 
     def _parse_accumulator_key(self, key):
+        """Deserialize an accumulator key indicating which accumulator should take in sample.
+
+        Args:
+            key: The serialized string key.
+
+        Returns:
+            Deserailized version of the accumulator key as a primitives-only dictionary.
+        """
         pieces = key.split('\t')
         return {
             'geohash': pieces[0],
@@ -255,12 +290,34 @@ class ClimateExportTask(luigi.Task):
         }
 
     def _get_accumulator_key(self, geohash, month, attr):
+        """Create a string identifying a specific accumulator which should recieve sample.
+
+        Args:
+            geohash: The name of the geohash for which sample is available.
+            month: The month for which sample is available.
+            attr: The name of the attribute like "chirps" for which sample is available.
+
+        Returns:
+            String unique to the accumulator matching the parameters.
+        """
         pieces = [geohash, month, attr]
         pieces_str = map(lambda x: str(x), pieces)
         return '\t'.join(pieces_str)
 
 
-def is_default_config_record(target, threshold, geohash_sim_size=4, historic=False):
+def is_record_in_scope(target, threshold, geohash_sim_size=4, historic=False):
+    """Determine if a record is in scope to be exported as part of a series.
+
+    Args:
+        target: The record as a primitives only dictionary to be evaluated.
+        threshold: Loss threshold of the series being exported.
+        geohash_sim_size: Geohash length of the series being exported.
+        historic: Flag indicating if the series is historic or future data. True if historic and
+            false if future.
+
+    Returns:
+        True if this record is in scope and false otherwise.
+    """
     if threshold is not None and abs(float(target['threshold']) - threshold) > 0.0001:
         return False
 
@@ -290,17 +347,29 @@ def is_default_config_record(target, threshold, geohash_sim_size=4, historic=Fal
 
 
 class SweepExportTask(luigi.Task):
+    """Task for exporting information about the model training sweep."""
 
     def requires(self):
+        """Require that the model sweep be completed.
+
+        Returns:
+            Dependencies for this task.
+        """
         return {
             'normal': training_tasks.SweepTask(),
             'extended': training_tasks.SweepExtendedTask()
         }
 
     def output(self):
+        """Indicate location where the sweep summary csv should be written.
+
+        Returns:
+            LocalTarget at which the summary CSV should be written.
+        """
         return luigi.LocalTarget(const.get_file_location('export_sweep.csv'))
 
     def run(self):
+        """Export the sweep information as a CSV file."""
         with self.output().open('w') as f_out:
             writer = csv.DictWriter(f_out, fieldnames=SWEEP_OUTPUT_COLS)
             writer.writeheader()
@@ -316,6 +385,14 @@ class SweepExportTask(luigi.Task):
                 writer.writerows(transformed_rows)
 
     def _transform_row(self, target):
+        """Standardize an output row.
+
+        Args:
+            target: The output row prior to standardization.
+
+        Returns:
+            Output row after standardization.
+        """
         return {
             'block': target['block'],
             'layers': int(target['layers']),
@@ -332,17 +409,33 @@ class SweepExportTask(luigi.Task):
 
 
 class GetFamilySizeTask(luigi.Task):
+    """Get the number of groups (each with a statistical test) considered.
+
+    Get the number of groups (each with a statistical test) considered as required by operations
+    like the Bonferonni correction.
+    """
 
     def requires(self):
+        """Require that the simulations have been completed already to determine groups.
+
+        Returns:
+            CombineSimulationsTasks
+        """
         return sim_tasks.CombineSimulationsTasks()
 
     def output(self):
+        """Indicate where the family sizes should be written as a CSV.
+
+        Returns:
+            LocalTarget where the results are to be written.
+        """
         return luigi.LocalTarget(const.get_file_location('export_count.json'))
 
     def run(self):
+        """Find the family sizes and write to CSV."""
         with self.input().open('r') as f:
             reader = csv.DictReader(f)
-            included_rows = filter(lambda x: is_default_config_record(x, 0.25), reader)
+            included_rows = filter(lambda x: is_record_in_scope(x, 0.25), reader)
             tuples = map(lambda x: (x['series'], 1), included_rows)
             reduced = toolz.itertoolz.reduceby(
                 lambda x: x[0],
@@ -356,18 +449,38 @@ class GetFamilySizeTask(luigi.Task):
 
 
 class HistExportSubTask(luigi.Task):
+    """Task which summarizes system-wide changes to yield within a simulation series.
+
+    Task which summarizes system-wide changes to yield within a simulation series such as historic
+    or 2050_SSP245. This will organize the data into a series of bins like a histogram but also
+    provide summary statistics (claimsMpci, claimsSco, mean, count). Uses Luigi parameters:
+
+     - geohash_size: The size of the geohash to summarize.
+     - historic: True if should be historic data / baseline and false if future projections.
+    """
 
     geohash_size = luigi.Parameter()
     historic = luigi.Parameter()
 
     def requires(self):
+        """Require that the simulations have already been completed.
+
+        Returns:
+            CombineSimulationsTasks
+        """
         return sim_tasks.CombineSimulationsTasks()
 
     def output(self):
+        """Indicate where the bucketed system-wide simulation summary should be written.
+
+        Returns:
+            LocalTarget where the CSV is to be written.
+        """
         vals = (self.geohash_size, 'historic' if self.historic else 'simulated')
         return luigi.LocalTarget(const.get_file_location('export_hist_%d_%s.csv' % vals))
 
     def run(self):
+        """Summarize the simulations in a histogram-like structure."""
         with self.output().open('w') as f_out:
             writer = csv.DictWriter(f_out, fieldnames=HIST_OUTPUT_COLS)
             writer.writeheader()
@@ -413,6 +526,14 @@ class HistExportSubTask(luigi.Task):
                 writer.writerows(rows_with_meta)
 
     def _simplify_input(self, target):
+        """Parse a raw input record from the simulations task, interpreting floats.
+
+        Args:
+            target: The row to simplify.
+
+        Returns:
+            The input row after parsing.
+        """
         num = float(target['num'])
         claims_rate = float(target['predictedClaims'])
         ret_dict = {
@@ -430,6 +551,15 @@ class HistExportSubTask(luigi.Task):
         return ret_dict
 
     def _combine_inputs(self, a, b):
+        """Combine two different input records by pooling their outputs statistically.
+
+        Args:
+            a: The first record to pool.
+            b: The second record to pool.
+
+        Returns:
+            Results after pooling.
+        """
         assert a['series'] == b['series']
 
         def get_weighted_avg(a_val, a_weight, b_val, b_weight):
@@ -455,6 +585,14 @@ class HistExportSubTask(luigi.Task):
         return ret_dict
 
     def _create_output_rows(self, target):
+        """Standardize the format of output rows being written to the output CSV.
+
+        Args:
+            target: The record to standardize.
+
+        Returns:
+            The record after standardization.
+        """
         is_counterfactual = '_counterfactual' in target['series']
 
         if target['series'] == 'historic':
@@ -500,6 +638,16 @@ class HistExportSubTask(luigi.Task):
         return itertools.chain(bin_rows, summary_rows)
 
     def _rename_claims(self, target, new_name):
+        """Rename the claims column to another value.
+
+        Args:
+            target: The record in which "claims" should be renamed.
+            new_name: The new name to give to "claims" which may be more descriptive like
+                "claimsMpci" or similar.
+
+        Returns:
+            The input record after renaming claims.
+        """
         if target['bin'] == 'claims':
             return {
                 'set': target['set'],
@@ -511,6 +659,14 @@ class HistExportSubTask(luigi.Task):
             return target
 
     def _add_meta(self, target):
+        """Add information about the simulation like geohash size to an input record.
+
+        Args:
+            target: The record to which additional information should be added.
+
+        Returns:
+            The input record after adding metadata like geohashSize.
+        """
         return {
             'geohashSize': int(self.geohash_size),
             'set': target['set'],
@@ -520,7 +676,16 @@ class HistExportSubTask(luigi.Task):
         }
 
     def _get_is_target(self, candidate, threshold):
-        return is_default_config_record(
+        """Determine if the given record is in scope and reports on the given loss threshold.
+
+        Args:
+            candidate: The record to check.
+            threshold: The loss threshold to check.
+
+        Returns:
+            True if the record is in scope and reports on the given threshold. False otherwise.
+        """
+        return is_record_in_scope(
             candidate,
             threshold,
             geohash_sim_size=self.geohash_size,
@@ -529,8 +694,14 @@ class HistExportSubTask(luigi.Task):
 
 
 class HistExportTask(luigi.Task):
+    """Export a combination of all histogram exports."""
 
     def requires(self):
+        """List of histogram tasks to be concatenated.
+
+        Returns:
+            List of histograms to concatenate.
+        """
         return [
             HistExportSubTask(geohash_size=4, historic=False),
             HistExportSubTask(geohash_size=4, historic=True),
@@ -539,9 +710,15 @@ class HistExportTask(luigi.Task):
         ]
 
     def output(self):
+        """Indicate location where to write the concatenated output.
+
+        Returns:
+            LocalTarget where the output should be written.
+        """
         return luigi.LocalTarget(const.get_file_location('export_hist.csv'))
 
     def run(self):
+        """Concatenate histograms data."""
         with self.output().open('w') as f_out:
             writer = csv.DictWriter(f_out, fieldnames=HIST_OUTPUT_COLS)
             writer.writeheader()
@@ -553,17 +730,33 @@ class HistExportTask(luigi.Task):
 
 
 class SummaryExportTemplateTask(luigi.Task):
+    """Abstract base class template to export a summary of a simulation.
+
+    Abstract base class serving as a template for tasks which export the tool summary file used to
+    describe geohash-level results.
+    """
 
     def requires(self):
+        """Get data pipeline tasks to be summarized.
+
+        Returns:
+            Tasks whose outputs are to be summarized.
+        """
         return {
             'sim': sim_tasks.CombineSimulationsTasks(),
             'familySize': GetFamilySizeTask()
         }
 
     def output(self):
+        """Indicate location where to write the concatenated output.
+
+        Returns:
+            LocalTarget where the output should be written.
+        """
         return luigi.LocalTarget(const.get_file_location(self.get_filename()))
 
     def run(self):
+        """Create and write the summary out to disk."""
         with self.input()['familySize'].open() as f:
             family_sizes = json.load(f)
 
@@ -585,12 +778,32 @@ class SummaryExportTemplateTask(luigi.Task):
             writer.writerows(reduced_with_location)
 
     def get_filename(self):
+        """Get the name of the file to be written in the workspace directory.
+
+        Returns:
+            String filename but not file path.
+        """
         raise NotImplementedError('Use implementor.')
 
     def get_geohash_size(self):
+        """Get the size of the geohash used in the simulation being summarized.
+
+        Returns:
+            Geohash length like 4.
+        """
         raise NotImplementedError('Use implementor.')
 
     def _simplify_input(self, target, family_sizes):
+        """Parse an input row from the simulation raw results.
+
+        Args:
+            target: The row to be parsed.
+            family_sizes: Dictionary mapping name of series to number of statistical tests run in
+                that series.
+
+        Returns:
+            The input row parsed, simplified, and standardized.
+        """
         is_counterfactual = '_counterfactual' in target['series']
         year = int(target['year'])
 
@@ -636,11 +849,28 @@ class SummaryExportTemplateTask(luigi.Task):
         }
 
     def _get_input_key(self, target):
+        """Get a key uniquely identifying a geohash in a simulation.
+
+        Args:
+            target: The record for which a key is being requested.
+
+        Returns:
+            Key identifying a geohash in a simulation as a string.
+        """
         pieces = [target['geohash'], target['year'], target['condition'], target['lossThreshold']]
         pieces_str = map(lambda x: str(x), pieces)
         return '\t'.join(pieces_str)
 
     def _combine_input(self, a, b):
+        """Combine two input rows.
+
+        Args:
+            a: The first sample to combine.
+            b: The second sample to combine.
+
+        Returns:
+            Combined input record after pooling those samples.
+        """
         a_is_counterfactual = a['isCounterfactual']
         b_is_counterfactual = b['isCounterfactual']
         invalid_flag = a_is_counterfactual is None or b_is_counterfactual is None
@@ -674,6 +904,14 @@ class SummaryExportTemplateTask(luigi.Task):
         }
 
     def _finalize_record(self, target):
+        """Add metadata and supporting information to an output record.
+
+        Args:
+            target: The record to extend.
+
+        Returns:
+            Finalized record.
+        """
         geohash = target['geohash']
         geohash_decoded = geolib.geohash.decode(geohash)
 
@@ -695,30 +933,66 @@ class SummaryExportTemplateTask(luigi.Task):
         }
 
     def _get_is_record_allowed(self, target):
-        return is_default_config_record(target, None, geohash_sim_size=self.get_geohash_size())
+        """Determie if an input record is in scope and should be included.
+
+        Args:
+            target: The record to check.
+
+        Returns:
+            True if in scope and false otherwise.
+        """
+        return is_record_in_scope(target, None, geohash_sim_size=self.get_geohash_size())
 
 
 class SummaryExportTask(SummaryExportTemplateTask):
+    """Task which exports the 4 character geohash export task."""
 
     def get_filename(self):
+        """Get the filename where the output should be written.
+
+        Returns:
+            String filename where the summary should be written.
+        """
         return 'export_summary.csv'
 
     def get_geohash_size(self):
+        """Get the geohash size for which the summary should be generated.
+
+        Returns:
+            Geohash length like 4.
+        """
         return 4
 
 
 class SummaryExportLongTask(SummaryExportTemplateTask):
+    """Task which exports the 5 character geohash export task."""
 
     def get_filename(self):
+        """Get the filename where the output should be written.
+
+        Returns:
+            String filename where the summary should be written.
+        """
         return 'export_summary_5char.csv'
 
     def get_geohash_size(self):
+        """Get the geohash size for which the summary should be generated.
+
+        Returns:
+            Geohash length like 4.
+        """
         return 5
 
 
 class CombinedTasksRecordTask(luigi.Task):
+    """Get a record of all simulation tasks."""
 
     def requires(self):
+        """Get the individual series task generation tasks.
+
+        Returns:
+            Mapping from name of series to task generation task.
+        """
         return {
             'historic': sim_tasks.MakeSimulationTasksHistoricTask(),
             '2030 series': sim_tasks.MakeSimulationTasks2030Task(),
@@ -726,9 +1000,15 @@ class CombinedTasksRecordTask(luigi.Task):
         }
 
     def output(self):
+        """Get the location at which the task CSV should be written.
+
+        Returns:
+            LocalTarget at which the output should be written.
+        """
         return luigi.LocalTarget(const.get_file_location('export_combined_tasks.csv'))
 
     def run(self):
+        """Build the output summary."""
         with self.output().open('w') as f_out:
             writer = csv.DictWriter(f_out, fieldnames=COMBINED_TASK_FIELDS)
             writer.writeheader()
@@ -740,14 +1020,26 @@ class CombinedTasksRecordTask(luigi.Task):
 
 
 class ExportClaimsRatesTask(luigi.Task):
+    """Determine the rate at which claims are expected in different simluations."""
 
     def requires(self):
+        """Require that the simulations be complete.
+
+        Returns:
+            CombineSimulationsTasks
+        """
         return sim_tasks.CombineSimulationsTasks()
 
     def output(self):
+        """Get the location where information about the claims rate should be written.
+
+        Returns:
+            LocalTarget at which the claims rate should be written.
+        """
         return luigi.LocalTarget(const.get_file_location('export_claims.csv'))
 
     def run(self):
+        """Calculate claims rate."""
         with self.output().open('w') as f_out:
             writer = csv.DictWriter(f_out, fieldnames=CLAIMS_COLS)
             writer.writeheader()
@@ -764,6 +1056,14 @@ class ExportClaimsRatesTask(luigi.Task):
                 writer.writerows(reduced)
 
     def _simplify_input(self, target):
+        """Parse, standardize, and simplify a raw simulation output record.
+
+        Args:
+            target: The record to simplify.
+
+        Returns:
+            The record after simplification and standardization.
+        """
         return {
             'offsetBaseline': target['offsetBaseline'],
             'year': {
@@ -794,6 +1094,15 @@ class ExportClaimsRatesTask(luigi.Task):
         }
 
     def _combine_records(self, a, b):
+        """Combine two different sampels from the outpu simulation.
+
+        Args:
+            a: The first sample to pool.
+            b: The second sample to pool.
+
+        Returns:
+            The combined sample.
+        """
         def get_weighted(key):
             a_val = a[key]
             a_num = a['num']
@@ -816,6 +1125,17 @@ class ExportClaimsRatesTask(luigi.Task):
         }
 
     def _key_record(self, record):
+        """Get the claims rate group key for a record.
+
+        Get the unique key describing a group (simulation, condition, threshold, etc) in which a
+        claims rate may be calculated.
+
+        Args:
+            record: The record for which a group key should be found.
+
+        Returns:
+            String group key.
+        """
         def get_value(key):
             if key in CLAIMS_RATE_GROUP_KEYS_FLOAT:
                 return '%.4f' % record[key]
