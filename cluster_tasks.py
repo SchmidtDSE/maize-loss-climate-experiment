@@ -18,7 +18,7 @@ import const
 
 class SimulatedDaskCluster:
     """Adapter which pretends to be a remote cluster but executes using local Dask distributed.
-    
+
     Adapter which pretends to be a remote cluster but executes using Dask distributed, allowing for
     execution of the pipeline optionally without remote machines.
     """
@@ -29,7 +29,7 @@ class SimulatedDaskCluster:
 
     def get_client(self):
         """Get the cluster client, starting the cluster if needed.
-        
+
         Returns:
             The cluster client.
         """
@@ -40,7 +40,7 @@ class SimulatedDaskCluster:
 
     def close(self, force_shutdown=True):
         """Close this cluster.
-        
+
         Args:
             force_shutdown: Flag indicating if the the cluster should be hard-terminated if needed.
                 True if yes and false if no (which may leave the cluster running). Defaults to true.
@@ -50,10 +50,10 @@ class SimulatedDaskCluster:
 
     def adapt(self, minimum=10, maximum=500):
         """Indicate the minimum and maximum resources usable by this cluster.
-        
+
         Indicate the minimum and maximum resources usable by this cluster, ignored as non-applicable
         by the local cluster.
-        
+
         Args:
             minimum: The minimum number of machines.
             maximum: The maximum number of machines.
@@ -66,7 +66,7 @@ simulated_cluster = SimulatedDaskCluster()
 
 def get_cluster():
     """Get the pipeline cluster or start it if it is not running.
-    
+
     Returns:
         Cluster after requesting it start or SimulatedDaskCluster if using local.
     """
@@ -92,7 +92,7 @@ class StartClusterTask(luigi.Task):
 
     def output(self):
         """Indicate where status should be written.
-        
+
         Returns:
             LocalTarget where status should be written.
         """
@@ -100,7 +100,7 @@ class StartClusterTask(luigi.Task):
 
     def run(self):
         """Run this step to start the cluster.
-        
+
         Run this step to start the cluster, writing the status message with the cluster name and
         dashboard link to the output file.
         """
@@ -117,7 +117,7 @@ class EndClusterTask(luigi.Task):
 
     def requires(self):
         """Get the task that should be completed prior to termination.
-        
+
         Returns:
             The task that should complete prior to spinning down the cluster.
         """
@@ -125,7 +125,7 @@ class EndClusterTask(luigi.Task):
 
     def output(self):
         """Get the location where status should be written.
-        
+
         Returns:
             LocalTarget where status can be written.
         """
@@ -146,7 +146,7 @@ class EndClusterTask(luigi.Task):
 
         Get the task that should be completed prior to termination, an abstract method to be
         completed by implementor.
-        
+
         Returns:
             The task that should complete prior to spinning down the cluster.
         """
