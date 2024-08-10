@@ -1,3 +1,8 @@
+"""Tasks to combine preprocessed datasets together.
+
+License:
+    BSD
+"""
 import csv
 import itertools
 import statistics
@@ -10,14 +15,28 @@ import preprocess_yield_tasks
 
 
 class GeohashCollectionBuilder:
+    """Builder to create yearly summaries for a geohash that include all variables."""
 
     def __init__(self, geohash):
+        """Create a new builder for a geohash.
+        
+        Args:
+            geohash: The geohash for which this builder will construct yearly summaries.
+        """
         self._geohash = geohash
         self._yield_means = []
         self._yield_stds = []
         self._years = {}
 
     def add_year(self, year, yield_mean, yield_std, yield_observations):
+        """Start building a new summary for a new year.
+        
+        Args:
+            year: The year for which a new summary should be started.
+            yield_mean: The mean value for yield to use for this summary.
+            yield_std: The standard deviation value for yield to use for this summary.
+            yield_observations: The sample size / number of observations of yield for this year.
+        """
         if year in self._years:
             return
 
@@ -31,6 +50,18 @@ class GeohashCollectionBuilder:
         )
 
     def add_climate_value(self, year, month, var, mean, std, min_val, max_val, count):
+        """Report a value for a climate variable like chirps.
+        
+        Args:
+            year: The year for which the value is reported.
+            month: The month for which the value is reported.
+            var: The name of the climate variable like chirps.
+            mean: The mean value of the climate variable reported for this month / year.
+            std: The standard deviation of the climate variable reported for this month / year.
+            min_val: The minimum value observed for the climate variable for this month / year.
+            max_val: The maximum value observed for the climate variable for this month / year.
+            count: The number of observations / sample size for this climate variable.
+        """
         if year not in self._years:
             return
 
@@ -38,24 +69,50 @@ class GeohashCollectionBuilder:
         year_builder.add_climate_value(month, var, mean, std, min_val, max_val, count)
 
     def to_dicts(self):
+        """Generate yearly summaries for this geohash for all climate variables reported.
+        
+        Returns:
+            List of primitives-only dictionaries.
+        """
         inner_dicts = map(lambda x: x.to_dict(), self._years.values())
 
-        yield_mean = statistics.mean(self._yield_means)
-        yield_std = statistics.mean(self._yield_stds)
+        baseline_yield_mean = statistics.mean(self._yield_means)
+        baseline_yield_std = statistics.mean(self._yield_stds)
 
-        def add_top_line_attrs(target):
+        def add_baselines(target):
+            """Report the overall average for the geohash across the series as baseline.
+
+            Some statistics or modeling require a "baseline" value which is simpley the overall
+            average of average yield and the overall average of yield std for all years for the
+            geohash. This adds those values to output dictionaries.
+            
+            Args:
+                target: The output record to augment.
+            
+            Returns:
+                The input target with baseline 
+            """
             target['geohash'] = self._geohash
-            target['baselineYieldMean'] = yield_mean
-            target['baselineYieldStd'] = yield_std
+            target['baselineYieldMean'] = baseline_yield_mean
+            target['baselineYieldStd'] = baseline_yield_std
             return target
 
-        finished_dicts = map(add_top_line_attrs, inner_dicts)
+        finished_dicts = map(add_baselines, inner_dicts)
         return finished_dicts
 
 
 class TrainingInstanceBuilder:
+    """Builder to generate model training a single year summary for a single geohash."""
 
     def __init__(self, year, yield_mean, yield_std, yield_observations):
+        """Create a new builder.
+        
+        Args:
+            year: The year for which training instances are being generated.
+            yield_mean: The average yield for the year.
+            yield_std: The standard deviation of yield for the year.
+            yield_observations: Sample size / observation count for yield.
+        """
         self._year = year
         self._yield_mean = yield_mean
         self._yield_std = yield_std
@@ -70,6 +127,11 @@ class TrainingInstanceBuilder:
         self._keys = set()
 
     def add_climate_value(self, month, var, mean, std, min_val, max_val, count):
+        """Indicate the value of a climate variable observed within this year.
+        
+        Args:
+            month: The month for which a climate value i
+        """
         var_rename = const.CLIMATE_VARIABLE_TO_ATTR[var]
         key = '%s/%d' % (var_rename, month)
 
