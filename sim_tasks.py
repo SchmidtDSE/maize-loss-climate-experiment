@@ -1,3 +1,8 @@
+"""Tasks that run the Monte Carlo simulations.
+
+License:
+    BSD
+"""
 import csv
 import functools
 import itertools
@@ -56,9 +61,27 @@ SIM_PARTIAL_AVG = 0
 
 
 class Task:
+    """Task defining a simulation to execute."""
 
     def __init__(self, geohash, year, condition, original_mean, original_std, projected_mean,
         projected_std, num_observations):
+        """Create a new task record.
+        
+        Args:
+            geohash: The name of the geohash to be simulated.
+            year: The year for which the geohash is to be simulated.
+            condition: The name of the condition for which the geohash should be simulated like
+                2050_SSP245.
+            original_mean: The original mean of yield deltas (in the counterfactual or baseline) in
+                this geohash.
+            original_std: The original standard deviation of yield deltas (in the counterfactual or
+                baseline) in this geohash.
+            projected_mean: The experimental (neural network predicted) mean of yield deltas in this
+                geohash.
+            projected_std: The experimental (neural network predicted) standard deviation of yield
+                deltas in this geohash.
+            num_observations: The sample size or number of observations (pixels) in this geohash.
+        """
         self._geohash = geohash
         self._year = year
         self._condition = condition
@@ -69,32 +92,101 @@ class Task:
         self._num_observations = num_observations
 
     def get_geohash(self):
+        """Get the name of the geohash to simulate.
+        
+        Returns:
+            The name of the geohash to be simulated.
+        """
         return self._geohash
 
     def get_year(self):
+        """Get the year for which the geohash should be simulated.
+        
+        Returns:
+            The year for which the geohash is to be simulated.
+        """
         return self._year
 
     def get_condition(self):
+        """Get the condition in which the geohash should be simulated.
+        
+        Returns:
+            The name of the condition for which the geohash should be simulated like 2050_SSP245.
+        """
         return self._condition
 
     def get_original_mean(self):
+        """Get the original yield delta mean in the baseline or counterfactual.
+        
+        Returns:
+            The original mean of yield deltas (in the counterfactual or baseline) in this geohash.
+        """
         return self._original_mean
 
     def get_original_std(self):
+        """Get the original yield delta standard deviation in the baseline or counterfactual.
+        
+        Returns:
+            The original standard deviation of yield deltas (in the counterfactual or baseline) in
+            this geohash.
+        """
         return self._original_std
 
     def get_projected_mean(self):
+        """Get the yield delta mean in the experimental or predicted series.
+        
+        Returns:
+            The experimental (neural network predicted) mean of yield deltas in this geohash.
+        """
         return self._projected_mean
 
     def get_projected_std(self):
+        """Get the yield delta standard deivation in the experimental or predicted series.
+        
+        Returns:
+            The experimental (neural network predicted) standard deviation of yield deltas in this
+            geohash.
+        """
         return self._projected_std
 
     def get_num_observations(self):
+        """Get the number of observations (pixels) for this simulation.
+        
+        Returns:
+            The sample size or number of observations (pixels) in this geohash.
+        """
         return self._num_observations
 
 
 def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_baseline,
     unit_sizes, std_thresholds, sample_model_residuals):
+    """Run a single geohash simulation.
+
+    Run a single geohash simulation from within a self-contained function that can run in
+    distribution meaning it has its own imports and can be exported to other machines.
+    
+    Args:
+        task: The task describing the simulation to execute.
+        deltas: The model residuals as yield deltas to sample (should be a dictionary with mean and
+            std mapping to list of numbers).
+        threshold: The loss / claims threshold as a precent like 0.15 for 15% below average.
+        std_mult: The amount by which to muiltiply the standard deviation in simulation. A value of
+            1 leaves things as is from the model outputs.
+        geohash_sim_size: The size of the geohash (number of characters like 4) to simulate.
+        offset_baseline: Should be 'always' or 'negative' or 'never' describing when the APH should
+            be calculated by sampling the original distribution. Always means that the original
+            distribution is always sampled, never means APH is assumed to be baseline yield, and
+            negative means sampling only when the predicted average is lower than the original.
+        unit_sizes: List of insured unit sizes to sample as pixels. See `refine/unit_size.json` for
+            more details.
+        std_thresholds: The loss / claims threshold as standard deviations like 2.11 for 2.11
+            standard deviations below average.
+        sample_model_residuals: Flag indicating if the model residuals should be sampled and offset
+            within the simulations.
+    
+    Returns:
+        Dictionary with OUTPUT_FIELDS describing simulation results.
+    """
 
     import math
     import random
@@ -237,6 +329,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
     p_baseline = scipy.stats.mannwhitneyu(predicted_deltas, baseline_deltas)[1]
     p_adapted = scipy.stats.mannwhitneyu(predicted_deltas, adapted_deltas)[1]
 
+    # This would ideally be a structured object.
     ret_dict = {
         'offsetBaseline': offset_baseline,
         'unitSize': unit_size,
@@ -296,6 +389,14 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
 
 def parse_record(record_raw):
+    """Parse a single raw tuple record describing a simulation task as a Task object.
+    
+    Args:
+        record_raw: The raw tuple record to parse.
+    
+    Returns:
+        The record after parsing into a Task object.
+    """
     geohash = str(record_raw[0])
     year = int(record_raw[1])
     condition = str(record_raw[2])
@@ -318,6 +419,14 @@ def parse_record(record_raw):
 
 
 def parse_record_dict(record_raw):
+    """Parse a single raw dict record describing a simulation task as a Task object.
+    
+    Args:
+        record_raw: The raw dict record to parse.
+    
+    Returns:
+        The record after parsing into a Task object.
+    """
     geohash = str(record_raw['geohash'])
     year = int(record_raw['year'])
     condition = str(record_raw['condition'])
@@ -341,6 +450,11 @@ def parse_record_dict(record_raw):
 
 def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, offset_baseline,
     unit_sizes, std_thresholds, sample_model_residuals):
+    """Run a set of simulations.
+    
+    Args:
+
+    """
     results_all = map(
         lambda x: run_simulation(
             x,
