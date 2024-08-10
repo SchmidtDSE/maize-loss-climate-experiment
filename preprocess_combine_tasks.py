@@ -19,7 +19,7 @@ class GeohashCollectionBuilder:
 
     def __init__(self, geohash):
         """Create a new builder for a geohash.
-        
+
         Args:
             geohash: The geohash for which this builder will construct yearly summaries.
         """
@@ -30,7 +30,7 @@ class GeohashCollectionBuilder:
 
     def add_year(self, year, yield_mean, yield_std, yield_observations):
         """Start building a new summary for a new year.
-        
+
         Args:
             year: The year for which a new summary should be started.
             yield_mean: The mean value for yield to use for this summary.
@@ -51,7 +51,7 @@ class GeohashCollectionBuilder:
 
     def add_climate_value(self, year, month, var, mean, std, min_val, max_val, count):
         """Report a value for a climate variable like chirps.
-        
+
         Args:
             year: The year for which the value is reported.
             month: The month for which the value is reported.
@@ -70,7 +70,7 @@ class GeohashCollectionBuilder:
 
     def to_dicts(self):
         """Generate yearly summaries for this geohash for all climate variables reported.
-        
+
         Returns:
             List of primitives-only dictionaries.
         """
@@ -85,12 +85,12 @@ class GeohashCollectionBuilder:
             Some statistics or modeling require a "baseline" value which is simpley the overall
             average of average yield and the overall average of yield std for all years for the
             geohash. This adds those values to output dictionaries.
-            
+
             Args:
                 target: The output record to augment.
-            
+
             Returns:
-                The input target with baseline 
+                The input target with baseline.
             """
             target['geohash'] = self._geohash
             target['baselineYieldMean'] = baseline_yield_mean
@@ -106,7 +106,7 @@ class TrainingInstanceBuilder:
 
     def __init__(self, year, yield_mean, yield_std, yield_observations):
         """Create a new builder.
-        
+
         Args:
             year: The year for which training instances are being generated.
             yield_mean: The average yield for the year.
@@ -128,7 +128,7 @@ class TrainingInstanceBuilder:
 
     def add_climate_value(self, month, var, mean, std, min_val, max_val, count):
         """Indicate the value of a climate variable observed within this year.
-        
+
         Args:
             month: The month for which the value is reported.
             var: The name of the climate variable like chirps.
@@ -153,7 +153,7 @@ class TrainingInstanceBuilder:
 
     def to_dict(self):
         """Generate a single output record describing all variables for this year.
-        
+
         Returns:
             Primitives-only dictionary representing this geohash for this year.
         """
@@ -183,7 +183,7 @@ class CombineHistoricPreprocessTask(luigi.Task):
 
     def requires(self):
         """Indicate that preprocessed climate and yields data are required.
-        
+
         Returns:
             PreprocessClimateGeotiffsTask and PreprocessYieldGeotiffsTask
         """
@@ -198,7 +198,7 @@ class CombineHistoricPreprocessTask(luigi.Task):
 
     def output(self):
         """Indicate where the combined summaries should be written.
-        
+
         Returns:
             LocalTarget at which these combined summaries should be written.
         """
@@ -262,7 +262,7 @@ class CombineHistoricPreprocessTask(luigi.Task):
 
 class ReformatFuturePreprocessTask(luigi.Task):
     """Create a model-compatible frame in which future yields can be predicted.
-    
+
     Create a model-compatible frame containing climate projections in a format in which future
     yields can be predicted.
     """
@@ -271,7 +271,7 @@ class ReformatFuturePreprocessTask(luigi.Task):
 
     def requires(self):
         """Indicate that climate data are required.
-        
+
         Returns:
             PreprocessClimateGeotiffsTask
         """
@@ -285,7 +285,7 @@ class ReformatFuturePreprocessTask(luigi.Task):
 
     def output(self):
         """Indicate the location at which the reformatted data frame should be written.
-        
+
         Returns:
             LocalTarget at which the reformatted data should be written.
         """
