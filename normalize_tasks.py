@@ -16,10 +16,10 @@ import preprocess_combine_tasks
 
 def try_float(target):
     """Try converting a string to a float and return None if parsing fails.
-    
+
     Args:
         target: The string to parse.
-    
+
     Returns:
         The number parsed.
     """
@@ -31,10 +31,10 @@ def try_float(target):
 
 def try_int(target):
     """Try converting a string to an int and return None if parsing fails.
-    
+
     Args:
         target: The string to parse.
-    
+
     Returns:
         The number parsed.
     """
@@ -46,10 +46,10 @@ def try_int(target):
 
 def parse_row(row):
     """Parse all fields in an input training row.
-    
+
     Args:
         row: The row for which fields should be parsed.
-    
+
     Returns:
         Row after parsing.
     """
@@ -66,13 +66,13 @@ def parse_row(row):
 
 def get_finite_maybe(target):
     """Force a numeric value to be finte.
-    
+
     Try converting a value to a finite float and return None if parsing fails or the value is
     infinite.
-    
+
     Args:
         target: The string to parse.
-    
+
     Returns:
         The number parsed.
     """
@@ -89,7 +89,7 @@ class GetHistoricAveragesTask(luigi.Task):
 
     def requires(self):
         """Return the required task which normalizes historic data.
-        
+
         Returns:
             CombineHistoricPreprocessTask
         """
@@ -97,7 +97,7 @@ class GetHistoricAveragesTask(luigi.Task):
 
     def output(self):
         """Determine where the averages should be written.
-        
+
         Returns:
             LocalTarget where the averages should be written.
         """
@@ -135,14 +135,14 @@ class GetHistoricAveragesTask(luigi.Task):
 
 class GetAsDeltaTaskTemplate(luigi.Task):
     """Template for task which converts to yield deltas.
-    
+
     Abstract base class which serves as a template for task which convert from yields to yield
     deltas.
     """
 
     def requires(self):
         """Require that the averages and the dataset to convert needs to be available.
-        
+
         Returns:
             The GetHistoricAveragesTask which porivdes averages and the target to convert.
         """
@@ -153,7 +153,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
     def output(self):
         """Determine where the deltas should be written.
-        
+
         Returns:
             LocalTarget where the updated data should be written.
         """
@@ -214,7 +214,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
     def get_target(self):
         """Get the task whose output should be converted to yield deltas.
-        
+
         Returns:
             Luigi task.
         """
@@ -222,7 +222,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
     def get_filename(self):
         """Get the filename to which the results should be written.
-        
+
         Returns:
             Filename as string (not path).
         """
@@ -234,7 +234,7 @@ class GetHistoricAsDeltaTask(GetAsDeltaTaskTemplate):
 
     def get_target(self):
         """Get the task whose output should be converted to yield deltas.
-        
+
         Returns:
             Luigi task.
         """
@@ -242,7 +242,7 @@ class GetHistoricAsDeltaTask(GetAsDeltaTaskTemplate):
 
     def get_filename(self):
         """Get the filename to which the results should be written.
-        
+
         Returns:
             Filename as string (not path).
         """
@@ -256,7 +256,7 @@ class GetFutureAsDeltaTask(GetAsDeltaTaskTemplate):
 
     def get_target(self):
         """Get the task whose output should be converted to yield deltas.
-        
+
         Returns:
             Luigi task.
         """
@@ -264,7 +264,7 @@ class GetFutureAsDeltaTask(GetAsDeltaTaskTemplate):
 
     def get_filename(self):
         """Get the filename to which the results should be written.
-        
+
         Returns:
             Filename as string (not path).
         """
@@ -276,7 +276,7 @@ class GetInputDistributionsTask(luigi.Task):
 
     def requires(self):
         """Get the task which provides yield deltas and input variables.
-        
+
         Returns:
             GetHistoricAsDeltaTask
         """
@@ -284,7 +284,7 @@ class GetInputDistributionsTask(luigi.Task):
 
     def output(self):
         """Get the location at which information needed for z score normalization should be written.
-        
+
         Returns:
             LocalTarget at which distributional information should be written as required for z
             scores.
@@ -320,11 +320,11 @@ class GetInputDistributionsTask(luigi.Task):
 
     def _serialize_accumulator(self, field, accumulator):
         """Serialize the results of an accumulator to a primitives only dictionary.
-        
+
         Args:
             field: The field for which distributional information should be serialized.
             accumulator: The accumulator for the given field.
-        
+
         Returns:
             Serialized accumulator for a single field.
         """
@@ -337,14 +337,14 @@ class GetInputDistributionsTask(luigi.Task):
 
 class NormalizeTrainingFrameTemplateTask(luigi.Task):
     """Template for task which normalizes inputs for use with the neural network.
-    
+
     Abstract base class (template class) for task which normalizes inputs for use with the neural
     network or other statistical tasks downstream dependent on that standardized frame.
     """
 
     def requires(self):
         """Indicate that distributional data is needed for z scores and indicate target.
-        
+
         Returns:
             GetInputDistributionsTask and the get_target() to normalize.
         """
@@ -355,7 +355,7 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
 
     def output(self):
         """Indicate where the normalized frame should be written.
-        
+
         Returns:
             LocalTarget where the normalized frame should be written.
         """
@@ -399,7 +399,7 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
 
     def get_target(self):
         """Get the task whose output should be normalized.
-        
+
         Returns:
             Luigi task
         """
@@ -407,7 +407,7 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
 
     def get_filename(self):
         """Get the filename where the output should be written within workspace.
-        
+
         Returns:
             String filename (not full path).
         """
@@ -415,10 +415,10 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
 
     def _parse_row(self, row):
         """Parse an input row, converting strings to numbers were appropriate.
-        
+
         Args:
             row: The row to parse.
-        
+
         Returns:
             The row after parsing.
         """
@@ -426,13 +426,13 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
 
     def _set_aside_attrs(self, row):
         """Make copies of some values prior to normalization for informational purposes.
-        
+
         Some fields' original values can be useful for statistical purposes downstream and this
         step makes a copy prior to normalization.
-        
+
         Args:
             row: The row to modify.
-        
+
         Returns:
             The row after normlaization.
         """
@@ -442,11 +442,11 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
 
     def _transform_z(self, row, distributions):
         """Transform fields to z scores.
-        
+
         Args:
             row: The row to transform.
             distributions: Distributional information about each field needed for z normalization.
-        
+
         Returns:
             Row after normalization.
         """
@@ -477,13 +477,13 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
 
     def _force_values(self, row):
         """Ensure that all numeric values are valid (no None or NaN).
-        
+
         Ensure that all numeric values are valid (no None or NaN), using the sentinel INVALID_VALUE
         where needed.
-        
+
         Args:
             row: The row whose values should be ensured.
-        
+
         Returns:
             The row after ensuring numeric values.
         """
@@ -500,10 +500,10 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
 
     def _standardize_fields(self, row):
         """Check that expected and only expected fields are present.
-        
+
         Args:
             row: The dictionary to check for expected fields.
-        
+
         Returns:
             The row with only expected fields.
         """
@@ -515,7 +515,7 @@ class NormalizeHistoricTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
 
     def get_target(self):
         """Indicate that this task should normalize historic data with yield deltas.
-        
+
         Returns:
             GetHistoricAsDeltaTask
         """
@@ -523,7 +523,7 @@ class NormalizeHistoricTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
 
     def get_filename(self):
         """Get the filename where the outputs should be written.
-        
+
         Returns:
             historic_normalized.csv
         """
@@ -538,7 +538,7 @@ class NormalizeFutureTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
     def get_target(self):
         """
         Indicate that this task should normalize future data with yield deltas.
-        
+
         Returns:
             GetFutureAsDeltaTask
         """
@@ -546,7 +546,7 @@ class NormalizeFutureTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
 
     def get_filename(self):
         """Get the filename where the outputs should be written.
-        
+
         Returns:
             String filename, not full path.
         """
