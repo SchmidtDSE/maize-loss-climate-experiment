@@ -1,3 +1,8 @@
+"""Tasks which preprocess yield estimations from SCYM.
+
+License:
+    BSD
+"""
 import csv
 import itertools
 import os
@@ -11,7 +16,22 @@ import const
 import cluster_tasks
 
 
-def process_single(remote_filename, access_key, access_secret):
+def process_single(source_filename, access_key='', access_secret=''):
+    """Summarize a single yield geotiff.
+
+    Summarize a single yield geotiff within a self-contained function which can be run in
+    distributed computing. This has its own inputs and can be exported to other machines.
+
+    Args:
+        source_filename: The filename of the input geotiff.
+        access_key: The AWS access key to use to access the geotiff if remote. If empty string, will
+            treat source_filename as local. Defaults to empty string ('').
+        access_secret: The AWS access secret to use to access the geotiff if remote. If empty
+            string, will treat source_filename as local. Defaults to empty string ('').
+
+    Returns:
+        GeohashYieldSummary
+    """
     import os
 
     import geotiff
@@ -24,10 +44,10 @@ def process_single(remote_filename, access_key, access_secret):
     import const
     import data_struct
 
-    def get_temporary_file(remote_filename):
+    def get_temporary_file(source_filename):
         return file_util.save_file_tmp(
             const.BUCKET_OR_DIR,
-            remote_filename,
+            source_filename,
             access_key,
             access_secret
         )
@@ -39,8 +59,8 @@ def process_single(remote_filename, access_key, access_secret):
             access_secret
         )
 
-    def run(remote_filename):
-        full_path = get_temporary_file(remote_filename)
+    def run(source_filename):
+        full_path = get_temporary_file(source_filename)
 
         assert os.path.isfile(full_path)
 
@@ -56,7 +76,7 @@ def process_single(remote_filename, access_key, access_secret):
         ])
         all_geohashes = libgeohash.polygon_to_geohash(polygon, precision=4)
 
-        match = const.YEAR_REGEX.match(remote_filename)
+        match = const.YEAR_REGEX.match(source_filename)
         year = int(match.group(1))
 
         summaries = map(
@@ -102,16 +122,27 @@ def process_single(remote_filename, access_key, access_secret):
             kurtosis
         )
 
-    return run(remote_filename)
+    return run(source_filename)
 
 
 class GetYieldGeotiffsTask(luigi.Task):
+    """Task to build task information for actual preprocessing.
+
+    Task to build task information for actual preprocessing, enumerating the geohash / year pairs
+    and the specific geotiffs to be processed. This information is a list of geotiff filenames.
+    """
 
     def output(self):
+        """Get location where the task information should be written.
+
+        Returns:
+            LocalTarget at which the task information (list of geotiff filenames) should be written.
+        """
         return luigi.LocalTarget(const.get_file_location('yield_tasks.txt'))
 
     def run(self):
-        candidate_files = self._get_remote_file_listing()
+        """Determine the specific tasks to be completed for later preprocessing."""
+        candidate_files = self._get_file_listing()
         matching_files = filter(
             lambda x: const.YEAR_REGEX.match(str(x)) is not None,
             candidate_files
@@ -125,7 +156,12 @@ class GetYieldGeotiffsTask(luigi.Task):
             output_str = '\n'.join(matching_files_no_aux)
             f.write(output_str)
 
-    def _get_remote_file_listing(self):
+    def _get_file_listing(self):
+        """Get the list of geotiff files.
+
+        Returns:
+            List of files as strings.
+        """
         access_key = os.environ.get('AWS_ACCESS_KEY', '')
         access_secret = os.environ.get('AWS_ACCESS_SECRET', '')
         bucket_name = const.BUCKET_OR_DIR
@@ -133,17 +169,29 @@ class GetYieldGeotiffsTask(luigi.Task):
 
 
 class PreprocessYieldGeotiffsTask(luigi.Task):
+    """Preprocess yield information by geohash."""
 
     def requires(self):
+        """Return list of tasks required to run yield preprocessing.
+
+        Returns:
+            StartClusterTask and GetYieldGeotiffsTask
+        """
         return {
             'cluster': cluster_tasks.StartClusterTask(),
             'tasks': GetYieldGeotiffsTask()
         }
 
     def output(self):
+        """Get the location where the task information should be written.
+
+        Returns:
+            LocalTarget where the preprocessed data should be written.
+        """
         return luigi.LocalTarget(const.get_file_location('yield.csv'))
 
     def run(self):
+        """Preprocess yield information."""
         input_files = self._get_tasks()
 
         input_records_nest = self._run_tasks(input_files)
@@ -166,6 +214,11 @@ class PreprocessYieldGeotiffsTask(luigi.Task):
             writer.writerows(output_dicts)
 
     def _get_tasks(self):
+        """Get information about preprocessing tasks.
+
+        Returns:
+            List of files to be preprocessed.
+        """
         with self.input()['tasks'].open('r') as f:
             all_lines = map(lambda x: x.strip(), f)
             non_empty_lines = filter(lambda x: x != '', all_lines)
@@ -174,6 +227,14 @@ class PreprocessYieldGeotiffsTask(luigi.Task):
         return ret_lines
 
     def _run_tasks(self, tasks):
+        """Preprocess a series of geotiffs.
+
+        Args:
+            tasks: The list of geotiff filenames to preprocess.
+
+        Returns:
+            List of geotiff filenames.
+        """
         cluster = cluster_tasks.get_cluster()
         cluster.adapt(minimum=10, maximum=50)
         client = cluster.get_client()
@@ -190,11 +251,18 @@ class PreprocessYieldGeotiffsTask(luigi.Task):
 
 
 class GetTargetGeohashesTask(luigi.Task):
+    """Get the list of geohashes to be included in analysis."""
 
     def requires(self):
+        """Get the task which determines the geotiffs to preprocess.
+
+        Returns:
+            PreprocessYieldGeotiffsTask
+        """
         return PreprocessYieldGeotiffsTask()
 
     def run(self):
+        """Write out a list of geohashes to be included in analysis as a CSV file."""
         with self.input().open() as f:
             reader = csv.DictReader(f)
             geohashes = set(map(lambda x: x['geohash'], reader))
@@ -205,4 +273,9 @@ class GetTargetGeohashesTask(luigi.Task):
                 f.write('\n')
 
     def output(self):
+        """Indicate where the list of geohashes should be written.
+
+        Returns:
+            LocalTarget at which the CSV file should be written.
+        """
         return luigi.LocalTarget(const.get_file_location('geohashes.txt'))

@@ -1,4 +1,4 @@
-"""Tasks to summarize climate variable geotiffs by geohash.
+"""Tasks to summarize climate variable geotiffs (CHC-CMIP6) by geohash.
 
 License:
     BSD
