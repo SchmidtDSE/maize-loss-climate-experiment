@@ -66,7 +66,7 @@ class Task:
     def __init__(self, geohash, year, condition, original_mean, original_std, projected_mean,
         projected_std, num_observations):
         """Create a new task record.
-        
+
         Args:
             geohash: The name of the geohash to be simulated.
             year: The year for which the geohash is to be simulated.
@@ -93,7 +93,7 @@ class Task:
 
     def get_geohash(self):
         """Get the name of the geohash to simulate.
-        
+
         Returns:
             The name of the geohash to be simulated.
         """
@@ -101,7 +101,7 @@ class Task:
 
     def get_year(self):
         """Get the year for which the geohash should be simulated.
-        
+
         Returns:
             The year for which the geohash is to be simulated.
         """
@@ -109,7 +109,7 @@ class Task:
 
     def get_condition(self):
         """Get the condition in which the geohash should be simulated.
-        
+
         Returns:
             The name of the condition for which the geohash should be simulated like 2050_SSP245.
         """
@@ -117,7 +117,7 @@ class Task:
 
     def get_original_mean(self):
         """Get the original yield delta mean in the baseline or counterfactual.
-        
+
         Returns:
             The original mean of yield deltas (in the counterfactual or baseline) in this geohash.
         """
@@ -125,7 +125,7 @@ class Task:
 
     def get_original_std(self):
         """Get the original yield delta standard deviation in the baseline or counterfactual.
-        
+
         Returns:
             The original standard deviation of yield deltas (in the counterfactual or baseline) in
             this geohash.
@@ -134,7 +134,7 @@ class Task:
 
     def get_projected_mean(self):
         """Get the yield delta mean in the experimental or predicted series.
-        
+
         Returns:
             The experimental (neural network predicted) mean of yield deltas in this geohash.
         """
@@ -142,7 +142,7 @@ class Task:
 
     def get_projected_std(self):
         """Get the yield delta standard deivation in the experimental or predicted series.
-        
+
         Returns:
             The experimental (neural network predicted) standard deviation of yield deltas in this
             geohash.
@@ -151,7 +151,7 @@ class Task:
 
     def get_num_observations(self):
         """Get the number of observations (pixels) for this simulation.
-        
+
         Returns:
             The sample size or number of observations (pixels) in this geohash.
         """
@@ -164,7 +164,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
     Run a single geohash simulation from within a self-contained function that can run in
     distribution meaning it has its own imports and can be exported to other machines.
-    
+
     Args:
         task: The task describing the simulation to execute.
         deltas: The model residuals as yield deltas to sample (should be a dictionary with mean and
@@ -183,7 +183,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
             standard deviations below average.
         sample_model_residuals: Flag indicating if the model residuals should be sampled and offset
             within the simulations.
-    
+
     Returns:
         Dictionary with OUTPUT_FIELDS describing simulation results.
     """
@@ -390,10 +390,10 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
 def parse_record(record_raw):
     """Parse a single raw tuple record describing a simulation task as a Task object.
-    
+
     Args:
         record_raw: The raw tuple record to parse.
-    
+
     Returns:
         The record after parsing into a Task object.
     """
@@ -420,10 +420,10 @@ def parse_record(record_raw):
 
 def parse_record_dict(record_raw):
     """Parse a single raw dict record describing a simulation task as a Task object.
-    
+
     Args:
         record_raw: The raw dict record to parse.
-    
+
     Returns:
         The record after parsing into a Task object.
     """
@@ -451,7 +451,7 @@ def parse_record_dict(record_raw):
 def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, offset_baseline,
     unit_sizes, std_thresholds, sample_model_residuals):
     """Run a set of simulations.
-    
+
     Args:
         tasks: The tasks describing the simulations to execute.
         deltas: The model residuals as yield deltas to sample (should be a dictionary with mean and
@@ -470,7 +470,7 @@ def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, off
             standard deviations below average.
         sample_model_residuals: Flag indicating if the model residuals should be sampled and offset
             within the simulations.
-    
+
     Returns:
         List of dictionaries with OUTPUT_FIELDS describing simulation results.
     """
@@ -495,7 +495,7 @@ def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, off
 
 class NormalizeRefHistoricTrainingFrameTask(luigi.Task):
     """Get the historic reference data.
-    
+
     Prepare the historic reference data (not used for model training but for baselines in the
     simulations). This specifically filters normalized rows prepared in a prior step and checks the
     output fields are expected.
@@ -503,7 +503,7 @@ class NormalizeRefHistoricTrainingFrameTask(luigi.Task):
 
     def requires(self):
         """Indicate which task whose output to filter.
-        
+
         Returns:
             NormalizeHistoricTrainingFrameTask
         """
@@ -511,7 +511,7 @@ class NormalizeRefHistoricTrainingFrameTask(luigi.Task):
 
     def output(self):
         """Indicate where the filtered data should be written.
-        
+
         Returns:
             LocalTarget at which filtered data should be written.
         """
@@ -534,7 +534,7 @@ class GetNumObservationsTask(luigi.Task):
 
     def requires(self):
         """Indicate that this task requires historic data.
-        
+
         Returns:
             NormalizeRefHistoricTrainingFrameTask
         """
@@ -542,7 +542,7 @@ class GetNumObservationsTask(luigi.Task):
 
     def output(self):
         """Get the location at which the observations should be written.
-        
+
         Returns:
             LocalTarget at which the CSV file should be written.
         """
@@ -561,10 +561,10 @@ class GetNumObservationsTask(luigi.Task):
 
     def _standardize_row(self, target):
         """Ensure an input dataset fits an expected format.
-        
+
         Args:
             target: The row to standardize and from which to parse numeric data.
-        
+
         Returns:
             Standardized row.
         """
@@ -580,10 +580,10 @@ class ProjectTaskTemplate(luigi.Task):
 
     def requires(self):
         """Indicate the prerequisite tasks.
-        
+
         Indicate that model and selected sweep configuration are required along with a frame
         containing input data.
-        
+
         Returns:
             TrainFullModel and SelectConfigurationTask as well as the target task.
         """
@@ -595,7 +595,7 @@ class ProjectTaskTemplate(luigi.Task):
 
     def output(self):
         """Determine where the projections should be written.
-        
+
         Returns:
             LocalTarget at which the results should be written.
         """
@@ -635,7 +635,7 @@ class ProjectTaskTemplate(luigi.Task):
 
     def get_target_task(self):
         """Get the task whose output should be used as model inputs.
-        
+
         Returns:
             Luigi task.
         """
@@ -643,7 +643,7 @@ class ProjectTaskTemplate(luigi.Task):
 
     def get_base_year(self):
         """Get the "center" year of the series to be predicted.
-        
+
         Returns:
             Integer year like 2007, 2030, or 2050.
         """
@@ -651,7 +651,7 @@ class ProjectTaskTemplate(luigi.Task):
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
-        
+
         Returns:
             Filename (not full path) as string.
         """
@@ -663,10 +663,10 @@ class InterpretProjectTaskTemplate(luigi.Task):
 
     def requires(self):
         """Get the prerequisite tasks.
-        
+
         Indicate that distribution information is needed and the task whose output is to be
         interpreted.
-        
+
         Returns:
             GetInputDistributionsTask and the target task.
         """
@@ -677,7 +677,7 @@ class InterpretProjectTaskTemplate(luigi.Task):
 
     def output(self):
         """Indicate where the reformatted data should be written.
-        
+
         Returns:
             LocalTarget at which outputs should be written.
         """
@@ -715,7 +715,7 @@ class InterpretProjectTaskTemplate(luigi.Task):
 
     def get_target_task(self):
         """Get the task whose output should be reformatted.
-        
+
         Returns:
             Luigi task.
         """
@@ -723,7 +723,7 @@ class InterpretProjectTaskTemplate(luigi.Task):
 
     def get_filename(self):
         """Get the filename at which the reformatted data should be written.
-        
+
         Returns:
             String filename (but not full path).
         """
@@ -731,10 +731,10 @@ class InterpretProjectTaskTemplate(luigi.Task):
 
     def _standardize_row(self, target):
         """Ensure an input row has expected fields and types.
-        
+
         Args:
             target: The record to standardize.
-        
+
         Returns:
             The record after standardization.
         """
@@ -749,11 +749,11 @@ class InterpretProjectTaskTemplate(luigi.Task):
 
     def _update_row(self, row, distributions):
         """Unapply normalization to return to original human-interpretable values.
-        
+
         Args:
             row: The row to update.
             distributions: The distribution information to use to unnoramlize data.
-        
+
         Returns:
             Row after unnormalization.
         """
@@ -784,7 +784,7 @@ class MakeSimulationTasksTemplate(luigi.Task):
 
     def requires(self):
         """Indicate which tasks provide input data.
-        
+
         Args:
             GetNumObservationsTask as well as the baseline and projection data tasks.
         """
@@ -796,7 +796,7 @@ class MakeSimulationTasksTemplate(luigi.Task):
 
     def output(self):
         """Determine where the simulation task information should be written.
-        
+
         Returns:
             LocalTarget at which the simulation task information should be written.
         """
@@ -860,7 +860,7 @@ class MakeSimulationTasksTemplate(luigi.Task):
 
     def get_filename(self):
         """Get the filename at which the task information should be written.
-        
+
         Returns:
             Filename but not full path as string.
         """
@@ -868,7 +868,7 @@ class MakeSimulationTasksTemplate(luigi.Task):
 
     def get_baseline_task(self):
         """Get the task whose output describes geohash-level yield baselines.
-        
+
         Returns:
             Luigi task.
         """
@@ -876,7 +876,7 @@ class MakeSimulationTasksTemplate(luigi.Task):
 
     def get_projection_task(self):
         """Get the task whose output describes geohash-level yield predictions.
-        
+
         Returns:
             Luigi task.
         """
@@ -884,7 +884,7 @@ class MakeSimulationTasksTemplate(luigi.Task):
 
     def get_condition(self):
         """Get the condition in which the predicted data were made.
-        
+
         Returns:
             Name of condition as string like 2050_SSP245.
         """
@@ -892,10 +892,10 @@ class MakeSimulationTasksTemplate(luigi.Task):
 
     def _index_input(self, name):
         """Index one of the datasets by geohash and year.
-        
+
         Args:
             name: The name of the dataset to index. This is one of the inputs in requires.
-        
+
         Returns:
             The dataset after indexing.
         """
@@ -913,10 +913,10 @@ class MakeSimulationTasksTemplate(luigi.Task):
 
     def _parse_row(self, row):
         """Parse a raw input row.
-        
+
         Args:
             row: The raw row to parse.
-        
+
         Returns:
             The row with expected fields and data types.
         """
@@ -947,7 +947,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
 
     def requires(self):
         """Get the tasks whose outputs are required for running simulations.
-        
+
         Returns:
             StartClusterTask, CheckUnitSizes, DetermineEquivalentStdTask, task to generate
             simulation task information and task to generate model residuals.
@@ -962,7 +962,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
 
     def output(self):
         """Get the location at which the simulation outputs should be written.
-        
+
         Returns:
             LocalTarget at which to write simulation outputs.
         """
@@ -1046,7 +1046,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
 
     def get_tasks_task(self):
         """Get the simulation task information generation task.
-        
+
         Returns:
             Luigi task.
         """
@@ -1054,7 +1054,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
 
     def get_filename(self):
         """Get the filename at which the simulation outputs should be written.
-        
+
         Returns:
             String filename (not path).
         """
@@ -1062,7 +1062,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
 
     def get_deltas_task(self):
         """Get the task whose output are the model residuals.
-        
+
         Returns:
             Luigi task.
         """
@@ -1070,7 +1070,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
 
     def get_sample_model_residuals(self):
         """Determine if model residuals should be sampled and applied to simulation outputs.
-        
+
         Returns:
             True if model residuals should be sampled and false otherwise.
         """
@@ -1082,7 +1082,7 @@ class ProjectHistoricTask(luigi.Task):
 
     def requires(self):
         """Get the task whose outputs should be used as inputs to the neural network.
-        
+
         Returns:
             NormalizeRefHistoricTrainingFrameTask
         """
@@ -1092,7 +1092,7 @@ class ProjectHistoricTask(luigi.Task):
 
     def output(self):
         """Determine where the retroactive predictions should be written.
-        
+
         Returns:
             LocalTarget at which the predictions should be written.
         """
@@ -1124,7 +1124,7 @@ class ProjectHistoricModelTask(ProjectTaskTemplate):
 
     def get_target_task(self):
         """Get the task whose output should be used as model inputs.
-        
+
         Returns:
             Luigi task.
         """
@@ -1132,7 +1132,7 @@ class ProjectHistoricModelTask(ProjectTaskTemplate):
 
     def get_base_year(self):
         """Get the "center" year of the series to be predicted.
-        
+
         Returns:
             Integer year like 2007, 2030, or 2050.
         """
@@ -1140,7 +1140,7 @@ class ProjectHistoricModelTask(ProjectTaskTemplate):
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
-        
+
         Returns:
             Filename (not full path) as string.
         """
@@ -1152,7 +1152,7 @@ class Project2030Task(ProjectTaskTemplate):
 
     def get_target_task(self):
         """Get the task whose output should be used as model inputs.
-        
+
         Returns:
             Luigi task.
         """
@@ -1160,7 +1160,7 @@ class Project2030Task(ProjectTaskTemplate):
 
     def get_base_year(self):
         """Get the "center" year of the series to be predicted.
-        
+
         Returns:
             Integer year like 2007, 2030, or 2050.
         """
@@ -1168,7 +1168,7 @@ class Project2030Task(ProjectTaskTemplate):
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
-        
+
         Returns:
             Filename (not full path) as string.
         """
@@ -1180,7 +1180,7 @@ class Project2030CounterfactualTask(ProjectTaskTemplate):
 
     def get_target_task(self):
         """Get the task whose output should be used as model inputs.
-        
+
         Returns:
             Luigi task.
         """
@@ -1188,7 +1188,7 @@ class Project2030CounterfactualTask(ProjectTaskTemplate):
 
     def get_base_year(self):
         """Get the "center" year of the series to be predicted.
-        
+
         Returns:
             Integer year like 2007, 2030, or 2050.
         """
@@ -1196,7 +1196,7 @@ class Project2030CounterfactualTask(ProjectTaskTemplate):
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
-        
+
         Returns:
             Filename (not full path) as string.
         """
@@ -1208,7 +1208,7 @@ class Project2050Task(ProjectTaskTemplate):
 
     def get_target_task(self):
         """Get the task whose output should be used as model inputs.
-        
+
         Returns:
             Luigi task.
         """
@@ -1216,7 +1216,7 @@ class Project2050Task(ProjectTaskTemplate):
 
     def get_base_year(self):
         """Get the "center" year of the series to be predicted.
-        
+
         Returns:
             Integer year like 2007, 2030, or 2050.
         """
@@ -1224,7 +1224,7 @@ class Project2050Task(ProjectTaskTemplate):
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
-        
+
         Returns:
             Filename (not full path) as string.
         """
@@ -1236,7 +1236,7 @@ class Project2050CounterfactualTask(ProjectTaskTemplate):
 
     def get_target_task(self):
         """Get the task whose output should be used as model inputs.
-        
+
         Returns:
             Luigi task.
         """
@@ -1244,7 +1244,7 @@ class Project2050CounterfactualTask(ProjectTaskTemplate):
 
     def get_base_year(self):
         """Get the "center" year of the series to be predicted.
-        
+
         Returns:
             Integer year like 2007, 2030, or 2050.
         """
@@ -1252,7 +1252,7 @@ class Project2050CounterfactualTask(ProjectTaskTemplate):
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
-        
+
         Returns:
             Filename (not full path) as string.
         """
@@ -1264,7 +1264,7 @@ class InterpretProjectHistoricTask(InterpretProjectTaskTemplate):
 
     def get_target_task(self):
         """Get the task whose output should be reformatted.
-        
+
         Returns:
             Luigi task.
         """
@@ -1272,7 +1272,7 @@ class InterpretProjectHistoricTask(InterpretProjectTaskTemplate):
 
     def get_filename(self):
         """Get the filename at which the reformatted data should be written.
-        
+
         Returns:
             String filename (but not full path).
         """
@@ -1284,7 +1284,7 @@ class InterpretProject2030Task(InterpretProjectTaskTemplate):
 
     def get_target_task(self):
         """Get the task whose output should be reformatted.
-        
+
         Returns:
             Luigi task.
         """
@@ -1292,7 +1292,7 @@ class InterpretProject2030Task(InterpretProjectTaskTemplate):
 
     def get_filename(self):
         """Get the filename at which the reformatted data should be written.
-        
+
         Returns:
             String filename (but not full path).
         """
@@ -1304,7 +1304,7 @@ class InterpretProject2030CounterfactualTask(InterpretProjectTaskTemplate):
 
     def get_target_task(self):
         """Get the task whose output should be reformatted.
-        
+
         Returns:
             Luigi task.
         """
@@ -1312,7 +1312,7 @@ class InterpretProject2030CounterfactualTask(InterpretProjectTaskTemplate):
 
     def get_filename(self):
         """Get the filename at which the reformatted data should be written.
-        
+
         Returns:
             String filename (but not full path).
         """
@@ -1324,7 +1324,7 @@ class InterpretProject2050Task(InterpretProjectTaskTemplate):
 
     def get_target_task(self):
         """Get the task whose output should be reformatted.
-        
+
         Returns:
             Luigi task.
         """
@@ -1332,7 +1332,7 @@ class InterpretProject2050Task(InterpretProjectTaskTemplate):
 
     def get_filename(self):
         """Get the filename at which the reformatted data should be written.
-        
+
         Returns:
             String filename (but not full path).
         """
@@ -1344,7 +1344,7 @@ class InterpretProject2050CounterfactualTask(InterpretProjectTaskTemplate):
 
     def get_target_task(self):
         """Get the task whose output should be reformatted.
-        
+
         Returns:
             Luigi task.
         """
@@ -1352,7 +1352,7 @@ class InterpretProject2050CounterfactualTask(InterpretProjectTaskTemplate):
 
     def get_filename(self):
         """Get the filename at which the reformatted data should be written.
-        
+
         Returns:
             String filename (but not full path).
         """
@@ -1364,7 +1364,7 @@ class MakeSimulationTasksHistoricTask(MakeSimulationTasksTemplate):
 
     def get_filename(self):
         """Get the filename at which the task information should be written.
-        
+
         Returns:
             Filename but not full path as string.
         """
@@ -1372,7 +1372,7 @@ class MakeSimulationTasksHistoricTask(MakeSimulationTasksTemplate):
 
     def get_baseline_task(self):
         """Get the task whose output describes geohash-level yield baselines.
-        
+
         Returns:
             Luigi task.
         """
@@ -1380,7 +1380,7 @@ class MakeSimulationTasksHistoricTask(MakeSimulationTasksTemplate):
 
     def get_projection_task(self):
         """Get the task whose output describes geohash-level yield predictions.
-        
+
         Returns:
             Luigi task.
         """
@@ -1388,7 +1388,7 @@ class MakeSimulationTasksHistoricTask(MakeSimulationTasksTemplate):
 
     def get_condition(self):
         """Get the condition in which the predicted data were made.
-        
+
         Returns:
             Name of condition as string like 2050_SSP245.
         """
@@ -1400,7 +1400,7 @@ class MakeSimulationTasks2030Task(MakeSimulationTasksTemplate):
 
     def get_filename(self):
         """Get the filename at which the task information should be written.
-        
+
         Returns:
             Filename but not full path as string.
         """
@@ -1408,7 +1408,7 @@ class MakeSimulationTasks2030Task(MakeSimulationTasksTemplate):
 
     def get_baseline_task(self):
         """Get the task whose output describes geohash-level yield baselines.
-        
+
         Returns:
             Luigi task.
         """
@@ -1416,7 +1416,7 @@ class MakeSimulationTasks2030Task(MakeSimulationTasksTemplate):
 
     def get_projection_task(self):
         """Get the task whose output describes geohash-level yield predictions.
-        
+
         Returns:
             Luigi task.
         """
@@ -1424,7 +1424,7 @@ class MakeSimulationTasks2030Task(MakeSimulationTasksTemplate):
 
     def get_condition(self):
         """Get the condition in which the predicted data were made.
-        
+
         Returns:
             Name of condition as string like 2050_SSP245.
         """
@@ -1436,7 +1436,7 @@ class MakeSimulationTasks2050Task(MakeSimulationTasksTemplate):
 
     def get_filename(self):
         """Get the filename at which the task information should be written.
-        
+
         Returns:
             Filename but not full path as string.
         """
@@ -1444,7 +1444,7 @@ class MakeSimulationTasks2050Task(MakeSimulationTasksTemplate):
 
     def get_baseline_task(self):
         """Get the task whose output describes geohash-level yield baselines.
-        
+
         Returns:
             Luigi task.
         """
@@ -1452,7 +1452,7 @@ class MakeSimulationTasks2050Task(MakeSimulationTasksTemplate):
 
     def get_projection_task(self):
         """Get the task whose output describes geohash-level yield predictions.
-        
+
         Returns:
             Luigi task.
         """
@@ -1460,7 +1460,7 @@ class MakeSimulationTasks2050Task(MakeSimulationTasksTemplate):
 
     def get_condition(self):
         """Get the condition in which the predicted data were made.
-        
+
         Returns:
             Name of condition as string like 2050_SSP245.
         """
@@ -1472,7 +1472,7 @@ class MakeSimulationTasks2030CounterfactualTask(MakeSimulationTasksTemplate):
 
     def get_filename(self):
         """Get the filename at which the task information should be written.
-        
+
         Returns:
             Filename but not full path as string.
         """
@@ -1480,7 +1480,7 @@ class MakeSimulationTasks2030CounterfactualTask(MakeSimulationTasksTemplate):
 
     def get_baseline_task(self):
         """Get the task whose output describes geohash-level yield baselines.
-        
+
         Returns:
             Luigi task.
         """
@@ -1488,7 +1488,7 @@ class MakeSimulationTasks2030CounterfactualTask(MakeSimulationTasksTemplate):
 
     def get_projection_task(self):
         """Get the task whose output describes geohash-level yield predictions.
-        
+
         Returns:
             Luigi task.
         """
@@ -1496,7 +1496,7 @@ class MakeSimulationTasks2030CounterfactualTask(MakeSimulationTasksTemplate):
 
     def get_condition(self):
         """Get the condition in which the predicted data were made.
-        
+
         Returns:
             Name of condition as string like 2050_SSP245.
         """
@@ -1508,7 +1508,7 @@ class MakeSimulationTasks2050CounterfactualTask(MakeSimulationTasksTemplate):
 
     def get_filename(self):
         """Get the filename at which the task information should be written.
-        
+
         Returns:
             Filename but not full path as string.
         """
@@ -1516,7 +1516,7 @@ class MakeSimulationTasks2050CounterfactualTask(MakeSimulationTasksTemplate):
 
     def get_baseline_task(self):
         """Get the task whose output describes geohash-level yield baselines.
-        
+
         Returns:
             Luigi task.
         """
@@ -1524,7 +1524,7 @@ class MakeSimulationTasks2050CounterfactualTask(MakeSimulationTasksTemplate):
 
     def get_projection_task(self):
         """Get the task whose output describes geohash-level yield predictions.
-        
+
         Returns:
             Luigi task.
         """
@@ -1532,7 +1532,7 @@ class MakeSimulationTasks2050CounterfactualTask(MakeSimulationTasksTemplate):
 
     def get_condition(self):
         """Get the condition in which the predicted data were made.
-        
+
         Returns:
             Name of condition as string like 2050_SSP245.
         """
@@ -1544,7 +1544,7 @@ class ExecuteSimulationTasksHistoricPredictedTask(ExecuteSimulationTasksTemplate
 
     def get_tasks_task(self):
         """Get the simulation task information generation task.
-        
+
         Returns:
             Luigi task.
         """
@@ -1552,7 +1552,7 @@ class ExecuteSimulationTasksHistoricPredictedTask(ExecuteSimulationTasksTemplate
 
     def get_filename(self):
         """Get the filename at which the simulation outputs should be written.
-        
+
         Returns:
             String filename (not path).
         """
@@ -1560,7 +1560,7 @@ class ExecuteSimulationTasksHistoricPredictedTask(ExecuteSimulationTasksTemplate
 
     def get_deltas_task(self):
         """Get the task whose output are the model residuals.
-        
+
         Returns:
             Luigi task.
         """
@@ -1568,7 +1568,7 @@ class ExecuteSimulationTasksHistoricPredictedTask(ExecuteSimulationTasksTemplate
 
     def get_sample_model_residuals(self):
         """Determine if model residuals should be sampled and applied to simulation outputs.
-        
+
         Returns:
             True if model residuals should be sampled and false otherwise.
         """
@@ -1580,7 +1580,7 @@ class ExecuteSimulationTasks2030PredictedTask(ExecuteSimulationTasksTemplate):
 
     def get_tasks_task(self):
         """Get the simulation task information generation task.
-        
+
         Returns:
             Luigi task.
         """
@@ -1588,7 +1588,7 @@ class ExecuteSimulationTasks2030PredictedTask(ExecuteSimulationTasksTemplate):
 
     def get_filename(self):
         """Get the filename at which the simulation outputs should be written.
-        
+
         Returns:
             String filename (not path).
         """
@@ -1596,7 +1596,7 @@ class ExecuteSimulationTasks2030PredictedTask(ExecuteSimulationTasksTemplate):
 
     def get_deltas_task(self):
         """Get the task whose output are the model residuals.
-        
+
         Returns:
             Luigi task.
         """
@@ -1608,7 +1608,7 @@ class ExecuteSimulationTasks2050PredictedTask(ExecuteSimulationTasksTemplate):
 
     def get_tasks_task(self):
         """Get the simulation task information generation task.
-        
+
         Returns:
             Luigi task.
         """
@@ -1616,7 +1616,7 @@ class ExecuteSimulationTasks2050PredictedTask(ExecuteSimulationTasksTemplate):
 
     def get_filename(self):
         """Get the filename at which the simulation outputs should be written.
-        
+
         Returns:
             String filename (not path).
         """
@@ -1624,7 +1624,7 @@ class ExecuteSimulationTasks2050PredictedTask(ExecuteSimulationTasksTemplate):
 
     def get_deltas_task(self):
         """Get the task whose output are the model residuals.
-        
+
         Returns:
             Luigi task.
         """
@@ -1636,7 +1636,7 @@ class ExecuteSimulationTasks2030Counterfactual(ExecuteSimulationTasksTemplate):
 
     def get_tasks_task(self):
         """Get the simulation task information generation task.
-        
+
         Returns:
             Luigi task.
         """
@@ -1644,7 +1644,7 @@ class ExecuteSimulationTasks2030Counterfactual(ExecuteSimulationTasksTemplate):
 
     def get_filename(self):
         """Get the filename at which the simulation outputs should be written.
-        
+
         Returns:
             String filename (not path).
         """
@@ -1652,7 +1652,7 @@ class ExecuteSimulationTasks2030Counterfactual(ExecuteSimulationTasksTemplate):
 
     def get_deltas_task(self):
         """Get the task whose output are the model residuals.
-        
+
         Returns:
             Luigi task.
         """
@@ -1664,7 +1664,7 @@ class ExecuteSimulationTasks2050Counterfactual(ExecuteSimulationTasksTemplate):
 
     def get_tasks_task(self):
         """Get the simulation task information generation task.
-        
+
         Returns:
             Luigi task.
         """
@@ -1672,7 +1672,7 @@ class ExecuteSimulationTasks2050Counterfactual(ExecuteSimulationTasksTemplate):
 
     def get_filename(self):
         """Get the filename at which the simulation outputs should be written.
-        
+
         Returns:
             String filename (not path).
         """
@@ -1680,7 +1680,7 @@ class ExecuteSimulationTasks2050Counterfactual(ExecuteSimulationTasksTemplate):
 
     def get_deltas_task(self):
         """Get the task whose output are the model residuals.
-        
+
         Returns:
             Luigi task.
         """
@@ -1692,7 +1692,7 @@ class CombineSimulationsTasks(luigi.Task):
 
     def requires(self):
         """Get the listing of all simulations to be concatenated.
-        
+
         Returns:
             All simulations to be combined.
         """
@@ -1706,7 +1706,7 @@ class CombineSimulationsTasks(luigi.Task):
 
     def output(self):
         """Get the location at which concatenated outputs should be written.
-        
+
         Returns:
             LocalTarget at which concatenated outputs should be written.
         """
@@ -1725,7 +1725,7 @@ class CombineSimulationsTasks(luigi.Task):
 
     def _write_out(self, label, writer):
         """Write out a set of simulation results.
-        
+
         Args:
             label: The label for the series as a string matching the input dictionary.
             writer: The writer through which the simulations should be written.
@@ -1737,11 +1737,11 @@ class CombineSimulationsTasks(luigi.Task):
 
     def _add_series(self, series, row):
         """Add a series label to an output row.
-        
+
         Args:
             series: Series label as a string.
             row: The row in which the series label should be added.
-        
+
         Returns:
             Input row after adding series.
         """
@@ -1751,14 +1751,14 @@ class CombineSimulationsTasks(luigi.Task):
 
 class DetermineEquivalentStdTask(luigi.Task):
     """Get an equivalent standard deviation-based threshold.
-    
+
     Determine a standard deviation-based threshold with equivalent system-wide aggregate coverage
     as an average-based threshold.
     """
 
     def requires(self):
         """Get the projections or projection-like frame in which to calculate this equivalency.
-        
+
         Returns:
             InterpretProjectHistoricTask
         """
@@ -1766,7 +1766,7 @@ class DetermineEquivalentStdTask(luigi.Task):
 
     def output(self):
         """Get the location at which the calculation results should be written.
-        
+
         Returns:
             LocalTarget at which to write the calculation results.
         """
@@ -1807,12 +1807,12 @@ class DetermineEquivalentStdTask(luigi.Task):
 
     def _get_equivalent_std(self, target, level):
         """Get the equivalent standard deviation threshold for a single record.
-        
+
         Args:
             target: Record for which a standard deviation threshold should be generated.
             level: The average-based level for which a standard deviation-based equivalent should be
                 found.
-        
+
         Returns:
             Equivalent standard deviation threshold.
         """
@@ -1829,7 +1829,7 @@ class DetermineEquivalentStdExtendedTask(luigi.Task):
 
     def requires(self):
         """Get the task from which a standard devivation equivalent threshold should be calculated.
-        
+
         Returns:
             InterpretProjectHistoricTask
         """
@@ -1837,7 +1837,7 @@ class DetermineEquivalentStdExtendedTask(luigi.Task):
 
     def output(self):
         """Determine where information about the equivalent thresholds should be written.
-        
+
         Returns:
             LocalTarget at which the equivalent thresholds should be written as JSON.
         """
@@ -1879,13 +1879,13 @@ class DetermineEquivalentStdExtendedTask(luigi.Task):
 
     def _get_equivalent_std(self, target, level):
         """Find an individual equivalent standard deviation-based threshold.
-        
+
         Args:
             target: The record for which the standard deviation-based threshold should be
                 determined.
             level: The average-based threshold for which an equivalency should be calculated like
                 0.15 for 15% below average.
-        
+
         Returns:
             Equivalent number of standard deviations below average.
         """
