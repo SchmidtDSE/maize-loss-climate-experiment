@@ -130,7 +130,13 @@ class TrainingInstanceBuilder:
         """Indicate the value of a climate variable observed within this year.
         
         Args:
-            month: The month for which a climate value i
+            month: The month for which the value is reported.
+            var: The name of the climate variable like chirps.
+            mean: The mean value of the climate variable reported for this month / year.
+            std: The standard deviation of the climate variable reported for this month / year.
+            min_val: The minimum value observed for the climate variable for this month / year.
+            max_val: The maximum value observed for the climate variable for this month / year.
+            count: The number of observations / sample size for this climate variable.
         """
         var_rename = const.CLIMATE_VARIABLE_TO_ATTR[var]
         key = '%s/%d' % (var_rename, month)
@@ -146,6 +152,11 @@ class TrainingInstanceBuilder:
         self._total_climate_counts += 1
 
     def to_dict(self):
+        """Generate a single output record describing all variables for this year.
+        
+        Returns:
+            Primitives-only dictionary representing this geohash for this year.
+        """
         output_dict = {}
 
         for key in self._keys:
@@ -168,8 +179,14 @@ class TrainingInstanceBuilder:
 
 
 class CombineHistoricPreprocessTask(luigi.Task):
+    """Combine geohash summaries (yield and climate) for a historic series."""
 
     def requires(self):
+        """Indicate that preprocessed climate and yields data are required.
+        
+        Returns:
+            PreprocessClimateGeotiffsTask and PreprocessYieldGeotiffsTask
+        """
         return {
             'climate': preprocess_climate_tasks.PreprocessClimateGeotiffsTask(
                 dataset_name='historic',
@@ -180,9 +197,15 @@ class CombineHistoricPreprocessTask(luigi.Task):
         }
 
     def output(self):
+        """Indicate where the combined summaries should be written.
+        
+        Returns:
+            LocalTarget at which these combined summaries should be written.
+        """
         return luigi.LocalTarget(const.get_file_location('training_frame.csv'))
 
     def run(self):
+        """Generate combined summaries."""
         geohash_builders = {}
 
         with self.input()['yield'].open('r') as f:
@@ -238,10 +261,20 @@ class CombineHistoricPreprocessTask(luigi.Task):
 
 
 class ReformatFuturePreprocessTask(luigi.Task):
+    """Create a model-compatible frame in which future yields can be predicted.
+    
+    Create a model-compatible frame containing climate projections in a format in which future
+    yields can be predicted.
+    """
 
     condition = luigi.Parameter()
 
     def requires(self):
+        """Indicate that climate data are required.
+        
+        Returns:
+            PreprocessClimateGeotiffsTask
+        """
         return {
             'climate': preprocess_climate_tasks.PreprocessClimateGeotiffsTask(
                 dataset_name=self.condition,
@@ -251,9 +284,15 @@ class ReformatFuturePreprocessTask(luigi.Task):
         }
 
     def output(self):
+        """Indicate the location at which the reformatted data frame should be written.
+        
+        Returns:
+            LocalTarget at which the reformatted data should be written.
+        """
         return luigi.LocalTarget(const.get_file_location('%s_frame.csv' % self.condition))
 
     def run(self):
+        """Run the reformatting."""
         geohash_builders = {}
 
         with self.input()['climate'].open('r') as f:
