@@ -1,3 +1,8 @@
+"""Tasks to summarize climate variable geotiffs (CHC-CMIP6) by geohash.
+
+License:
+    BSD
+"""
 import csv
 import datetime
 import itertools
@@ -13,6 +18,17 @@ import preprocess_yield_tasks
 
 
 def get_input_tiffs(sample_day_gap, years, variables, conditions):
+    """Get the list of tiffs within a series.
+
+    Args:
+        sample_day_gap: How many dasy between each sample or 1 for all days.
+        years: List of integer years to include the series.
+        variables: Variables like chirps to include in the series.
+        conditions: Conditions like 2050_SSP245 to include in the series.
+
+    Returns:
+        List of InputTiff
+    """
     def get_date_in_year(year):
         date = datetime.date(year, 1, 1)
         dates = []
@@ -31,7 +47,26 @@ def get_input_tiffs(sample_day_gap, years, variables, conditions):
     return input_tiffs
 
 
-def get_daily_geohash(bucket_name, tiff_info, geohashes, access_key, access_secret):
+def get_daily_geohash(source, tiff_info, geohashes, access_key='', access_secret=''):
+    """Generate summaries for all geohashes in a geotiff.
+
+    Self-contained function which generate summaries for all geohashes in a geotiff. This can be
+    executed within distribution and has its own import statements.
+
+    Args:
+        source: Location such as bucket name or local directory where the geotiff can be found.
+            Assumed to be a bucket name if both access_key and access_secret at provided. Otherwise,
+            assumed to be a local path.
+        tiff_info: Information about the geotiff to process.
+        geohashes: Geohashes to summarize. Others not included will be ignored.
+        access_key: Optional AWS access key or empty string ('') if source is local. Defaults to
+            empty string indicating that source is local.
+        access_secret: Optional AWS access secret or empty string ('') if source is local. Defaults
+            to empty string indicating that source is local.
+
+    Returns:
+        One GeohashClimateSummary per geohash.
+    """
     import geolib.geohash
     import geotiff
     import numpy
@@ -44,7 +79,7 @@ def get_daily_geohash(bucket_name, tiff_info, geohashes, access_key, access_secr
     tiff_filename = tiff_info.get_filename()
 
     temp_file_path = file_util.save_file_tmp(
-        bucket_name,
+        source,
         tiff_filename,
         access_key,
         access_secret
@@ -141,19 +176,55 @@ def get_daily_geohash(bucket_name, tiff_info, geohashes, access_key, access_secr
 
 
 def get_geohash_summary_key(geohash_summary):
+    """Convienence function to get the unique key for a geohash summary.
+
+    Args:
+        geohash_summary: The summary object for which the key is desired.
+
+    Returns:
+        String uniquely identifying a geohash for a variable and condition at a point in time.
+    """
     return geohash_summary.get_key()
 
 
 def combine_summaries(first_record, second_record):
+    """Convienence function to pool samples for a geohash summary.
+
+    Args:
+        first_record: The first summary whose sample is to be pooled.
+        second_record: The second summary whose sample is to be pooled.
+
+    Returns:
+        Summary after sample pooling.
+    """
     return first_record.combine(second_record)
 
 
 def get_without_day(geohash_summary):
+    """Convienence function to get a copy of a geohash summary without day specified.
+
+    Convienence function to get a copy of a geohash summary without day specified, indicating that
+    the sample is for a whole month.
+
+    Args:
+        geohash_summary: Summary to get without day.
+
+    Returns:
+        Copy of summary with day removed.
+    """
     geohash_summary_no_day = geohash_summary.get_without_day()
     return geohash_summary_no_day
 
 
-def confirm_and_remove_day(target):
+def confirm_and_standardize_output(target):
+    """Standardize and confirm expected fields and types for a climate geohash summary record.
+
+    Args:
+        target: The summary as primitives-only dictionary to confirm and standardize.
+
+    Returns:
+        Primitives-only dictionary with standardized types and field names.
+    """
     return {
         'geohash': str(target['geohash']),
         'year': int(target['year']),
@@ -170,14 +241,37 @@ def confirm_and_remove_day(target):
     }
 
 
-def run_job(sample_day_gap, bucket, years, variables, geohashes, conditions, cluster, access_key,
-    access_secret):
+def run_job(sample_day_gap, source, years, variables, geohashes, conditions, cluster, access_key='',
+    access_secret=''):
+    """Preprocess a collection of geotiffs.
+
+    Ask the cluster or other distributed computing client to execute a climate geohash preprocessing
+    job which includes a collection or batch of geotiffs.
+
+    Args:
+        sample_day_gap: How many dasy between each sample or 1 for all days.
+        source: Location such as bucket name or local directory where the geotiff can be found.
+            Assumed to be a bucket name if both access_key and access_secret at provided. Otherwise,
+            assumed to be a local path.
+        years: List of integer years to include the series.
+        variables: List of variables like chirps to include in the series.
+        geohashes: List of geohashes to summarize. Geohashes not listed will be ignored.
+        conditions: List of conditions like 2050_SSP245 to include in the series.
+        cluster: Client to execute distributed tasks.
+        access_key: AWS access key to use if source is remote or empty string ('') if source is
+            local. Defaults to empty string meaning that AWS is not engaged.
+        access_secret: AWS access secret to use if source is remote or empty string ('') if source
+            is local. Defaults to empty string meaning that AWS is not engaged.
+
+    Returns:
+        Collection of geohash summaries as primitives-only dictionaries.
+    """
     client = cluster.get_client()
 
     input_tiffs = get_input_tiffs(sample_day_gap, years, variables, conditions)
 
     geohash_summaries_nested_future = client.map(
-        lambda x: get_daily_geohash(bucket, x, geohashes, access_key, access_secret),
+        lambda x: get_daily_geohash(source, x, geohashes, access_key, access_secret),
         list(input_tiffs)
     )
     geohash_summaries_nested = dask.bag.from_sequence(geohash_summaries_nested_future)
@@ -189,7 +283,7 @@ def run_job(sample_day_gap, bucket, years, variables, geohashes, conditions, clu
     )
     combined_geohashes = combined_geohashes_keyed.map(lambda x: x[1])
     combined_geohashes_dicts = combined_geohashes.map(lambda x: x.to_dict())
-    output_dicts = combined_geohashes_dicts.map(confirm_and_remove_day)
+    output_dicts = combined_geohashes_dicts.map(confirm_and_standardize_output)
 
     output_dicts_realized = output_dicts.compute()
 
@@ -197,22 +291,34 @@ def run_job(sample_day_gap, bucket, years, variables, geohashes, conditions, clu
 
 
 class PreprocessClimateGeotiffTask(luigi.Task):
+    """Task to preprocess a single geotiff collection."""
 
     dataset_name = luigi.Parameter()
     conditions = luigi.Parameter()
     year = luigi.Parameter()
 
     def requires(self):
+        """Indicate that the cluster and geohash list are needed.
+
+        Returns:
+            Requirement for StartClusterTask and GetTargetGeohashesTask.
+        """
         return {
             'cluster': cluster_tasks.StartClusterTask(),
             'geohashes': preprocess_yield_tasks.GetTargetGeohashesTask()
         }
 
     def output(self):
+        """Indicate where the climate summaries should be written.
+
+        Returns:
+            LocalTarget at which the summaries should be written.
+        """
         filename = 'climate_%s_%d.csv' % (self.dataset_name, self.year)
         return luigi.LocalTarget(const.get_file_location(filename))
 
     def run(self):
+        """Run request for a single collection of geotiffs."""
         cluster = cluster_tasks.get_cluster()
         cluster.adapt(minimum=10, maximum=500)
         geohashes_set = self._get_geohashes()
@@ -238,6 +344,11 @@ class PreprocessClimateGeotiffTask(luigi.Task):
                 f.flush()
 
     def _get_geohashes(self):
+        """Get the list of geohashes for which summaries should be returned.
+
+        Returns:
+            Set of strings each representing an individual geohash.
+        """
         with self.input()['geohashes'].open('r') as f:
             geohashes = f.readlines()
             geohashes_clean = map(lambda x: x.strip(), geohashes)
@@ -251,7 +362,12 @@ class PreprocessClimateGeotiffTask(luigi.Task):
         return geohashes_set
 
     def _get_tasks(self):
-        years = [self.year]  # TODO: Decide if permanent
+        """Get tasks for this single collection of geohash summaries.
+
+        Returns:
+            List of tasks for a single collectin of geohash summaries.
+        """
+        years = [self.year]
         variables = const.CLIMATE_VARIABLES
 
         tasks_all = map(lambda x: {'year': x, 'var': variables}, years)
@@ -264,12 +380,18 @@ class PreprocessClimateGeotiffTask(luigi.Task):
 
 
 class PreprocessClimateGeotiffsTask(luigi.Task):
+    """Preprocess many collections of geotiffs with climate data."""
 
     dataset_name = luigi.Parameter()
     conditions = luigi.Parameter()
     years = luigi.Parameter()
 
     def requires(self):
+        """Break the collections up into subtasks.
+
+        Returns:
+            List of subtasks represented each as a PreprocessClimateGeotiffTask.
+        """
         def make_subtask(year):
             return PreprocessClimateGeotiffTask(
                 dataset_name=self.dataset_name,
@@ -279,11 +401,17 @@ class PreprocessClimateGeotiffsTask(luigi.Task):
         return [make_subtask(year) for year in self.years]
 
     def output(self):
+        """Indicate where the combined set of geohash summaries should be written.
+
+        Returns:
+            LocalTarget at which the summaries should be written.
+        """
         return luigi.LocalTarget(
             const.get_file_location('climate_%s.csv' % self.dataset_name)
         )
 
     def run(self):
+        """Run all summarization tasks."""
         with self.output().open('w') as f_out:
             writer = csv.DictWriter(f_out, fieldnames=const.EXPECTED_CLIMATE_COLS)
             writer.writeheader()
