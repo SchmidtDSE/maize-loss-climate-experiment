@@ -336,17 +336,33 @@ class GetInputDistributionsTask(luigi.Task):
 
 
 class NormalizeTrainingFrameTemplateTask(luigi.Task):
+    """Template for task which normalizes inputs for use with the neural network.
+    
+    Abstract base class (template class) for task which normalizes inputs for use with the neural
+    network or other statistical tasks downstream dependent on that standardized frame.
+    """
 
     def requires(self):
+        """Indicate that distributional data is needed for z scores and indicate target.
+        
+        Returns:
+            GetInputDistributionsTask and the get_target() to normalize.
+        """
         return {
             'distributions': GetInputDistributionsTask(),
             'target': self.get_target()
         }
 
     def output(self):
+        """Indicate where the normalized frame should be written.
+        
+        Returns:
+            LocalTarget where the normalized frame should be written.
+        """
         return luigi.LocalTarget(const.get_file_location(self.get_filename()))
 
     def run(self):
+        """Execute normalization."""
         with self.input()['distributions'].open('r') as f:
             rows = csv.DictReader(f)
 
@@ -366,7 +382,7 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
             rows_augmented = map(lambda x: self._set_aside_attrs(x), rows_allowed)
             rows_with_z = map(lambda x: self._transform_z(x, distributions), rows_augmented)
             rows_with_num = map(lambda x: self._force_values(x), rows_with_z)
-            rows_standardized = map(lambda x: self._standardize_row(x), rows_with_num)
+            rows_standardized = map(lambda x: self._standardize_fields(x), rows_with_num)
             rows_with_mean = filter(
                 lambda x: x['yieldMean'] != const.INVALID_VALUE,
                 rows_standardized
@@ -382,20 +398,58 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
                 writer.writerows(rows_complete)
 
     def get_target(self):
+        """Get the task whose output should be normalized.
+        
+        Returns:
+            Luigi task
+        """
         raise NotImplementedError('Use implementor.')
 
     def get_filename(self):
+        """Get the filename where the output should be written within workspace.
+        
+        Returns:
+            String filename (not full path).
+        """
         raise NotImplementedError('Use implementor.')
 
     def _parse_row(self, row):
+        """Parse an input row, converting strings to numbers were appropriate.
+        
+        Args:
+            row: The row to parse.
+        
+        Returns:
+            The row after parsing.
+        """
         return parse_row(row)
 
     def _set_aside_attrs(self, row):
+        """Make copies of some values prior to normalization for informational purposes.
+        
+        Some fields' original values can be useful for statistical purposes downstream and this
+        step makes a copy prior to normalization.
+        
+        Args:
+            row: The row to modify.
+        
+        Returns:
+            The row after normlaization.
+        """
         row['baselineYieldMeanOriginal'] = row['baselineYieldMean']
         row['baselineYieldStdOriginal'] = row['baselineYieldStd']
         return row
 
     def _transform_z(self, row, distributions):
+        """Transform fields to z scores.
+        
+        Args:
+            row: The row to transform.
+            distributions: Distributional information about each field needed for z normalization.
+        
+        Returns:
+            Row after normalization.
+        """
         fields = distributions.keys()
 
         if const.NORM_YIELD_FIELDS:
@@ -422,6 +476,17 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
         return row
 
     def _force_values(self, row):
+        """Ensure that all numeric values are valid (no None or NaN).
+        
+        Ensure that all numeric values are valid (no None or NaN), using the sentinel INVALID_VALUE
+        where needed.
+        
+        Args:
+            row: The row whose values should be ensured.
+        
+        Returns:
+            The row after ensuring numeric values.
+        """
         def force_value(target):
             if target is None or math.isnan(target):
                 return const.INVALID_VALUE
@@ -433,25 +498,56 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
 
         return row
 
-    def _standardize_row(self, row):
+    def _standardize_fields(self, row):
+        """Check that expected and only expected fields are present.
+        
+        Args:
+            row: The dictionary to check for expected fields.
+        
+        Returns:
+            The row with only expected fields.
+        """
         return dict(map(lambda x: (x, row[x]), const.TRAINING_FRAME_ATTRS))
 
 
 class NormalizeHistoricTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
+    """Task to normalize historic actuals."""
 
     def get_target(self):
+        """Indicate that this task should normalize historic data with yield deltas.
+        
+        Returns:
+            GetHistoricAsDeltaTask
+        """
         return GetHistoricAsDeltaTask()
 
     def get_filename(self):
+        """Get the filename where the outputs should be written.
+        
+        Returns:
+            historic_normalized.csv
+        """
         return 'historic_normalized.csv'
 
 
 class NormalizeFutureTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
+    """Task which normalizes a future data series, using condition parameter."""
 
-    condition = luigi.Parameter()
+    condition = luigi.Parameter()  # Expects value like 2050_SSP245.
 
     def get_target(self):
+        """
+        Indicate that this task should normalize future data with yield deltas.
+        
+        Returns:
+            GetFutureAsDeltaTask
+        """
         return GetFutureAsDeltaTask(condition=self.condition)
 
     def get_filename(self):
+        """Get the filename where the outputs should be written.
+        
+        Returns:
+            String filename, not full path.
+        """
         return '%s_normalized.csv' % self.condition
