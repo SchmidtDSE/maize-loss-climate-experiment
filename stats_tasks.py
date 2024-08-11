@@ -505,15 +505,15 @@ class FindDivergentAphAndClaimsRate(luigi.Task):
             CombineSimulationsTasks
         """
         return sim_tasks.CombineSimulationsTasks()
-    
+
     def output(self):
         """Determine where the resulting statistics should be written.
-        
+
         Returns:
             LocalTarget at which the JSON should be written.
         """
         return luigi.LocalTarget(const.get_file_location('divergent_aph_claims.json'))
-    
+
     def run(self):
         """Calculate the rate of APH overall increase but increased claims."""
         with self.input().open('r') as f:
@@ -528,7 +528,7 @@ class FindDivergentAphAndClaimsRate(luigi.Task):
             right_geohash = filter(lambda x: int(x['geohashSimSize']) == 4, right_mult)
             parsed = map(lambda x: self._parse_record(x), right_geohash)
             in_scope = list(parsed)
-        
+
         # Determine geohashes with increased yield
         records_grouped_by_geohash = toolz.itertoolz.reduceby(
             lambda x: x['geohash'],
@@ -560,19 +560,19 @@ class FindDivergentAphAndClaimsRate(luigi.Task):
         geohashes_with_dual_increase = instances_with_increase_risk.intersection(
             geohashes_increasing_yield
         )
-        
+
         rate = len(geohashes_with_dual_increase) / len(instances_with_increase_risk)
 
         # Output
         with self.output().open('w') as f:
             json.dump({'dualIncreasePercent2050': format_percent(rate)}, f)
-    
+
     def _parse_record(self, target):
         """Parse a raw input record from the simulation results.
-        
+
         Args:
             target: The record to parse (primitives-only dictionary).
-        
+
         Returns:
             Parsed record.
         """
@@ -584,14 +584,14 @@ class FindDivergentAphAndClaimsRate(luigi.Task):
             'baselineClaims': float(target['baselineClaims']),
             'predictedClaims': float(target['predictedClaims'])
         }
-    
+
     def _combine_means(self, a, b):
         """Pool yield change means.
-        
+
         Args:
             a: The first record to pool.
             b: The second record to pool.
-        
+
         Returns:
             Record after pooling samples.
         """
@@ -601,7 +601,7 @@ class FindDivergentAphAndClaimsRate(luigi.Task):
         def combine_key(key):
             pool_sum = a['num'] * a[key] + b['num'] * b[key]
             return pool_sum / new_count
-        
+
         return {
             'geohash': a['geohash'],
             'num': new_count,
