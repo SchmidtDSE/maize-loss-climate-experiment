@@ -168,7 +168,7 @@ Regardless, with Table @tbl:simresults highlighting these climate threats, these
 
 ![Interactive tool screenshot showing 2050 outcomes distribution (changes from $y_{expected}$), highlighting loss with and without climate change. In addition to showing increased claims rate, this also depicts climate change reducing the expected increase in yields that would otherwise follow historic trends.](./img/hist.png "One of our interactive tools showing 2050 outcomes distribution relative to $y_{expected}$ highlighting loss with and without climate change."){#fig:hist }
 
-Granular simulation results reflect this system-wide finding: {{ dualIncreasePercent2050 }} of neighborhoods seeing higher claims rate also see overall average yields remain unchanged or increase. This observation around stability and changing tails shows how a sharp elevation in loss probability (2050 series vs counterfactual) could emerge without necessarily decreasing mean yields.
+Granular simulation results reflect this system-wide finding: {{ dualIncreasePercent2050 }} of neighborhoods seeing higher claims rate also see overall average yields remain unchanged or increase. This observation around stability and changing tails shows how yield volatility could allow a sharp elevation in loss probability (2050 series vs counterfactual) without necessarily decreasing overall mean yields even when considered at a highly local scale.
 
 \bigskip
 
