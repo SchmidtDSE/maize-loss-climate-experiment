@@ -25,10 +25,10 @@ NEURONS_PER_LAYER = [512, 256, 128, 64, 32, 8]
 
 def format_percent(target):
     """Format a number as a precent.
-    
+
     Args:
         target: Number to format.
-    
+
     Returns:
         Formatted string.
     """
@@ -37,10 +37,10 @@ def format_percent(target):
 
 def format_severity(target):
     """Format a loss severity.
-    
+
     Args:
         target: Loss where 0.15 is 15%.
-    
+
     Returns:
         Formatted string.
     """
@@ -52,7 +52,7 @@ class ExportModelInfoTask(luigi.Task):
 
     def requires(self):
         """Require that the sweep have concluded and the preferred model selected.
-        
+
         Returns:
             SelectConfigurationTask
         """
@@ -60,7 +60,7 @@ class ExportModelInfoTask(luigi.Task):
 
     def output(self):
         """Get the location where the selected model information should be written.
-        
+
         Returns:
             LocalTarget where JSON should be written.
         """
@@ -107,7 +107,7 @@ class ExportPosthocTestTask(luigi.Task):
 
     def requires(self):
         """Require that the posthoc tests have been completed.
-        
+
         Returns:
             PostHocTestRawDataRetrainCountTask, PostHocTestRawDataTemporalCountTask,
             PostHocTestRawDataRandomCountTask, and PostHocTestRawDataSpatialCountTask.
@@ -121,7 +121,7 @@ class ExportPosthocTestTask(luigi.Task):
 
     def output(self):
         """Indicate where posthoc test information should be written.
-        
+
         Returns:
             LocalTarget where the combined post-hoc results should be written.
         """
@@ -166,10 +166,10 @@ class ExportPosthocTestTask(luigi.Task):
 
     def _summarize_post_hoc(self, name):
         """Summarize a single post-hoc test.
-        
+
         Args:
             name: The name of the test to summarize.
-        
+
         Returns:
             Primitives-only dict describing the post-hoc test.
         """
@@ -208,14 +208,14 @@ class ExportPosthocTestTask(luigi.Task):
 
 class DeterminePercentSignificantTemplateTask(luigi.Task):
     """Task template to gather information about frequency of statistically significant results.
-    
+
     Abstract base class (template class) for a Luigi task which gathers information about frequency
     of statistically significant results from a simulation.
     """
 
     def requires(self):
         """Require a simulation result.
-        
+
         Returns:
             Luigi task whose output will be summarized.
         """
@@ -223,7 +223,7 @@ class DeterminePercentSignificantTemplateTask(luigi.Task):
 
     def output(self):
         """Get the location where the significant result rate should be written.
-        
+
         Returns:
             LocalTarget where a summary of significance should be written.
         """
@@ -259,7 +259,7 @@ class DeterminePercentSignificantTemplateTask(luigi.Task):
 
     def get_filename(self):
         """Get the filename in the workspace at which signifiance results should be written.
-        
+
         Returns:
             String filename (not full path) where JSON will be written.
         """
@@ -267,7 +267,7 @@ class DeterminePercentSignificantTemplateTask(luigi.Task):
 
     def get_target(self):
         """Get the task whose output should be examined for significance information.
-        
+
         Returns:
             Luigi task.
         """
@@ -279,7 +279,7 @@ class DeterminePercentSignificantTask(DeterminePercentSignificantTemplateTask):
 
     def get_filename(self):
         """Get the filename in the workspace at which signifiance results should be written.
-        
+
         Returns:
             String filename (not full path) where JSON will be written.
         """
@@ -287,7 +287,7 @@ class DeterminePercentSignificantTask(DeterminePercentSignificantTemplateTask):
 
     def get_target(self):
         """Get the task whose output should be examined for significance information.
-        
+
         Returns:
             Luigi task.
         """
@@ -299,7 +299,7 @@ class DeterminePercentSignificantLongTask(DeterminePercentSignificantTemplateTas
 
     def get_filename(self):
         """Get the filename in the workspace at which signifiance results should be written.
-        
+
         Returns:
             String filename (not full path) where JSON will be written.
         """
@@ -307,7 +307,7 @@ class DeterminePercentSignificantLongTask(DeterminePercentSignificantTemplateTas
 
     def get_target(self):
         """Get the task whose output should be examined for significance information.
-        
+
         Returns:
             Luigi task.
         """
@@ -319,7 +319,7 @@ class ExtractSimStatsTask(luigi.Task):
 
     def requires(self):
         """Require that simulation results are available.
-        
+
         Returns:
             CombineSimulationsTasks
         """
@@ -327,7 +327,7 @@ class ExtractSimStatsTask(luigi.Task):
 
     def output(self):
         """Indicate where simulation result statistics should be written.
-        
+
         Returns:
             LocalTarget at which statistics should be written as JSON.
         """
@@ -395,10 +395,10 @@ class ExtractSimStatsTask(luigi.Task):
 
     def _simplify_record(self, record):
         """Simplify / standardize an input record, parsing attributes as numbers where appropriate
-        
+
         Args:
             record: Raw dictionary to parse.
-        
+
         Returns:
             Dictionary after parsing.
         """
@@ -416,10 +416,10 @@ class ExtractSimStatsTask(luigi.Task):
 
     def _get_record_key(self, record):
         """Generate a key identifying a year within a series type from which a record comes from.
-        
+
         Args:
             record: The record for which a key is desired.
-            
+
         Returns:
             String indicating the series type (experimental, counterfactual) and year (like 2024)
             that the record is from or represents.
@@ -430,11 +430,11 @@ class ExtractSimStatsTask(luigi.Task):
 
     def _combine_records(self, a, b):
         """Combine the samples between two simulation outcomes by pooling.
-        
+
         Args:
             a: The first sample to pool.
             b: The second sample to pool.
-        
+
         Returns:
             Dictionary representing the pooled samples.
         """
@@ -464,14 +464,14 @@ class ExtractSimStatsTask(luigi.Task):
 
 class SummarizeEquivalentStdTask(luigi.Task):
     """Summarize the standard deviation equivalent threshold
-    
+
     Summarize the standard deviation equivalent threshold to a 25% below average based loss
     threshold.
     """
 
     def requires(self):
         """Require that the calculation of equivalent thresholds be completed.
-        
+
         Returns:
             DetermineEquivalentStdTask
         """
@@ -479,7 +479,7 @@ class SummarizeEquivalentStdTask(luigi.Task):
 
     def output(self):
         """Determine where this threshold information should be written.
-        
+
         Returns:
             LocalTarget at which the statistics should be written in JSON.
         """
@@ -500,7 +500,7 @@ class CombineStatsTask(luigi.Task):
 
     def requires(self):
         """Require other statistical tasks have been completed.
-        
+
         Returns:
             Various statistical tasks that feed into the combined JSON output.
         """
@@ -514,7 +514,7 @@ class CombineStatsTask(luigi.Task):
 
     def output(self):
         """Indicate where the combined statistical output should be written.
-        
+
         Returns:
             LocalTarget at which the JSON will be written.
         """
@@ -585,10 +585,10 @@ class CombineStatsTask(luigi.Task):
 
     def _get_subfile(self, key):
         """Load one of the prerequisite statistical summary outputs.
-        
+
         Args:
             key: Name of the input task.
-        
+
         Returns:
             Results of that summary task.
         """
