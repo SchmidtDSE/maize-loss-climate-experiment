@@ -164,11 +164,11 @@ After retraining on all available data using the selected configuration from our
 
 Table: Overview of Monte Carlo simulation results. Counterfactual is a future without continued warming in contrast to SSP245. {#tbl:simresults}
 
-Regardless, with Table @tbl:simresults highlighting these climate threats, these simulations suggest that warming disrupts historic trends of increasing average yield [@nielsen_historical_2023].
+Regardless, with Table @tbl:simresults highlighting these climate threats, these simulations suggest that warming disrupts historic trends of increasing average yield [@nielsen_historical_2023]. Furthermore, in addition to wiping out the gains that our neural network would otherwise expect without climate change, the loss probability increases in both of the time frames considered for SSP245. Indeed, as shown in Figure @fig:hist, the SSP245 overall yield mean remains similar to the historic baseline in the 2050 series even as distribution tails differ more substantially.
 
 ![Interactive tool screenshot showing 2050 outcomes distribution (changes from $y_{expected}$), highlighting loss with and without climate change. In addition to showing increased claims rate, this also depicts climate change reducing the expected increase in yields that would otherwise follow historic trends.](./img/hist.png "One of our interactive tools showing 2050 outcomes distribution relative to $y_{expected}$ highlighting loss with and without climate change."){#fig:hist }
 
-Furthermore, in addition to wiping out the gains that our neural network would otherwise expect without climate change, the loss probability increases in both of the time frames considered for SSP245. Indeed, as shown in Figure @fig:hist, the SSP245 overall yield mean remains similar to the historic baseline in the 2050 series even as distribution tails differ more substantially such that {{ dualIncreasePercent2050 }} of neighborhoods seeing higher claims rate also see average yields remain unchanged or increase. Altogether, this observation around stability and changing tails shows how a sharp elevation in loss probability (2050 series vs counterfactual) could emerge without necessarily changing mean yields.
+Granular simulation results reflect this system-wide finding: {{ dualIncreasePercent2050 }} of neighborhoods seeing higher claims rate also see overall average yields remain unchanged or increase. This observation around stability and changing tails shows how a sharp elevation in loss probability (2050 series vs counterfactual) could emerge without necessarily decreasing mean yields.
 
 \bigskip
 
