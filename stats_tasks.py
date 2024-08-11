@@ -1,3 +1,13 @@
+"""Tasks to generate statistics for the manuscript.
+
+Tasks to generate statistics for the manuscript where "main" results refer to 4 character geohashes
+but simulations of 5 character geohashes may also be provided in extension or "long" simulations.
+In this case, these are approximated results where sample sizes are manipulated to simulate 5
+character geohashes but the actual 5 character geohashes are not used.
+
+License:
+    BSD
+"""
 import csv
 import json
 import statistics
@@ -14,22 +24,50 @@ NEURONS_PER_LAYER = [512, 256, 128, 64, 32, 8]
 
 
 def format_percent(target):
+    """Format a number as a precent.
+    
+    Args:
+        target: Number to format.
+    
+    Returns:
+        Formatted string.
+    """
     return '%.1f\\%%' % (target * 100)
 
 
 def format_severity(target):
+    """Format a loss severity.
+    
+    Args:
+        target: Loss where 0.15 is 15%.
+    
+    Returns:
+        Formatted string.
+    """
     return format_percent(target * -1 - 0.25)
 
 
 class ExportModelInfoTask(luigi.Task):
+    """Task to export information about the chosen model."""
 
     def requires(self):
+        """Require that the sweep have concluded and the preferred model selected.
+        
+        Returns:
+            SelectConfigurationTask
+        """
         return selection_tasks.SelectConfigurationTask()
 
     def output(self):
+        """Get the location where the selected model information should be written.
+        
+        Returns:
+            LocalTarget where JSON should be written.
+        """
         return luigi.LocalTarget(const.get_file_location('stats_model.json'))
 
     def run(self):
+        """Gather model information and output in expected format."""
         with self.input().open() as f:
             source = json.load(f)
 
@@ -65,8 +103,15 @@ class ExportModelInfoTask(luigi.Task):
 
 
 class ExportPosthocTestTask(luigi.Task):
+    """Export information about posthoc tests after selecting the perferred model."""
 
     def requires(self):
+        """Require that the posthoc tests have been completed.
+        
+        Returns:
+            PostHocTestRawDataRetrainCountTask, PostHocTestRawDataTemporalCountTask,
+            PostHocTestRawDataRandomCountTask, and PostHocTestRawDataSpatialCountTask.
+        """
         return {
             'retrain': selection_tasks.PostHocTestRawDataRetrainCountTask(),
             'temporal': selection_tasks.PostHocTestRawDataTemporalCountTask(),
@@ -75,9 +120,15 @@ class ExportPosthocTestTask(luigi.Task):
         }
 
     def output(self):
+        """Indicate where posthoc test information should be written.
+        
+        Returns:
+            LocalTarget where the combined post-hoc results should be written.
+        """
         return luigi.LocalTarget(const.get_file_location('stats_posthoc.json'))
 
     def run(self):
+        """Assemble post-hoc test information."""
         temporal_record = self._summarize_post_hoc('temporal')
         random_record = self._summarize_post_hoc('random')
         spatial_record = self._summarize_post_hoc('spatial')
@@ -114,6 +165,14 @@ class ExportPosthocTestTask(luigi.Task):
             json.dump(output_record, f)
 
     def _summarize_post_hoc(self, name):
+        """Summarize a single post-hoc test.
+        
+        Args:
+            name: The name of the test to summarize.
+        
+        Returns:
+            Primitives-only dict describing the post-hoc test.
+        """
         mean_running = 0
         std_running = 0
         count_running = 0
@@ -148,14 +207,30 @@ class ExportPosthocTestTask(luigi.Task):
 
 
 class DeterminePercentSignificantTemplateTask(luigi.Task):
+    """Task template to gather information about frequency of statistically significant results.
+    
+    Abstract base class (template class) for a Luigi task which gathers information about frequency
+    of statistically significant results from a simulation.
+    """
 
     def requires(self):
+        """Require a simulation result.
+        
+        Returns:
+            Luigi task whose output will be summarized.
+        """
         return self.get_target()
 
     def output(self):
+        """Get the location where the significant result rate should be written.
+        
+        Returns:
+            LocalTarget where a summary of significance should be written.
+        """
         return luigi.LocalTarget(const.get_file_location(self.get_filename()))
 
     def run(self):
+        """Get information about significance."""
 
         with self.input().open() as f:
             records = csv.DictReader(f)
@@ -183,39 +258,83 @@ class DeterminePercentSignificantTemplateTask(luigi.Task):
             json.dump(output_record, f)
 
     def get_filename(self):
+        """Get the filename in the workspace at which signifiance results should be written.
+        
+        Returns:
+            String filename (not full path) where JSON will be written.
+        """
         raise NotImplementedError('Use implementor.')
 
     def get_target(self):
+        """Get the task whose output should be examined for significance information.
+        
+        Returns:
+            Luigi task.
+        """
         raise NotImplementedError('Use implementor.')
 
 
 class DeterminePercentSignificantTask(DeterminePercentSignificantTemplateTask):
+    """Task to determine signifiance from the main simulations on 4 char geohashes."""
 
     def get_filename(self):
+        """Get the filename in the workspace at which signifiance results should be written.
+        
+        Returns:
+            String filename (not full path) where JSON will be written.
+        """
         return 'stats_significant.json'
 
     def get_target(self):
+        """Get the task whose output should be examined for significance information.
+        
+        Returns:
+            Luigi task.
+        """
         return export_tasks.SummaryExportTask()
 
 
 class DeterminePercentSignificantLongTask(DeterminePercentSignificantTemplateTask):
+    """Determine signifiance from extended simulations on 5 character geohashes."""
 
     def get_filename(self):
+        """Get the filename in the workspace at which signifiance results should be written.
+        
+        Returns:
+            String filename (not full path) where JSON will be written.
+        """
         return 'stats_significant_5char.json'
 
     def get_target(self):
+        """Get the task whose output should be examined for significance information.
+        
+        Returns:
+            Luigi task.
+        """
         return export_tasks.SummaryExportLongTask()
 
 
 class ExtractSimStatsTask(luigi.Task):
+    """Extract information for the paper from main simulations."""
 
     def requires(self):
+        """Require that simulation results are available.
+        
+        Returns:
+            CombineSimulationsTasks
+        """
         return sim_tasks.CombineSimulationsTasks()
 
     def output(self):
+        """Indicate where simulation result statistics should be written.
+        
+        Returns:
+            LocalTarget at which statistics should be written as JSON.
+        """
         return luigi.LocalTarget(const.get_file_location('stats_sim.json'))
 
     def run(self):
+        """Extract summary statistics for the simulations."""
         with self.input().open() as f:
             records = csv.DictReader(f)
             records_allowed = filter(
@@ -275,6 +394,14 @@ class ExtractSimStatsTask(luigi.Task):
             json.dump(output_record, f)
 
     def _simplify_record(self, record):
+        """Simplify / standardize an input record, parsing attributes as numbers where appropriate
+        
+        Args:
+            record: Raw dictionary to parse.
+        
+        Returns:
+            Dictionary after parsing.
+        """
         is_counterfactual = '_counterfactual' in record['series']
         year_series = int(record['series'].split('_')[0])
 
@@ -288,11 +415,29 @@ class ExtractSimStatsTask(luigi.Task):
         }
 
     def _get_record_key(self, record):
+        """Generate a key identifying a year within a series type from which a record comes from.
+        
+        Args:
+            record: The record for which a key is desired.
+            
+        Returns:
+            String indicating the series type (experimental, counterfactual) and year (like 2024)
+            that the record is from or represents.
+        """
         prefix = 'counterfactual' if record['isCounterfactual'] else 'experimental'
         year = record['year']
         return '%s%d' % (prefix, year)
 
     def _combine_records(self, a, b):
+        """Combine the samples between two simulation outcomes by pooling.
+        
+        Args:
+            a: The first sample to pool.
+            b: The second sample to pool.
+        
+        Returns:
+            Dictionary representing the pooled samples.
+        """
         assert self._get_record_key(a) == self._get_record_key(b)
 
         a_num = float(a['num'])
@@ -318,14 +463,30 @@ class ExtractSimStatsTask(luigi.Task):
 
 
 class SummarizeEquivalentStdTask(luigi.Task):
+    """Summarize the standard deviation equivalent threshold
+    
+    Summarize the standard deviation equivalent threshold to a 25% below average based loss
+    threshold.
+    """
 
     def requires(self):
+        """Require that the calculation of equivalent thresholds be completed.
+        
+        Returns:
+            DetermineEquivalentStdTask
+        """
         return sim_tasks.DetermineEquivalentStdTask()
 
     def output(self):
+        """Determine where this threshold information should be written.
+        
+        Returns:
+            LocalTarget at which the statistics should be written in JSON.
+        """
         return luigi.LocalTarget(const.get_file_location('stats_equivalent.json'))
 
     def run(self):
+        """Summarize the statistics."""
         with self.input().open('r') as f_in:
             with self.output().open('w') as f_out:
                 source = json.load(f_in)
@@ -335,8 +496,14 @@ class SummarizeEquivalentStdTask(luigi.Task):
 
 
 class CombineStatsTask(luigi.Task):
+    """Create a combined statistical output as a JSON document."""
 
     def requires(self):
+        """Require other statistical tasks have been completed.
+        
+        Returns:
+            Various statistical tasks that feed into the combined JSON output.
+        """
         return {
             'model': ExportModelInfoTask(),
             'posthoc': ExportPosthocTestTask(),
@@ -346,9 +513,15 @@ class CombineStatsTask(luigi.Task):
         }
 
     def output(self):
+        """Indicate where the combined statistical output should be written.
+        
+        Returns:
+            LocalTarget at which the JSON will be written.
+        """
         return luigi.LocalTarget(const.get_file_location('stats.json'))
 
     def run(self):
+        """Combine outputs."""
         model_inputs = self._get_subfile('model')
         posthoc_inputs = self._get_subfile('posthoc')
         significance_inputs = self._get_subfile('significance')
@@ -411,6 +584,14 @@ class CombineStatsTask(luigi.Task):
             json.dump(output_record, f)
 
     def _get_subfile(self, key):
+        """Load one of the prerequisite statistical summary outputs.
+        
+        Args:
+            key: Name of the input task.
+        
+        Returns:
+            Results of that summary task.
+        """
         with self.input()[key].open() as f:
             result = json.load(f)
 
