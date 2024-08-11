@@ -495,6 +495,121 @@ class SummarizeEquivalentStdTask(luigi.Task):
                 }, f_out)
 
 
+class FindDivergentAphAndClaimsRate(luigi.Task):
+    """Determine how often APH and claims both increase."""
+
+    def requires(self):
+        """Require that simulation results are available.
+
+        Returns:
+            CombineSimulationsTasks
+        """
+        return sim_tasks.CombineSimulationsTasks()
+    
+    def output(self):
+        """Determine where the resulting statistics should be written.
+        
+        Returns:
+            LocalTarget at which the JSON should be written.
+        """
+        return luigi.LocalTarget(const.get_file_location('divergent_aph_claims.json'))
+    
+    def run(self):
+        """Calculate the rate of APH overall increase but increased claims."""
+        with self.input().open('r') as f:
+            all_data = csv.DictReader(f)
+            right_baseline = filter(lambda x: x['offsetBaseline'] == 'always', all_data)
+            right_condition = filter(lambda x: x['condition'] == '2050_SSP245', right_baseline)
+            right_threshold = filter(
+                lambda x: abs(float(x['threshold']) - 0.25) < 0.00001,
+                right_condition
+            )
+            right_mult = filter(lambda x: int(float(x['stdMult'])) == 1, right_threshold)
+            right_geohash = filter(lambda x: int(x['geohashSimSize']) == 4, right_mult)
+            parsed = map(lambda x: self._parse_record(x), right_geohash)
+            in_scope = list(parsed)
+        
+        # Determine geohashes with increased yield
+        records_grouped_by_geohash = toolz.itertoolz.reduceby(
+            lambda x: x['geohash'],
+            lambda a, b: self._combine_means(a, b),
+            in_scope
+        ).values()
+
+        geohash_summaries_increasing_yield = filter(
+            lambda x: x['predictedChange'] >= 0,
+            records_grouped_by_geohash
+        )
+
+        geohashes_increasing_yield = set(map(
+            lambda x: x['geohash'],
+            geohash_summaries_increasing_yield
+        ))
+
+        # Determine instances geohashes in which claims increase
+        records_with_increase_risk = filter(
+            lambda x: x['predictedClaims'] > x['baselineClaims'],
+            in_scope
+        )
+        instances_with_increase_risk = set(map(
+            lambda x: x['geohash'],
+            records_with_increase_risk
+        ))
+
+        # Determine statistic
+        geohashes_with_dual_increase = instances_with_increase_risk.intersection(
+            geohashes_increasing_yield
+        )
+        
+        rate = len(geohashes_with_dual_increase) / len(instances_with_increase_risk)
+
+        # Output
+        with self.output().open('w') as f:
+            json.dump({'dualIncreasePercent2050': format_percent(rate)}, f)
+    
+    def _parse_record(self, target):
+        """Parse a raw input record from the simulation results.
+        
+        Args:
+            target: The record to parse (primitives-only dictionary).
+        
+        Returns:
+            Parsed record.
+        """
+        return {
+            'geohash': target['geohash'],
+            'num': float(target['num']),
+            'baselineChange': float(target['baselineChange']),
+            'predictedChange': float(target['predictedChange']),
+            'baselineClaims': float(target['baselineClaims']),
+            'predictedClaims': float(target['predictedClaims'])
+        }
+    
+    def _combine_means(self, a, b):
+        """Pool yield change means.
+        
+        Args:
+            a: The first record to pool.
+            b: The second record to pool.
+        
+        Returns:
+            Record after pooling samples.
+        """
+        assert a['geohash'] == b['geohash']
+        new_count = a['num'] + b['num']
+
+        def combine_key(key):
+            pool_sum = a['num'] * a[key] + b['num'] * b[key]
+            return pool_sum / new_count
+        
+        return {
+            'geohash': a['geohash'],
+            'num': new_count,
+            'baselineChange': combine_key('baselineChange'),
+            'predictedChange': combine_key('predictedChange')
+        }
+
+
 class CombineStatsTask(luigi.Task):
     """Create a combined statistical output as a JSON document."""
 
@@ -509,7 +624,8 @@ class CombineStatsTask(luigi.Task):
             'posthoc': ExportPosthocTestTask(),
             'significance': DeterminePercentSignificantTask(),
             'sim': ExtractSimStatsTask(),
-            'std': SummarizeEquivalentStdTask()
+            'std': SummarizeEquivalentStdTask(),
+            'dual': FindDivergentAphAndClaimsRate()
         }
 
     def output(self):
@@ -527,6 +643,7 @@ class CombineStatsTask(luigi.Task):
         significance_inputs = self._get_subfile('significance')
         sim_inputs = self._get_subfile('sim')
         std_inputs = self._get_subfile('std')
+        dual_inputs = self._get_subfile('dual')
 
         output_record = {
             'numLayers': model_inputs['numLayers'],
@@ -577,7 +694,8 @@ class CombineStatsTask(luigi.Task):
             'experimentalMean2050': sim_inputs['experimentalMean2050'],
             'experimentalProbability2050': sim_inputs['experimentalProbability2050'],
             'experimentalSeverity2050': sim_inputs['experimentalSeverity2050'],
-            'equivalentStd': std_inputs['equivalentStd']
+            'equivalentStd': std_inputs['equivalentStd'],
+            'dualIncreasePercent2050': dual_inputs['dualIncreasePercent2050']
         }
 
         with self.output().open('w') as f:
