@@ -351,8 +351,20 @@ class Configuration:
 
 
 class ConfigurationPresenter:
+    """Meta-widget which allows the user to control a Configuration."""
 
     def __init__(self, sketch, x, y, initial_config, on_change):
+        """Create a new configuration presenter meta-widget made up of more general widgets.
+        
+        Args:
+            sketch: The sketchingpy sketch in which to create these widgets.
+            x: The horizontal coordinate at which the meta-widget should be constructed.
+            y: The vertical coordinate at which the meta-widget should be constructed.
+            initial_config: Configuration object with the initial values to be shown across this
+                widget.
+            on_change: Function to call with a new Configuration when changes are made within this
+                widget.
+        """
         self._sketch = sketch
         self._x = x
         self._y = y
@@ -513,6 +525,16 @@ class ConfigurationPresenter:
         )
 
     def step(self, mouse_x, mouse_y, clicked, keypress):
+        """Update and draw this meta-widget and its sub-widgets.
+        
+        Args:
+            mouse_x: The horizontal coordinate of the mouse.
+            mouse_y: The vertical coordinate of the mouse.
+            clicked: Flag indicating if a click has happened since step was last called. True if
+                clicked and false otherwise. Also true if tapped.
+            keypress: The string key pressed since the last time step was called or None if no
+                key pressed.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -540,5 +562,10 @@ class ConfigurationPresenter:
         self._sketch.pop_transform()
 
     def _set_config(self, new_config):
+        """Internal callback for when the user changes the Configuration.
+        
+        Args:
+            new_config: The new Configuration after applying the user's change.
+        """
         self._config = new_config
         self._on_change(self._config)
