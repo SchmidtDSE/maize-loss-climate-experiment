@@ -196,7 +196,7 @@ That in mind, if coverage levels are redefined from the current percentage based
 
 Table: Change in coverage formulas. {#tbl:covformula}
 
-Table @fig:stdev further describes this translation between standard deviation and historic coverage levels. Even so, federal statute may cap coverage levels as percentages of production history [@cfr_crop_nodate]. Therefore, though regulators may make improvements like through 508h without congressional action, our simulations possibly suggest that the ability to incorporate climate adaptation variability may remain limited without statutory change.
+Regulators may make improvements like through 508h without congressional action but note that federal statute may cap coverage levels as percentages of production history [@cfr_crop_nodate]. Therefore, our simulations possibly suggest that the ability to incorporate climate adaptation variability may remain limited without statutory change.
 
 ![Histogram showing percent change from $y_{expected}$ for one standard deviation in each simulated unit.](./img/std.png "Histogram showing percent change from $y_{expected}$ for one standard deviation in each simulated unit."){ width=95% #fig:stdev }
 
