@@ -126,7 +126,7 @@ These post-hoc trials use only training and test sets as we fully retrain models
 We project loss probabilities to more than double ({{experimentalProbability2050}} claims rate) under SSP245 at mid-century in comparison to the no additional warming counterfactual scenario ({{counterfactualProbability2050}} claims rate).
 
 ## Neural network outcomes
-With bias towards performance in mean prediction, we select {{numLayers}} layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. Table @tbl:sweep describes performance for the chosen configuration.
+With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. Table @tbl:sweep describes performance for the chosen configuration.
 
 | **Set**             | **MAE for Mean Prediction** | **MAE for Std Prediction** |
 | ------------------- | ----------------------- | ---------------------- |
