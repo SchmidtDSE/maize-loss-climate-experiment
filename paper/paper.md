@@ -230,7 +230,7 @@ We also highlight additional future modeling opportunities beyond the scope of t
 
 - We evaluate yield deltas and include historic yield as inputs into our neural network, allowing those data to "embed" adaptability measures [@hsiang_estimating_2017] such as soil properties and practices. However, those estimating absolute yield prediction may consider @rayburn_comparison_2022 as well as @woodard_efficiency_2017 to incorporate other variables like soil properties.
 - Later research may also extend to genetic modification and climate-motivated practice changes which we assume to be latent in historic data.
-- Though our interactive tools consider alternatives to SCYM and different spatial aggregations such as 5 character (4 x 5 km) geohashes, future work may consider modeling with actual field-level yield data and the actual risk unit structure. To that end, we observe that the actual unit yields / revenue and risk unit structure are not currently public.
+- Though our interactive tools consider different spatial aggregations such as 5 character (4 x 5 km) geohashes, future work may consider modeling with actual field-level yield data and the actual risk unit structure. To that end, we observe that the actual unit yields / revenue and risk unit structure are not currently public.
 - Due to the robustness of yield data, we examine Yield Protection but future agroeconomic study could extend this to the highly related Revenue Protection (RP) form of insurance. Indeed, the yield stresses seen in YP that we describe in this model may also impact RP.
 - With additional data, future modeling could relax our normality assumption though, in addition to 79% of neighborhoods seeing approximately normal yield deltas, we observe that 88% of neighborhoods see approximate symmetry per @kim_statistical_2013 so that later work would likely not remove a systemic directional bias in results.
 
@@ -268,11 +268,11 @@ Then, continuing to "presentation" [@unwin_why_2020], we next release these tool
 
 These public interactive visualizations allow for further exploration of our modeling such as different loss thresholds for other insurance products, finding relationships of outcomes to different climate variables, answering geographically specific questions beyond the scope of this study, and modification of machine learning parameters to understand performance. This may include use as workshop activity and we also report^[We collect information about the tool only and not generalizable knowledge about users or these patterns, falling under "quality assurance" activity. IRB questionnaire on file.] briefly on design changes made to our interactive tools in response to its participation in a 9 person "real-world" workshop session co-exploring these results:
 
- - Like @pottinger_combining_2023, facilitatation alternates between presentation and interaction but, in response to a previously "lecture-heavy" initial background, we add the rates simulator to let facilitators break up that section.
+ - Though facilitatation alternates between presentation and interaction similar to @pottinger_combining_2023, we added the rates simulator to further improve description of the rate setting process.
  - Facilitators suggest that single loop [@brazie_designing_2024] designs perform best within the limited time of the workshop and we now let facilitators hold the longer two loop neighborhood simulator till the end by default.
  - As expected by the JG design [@jm8_secret_2024], discussion contrasts different results sets and configurations of models but meta-parameter visualization relies heavily on memory so we now offer a "sweep" button for facilitators to show all results at once.
 
-Later work may include controlled experimentation [@lewis_using_1982] or diary studies [@shneiderman_strategies_2006] for more generalizable design knowledge.
+Later work may further explore this design space through controlled experimentation [@lewis_using_1982] or diary studies [@shneiderman_strategies_2006].
 
 
 \bigskip
