@@ -283,7 +283,7 @@ class HistoryMainPresenter:
         if update_buttons:
             self._threshold_type_buttons.set_value(new_value)
 
-    def _update_stability(self, new_setting):
+    def _update_stability(self, new_setting, update_buttons=False):
         """Update the stability setting.
 
         Args:
