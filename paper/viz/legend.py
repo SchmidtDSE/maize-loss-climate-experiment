@@ -14,7 +14,7 @@ class LegendPresenter:
     def __init__(self, sketch, x, y, legend_width, legend_height, initial_percents,
         metric, var, viz):
         """Create a new legend.
-        
+
         Args:
             sketch: The Sketchingpy sketch in which the lengend should be built.
             x: The horizontal location at which the legend should be constructed.
@@ -38,7 +38,7 @@ class LegendPresenter:
 
     def update_data(self, new_data, metric, var, viz):
         """Update the legend to reflect new data being displayed in the main visualization.
-        
+
         Args:
             new_data: The percents as a set of records with group name and percent.
             metric: The name of the metric being displayed corresponding to Configuration values.
@@ -52,7 +52,7 @@ class LegendPresenter:
 
     def step(self, mouse_x, mouse_y, clicked):
         """Update and redraw this component.
-        
+
         Args:
             mouse_x: The horizontal position of the cursor.
             mouse_y: The vertical position of the cursor.
@@ -160,10 +160,10 @@ class LegendPresenter:
 
     def _get_width(self, percent):
         """Get the width of a bar for percent.
-        
+
         Args:
             percent: The percent associated with the bar (0 - 1).
-        
+
         Returns:
             Width of bar in pixels.
         """

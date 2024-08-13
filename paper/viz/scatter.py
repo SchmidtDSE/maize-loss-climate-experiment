@@ -18,7 +18,7 @@ class ScatterMainPresenter:
     def __init__(self, sketch, x, y, width, height, records, metric, variable, selected_geohashes,
         on_selection):
         """Create a new scatter plot.
-        
+
         Args:
             sketch: The Sketchingpy sketch in which to build the scatterplot.
             x: The horizontal location at which to build the scatterplot.
@@ -57,7 +57,7 @@ class ScatterMainPresenter:
 
     def step(self, mouse_x, mouse_y, clicked):
         """Update this visualization component.
-        
+
         Args:
             mouse_x: The horizontal location of the mouse cursor.
             mouse_y: The vertical location of the mouse cursor.
@@ -112,7 +112,7 @@ class ScatterMainPresenter:
 
     def update_data(self, records, metric, variable, selected_geohashes):
         """Update the data displayed by this component.
-        
+
         Args:
             records: The list of Records to display within this component.
             metric: The name of the metric indicating the response being shown like yield or risk.
@@ -129,7 +129,7 @@ class ScatterMainPresenter:
 
     def _select_points(self, rel_x, rel_y):
         """Select all points within a certain distance of a center point.
-        
+
         Args:
             rel_x: The horizontal position of the center point relative to the start of the widget
                 expressed in pixels.
@@ -143,7 +143,7 @@ class ScatterMainPresenter:
 
     def _make_scatter_image(self, records, metric, variable):
         """Make a cached (buffered) copy of the scatterplot.
-        
+
         Args:
             records: The Records to display.
             metric: The name of the metric indicating the response being shown like yield or risk.
@@ -484,7 +484,7 @@ class ScatterMainPresenter:
 
     def _get_usable_height(self):
         """Get the height of the usable chart display space.
-        
+
         Returns:
             Height in pixels.
         """

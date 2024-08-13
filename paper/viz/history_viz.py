@@ -29,7 +29,7 @@ class SummaryDataFacade:
 
     def __init__(self, raw_rows):
         """Create a new data model facade.
-        
+
         Args:
             raw_rows: The rows around which this facade will simplify access. These will be parsed
                 with expected data types.
@@ -46,13 +46,13 @@ class SummaryDataFacade:
 
     def get_claims(self, year, condition, using_std):
         """Get the claims rate for a year, simulation condition, and regulatory scheme.
-        
+
         Args:
             year: Get the year for which the claims rate is requested.
             condition: The condition like historic or 2050_SSP245.
             using_std: True if using a standard deviation-based threshold or false if using the
                 average-based threshold.
-        
+
         Returns:
             The claims rate (0 - 100) for the simulation configuration requested.
         """
@@ -62,13 +62,13 @@ class SummaryDataFacade:
 
     def get_threshold(self, year, condition, using_std):
         """Get the loss threshold associated with a threshold.
-        
+
         Args:
             year: The year in which the the data are requested.
             condition: The condition like historic or 2050_SSP245.
             using_std: True if using a standard deviation-based threshold or false if using the
                 average-based threshold.
-        
+
         Returns:
             The loss threshold used for the simulation requested.
         """
@@ -78,10 +78,10 @@ class SummaryDataFacade:
 
     def _parse_record(self, target):
         """Parse a raw record.
-        
+
         Args:
             target: The raw dictionary to parse.
-        
+
         Returns:
             Parsed record.
         """
@@ -96,11 +96,11 @@ class SummaryDataFacade:
 
     def _get_key(self, condition, year):
         """Get a key refering to a combination of simulated condition and year.
-        
+
         Args:
             condition: The condition like future or 2050_SSP245 for which a key is being generated.
             year: The year for which a key is being generated.
-        
+
         Returns:
             Key describing a year within a condition.
         """
@@ -113,7 +113,7 @@ class HistoryMainPresenter:
     def __init__(self, target, loading_id, csv_loc=None, output_loc=None,
         default_threshold='average', default_scenario='high'):
         """Create a new presenter.
-        
+
         Args:
             target: The title of of the window for the visualization or the HTML ID in which the
                 visualization should be drawn.
@@ -268,7 +268,7 @@ class HistoryMainPresenter:
 
     def _update_threshold(self, new_value, update_buttons=False):
         """Update the loss threshold type.
-        
+
         Args:
             new_value: Description of the regulatory structure where 'Stdev-based' uses the
                 standard deviation-based thresholds.
@@ -279,13 +279,13 @@ class HistoryMainPresenter:
         using_std = new_value == 'Stdev-based'
         self._chart_presenter.set_using_std(using_std)
         self._summary_presenter.set_using_std(using_std)
-        
+
         if update_buttons:
             self._threshold_type_buttons.set_value(new_value)
 
     def _update_stability(self, new_setting):
         """Update the stability setting.
-        
+
         Args:
             new_value: Description of the stability level like 'Low Stability' to use as an APH
                 starting point that the user can further modify.
@@ -297,7 +297,7 @@ class HistoryMainPresenter:
             self._chart_presenter.set_values(HIGH_VARIABILITY_SCENARIO)
         else:
             self._chart_presenter.set_values(LOW_VARIABILITY_SCENARIO)
-        
+
         if update_buttons:
             self._scenario_buttons.set_value(new_setting)
 
@@ -307,7 +307,7 @@ class HistoryChartPresenter:
 
     def __init__(self, sketch, x, y, width, height, start_values):
         """Create a new APH presenter.
-        
+
         Args:
             sketch: The Sketchingpy sketch in which the chart should be created.
             x: The horizontal position at which the chart should be created.
@@ -326,7 +326,7 @@ class HistoryChartPresenter:
 
     def step(self, mouse_x_abs, mouse_y_abs, clicked):
         """Update and redraw this chart.
-        
+
         Args:
             mouse_x_abs: The x coordinate of the cursor.
             mouse_y_abs: The y coordinate of the cursor.
@@ -364,7 +364,7 @@ class HistoryChartPresenter:
 
     def set_using_std(self, new_use_std):
         """Update if a standard deviation-based threshold should be used.
-        
+
         Args:
             new_use_std: True if a standard deviation-based threshold should be used or false if
                 an average-based threshold should be used.
@@ -373,7 +373,7 @@ class HistoryChartPresenter:
 
     def set_values(self, new_values):
         """Set the APH yield values.
-        
+
         Args:
             new_values: Yield values per year.
         """
@@ -381,11 +381,11 @@ class HistoryChartPresenter:
 
     def _get_year(self, mouse_x, mouse_y):
         """Get the year corresponding to a mouse position.
-        
+
         Args:
             mouse_x: The horizontal position of the cursor.
             mouse_y: The vertical position of the cursor.
-        
+
         Returns:
             Year corresponding to the cursor position.
         """
@@ -403,7 +403,7 @@ class HistoryChartPresenter:
 
     def _draw_hover(self, mouse_x, mouse_y):
         """Draw a hover indicator below the cursor.
-        
+
         Args:
             mouse_x: The horizontal position of the cursor.
             mouse_y: The vertical position of the cursor.
@@ -473,7 +473,7 @@ class HistoryChartPresenter:
 
     def _draw_candidate(self, mouse_x, mouse_y, clicked):
         """Draw a potential APH change below the cursor.
-        
+
         Args:
             mouse_x_abs: The x coordinate of the cursor.
             mouse_y_abs: The y coordinate of the cursor.
@@ -626,10 +626,10 @@ class HistoryChartPresenter:
 
     def _get_x(self, year):
         """Get the x position corresponding to a year.
-        
+
         Args:
             year: The year for which to find an x position.
-        
+
         Returns:
             Horizontal coordinate of a year.
         """
@@ -637,10 +637,10 @@ class HistoryChartPresenter:
 
     def _get_y(self, value):
         """Get the y position corresponding to a yield.
-        
+
         Args:
             value: The yield level.
-        
+
         Returns:
             Vertical coordinate of a yield.
         """
@@ -649,10 +649,10 @@ class HistoryChartPresenter:
 
     def _invert_y(self, y):
         """Convert from a y position to a yield level.
-        
+
         Args:
             y: The vertical coordinate.
-        
+
         Returns:
             Yield level corresponding to the coordinate.
         """
@@ -661,14 +661,14 @@ class HistoryChartPresenter:
 
 class SummaryPresenter:
     """Small visualization element showing overall impact of a regulatory scheme.
-    
+
     Small visualization element showing overall impact of a regulatory scheme if it were applied
     system-wide using historic data.
     """
 
     def __init__(self, sketch, x, y, width, height, data_facade):
         """Create new presenter.
-        
+
         Args:
             sketch: The Sketchingpy sketch in which the summary should be created.
             x: The horizontal position at which the summary should be made.
@@ -687,7 +687,7 @@ class SummaryPresenter:
 
     def set_using_std(self, using_std):
         """Change if the standard deviation-based threshold should be used.
-        
+
         Args:
             using_std: True if a standard deviation-based loss threshold should be used or false if
                 average-based loss threshold should be used.
@@ -696,7 +696,7 @@ class SummaryPresenter:
 
     def step(self, mouse_x_abs, mouse_y_abs, clicked):
         """Update and redraw this component.
-        
+
         Args:
             mouse_x_abs: The horizontal position of the cursor.
             mouse_y_abs: The vertical position of the cursor.
@@ -765,11 +765,11 @@ class SummaryPresenter:
 
 def main():
     """Entrypoint into this visualization.
-    
+
     Entrypoint into this visualization which runs interactively if no arguments provided or draws
     into a file if arguments provided.
     """
-    
+
     if len(sys.argv) == 1:
         presenter = HistoryMainPresenter('History Viz', None)
     elif len(sys.argv) != NUM_ARGS + 1:

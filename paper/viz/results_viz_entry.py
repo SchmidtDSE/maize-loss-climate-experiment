@@ -28,7 +28,7 @@ USAGE_STR = 'python results_viz_entry.py ' + ' '.join(map(lambda x: '[%s]' % x, 
 
 def main():
     """Entry point for the results visualization.
-    
+
     Entry point for the results visualization that, without command line args, will display the
     visualization interactively. With args, it will render it headless.
     """

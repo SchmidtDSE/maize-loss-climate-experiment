@@ -18,7 +18,7 @@ class SweepMainPresenter:
 
     def __init__(self, target, loading_id):
         """Create a new sweep visualization.
-        
+
         Args:
             target: The ID at which create the visualization or the window title if not rendering
                 on web.
@@ -75,7 +75,7 @@ class SweepMainPresenter:
 
     def _update_config(self, config):
         """Update the configuration of the tool.
-        
+
         Args:
             config: New FilterConfig.
         """
@@ -140,7 +140,7 @@ class FilterConfig:
 
     def __init__(self, layers, l2, dropout, data_filter):
         """Create a new configuration describing a filter on the sweep results.
-        
+
         Args:
             layers: The number of layers to consider.
             l2: The L2 regularization level (0 - 1) to consider.
@@ -155,7 +155,7 @@ class FilterConfig:
 
     def get_layers(self):
         """Get the number of layers that the user is filtering for.
-        
+
         Returns:
             The number of layers to consider.
         """
@@ -163,10 +163,10 @@ class FilterConfig:
 
     def get_with_layers(self, new_layers):
         """Create a copy of this configuration object with a new number of layers.
-        
+
         Args:
             new_layers: The new value to use.
-        
+
         Returns:
             Copy of this object but with the new value.
         """
@@ -174,7 +174,7 @@ class FilterConfig:
 
     def get_l2(self):
         """Get the L2 regularization strength that the user is filtering for.
-        
+
         Returns:
             The L2 regularization level (0 - 1) to consider.
         """
@@ -182,10 +182,10 @@ class FilterConfig:
 
     def get_with_l2(self, new_l2):
         """Create a copy of this configuration object with a new L2 regularization strength.
-        
+
         Args:
             new_l2: The new value to use.
-        
+
         Returns:
             Copy of this object but with the new value.
         """
@@ -193,7 +193,7 @@ class FilterConfig:
 
     def get_dropout(self):
         """Get the dropout rate that the user is filtering for.
-        
+
         Returns:
             The dropout rate (0 - 1) to consider.
         """
@@ -201,10 +201,10 @@ class FilterConfig:
 
     def get_with_dropout(self, new_dropout):
         """Create a copy of this configuration object with a new dropout rate.
-        
+
         Args:
             new_dropout: The new dropout rate to use.
-        
+
         Returns:
             Copy of this object but with the new value.
         """
@@ -212,7 +212,7 @@ class FilterConfig:
 
     def get_data_filter(self):
         """Get the data attribute filter that the user has applied.
-        
+
         Returns:
             The data attribute hidden from training or 'all attrs' if all data included.
         """
@@ -220,10 +220,10 @@ class FilterConfig:
 
     def get_with_data_filter(self, new_filter):
         """Create a copy of this configuration object with a new data filter.
-        
+
         Args:
             new_filter: The new value to use.
-        
+
         Returns:
             Copy of this object but with the new value.
         """
@@ -236,7 +236,7 @@ class SweepResult:
     def __init__(self, block, layers, l2, dropout, mean_error, std_err,
         train_mean_error, train_std_err):
         """Create a new record of a sweep outcome.
-        
+
         Args:
             block: The variable name that was blocked from training or 'all attrs' if no blocks.
             layers: The number of hidden layers used in the candidate.
@@ -258,7 +258,7 @@ class SweepResult:
 
     def get_block(self):
         """Get the variable blocked from training.
-        
+
         Returns:
             The variable name that was blocked from training or 'all attrs' if no blocks.
         """
@@ -294,10 +294,10 @@ class SweepResult:
 
     def matches_filter(self, filter_config):
         """Determine if this candidate should be included in a results set for a filter.
-        
+
         Args:
             filter_config: The FitlerConfig for which we are testing inclusion.
-        
+
         Returns:
             True if should be included and false otherwise.
         """
@@ -317,10 +317,10 @@ class SweepResult:
 
 def parse_record(raw_record):
     """Parse a sweep output dataset.
-    
+
     Args:
         raw_record: The raw record as a primitives only dictionary.
-    
+
     Returns:
         SweepResult after parsing values into exepcted types.
     """
@@ -338,10 +338,10 @@ def parse_record(raw_record):
 
 def load_data(sketch, loc='data/sweep_ag_all.csv'):
     """Load all available sweep data.
-    
+
     Args:
         loc: The location (path) as string from which to load data.
-    
+
     Returns:
         list of SweepResult.
     """
@@ -355,7 +355,7 @@ class ConfigPresenter:
 
     def __init__(self, sketch, x, y, on_config_change, on_run_sweep):
         """Create a new configuration presenter / meta-widget.
-        
+
         Args:
             sketch: The Sketchingpy sketch in which to bulid this widget.
             x: The horizontal position at which to build this widget in pixels.
@@ -470,7 +470,7 @@ class ConfigPresenter:
 
     def draw(self, mouse_x, mouse_y, click_waiting, keypress):
         """Update and draw this visualization.
-        
+
         Args:
             mouse_x: The horizontal position of cursor.
             mouse_y: The vertical position of cursor.
@@ -498,7 +498,7 @@ class ConfigPresenter:
 
     def _change_layers(self, new_val):
         """Internal callback for when the filter's number of hidden layers has changed.
-        
+
         Args:
             new_val: The new value for this parameter.
         """
@@ -507,7 +507,7 @@ class ConfigPresenter:
 
     def _change_l2(self, new_val):
         """Internal callback for when the filter's L2 strength has changed.
-        
+
         Args:
             new_val: The new value for this parameter.
         """
@@ -516,7 +516,7 @@ class ConfigPresenter:
 
     def _change_dropout(self, new_val):
         """Internal callback for when the filter's dropout rate has changed.
-        
+
         Args:
             new_val: The new value for this parameter.
         """
@@ -525,7 +525,7 @@ class ConfigPresenter:
 
     def _change_data_filter(self, new_val):
         """Internal callback for when the filter's attribute inclusion has changed.
-        
+
         Args:
             new_val: The new value for this parameter.
         """
@@ -563,7 +563,7 @@ class ScatterPresenter:
 
     def __init__(self, sketch, x, y, width, height, data, request_draw):
         """Create a new scatterplot.
-        
+
         Args:
             sketch: The Sketchingpy sketch in which to build the chart.
             x: The horizontal position at which to build the chart.
@@ -589,7 +589,7 @@ class ScatterPresenter:
 
     def draw(self, mouse_x, mouse_y, click_waiting):
         """Update and redraw this component.
-        
+
         Args:
             mouse_x: The horizontal position of the cursor.
             mouse_y: The vertical position of the cursor.
@@ -610,7 +610,7 @@ class ScatterPresenter:
 
     def show_config(self, config):
         """Show a single model candidate.
-        
+
         Args:
             config: The FilterConfig for which a model should be displayed.
         """
@@ -637,10 +637,10 @@ class ScatterPresenter:
 
     def _convert_point(self, target):
         """Convert a point into a simplified dict representation.
-        
+
         Args:
             target: The SweepResult to convert to a simplified dictionary.
-        
+
         Returns:
             Simplified primitives-only dictionary.
         """
@@ -716,10 +716,10 @@ class ScatterPresenter:
 
     def _get_x(self, val):
         """Get the horizontal position corresponding to a mean prediction error.
-        
+
         Args:
             val: The mean absolute error (MAE).
-        
+
         Returns:
             Horizontal pixels coordinate.
         """
@@ -729,10 +729,10 @@ class ScatterPresenter:
 
     def _get_y(self, val):
         """Get the vertical position corresponding to a mean prediction error.
-        
+
         Args:
             val: The mean absolute error (MAE).
-        
+
         Returns:
             Vertical pixels coordinate.
         """

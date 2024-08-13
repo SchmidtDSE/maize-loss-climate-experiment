@@ -15,7 +15,7 @@ class RatesConfig:
     def __init__(self, aph, county_yield, price, county_rate, subsidy, coverage, aph_type,
         perspective):
         """Create a new rates configuration.
-        
+
         Args:
             aph: The average yield (APH).
             county_yield: Reference county-level average yield.
@@ -39,7 +39,7 @@ class RatesConfig:
 
     def get_aph(self):
         """Get the average expected yield.
-        
+
         Returns:
             The average yield (APH).
         """
@@ -47,10 +47,10 @@ class RatesConfig:
 
     def get_with_aph(self, aph):
         """Make a copy of this configuration with a new average yield.
-        
+
         Args:
             aph: The new value to use.
-        
+
         Returns:
             A copy of this record with the new value.
         """
@@ -67,7 +67,7 @@ class RatesConfig:
 
     def get_county_yield(self):
         """Get the county average yield.
-        
+
         Returns:
             Reference county-level average yield.
         """
@@ -75,10 +75,10 @@ class RatesConfig:
 
     def get_with_county_yield(self, county_yield):
         """Make a copy of this record with a new county average yield.
-        
+
         Args:
             county_yield: The new value to use.
-        
+
         Returns:
             A copy of this record with the new value.
         """
@@ -95,7 +95,7 @@ class RatesConfig:
 
     def get_price(self):
         """Get the expected sale price for the crop.
-        
+
         Returns:
             The expected spring price for the crop.
         """
@@ -103,10 +103,10 @@ class RatesConfig:
 
     def get_with_price(self, price):
         """Make a copy of this record with a new expected sale price.
-        
+
         Args:
             price: The new value to use.
-        
+
         Returns:
             A copy of this record with the new value.
         """
@@ -123,7 +123,7 @@ class RatesConfig:
 
     def get_county_rate(self):
         """Get the county insurance rate.
-        
+
         Returns:
             The cost to insure one dollar of crop in dollars.
         """
@@ -131,10 +131,10 @@ class RatesConfig:
 
     def get_with_county_rate(self, county_rate):
         """Make a copy of this object with a new county insurance rate.
-        
+
         Args:
             county_rate: The new value to use.
-        
+
         Returns:
             A copy of this record with the new value.
         """
@@ -151,7 +151,7 @@ class RatesConfig:
 
     def get_subsidy(self):
         """Get the percent subsidized by the government.
-        
+
         Returns:
             The percent of the cost subsidized by the government (0 - 1).
         """
@@ -159,10 +159,10 @@ class RatesConfig:
 
     def get_with_subsidy(self, subsidy):
         """Make a copy of this record with a new subsidy level.
-        
+
         Args:
             subsidy: The new value to use.
-        
+
         Returns:
             A copy of this record with the new value.
         """
@@ -179,7 +179,7 @@ class RatesConfig:
 
     def get_coverage(self):
         """Get the coverage level of the policy simulated.
-        
+
         Returns:
             The coverage level like 0.75 for liss threshold of 25%.
         """
@@ -187,10 +187,10 @@ class RatesConfig:
 
     def get_with_coverage(self, coverage):
         """Make a copy of this record with a new coverage level.
-        
+
         Args:
             coverage: The new value to use.
-        
+
         Returns:
             A copy of this record with the new value.
         """
@@ -207,7 +207,7 @@ class RatesConfig:
 
     def get_aph_type(self):
         """Get the type of APH threshold used.
-        
+
         Returns:
             The type of APH threshold to use like 'Average-based' which uses a traditional percent
             below historic average loss threshold.
@@ -216,10 +216,10 @@ class RatesConfig:
 
     def get_with_aph_type(self, type):
         """Make a new copy of this configuration with a new APH type.
-        
+
         Args:
             type: The new value to use.
-        
+
         Returns:
             A copy of this record with the new value.
         """
@@ -236,7 +236,7 @@ class RatesConfig:
 
     def get_perspective(self):
         """Get the perspective from which prices are currently shown.
-        
+
         Returns:
             Showing perspective from grower or grovernment where 'Subsidy' uses the government
             perspective.
@@ -245,10 +245,10 @@ class RatesConfig:
 
     def get_with_perspective(self, perspective):
         """Make a copy of this object with a new perspective setting.
-        
+
         Args:
             perspective: The new value to use.
-        
+
         Returns:
             A copy of this record with the new value.
         """
@@ -269,7 +269,7 @@ class RatesMainPresenter:
 
     def __init__(self, target, loading_id):
         """Create a new rates visualization.
-        
+
         Args:
             target: The ID in which the visualization should be initalized or the title of the
                 window if not running on web.
@@ -393,7 +393,7 @@ class RatesChartPresenter:
 
     def __init__(self, sketch, x, y, width, height, start_config):
         """Create a new rates chart.
-        
+
         Args:
             sketch: The Sketchingpy sketch in which to create the rates chart.
             x: The horizontal coordinate at which to build the chart.
@@ -412,7 +412,7 @@ class RatesChartPresenter:
 
     def step(self, mouse_x_abs, mouse_y_abs, clicked):
         """Update and redraw this component.
-        
+
         Args:
             mouse_x_abs: The horizontal position of the cursor.
             mouse_y_abs: The vertical position of the cursor.
@@ -445,7 +445,7 @@ class RatesChartPresenter:
 
     def update_config(self, config):
         """Update the rates setting configuration.
-        
+
         Args:
             config: New RatesConfig.
         """
@@ -615,7 +615,7 @@ class RatesChartPresenter:
 
     def _get_price(self, use_grower_aph, coverage, perspective=None):
         """Get the price associated with a hypothetical plan.
-        
+
         Args:
             use_grower_aph: Flag indicting if the grower-level average should be used. True if the
                 grower APH should set the price or false if the county average should be used.
@@ -645,10 +645,10 @@ class RatesChartPresenter:
 
     def _get_x(self, percent):
         """Get the horizontal position associated with a coverage level.
-        
+
         Args:
             percent: The loss threshold converted to percent below average.
-        
+
         Returns:
             Horizontal position in pixels.
         """
@@ -659,10 +659,10 @@ class RatesChartPresenter:
 
     def _get_y(self, value):
         """Get the verticla position corresponding to a price.
-        
+
         Args:
             value: The price to convert to a vertical coordinate.
-        
+
         Returns:
             Vertical position in pixels.
         """
@@ -675,7 +675,7 @@ class ConfigPresenter:
 
     def __init__(self, sketch, x, y, on_config_change, start_config):
         """Create a new set of buttons within this meta-widget.
-        
+
         Args:
             sketch: The Sketchingpy sketch in which to build this meta-widget.
             x: The horizontal position at which this meta-widget should be made.
@@ -818,7 +818,7 @@ class ConfigPresenter:
 
     def step(self, mouse_x, mouse_y, click_waiting, keypress):
         """Update this visualization and redraw its components.
-        
+
         Args:
             mouse_x: The horizontal position of the cursor.
             mouse_y: The vertical position of the cursor.
@@ -848,7 +848,7 @@ class ConfigPresenter:
 
     def _change_aph(self, new_val):
         """Internal callback for when the average grower yield changed.
-        
+
         Args:
             new_val: The new value selected by the user as a string matching the button.
         """
@@ -858,7 +858,7 @@ class ConfigPresenter:
 
     def _change_county_yield(self, new_val):
         """Internal callback for when the average county yield changed.
-        
+
         Args:
             new_val: The new value selected by the user as a string matching the button.
         """
@@ -868,7 +868,7 @@ class ConfigPresenter:
 
     def _change_price(self, new_val):
         """Internal callback for when the expected price changed.
-        
+
         Args:
             new_val: The new value selected by the user as a string matching the button.
         """
@@ -878,7 +878,7 @@ class ConfigPresenter:
 
     def _change_county_rate(self, new_val):
         """Internal callback for when the county insurance rate changes.
-        
+
         Args:
             new_val: The new value selected by the user as a string matching the button.
         """
@@ -888,7 +888,7 @@ class ConfigPresenter:
 
     def _change_subsidy(self, new_val):
         """Internal callback for when the subsidy percentage changed.
-        
+
         Args:
             new_val: The new value selected by the user as a string matching the button.
         """
@@ -898,7 +898,7 @@ class ConfigPresenter:
 
     def _change_coverage(self, new_val):
         """Internal callback for when the coverage level changed.
-        
+
         Args:
             new_val: The new value selected by the user as a string matching the button.
         """
@@ -908,7 +908,7 @@ class ConfigPresenter:
 
     def _change_type(self, new_val):
         """Internal callback for when the threshold type changed.
-        
+
         Args:
             new_val: The new value selected by the user as a string matching the button.
         """
@@ -918,7 +918,7 @@ class ConfigPresenter:
 
     def _change_perspective(self, new_val):
         """Internal callback for when the price perspecrtive changed.
-        
+
         Args:
             new_val: The new value selected by the user as a string matching the button.
         """

@@ -30,7 +30,7 @@ function openWebApp(event) {
     progressBars.forEach((x) => x.value = 0);
     const incrementBar = () => {
         let updateWaiting = false;
-        
+
         progressBars.forEach((progressBar) => {
             progressBar.value += 1;
             updateWaiting = updateWaiting || progressBar.value < 19;
@@ -90,7 +90,7 @@ function initSlider() {
         if (globalSlider === null) {
             return;
         }
-        
+
         globalSlider.goTo("next");
         document.getElementById("intro-slider").scrollIntoView({
             "behavior": "smooth",
@@ -103,7 +103,7 @@ function initSlider() {
         if (globalSlider === null) {
             return;
         }
-        
+
         globalSlider.goTo(3);
         document.getElementById("intro-slider").scrollIntoView({
             "behavior": "smooth",
@@ -117,7 +117,7 @@ function initSlider() {
         if (globalSlider === null) {
             return;
         }
-        
+
         globalSlider.goTo("last");
         document.getElementById("intro-slider").scrollIntoView({
             "behavior": "smooth",

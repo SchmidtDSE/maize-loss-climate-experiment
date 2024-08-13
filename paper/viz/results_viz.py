@@ -25,7 +25,7 @@ class ResultsVizPresenter:
     def __init__(self, target, loading_id, default_configuration=None, data_loc=None,
         climate_loc=None, output_loc=None):
         """Create a enw results viz instance.
-        
+
         Args:
             target: The ID in which the visualization should be built or the title of the window if
                 not running the browser.
@@ -171,7 +171,7 @@ class ResultsVizPresenter:
 
     def _update_selected_geohashes(self, selected_geohashes):
         """Update collection of highlighted geohashes.
-        
+
         Args:
             selected_geohashes: Collection of string geohashses highlighted by the user.
         """
@@ -180,10 +180,10 @@ class ResultsVizPresenter:
 
     def _change_config(self, new_config):
         """Change the configuration selected.
-        
+
         Note:
             At this time, this does not force UI elements to update display.
-        
+
         Args:
             new_config: The Configuration to show.
         """
@@ -293,7 +293,7 @@ class ResultsVizPresenter:
 
     def _get_description(self):
         """Get a description of the current configuration of the visualization.
-        
+
         Returns:
             String describing the current state of the visualization.
         """
@@ -319,7 +319,7 @@ class ResultsVizPresenter:
 
     def _load_records(self):
         """Load the Records for this visualization.
-        
+
         Returns:
             List of Record.
         """
@@ -329,7 +329,7 @@ class ResultsVizPresenter:
 
     def _load_climate_deltas(self):
         """Load information about climate deltas for this visualization.
-        
+
         Returns:
             List of ClimateDelta.
         """

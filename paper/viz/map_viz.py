@@ -17,7 +17,7 @@ class MapMainPresenter:
     def __init__(self, sketch, x, y, width, height, records, metric, var, selected_geohashes,
         on_selection):
         """Create a new map component.
-        
+
         Args:
             sketch: The Sketchingpy sketch in which the map should be created.
             x: The horizontal position where the map component should be constructed.
@@ -55,7 +55,7 @@ class MapMainPresenter:
 
     def step(self, mouse_x, mouse_y, clicked):
         """Update the map visualization and redraw.
-        
+
         Args:
             mouse_x: The horizontal position of the cursor.
             mouse_y: The vertical position of the cursor.
@@ -102,7 +102,7 @@ class MapMainPresenter:
 
     def update_data(self, records, metric, var, selected_geohashes):
         """Update the data to display within the map.
-        
+
         Args:
             records: The Records to display.
             metric: The metric like risk or yield to display within the map.
@@ -118,7 +118,7 @@ class MapMainPresenter:
 
     def _select_points(self, rel_x, rel_y):
         """Callback for when the user selects points within the map.
-        
+
         Args:
             rel_x: The horizontal cursor position relative to the start of the map in pixels.
             rel_y: The vertical cursor position relative to the start of the map in pixels.
@@ -130,7 +130,7 @@ class MapMainPresenter:
 
     def _make_map_image(self, records, metric, var):
         """Make a cached (buffered) map image.
-        
+
         Args:
             records: The Records to display within the map image.
             metric: The metric like risk or yield to display within the map.
@@ -240,7 +240,7 @@ class MapMainPresenter:
 
     def _get_usable_height(self):
         """Get the actual map height.
-        
+
         Returns:
             Height of the usable map area in pixels.
         """

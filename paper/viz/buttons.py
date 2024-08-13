@@ -14,7 +14,7 @@ class ToggleButtonSet:
     def __init__(self, sketch, x, y, label, options, selected, on_change, make_rows=True,
         narrow=False, show_label=False, keyboard_button=None):
         """Create a new toggle button set.
-        
+
         Args:
             sketch: The Sketchingpy sketch in which this widget will operate.
             x: The x coordinate at which the widget should be drawn.
@@ -50,10 +50,10 @@ class ToggleButtonSet:
 
     def set_value(self, option):
         """Update the value selected by the user.
-        
+
         Update the value selected by the user, changing internal state and the display of this
         widget but not causing the callback function to be invoked.
-        
+
         Args:
             option: String option to use as the new selected value.
         """
@@ -61,7 +61,7 @@ class ToggleButtonSet:
 
     def step(self, mouse_x, mouse_y, clicked, keypress=None):
         """Update and redraw this button.
-        
+
         Args:
             mouse_x: The horizontal coordinate of the cursor.
             mouse_y: The vertical coordinate of the cursor.
@@ -160,7 +160,7 @@ class ToggleButtonSet:
 
     def get_height(self):
         """Get how much vertical space this widget takes up.
-        
+
         Returns:
             Height of this widget in pixels.
         """
@@ -181,7 +181,7 @@ class Button:
 
     def __init__(self, sketch, x, y, label, on_click, narrow=False, keyboard_button=None):
         """Create a new button.
-        
+
         Args:
             sketch: The sketchingpy sketch in which to build this widget.
             x: The horizontal coordinate at which the button should be made.
@@ -204,7 +204,7 @@ class Button:
 
     def step(self, mouse_x, mouse_y, clicked, keypress=None):
         """Update and draw this button.
-        
+
         Args:
             mouse_x: The horizontal coordinate of the cursor.
             mouse_y: The vertical coordinate of the cursor.
@@ -271,7 +271,7 @@ class Button:
 
     def get_height(self):
         """Get how much vertical space this widget takes up.
-        
+
         Returns:
             Height of this widget in pixels.
         """

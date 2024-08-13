@@ -40,7 +40,7 @@ class MainPresenter:
     def __init__(self, target, loading_id=None, csv_loc=None, default_year=None,
         default_coverage=None, unit='unit risk', comparison='vs counterfact', output_loc=None):
         """Create a new main presenter.
-        
+
         Args:
             target: The ID at which the visualization should be loaded or the window title if on
                 desktop.
@@ -207,7 +207,7 @@ class MainPresenter:
 
     def _change_year(self, year_str, update_buttons=False):
         """Respond to the user changing the year in the visualization.
-        
+
         Args:
             year_str: The year string as shown in the year buttons.
             update_buttons: Flag indicating if the UI buttons should be updated. True if the value
@@ -217,13 +217,13 @@ class MainPresenter:
         self._target_set = year_str
         self._records = self._get_records()
         self._redraw_required = True
-        
+
         if update_buttons:
             self._year_buttons.set_value(year_str)
 
     def _change_loss(self, loss_str, update_buttons=False):
         """Respond to the user changing the loss threshold in the visualization.
-        
+
         Args:
             loss_str: The loss string as shown in the threshold buttons (85% cov, etc).
             update_buttons: Flag indicating if the UI buttons should be updated. True if the value
@@ -233,13 +233,13 @@ class MainPresenter:
         self._target_threshold = loss_str
         self._records = self._get_records()
         self._redraw_required = True
-        
+
         if update_buttons:
             self._threshold_buttons.set_value(loss_str)
 
     def _change_comparison(self, comparison_str, update_buttons=False):
         """Respond to the user changing the reference histogram in the visualization.
-        
+
         Args:
             comparison_str: The year string as shown in the comparison buttons (vs counterfact,
                 etc).
@@ -250,13 +250,13 @@ class MainPresenter:
         self._comparison = comparison_str
         self._records = self._get_records()
         self._redraw_required = True
-        
+
         if update_buttons:
             self._comparison_buttons.set_value(comparison_str)
 
     def _change_geohash_size(self, geohash_str, update_buttons=False):
         """Change the geohash size selected by the user.
-        
+
         Args:
             geohash_str: The geohash and unit size to use (unit risk, etc).
             update_buttons: Flag indicating if the UI buttons should be updated. True if the value
@@ -266,16 +266,16 @@ class MainPresenter:
         self._geohash_size = geohash_str
         self._records = self._get_records()
         self._redraw_required = True
-        
+
         if update_buttons:
             self._geohash_buttons.set_value(geohash_str)
 
     def _get_x(self, value):
         """Get the x position of a histogram bucket.
-        
+
         Args:
             value: The yield change to position horizontally.
-        
+
         Returns:
             The x coordinate for the value in pixels.
         """
@@ -284,10 +284,10 @@ class MainPresenter:
 
     def _get_y(self, value):
         """Get the y position of a histogram frequency.
-        
+
         Args:
             value: The percent that falls within a histogram bucket.
-        
+
         Returns:
             The y coordinate for the value in pixels.
         """
@@ -295,14 +295,14 @@ class MainPresenter:
 
     def _combine_dicts(self, a, b):
         """Combine two dictionaries with numeric values.
-        
+
         Combine two dictionaries by combining their key sets and adding values when appearing in
         both.
-        
+
         Args:
             a: The first dictionary to combine.
             b: The second dictionary to combine.
-        
+
         Returns:
             The result of combining the two dictionaries together.
         """
@@ -327,11 +327,11 @@ class MainPresenter:
 
     def _get_percents(self, target, claims_key):
         """Calculate the claims rate and percent of total for input summary records.
-        
+
         Args:
             target: Mapping from series name to a dict mapping bin to count.
             claims_key: The type of claim as a string (claimsSco, claimsMpci).
-        
+
         Returns:
             Dictionary mapping from series to record with counts converted to percentages and a
             claims rate.
@@ -363,10 +363,10 @@ class MainPresenter:
 
     def _interpret_bin(self, target):
         """Interpret the name of a histogram bin or summary field.
-        
+
         Args:
             target: The name of the bin which may be a summary field.
-        
+
         Returns:
             The bin as a number corresponding to the yield change or the name of the summary field.
         """
@@ -377,7 +377,7 @@ class MainPresenter:
 
     def _get_records(self):
         """Parse all records from the cached raw copy.
-        
+
         Returns:
             Parsed / loaded records.
         """
@@ -436,10 +436,10 @@ class MainPresenter:
 
     def _get_body_fields(self, hist):
         """Get all non-summary fields from the histogram dataset.
-        
+
         Args:
             hist: The dictionary representing the outputs in histogram format.
-        
+
         Returns:
             Items from the input dictionary that are not summary fields.
         """
@@ -449,7 +449,7 @@ class MainPresenter:
 
     def _draw_upper(self, histogram):
         """Draw the distribution from the experimental set.
-        
+
         Args:
             histogram: The results to draw on the upper part of the visualization.
         """
@@ -501,7 +501,7 @@ class MainPresenter:
 
     def _draw_lower(self, histogram):
         """Draw the distribution from the comparison set.
-        
+
         Args:
             histogram: The results to draw on the lower part of the visualization.
         """
@@ -550,7 +550,7 @@ class MainPresenter:
 
     def _draw_x_axis(self, top_mean, bottom_mean):
         """Draw the shared x axis displaying changes in yield.
-        
+
         Args:
             top_mean: The average of the top or experimental results.
             bottom_mean: The average of the bottom or comparison results.
@@ -704,7 +704,7 @@ class MainPresenter:
 
     def _draw_top_claims(self, claims):
         """Draw the embedded bar chart with the claims on the top of the chart.
-        
+
         Args:
             claims: The claims rate for the experimental results.
         """
@@ -746,7 +746,7 @@ class MainPresenter:
 
     def _draw_bottom_claims(self, claims):
         """Draw the embedded bar chart with the claims on the bottom of the chart.
-        
+
         Args:
             claims: The claims rate for the control or reference results.
         """
@@ -859,7 +859,7 @@ class MainPresenter:
 
 def main():
     """Main entrypoint for this visualization.
-    
+
     Main entrypoint for this visualization, executing interactively if not command line arguments.
     Otherwise, will write to file and run headless.
     """
