@@ -1,3 +1,12 @@
+"""Visualization which shows system-wide changes to yield and risk.
+
+Visualization which shows system-wide changes to yield and risk under different scenarios and
+simulation configurations. Called the "distributional visualization" in the paper.
+
+License:
+    BSD
+"""
+
 import functools
 import sys
 
@@ -26,9 +35,32 @@ USAGE_STR = 'python hist_viz.py ' + (' '.join(USAGE_PIECES))
 
 
 class MainPresenter:
+    """Presenter at the root of the visualization driving all other components."""
 
-    def __init__(self, target, loading_id, csv_loc=None, default_year=None, default_coverage=None,
-        unit='unit risk', comparison='vs counterfact', output_loc=None):
+    def __init__(self, target, loading_id=None, csv_loc=None, default_year=None,
+        default_coverage=None, unit='unit risk', comparison='vs counterfact', output_loc=None):
+        """Create a new main presenter.
+        
+        Args:
+            target: The ID at which the visualization should be loaded or the window title if on
+                desktop.
+            loading_id: The ID with the loading indicator which should be hidden after
+                initialization if on web. Ignored if not on web. Defaults to None.
+            csv_loc: Location at which the source CSV summary of the "histogram" information
+                displayed by this visualization should be found. Uses a default if None. Defaults
+                to None.
+            default_year: The default selection for which year's results to show. Defaults to None,
+                causing it to use a system-wide default.
+            default_coverage: The default selection for coverage level. Defaults to None, causing
+                it to use a system-wide default.
+            unit: The type of unit / unit size for which to show results. Defaults to unit risk
+                which is the result of simulating with actual historic unit sizes.
+            comparison: Which simulation to use as a baseline against which to compare simulation
+                results. Defaults to 'vs counterfact' which is the simulation of results into the
+                future year assuming climate change stops.
+            output_loc: Where to write this visualization if provided. If None, this visualization
+                will run interactively. Defaults to None.
+        """
         if output_loc:
             self._sketch = sketchingpy.Sketch2DStatic(
                 SUB_CHART_WIDTH + 80 + 11,
@@ -135,6 +167,7 @@ class MainPresenter:
             self._sketch.show()
 
     def draw(self):
+        """Update this visualization (execute a draw loop)."""
         mouse = self._sketch.get_mouse()
 
         if mouse is not None:
@@ -691,6 +724,11 @@ class MainPresenter:
 
 
 def main():
+    """Main entrypoint for this visualization.
+    
+    Main entrypoint for this visualization, executing interactively if not command line arguments.
+    Otherwise, will write to file and run headless.
+    """
     if len(sys.argv) == 1:
         presenter = MainPresenter('Simulation Outcomes', None)
     elif len(sys.argv) != NUM_ARGS + 1:
