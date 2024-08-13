@@ -1,3 +1,9 @@
+"""Map component for the neighborhood-level results visualization.
+
+License:
+    BSD
+"""
+
 import math
 
 import const
@@ -6,9 +12,25 @@ import symbols
 
 
 class MapMainPresenter:
+    """Map component presenter."""
 
     def __init__(self, sketch, x, y, width, height, records, metric, var, selected_geohashes,
         on_selection):
+        """Create a new map component.
+        
+        Args:
+            sketch: The Sketchingpy sketch in which the map should be created.
+            x: The horizontal position where the map component should be constructed.
+            y: The vertical position where the map component should be constructed.
+            width: The horizontal size in pixels of the map area.
+            height: The vertical size in pixels of the map area.
+            records: The Records to be displayed within this map.
+            metric: The metric (matching Configuration) like risk or yield being displayed.
+            var: The contextualizing dimension.
+            selected_geohashes: Set of geohashes currently highglighted by the user (collection of
+                strings).
+            on_selection: Callback to invoke when the collection of selected geohashes changes.
+        """
         self._sketch = sketch
         self._x = x
         self._y = y
@@ -28,9 +50,18 @@ class MapMainPresenter:
         self._make_map_image(records, metric, var)
 
     def start_selecting(self):
+        """Indicate that the visualization has entered into the highlighting state."""
         self._selecting = True
 
     def step(self, mouse_x, mouse_y, clicked):
+        """Update the map visualization and redraw.
+        
+        Args:
+            mouse_x: The horizontal position of the cursor.
+            mouse_y: The vertical position of the cursor.
+            clicked: Flag indicating if the mouse button has been pressed since the last call to
+                step. True if pressed and false otherwise.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -70,6 +101,14 @@ class MapMainPresenter:
         self._sketch.pop_transform()
 
     def update_data(self, records, metric, var, selected_geohashes):
+        """Update the data to display within the map.
+        
+        Args:
+            records: The Records to display.
+            metric: The metric like risk or yield to display within the map.
+            var: The contextualizing dimension to display.
+            selected_geohashes: Collection of geohashes highlighted by the user.
+        """
         self._records = records
         self._metric = metric
         self._var = var
@@ -78,12 +117,25 @@ class MapMainPresenter:
         self._selecting = False
 
     def _select_points(self, rel_x, rel_y):
+        """Callback for when the user selects points within the map.
+        
+        Args:
+            rel_x: The horizontal cursor position relative to the start of the map in pixels.
+            rel_y: The vertical cursor position relative to the start of the map in pixels.
+        """
         in_range = filter(lambda x: x.in_range(rel_x, rel_y, 30), self._placed_records)
         geohashes = set(map(lambda x: x.get_record().get_geohash(), in_range))
         self._on_selection(geohashes)
         self._selecting = False
 
     def _make_map_image(self, records, metric, var):
+        """Make a cached (buffered) map image.
+        
+        Args:
+            records: The Records to display within the map image.
+            metric: The metric like risk or yield to display within the map.
+            var: The contextualizing dimension to display.
+        """
         usable_height = self._get_usable_height() - 2
         usable_width = self._width - 2
 
@@ -187,4 +239,9 @@ class MapMainPresenter:
         self._sketch.exit_buffer()
 
     def _get_usable_height(self):
+        """Get the actual map height.
+        
+        Returns:
+            Height of the usable map area in pixels.
+        """
         return self._height - 5
