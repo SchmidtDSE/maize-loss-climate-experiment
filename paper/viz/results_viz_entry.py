@@ -1,3 +1,8 @@
+"""Entry point for the neighborhood-level results visualization (neighborhood viz).
+
+License:
+    BSD
+"""
 import sys
 
 import config_buttons
@@ -22,6 +27,11 @@ USAGE_STR = 'python results_viz_entry.py ' + ' '.join(map(lambda x: '[%s]' % x, 
 
 
 def main():
+    """Entry point for the results visualization.
+    
+    Entry point for the results visualization that, without command line args, will display the
+    visualization interactively. With args, it will render it headless.
+    """
     if len(sys.argv) == 1:
         presenter = results_viz.ResultsVizPresenter('Ag Adaptation Experiment', None)
     elif len(sys.argv) != NUM_ARGS:

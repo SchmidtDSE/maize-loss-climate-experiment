@@ -1,3 +1,12 @@
+"""The main presenter for the results visualization that coordinates other components.
+
+The main presenter for the results visualization (neighborhood visualiation) that coordinates other
+components.
+
+License:
+BSD
+"""
+
 import sketchingpy
 
 import buttons
@@ -11,9 +20,25 @@ import scatter
 
 
 class ResultsVizPresenter:
+    """Main presenter for the neighborhood-level results viz that coordinates other components."""
 
     def __init__(self, target, loading_id, default_configuration=None, data_loc=None,
         climate_loc=None, output_loc=None):
+        """Create a enw results viz instance.
+        
+        Args:
+            target: The ID in which the visualization should be built or the title of the window if
+                not running the browser.
+            loading_id: The ID of the loading indicator that should be hidden after initalization.
+            default_configuration: The default configuration (Configuration) to use as the initial
+                configuration of the tool.
+            data_loc: The location where the neighborhood-level results CSV can be found or None if
+                a system-wide default should be used. Defaults to None.
+            climate_loc: The location where neighborhood-level climate changes CSV can be found or
+                None if a system-wide default should be used. Defaults to None.
+            output_loc: The location at which the visualization should be written. If None, will
+                run interactively. Defaults to None.
+        """
 
         if output_loc:
             self._sketch = sketchingpy.Sketch2DStatic(const.WIDTH, const.HEIGHT)
@@ -145,14 +170,28 @@ class ResultsVizPresenter:
             self._sketch.show()
 
     def _update_selected_geohashes(self, selected_geohashes):
+        """Update collection of highlighted geohashes.
+        
+        Args:
+            selected_geohashes: Collection of string geohashses highlighted by the user.
+        """
         self._selected_geohashes = selected_geohashes
         self._refresh_data()
 
     def _change_config(self, new_config):
+        """Change the configuration selected.
+        
+        Note:
+            At this time, this does not force UI elements to update display.
+        
+        Args:
+            new_config: The Configuration to show.
+        """
         self._config = new_config
         self._refresh_data()
 
     def _refresh_data(self):
+        """Reload data and make visualization supporting structures."""
         self._selecting = False
 
         self._change_waiting = True
@@ -186,6 +225,7 @@ class ResultsVizPresenter:
         )
 
     def _step(self):
+        """Update the visualization and display."""
         mouse = self._sketch.get_mouse()
 
         if mouse:
@@ -231,11 +271,13 @@ class ResultsVizPresenter:
         self._key_waiting = None
 
     def _start_fields_selection(self):
+        """Enable the field highlighting mode."""
         self._scatter_presenter.start_selecting()
         self._map_presenter.start_selecting()
         self._selecting = True
 
     def _draw_annotation(self):
+        """Draw instructional / status text."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -250,6 +292,11 @@ class ResultsVizPresenter:
         self._sketch.pop_transform()
 
     def _get_description(self):
+        """Get a description of the current configuration of the visualization.
+        
+        Returns:
+            String describing the current state of the visualization.
+        """
         if self._config.get_risk_range() == '':
             agg_str = 'Averaging across all years.'
         else:
@@ -271,11 +318,21 @@ class ResultsVizPresenter:
         return description
 
     def _load_records(self):
+        """Load the Records for this visualization.
+        
+        Returns:
+            List of Record.
+        """
         data_layer = self._sketch.get_data_layer()
         reader = data_layer.get_csv(self._data_loc)
         return [data_struct.parse_record(x) for x in reader]
 
     def _load_climate_deltas(self):
+        """Load information about climate deltas for this visualization.
+        
+        Returns:
+            List of ClimateDelta.
+        """
         data_layer = self._sketch.get_data_layer()
         reader = data_layer.get_csv(self._climate_loc)
         records = map(lambda x: data_struct.parse_climate_delta(x), reader)
