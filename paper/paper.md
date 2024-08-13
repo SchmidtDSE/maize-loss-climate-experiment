@@ -217,14 +217,6 @@ Our model shows depressed yields during combined warmer and drier conditions, co
 
 These outputs may also reveal geographically and temporally specific outlines of these protective factors, possibly useful for insurer and grower adaptation. Even so, as pictured in Figure @fig:chirps, we caution that analysis finds significant but weak rank correlations in both series, indicating that model expectations cannot be described by precipitation alone.
 
-## Risk unit size
-Prior work expects larger insured units to reduce risk [@knight_developing_2010] and we similarly observe a claims rate decrease as the acreage included in an insured unit grows. As this structure may change in the future, we run post-hoc experiments altering unit size to determine robustness of our findings:
-
- - Simulate outcomes as if units contain approximately single fields, decreasing aggregation.
- - Simulate outcomes with removal of smaller Optional Units [@zulauf_importance_2023], increasing aggregation. 
-
-In both cases, a gap persists in claims rates between the counterfactual and SSP245, suggesting concerns remain relevant even as unit sizes evolve.
-
 ## Other models and programs
 We also highlight additional future modeling opportunities beyond the scope of this study.
 
