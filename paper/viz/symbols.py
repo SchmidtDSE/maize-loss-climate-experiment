@@ -1,4 +1,22 @@
+"""Strategies for drawing symobls within a scatterplot or map.
+
+Strategies for drawing symobls within a scatterplot or map, supporting the neighborhood-level
+visualization / results viz.
+
+License:
+    BSD
+"""
+
+
 def draw_not_significant(sketch, x, y, color):
+    """Draw a symbol for non-significant results.
+    
+    Args:
+        sketch: The sketch in which to draw.
+        x: The horizontal coordinate at which to draw the symbol.
+        y: The vertical coordinate at which to draw the symbol.
+        color: The color with which to draw the symbol.
+    """
     sketch.push_transform()
     sketch.push_style()
 
@@ -7,6 +25,14 @@ def draw_not_significant(sketch, x, y, color):
 
 
 def draw_increase(sketch, x, y, color):
+    """Draw a symbol for significant increase.
+    
+    Args:
+        sketch: The sketch in which to draw.
+        x: The horizontal coordinate at which to draw the symbol.
+        y: The vertical coordinate at which to draw the symbol.
+        color: The color with which to draw the symbol.
+    """
     sketch.push_transform()
     sketch.push_style()
 
@@ -20,6 +46,14 @@ def draw_increase(sketch, x, y, color):
 
 
 def draw_increase_secondary(sketch, x, y, color):
+    """Draw a symbol for significant increase (secondary series).
+    
+    Args:
+        sketch: The sketch in which to draw.
+        x: The horizontal coordinate at which to draw the symbol.
+        y: The vertical coordinate at which to draw the symbol.
+        color: The color with which to draw the symbol.
+    """
     sketch.push_transform()
     sketch.push_style()
 
@@ -33,6 +67,14 @@ def draw_increase_secondary(sketch, x, y, color):
 
 
 def draw_decrease(sketch, x, y, color):
+    """Draw a symbol for significant decrease.
+    
+    Args:
+        sketch: The sketch in which to draw.
+        x: The horizontal coordinate at which to draw the symbol.
+        y: The vertical coordinate at which to draw the symbol.
+        color: The color with which to draw the symbol.
+    """
     sketch.push_transform()
     sketch.push_style()
 
@@ -46,6 +88,14 @@ def draw_decrease(sketch, x, y, color):
 
 
 def draw_decrease_secondary(sketch, x, y, color):
+    """Draw a symbol for significant decrease (secondary).
+    
+    Args:
+        sketch: The sketch in which to draw.
+        x: The horizontal coordinate at which to draw the symbol.
+        y: The vertical coordinate at which to draw the symbol.
+        color: The color with which to draw the symbol.
+    """
     sketch.push_transform()
     sketch.push_style()
 
@@ -59,6 +109,15 @@ def draw_decrease_secondary(sketch, x, y, color):
 
 
 def get_strategy(sketch, category):
+    """Get the strategy to use for drawing a category.
+    
+    Args:
+        sketch: The sketch in which the symbol will be drawn.
+        category: The category for which a symbol is needed.
+    
+    Returns:
+        Function taking an x and y coordinate at which to draw.
+    """
     inner_not_sig = lambda x, y, color: draw_not_significant(sketch, x, y, color)
     inner_decrease_primary = lambda x, y, color: draw_decrease(sketch, x, y, color)
     inner_decrease_secondary = lambda x, y, color: draw_decrease_secondary(sketch, x, y, color)
