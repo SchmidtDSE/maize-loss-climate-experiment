@@ -126,7 +126,7 @@ These post-hoc trials use only training and test sets as we fully retrain models
 We project loss probabilities to more than double ({{experimentalProbability2050}} claims rate) under SSP245 at mid-century in comparison to the no additional warming counterfactual scenario ({{counterfactualProbability2050}} claims rate).
 
 ## Neural network outcomes
-With bias towards performance in mean prediction, we select {{numLayers}} layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. Table @tbl:sweep describes performance for the chosen configuration.
+With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. Table @tbl:sweep describes performance for the chosen configuration.
 
 | **Set**             | **MAE for Mean Prediction** | **MAE for Std Prediction** |
 | ------------------- | ----------------------- | ---------------------- |
@@ -196,7 +196,7 @@ That in mind, if coverage levels are redefined from the current percentage based
 
 Table: Change in coverage formulas. {#tbl:covformula}
 
-Table @fig:stdev further describes this translation between standard deviation and historic coverage levels. Even so, federal statute may cap coverage levels as percentages of production history [@cfr_crop_nodate]. Therefore, though regulators may make improvements like through 508h without congressional action, our simulations possibly suggest that the ability to incorporate climate adaptation variability may remain limited without statutory change.
+Regulators may make improvements like through 508h without congressional action but note that federal statute may cap coverage levels as percentages of production history [@cfr_crop_nodate]. Therefore, our simulations possibly suggest that the ability to incorporate climate adaptation variability may remain limited without statutory change.
 
 ![Histogram showing percent change from $y_{expected}$ for one standard deviation in each simulated unit.](./img/std.png "Histogram showing percent change from $y_{expected}$ for one standard deviation in each simulated unit."){ width=95% #fig:stdev }
 
@@ -217,20 +217,12 @@ Our model shows depressed yields during combined warmer and drier conditions, co
 
 These outputs may also reveal geographically and temporally specific outlines of these protective factors, possibly useful for insurer and grower adaptation. Even so, as pictured in Figure @fig:chirps, we caution that analysis finds significant but weak rank correlations in both series, indicating that model expectations cannot be described by precipitation alone.
 
-## Risk unit size
-Prior work expects larger insured units to reduce risk [@knight_developing_2010] and we similarly observe a claims rate decrease as the acreage included in an insured unit grows. As this structure may change in the future, we run post-hoc experiments altering unit size to determine robustness of our findings:
-
- - Simulate outcomes as if units contain approximately single fields, decreasing aggregation.
- - Simulate outcomes with removal of smaller Optional Units [@zulauf_importance_2023], increasing aggregation. 
-
-In both cases, a gap persists in claims rates between the counterfactual and SSP245, suggesting concerns remain relevant even as unit sizes evolve.
-
 ## Other models and programs
 We also highlight additional future modeling opportunities beyond the scope of this study.
 
 - We evaluate yield deltas and include historic yield as inputs into our neural network, allowing those data to "embed" adaptability measures [@hsiang_estimating_2017] such as soil properties and practices. However, those estimating absolute yield prediction may consider @rayburn_comparison_2022 as well as @woodard_efficiency_2017 to incorporate other variables like soil properties.
 - Later research may also extend to genetic modification and climate-motivated practice changes which we assume to be latent in historic data.
-- Though our interactive tools consider alternatives to SCYM and different spatial aggregations such as 5 character (4 x 5 km) geohashes, future work may consider modeling with actual field-level yield data and the actual risk unit structure. To that end, we observe that the actual unit yields / revenue and risk unit structure are not currently public.
+- Though our interactive tools consider different spatial aggregations such as 5 character (4 x 5 km) geohashes, future work may consider modeling with actual field-level yield data and the actual risk unit structure. To that end, we observe that the actual unit yields / revenue and risk unit structure are not currently public.
 - Due to the robustness of yield data, we examine Yield Protection but future agroeconomic study could extend this to the highly related Revenue Protection (RP) form of insurance. Indeed, the yield stresses seen in YP that we describe in this model may also impact RP.
 - With additional data, future modeling could relax our normality assumption though, in addition to 79% of neighborhoods seeing approximately normal yield deltas, we observe that 88% of neighborhoods see approximate symmetry per @kim_statistical_2013 so that later work would likely not remove a systemic directional bias in results.
 
@@ -268,17 +260,17 @@ Then, continuing to "presentation" [@unwin_why_2020], we next release these tool
 
 These public interactive visualizations allow for further exploration of our modeling such as different loss thresholds for other insurance products, finding relationships of outcomes to different climate variables, answering geographically specific questions beyond the scope of this study, and modification of machine learning parameters to understand performance. This may include use as workshop activity and we also report^[We collect information about the tool only and not generalizable knowledge about users or these patterns, falling under "quality assurance" activity. IRB questionnaire on file.] briefly on design changes made to our interactive tools in response to its participation in a 9 person "real-world" workshop session co-exploring these results:
 
- - Like @pottinger_combining_2023, facilitatation alternates between presentation and interaction but, in response to a previously "lecture-heavy" initial background, we add the rates simulator to let facilitators break up that section.
+ - Facilitators elected to alternate between presentation and interaction similar to @pottinger_combining_2023 but we added the rates simulator to further improve presentation of the rate setting process.
  - Facilitators suggest that single loop [@brazie_designing_2024] designs perform best within the limited time of the workshop and we now let facilitators hold the longer two loop neighborhood simulator till the end by default.
  - As expected by the JG design [@jm8_secret_2024], discussion contrasts different results sets and configurations of models but meta-parameter visualization relies heavily on memory so we now offer a "sweep" button for facilitators to show all results at once.
 
-Later work may include controlled experimentation [@lewis_using_1982] or diary studies [@shneiderman_strategies_2006] for more generalizable design knowledge.
+Later work may further explore this design space through controlled experimentation [@lewis_using_1982] or diary studies [@shneiderman_strategies_2006].
 
 
 \bigskip
 
 # Conclusion
-Maize production not only suffers from climate warming's effects [@jagermeyr_climate_2021] but also adds to future climate change [@kumar_assessment_2021]. Inside this cyclic relationship, agriculture could crucially contribute to the necessary solution for the same global crisis that ails it [@schon_cover_2024]. In dialogue with prior work [@wang_warming_2021; @chemeris_insurance_2022], we highlight how existing policy currently prioritizes increased mean yield over climate adaptations benefiting stability. Furthermore, we demonstrate how current structures could fail to adjust to our predicted distributional changes and how inclusion of variance into those regulatory structures may positively influence adoption of mitigating practices such as regenerative systems. This responsive shift in coverage levels could reorient incentives: balancing overall yield with longitudinal stability and more comprehensively incorporating an understanding of risk. These resilience-promoting changes may benefit both grower and insurer without requiring practice-specific regulation. Recognizing that these structural levers require modification by policy makers, we therefore encourage scientists to further study, regulators / lawmakers to further consider, and producers to further inform these revisions. These essential multi-stakeholder efforts are crucial in preparing the US food system and its insurance program for a warmer future.
+Maize production not only suffers from climate warming's effects [@jagermeyr_climate_2021] but also adds to future climate change [@kumar_assessment_2021]. Inside this cyclic relationship, agriculture could crucially contribute to the necessary solution for the same global crisis that ails it [@schon_cover_2024]. In dialogue with prior work [@wang_warming_2021; @chemeris_insurance_2022], we highlight how existing policy currently prioritizes increased mean yield over climate adaptations benefiting stability. Furthermore, we demonstrate how current designs could fail to adjust to our predicted distributional changes and how inclusion of variance into those regulatory structures may positively influence adoption of mitigating practices such as regenerative systems. This responsive shift in coverage levels could reorient incentives: balancing overall yield with longitudinal stability and more comprehensively incorporating an understanding of risk. These resilience-promoting changes may benefit both grower and insurer without requiring practice-specific regulation. Recognizing that these structural levers require modification by policy makers, we therefore encourage scientists to further study, regulators / lawmakers to further consider, and producers to further inform these revisions. These essential multi-stakeholder efforts are crucial in preparing the US food system and its insurance program for a warmer future.
 
 \bigskip
 
