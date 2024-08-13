@@ -38,7 +38,7 @@ A summary of the pipeline is created in `stats.json`.
 ### Interactive tools
 Written in [Sketchingpy](https://sketchingpy.org/), the tools can be executed locally on your computer, in a static context for building the paper, or through a web browser. First, one needs to get data from the pipeline or download prior results:
 
- - **Download prior results**: Retrieve the [latest results](https://ag-adaptation-study.pub/archive/data.zip) and move them into the viz directory (`paper/viz/data`).
+ - **Download prior results**: Retrieve the [latest results](https://ag-adaptation-study.pub/archive/data.zip) and move them into the viz directory (`paper/viz/data`). Simply use wget when in the `paper/viz directory` as so: `wget https://ag-adaptation-study.pub/archive/data.zip; unzip data.zip`.
  - **Use your own results**: Update the paper output data (see paper local setup below). The visualizations use the same files.
 
 There are two options for executing the tools:
@@ -74,7 +74,7 @@ To deploy changes to production, CI / CD will automatically release to ag-adapta
 <br>
 
 ## Development standards
-Where possible, please follow the [Python Google Style Guide](https://google.github.io/styleguide/pyguide.html) unless an override is provided in `setup.cfg`. Docstrings and type hints are encouraged but not currently enforced. JS code is used in a utility context but, though not currently enforced, [JSDoc](https://jsdoc.app/) is encouraged.
+Where possible, please follow the [Python Google Style Guide](https://google.github.io/styleguide/pyguide.html) unless an override is provided in `setup.cfg`. Docstrings and type hints are required for all top-level or public members but not currently enforced for private members. [JSDoc](https://jsdoc.app/) is required for top level members. Docstring / JSDoc not required for "utility" code.
 
 <br>
 

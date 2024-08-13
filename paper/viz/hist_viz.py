@@ -1,3 +1,12 @@
+"""Visualization which shows system-wide changes to yield and risk.
+
+Visualization which shows system-wide changes to yield and risk under different scenarios and
+simulation configurations. Called the "distributional visualization" in the paper.
+
+License:
+    BSD
+"""
+
 import functools
 import sys
 
@@ -26,9 +35,32 @@ USAGE_STR = 'python hist_viz.py ' + (' '.join(USAGE_PIECES))
 
 
 class MainPresenter:
+    """Presenter at the root of the visualization driving all other components."""
 
-    def __init__(self, target, loading_id, csv_loc=None, default_year=None, default_coverage=None,
-        unit='unit risk', comparison='vs counterfact', output_loc=None):
+    def __init__(self, target, loading_id=None, csv_loc=None, default_year=None,
+        default_coverage=None, unit='unit risk', comparison='vs counterfact', output_loc=None):
+        """Create a new main presenter.
+
+        Args:
+            target: The ID at which the visualization should be loaded or the window title if on
+                desktop.
+            loading_id: The ID with the loading indicator which should be hidden after
+                initialization if on web. Ignored if not on web. Defaults to None.
+            csv_loc: Location at which the source CSV summary of the "histogram" information
+                displayed by this visualization should be found. Uses a default if None. Defaults
+                to None.
+            default_year: The default selection for which year's results to show. Defaults to None,
+                causing it to use a system-wide default.
+            default_coverage: The default selection for coverage level. Defaults to None, causing
+                it to use a system-wide default.
+            unit: The type of unit / unit size for which to show results. Defaults to unit risk
+                which is the result of simulating with actual historic unit sizes.
+            comparison: Which simulation to use as a baseline against which to compare simulation
+                results. Defaults to 'vs counterfact' which is the simulation of results into the
+                future year assuming climate change stops.
+            output_loc: Where to write this visualization if provided. If None, this visualization
+                will run interactively. Defaults to None.
+        """
         if output_loc:
             self._sketch = sketchingpy.Sketch2DStatic(
                 SUB_CHART_WIDTH + 80 + 11,
@@ -135,6 +167,7 @@ class MainPresenter:
             self._sketch.show()
 
     def draw(self):
+        """Update this visualization (execute a draw loop)."""
         mouse = self._sketch.get_mouse()
 
         if mouse is not None:
@@ -172,34 +205,107 @@ class MainPresenter:
         self._last_mouse_x = mouse_x
         self._last_mouse_y = mouse_y
 
-    def _change_year(self, year_str):
+    def _change_year(self, year_str, update_buttons=False):
+        """Respond to the user changing the year in the visualization.
+
+        Args:
+            year_str: The year string as shown in the year buttons.
+            update_buttons: Flag indicating if the UI buttons should be updated. True if the value
+                should be updated and false if only internal state should change. Defaults to
+                false.
+        """
         self._target_set = year_str
         self._records = self._get_records()
         self._redraw_required = True
 
-    def _change_loss(self, loss_str):
+        if update_buttons:
+            self._year_buttons.set_value(year_str)
+
+    def _change_loss(self, loss_str, update_buttons=False):
+        """Respond to the user changing the loss threshold in the visualization.
+
+        Args:
+            loss_str: The loss string as shown in the threshold buttons (85% cov, etc).
+            update_buttons: Flag indicating if the UI buttons should be updated. True if the value
+                should be updated and false if only internal state should change. Defaults to
+                false.
+        """
         self._target_threshold = loss_str
         self._records = self._get_records()
         self._redraw_required = True
 
-    def _change_comparison(self, comparison_str):
+        if update_buttons:
+            self._threshold_buttons.set_value(loss_str)
+
+    def _change_comparison(self, comparison_str, update_buttons=False):
+        """Respond to the user changing the reference histogram in the visualization.
+
+        Args:
+            comparison_str: The year string as shown in the comparison buttons (vs counterfact,
+                etc).
+            update_buttons: Flag indicating if the UI buttons should be updated. True if the value
+                should be updated and false if only internal state should change. Defaults to
+                false.
+        """
         self._comparison = comparison_str
         self._records = self._get_records()
         self._redraw_required = True
 
-    def _change_geohash_size(self, geohash_str):
+        if update_buttons:
+            self._comparison_buttons.set_value(comparison_str)
+
+    def _change_geohash_size(self, geohash_str, update_buttons=False):
+        """Change the geohash size selected by the user.
+
+        Args:
+            geohash_str: The geohash and unit size to use (unit risk, etc).
+            update_buttons: Flag indicating if the UI buttons should be updated. True if the value
+                should be updated and false if only internal state should change. Defaults to
+                false.
+        """
         self._geohash_size = geohash_str
         self._records = self._get_records()
         self._redraw_required = True
 
+        if update_buttons:
+            self._geohash_buttons.set_value(geohash_str)
+
     def _get_x(self, value):
+        """Get the x position of a histogram bucket.
+
+        Args:
+            value: The yield change to position horizontally.
+
+        Returns:
+            The x coordinate for the value in pixels.
+        """
         offset = value + 105
         return offset / 200 * SUB_CHART_WIDTH
 
     def _get_y(self, value):
+        """Get the y position of a histogram frequency.
+
+        Args:
+            value: The percent that falls within a histogram bucket.
+
+        Returns:
+            The y coordinate for the value in pixels.
+        """
         return value / 30 * (SUB_CHART_HEIGHT - 20)
 
     def _combine_dicts(self, a, b):
+        """Combine two dictionaries with numeric values.
+
+        Combine two dictionaries by combining their key sets and adding values when appearing in
+        both.
+
+        Args:
+            a: The first dictionary to combine.
+            b: The second dictionary to combine.
+
+        Returns:
+            The result of combining the two dictionaries together.
+        """
 
         def combine_inner(a_inner, b_inner):
             if a_inner is None:
@@ -220,6 +326,16 @@ class MainPresenter:
         ))
 
     def _get_percents(self, target, claims_key):
+        """Calculate the claims rate and percent of total for input summary records.
+
+        Args:
+            target: Mapping from series name to a dict mapping bin to count.
+            claims_key: The type of claim as a string (claimsSco, claimsMpci).
+
+        Returns:
+            Dictionary mapping from series to record with counts converted to percentages and a
+            claims rate.
+        """
 
         def get_precent_inner(inner_target):
             keys = inner_target.keys()
@@ -246,12 +362,25 @@ class MainPresenter:
         return dict(ret_tuples_transform)
 
     def _interpret_bin(self, target):
+        """Interpret the name of a histogram bin or summary field.
+
+        Args:
+            target: The name of the bin which may be a summary field.
+
+        Returns:
+            The bin as a number corresponding to the yield change or the name of the summary field.
+        """
         if target in SUMMARY_FIELDS:
             return target
         else:
             return int(target)
 
     def _get_records(self):
+        """Parse all records from the cached raw copy.
+
+        Returns:
+            Parsed / loaded records.
+        """
         raw_records = self._cached_raw
 
         target_geohash_size = {
@@ -306,11 +435,24 @@ class MainPresenter:
         return self._get_percents(counts, claims_key)
 
     def _get_body_fields(self, hist):
+        """Get all non-summary fields from the histogram dataset.
+
+        Args:
+            hist: The dictionary representing the outputs in histogram format.
+
+        Returns:
+            Items from the input dictionary that are not summary fields.
+        """
         items = hist.items()
         allowed_items = filter(lambda x: x[0] not in SUMMARY_FIELDS, items)
         return allowed_items
 
     def _draw_upper(self, histogram):
+        """Draw the distribution from the experimental set.
+
+        Args:
+            histogram: The results to draw on the upper part of the visualization.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -358,6 +500,11 @@ class MainPresenter:
         self._sketch.pop_transform()
 
     def _draw_lower(self, histogram):
+        """Draw the distribution from the comparison set.
+
+        Args:
+            histogram: The results to draw on the lower part of the visualization.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -402,6 +549,12 @@ class MainPresenter:
         self._sketch.pop_transform()
 
     def _draw_x_axis(self, top_mean, bottom_mean):
+        """Draw the shared x axis displaying changes in yield.
+
+        Args:
+            top_mean: The average of the top or experimental results.
+            bottom_mean: The average of the bottom or comparison results.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -478,6 +631,7 @@ class MainPresenter:
         self._sketch.pop_transform()
 
     def _draw_axis_bottom(self):
+        """Draw the vertical axis for the bottom downward-facing histogram."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -512,6 +666,7 @@ class MainPresenter:
         self._sketch.pop_transform()
 
     def _draw_axis_upper(self):
+        """Draw the vertical axis for the upper upwards-facing histogram."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -548,6 +703,11 @@ class MainPresenter:
         self._sketch.pop_transform()
 
     def _draw_top_claims(self, claims):
+        """Draw the embedded bar chart with the claims on the top of the chart.
+
+        Args:
+            claims: The claims rate for the experimental results.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -585,6 +745,11 @@ class MainPresenter:
         self._sketch.pop_transform()
 
     def _draw_bottom_claims(self, claims):
+        """Draw the embedded bar chart with the claims on the bottom of the chart.
+
+        Args:
+            claims: The claims rate for the control or reference results.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -630,6 +795,7 @@ class MainPresenter:
         self._sketch.pop_transform()
 
     def _draw_title(self):
+        """Draw the overall title at the top of the chart."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -647,6 +813,7 @@ class MainPresenter:
         self._sketch.pop_transform()
 
     def _draw_viz(self):
+        """Draw the body of the visualization."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -691,6 +858,11 @@ class MainPresenter:
 
 
 def main():
+    """Main entrypoint for this visualization.
+
+    Main entrypoint for this visualization, executing interactively if not command line arguments.
+    Otherwise, will write to file and run headless.
+    """
     if len(sys.argv) == 1:
         presenter = MainPresenter('Simulation Outcomes', None)
     elif len(sys.argv) != NUM_ARGS + 1:

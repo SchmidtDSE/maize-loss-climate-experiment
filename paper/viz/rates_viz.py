@@ -1,3 +1,8 @@
+"""Visualization of hypothetical rate setting (rates visualization).
+
+License:
+    BSD
+"""
 import sketchingpy
 
 import buttons
@@ -5,9 +10,24 @@ import const
 
 
 class RatesConfig:
+    """Configuration object describing what rates scenario the user has established."""
 
     def __init__(self, aph, county_yield, price, county_rate, subsidy, coverage, aph_type,
         perspective):
+        """Create a new rates configuration.
+
+        Args:
+            aph: The average yield (APH).
+            county_yield: Reference county-level average yield.
+            price: The expected spring price for the crop.
+            county_rate: The cost to insure one dollar of crop in dollars.
+            subsidy: The percent of the cost subsidized by the government (0 - 1).
+            aph_type: The type of APH threshold to use like 'Average-based' which uses a
+                traditional percent below historic average loss threshold.
+            coverage: The coverage level like 0.75 for liss threshold of 25%.
+            perspective: Showing perspective from grower or grovernment where 'Subsidy' uses the
+                government perspective.
+        """
         self._aph = aph
         self._county_yield = county_yield
         self._price = price
@@ -18,9 +38,22 @@ class RatesConfig:
         self._perspective = perspective
 
     def get_aph(self):
+        """Get the average expected yield.
+
+        Returns:
+            The average yield (APH).
+        """
         return self._aph
 
     def get_with_aph(self, aph):
+        """Make a copy of this configuration with a new average yield.
+
+        Args:
+            aph: The new value to use.
+
+        Returns:
+            A copy of this record with the new value.
+        """
         return RatesConfig(
             aph,
             self.get_county_yield(),
@@ -33,9 +66,22 @@ class RatesConfig:
         )
 
     def get_county_yield(self):
+        """Get the county average yield.
+
+        Returns:
+            Reference county-level average yield.
+        """
         return self._county_yield
 
     def get_with_county_yield(self, county_yield):
+        """Make a copy of this record with a new county average yield.
+
+        Args:
+            county_yield: The new value to use.
+
+        Returns:
+            A copy of this record with the new value.
+        """
         return RatesConfig(
             self.get_aph(),
             county_yield,
@@ -48,9 +94,22 @@ class RatesConfig:
         )
 
     def get_price(self):
+        """Get the expected sale price for the crop.
+
+        Returns:
+            The expected spring price for the crop.
+        """
         return self._price
 
     def get_with_price(self, price):
+        """Make a copy of this record with a new expected sale price.
+
+        Args:
+            price: The new value to use.
+
+        Returns:
+            A copy of this record with the new value.
+        """
         return RatesConfig(
             self.get_aph(),
             self.get_county_yield(),
@@ -63,9 +122,22 @@ class RatesConfig:
         )
 
     def get_county_rate(self):
+        """Get the county insurance rate.
+
+        Returns:
+            The cost to insure one dollar of crop in dollars.
+        """
         return self._county_rate
 
     def get_with_county_rate(self, county_rate):
+        """Make a copy of this object with a new county insurance rate.
+
+        Args:
+            county_rate: The new value to use.
+
+        Returns:
+            A copy of this record with the new value.
+        """
         return RatesConfig(
             self.get_aph(),
             self.get_county_yield(),
@@ -78,9 +150,22 @@ class RatesConfig:
         )
 
     def get_subsidy(self):
+        """Get the percent subsidized by the government.
+
+        Returns:
+            The percent of the cost subsidized by the government (0 - 1).
+        """
         return self._subsidy
 
     def get_with_subsidy(self, subsidy):
+        """Make a copy of this record with a new subsidy level.
+
+        Args:
+            subsidy: The new value to use.
+
+        Returns:
+            A copy of this record with the new value.
+        """
         return RatesConfig(
             self.get_aph(),
             self.get_county_yield(),
@@ -93,9 +178,22 @@ class RatesConfig:
         )
 
     def get_coverage(self):
+        """Get the coverage level of the policy simulated.
+
+        Returns:
+            The coverage level like 0.75 for liss threshold of 25%.
+        """
         return self._coverage
 
     def get_with_coverage(self, coverage):
+        """Make a copy of this record with a new coverage level.
+
+        Args:
+            coverage: The new value to use.
+
+        Returns:
+            A copy of this record with the new value.
+        """
         return RatesConfig(
             self.get_aph(),
             self.get_county_yield(),
@@ -108,9 +206,23 @@ class RatesConfig:
         )
 
     def get_aph_type(self):
+        """Get the type of APH threshold used.
+
+        Returns:
+            The type of APH threshold to use like 'Average-based' which uses a traditional percent
+            below historic average loss threshold.
+        """
         return self._aph_type
 
     def get_with_aph_type(self, type):
+        """Make a new copy of this configuration with a new APH type.
+
+        Args:
+            type: The new value to use.
+
+        Returns:
+            A copy of this record with the new value.
+        """
         return RatesConfig(
             self.get_aph(),
             self.get_county_yield(),
@@ -123,9 +235,23 @@ class RatesConfig:
         )
 
     def get_perspective(self):
+        """Get the perspective from which prices are currently shown.
+
+        Returns:
+            Showing perspective from grower or grovernment where 'Subsidy' uses the government
+            perspective.
+        """
         return self._perspective
 
     def get_with_perspective(self, perspective):
+        """Make a copy of this object with a new perspective setting.
+
+        Args:
+            perspective: The new value to use.
+
+        Returns:
+            A copy of this record with the new value.
+        """
         return RatesConfig(
             self.get_aph(),
             self.get_county_yield(),
@@ -139,8 +265,16 @@ class RatesConfig:
 
 
 class RatesMainPresenter:
+    """Presenter to run the rates visualization."""
 
     def __init__(self, target, loading_id):
+        """Create a new rates visualization.
+
+        Args:
+            target: The ID in which the visualization should be initalized or the title of the
+                window if not running on web.
+            loading_id: The ID of the loading indicator to hide after initizalization.
+        """
         self._sketch = sketchingpy.Sketch2D(const.WIDTH, const.HEIGHT, target, loading_id)
 
         self._sketch.set_fps(10)
@@ -160,7 +294,7 @@ class RatesMainPresenter:
             0.55,
             0.75,
             'Average-based',
-            'Subsidy',
+            'Subsidy'
         )
 
         self._chart_presenter = RatesChartPresenter(
@@ -198,6 +332,7 @@ class RatesMainPresenter:
         self._sketch.show()
 
     def _step(self):
+        """Update the visualization and redraw if needed."""
         mouse = self._sketch.get_mouse()
 
         if mouse:
@@ -234,6 +369,7 @@ class RatesMainPresenter:
         self._key_waiting = None
 
     def _draw_annotation(self):
+        """Draw instructional text for the user."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -247,13 +383,25 @@ class RatesMainPresenter:
         self._sketch.pop_transform()
 
     def _update_config(self, config):
+        """Update the configuration of the hypothetical rate setting."""
         self._chart_presenter.update_config(config)
         self._change_waiting = True
 
 
 class RatesChartPresenter:
+    """Chart showing the rate setting selected by the user."""
 
     def __init__(self, sketch, x, y, width, height, start_config):
+        """Create a new rates chart.
+
+        Args:
+            sketch: The Sketchingpy sketch in which to create the rates chart.
+            x: The horizontal coordinate at which to build the chart.
+            y: The vertical coordinate at which to build the chart.
+            width: The horizontal size of the rates chart in pixels.
+            height: The vertical size of the rates chart in pixels.
+            start_config: Starting RatesConfig.
+        """
         self._sketch = sketch
         self._use_std = False
         self._x = x
@@ -263,6 +411,14 @@ class RatesChartPresenter:
         self._config = start_config
 
     def step(self, mouse_x_abs, mouse_y_abs, clicked):
+        """Update and redraw this component.
+
+        Args:
+            mouse_x_abs: The horizontal position of the cursor.
+            mouse_y_abs: The vertical position of the cursor.
+            clicked: True if the mouse button was clicked since the last call to step or false
+                otherwise.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -288,9 +444,15 @@ class RatesChartPresenter:
         self._sketch.pop_transform()
 
     def update_config(self, config):
+        """Update the rates setting configuration.
+
+        Args:
+            config: New RatesConfig.
+        """
         self._config = config
 
     def _draw_x_axis(self):
+        """Draw the horizontal axis showing loss threshold."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -324,6 +486,7 @@ class RatesChartPresenter:
         self._sketch.pop_transform()
 
     def _draw_y_axis(self):
+        """Draw the vertical axis showing price."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -355,6 +518,7 @@ class RatesChartPresenter:
         self._sketch.pop_transform()
 
     def _draw_content(self):
+        """Draw the content of the chart."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -450,6 +614,17 @@ class RatesChartPresenter:
         self._sketch.pop_transform()
 
     def _get_price(self, use_grower_aph, coverage, perspective=None):
+        """Get the price associated with a hypothetical plan.
+
+        Args:
+            use_grower_aph: Flag indicting if the grower-level average should be used. True if the
+                grower APH should set the price or false if the county average should be used.
+            coverage: The coverage level for which the price should be set based on the APH type
+                currently selected.
+            perspective: String indicating if things are shown from the perspective of the grower
+                or government. If not provided (defaults to None), will use the 'Subsidy' option
+                instead of the 'Grower Price' option.
+        """
         grower_aph = self._config.get_aph()
         county_aph = self._config.get_county_yield()
         aph = grower_aph if use_grower_aph else county_aph
@@ -469,19 +644,45 @@ class RatesChartPresenter:
         return aph * price * county_rate * coverage * share
 
     def _get_x(self, percent):
+        """Get the horizontal position associated with a coverage level.
+
+        Args:
+            percent: The loss threshold converted to percent below average.
+
+        Returns:
+            Horizontal position in pixels.
+        """
         chart_width = (self._width - 80 - 80)
         position_internal = chart_width * (percent - 15) / (50 - 15)
         position_internal_reverse = chart_width - position_internal
         return 80 + position_internal_reverse
 
     def _get_y(self, value):
+        """Get the verticla position corresponding to a price.
+
+        Args:
+            value: The price to convert to a vertical coordinate.
+
+        Returns:
+            Vertical position in pixels.
+        """
         offset = 40 + (self._height - 50) * value / 32
         return self._height - offset
 
 
 class ConfigPresenter:
+    """Presenter to modify the rates simulation configuration."""
 
     def __init__(self, sketch, x, y, on_config_change, start_config):
+        """Create a new set of buttons within this meta-widget.
+
+        Args:
+            sketch: The Sketchingpy sketch in which to build this meta-widget.
+            x: The horizontal position at which this meta-widget should be made.
+            y: The vertical position at which this meta-widget should be made.
+            on_config_change: Callback to invoke with a new RatesConfig when modified by the user.
+            start_config: Initial RatesConfig.
+        """
         self._sketch = sketch
         self._x = x
         self._y = y
@@ -616,6 +817,16 @@ class ConfigPresenter:
         self._config = start_config
 
     def step(self, mouse_x, mouse_y, click_waiting, keypress):
+        """Update this visualization and redraw its components.
+
+        Args:
+            mouse_x: The horizontal position of the cursor.
+            mouse_y: The vertical position of the cursor.
+            click_waiting: True if the mouse button has been pressed since last calling step and
+                false otherwise.
+            keypress: String key pressed since last calling step and None if no key pressed since
+                last call.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -636,47 +847,88 @@ class ConfigPresenter:
         self._sketch.pop_transform()
 
     def _change_aph(self, new_val):
+        """Internal callback for when the average grower yield changed.
+
+        Args:
+            new_val: The new value selected by the user as a string matching the button.
+        """
         val_interpreted = int(new_val)
         self._config = self._config.get_with_aph(val_interpreted)
         self._on_config_change(self._config)
 
     def _change_county_yield(self, new_val):
+        """Internal callback for when the average county yield changed.
+
+        Args:
+            new_val: The new value selected by the user as a string matching the button.
+        """
         val_interpreted = int(new_val)
         self._config = self._config.get_with_county_yield(val_interpreted)
         self._on_config_change(self._config)
 
     def _change_price(self, new_val):
+        """Internal callback for when the expected price changed.
+
+        Args:
+            new_val: The new value selected by the user as a string matching the button.
+        """
         val_interpreted = int(new_val.replace('$', ''))
         self._config = self._config.get_with_price(val_interpreted)
         self._on_config_change(self._config)
 
     def _change_county_rate(self, new_val):
+        """Internal callback for when the county insurance rate changes.
+
+        Args:
+            new_val: The new value selected by the user as a string matching the button.
+        """
         val_interpreted = float(new_val.replace('%', '')) / 100
         self._config = self._config.get_with_county_rate(val_interpreted)
         self._on_config_change(self._config)
 
     def _change_subsidy(self, new_val):
+        """Internal callback for when the subsidy percentage changed.
+
+        Args:
+            new_val: The new value selected by the user as a string matching the button.
+        """
         val_interpreted = float(new_val.replace('%', '')) / 100
         self._config = self._config.get_with_subsidy(val_interpreted)
         self._on_config_change(self._config)
 
     def _change_coverage(self, new_val):
+        """Internal callback for when the coverage level changed.
+
+        Args:
+            new_val: The new value selected by the user as a string matching the button.
+        """
         val_interpreted = float(new_val.replace('%', '')) / 100
         self._config = self._config.get_with_coverage(val_interpreted)
         self._on_config_change(self._config)
 
     def _change_type(self, new_val):
+        """Internal callback for when the threshold type changed.
+
+        Args:
+            new_val: The new value selected by the user as a string matching the button.
+        """
         val_interpreted = str(new_val)
         self._config = self._config.get_with_aph_type(val_interpreted)
         self._on_config_change(self._config)
 
     def _change_perspective(self, new_val):
+        """Internal callback for when the price perspecrtive changed.
+
+        Args:
+            new_val: The new value selected by the user as a string matching the button.
+        """
         val_interpreted = str(new_val)
         self._config = self._config.get_with_perspective(val_interpreted)
         self._on_config_change(self._config)
 
 
 def main():
+    """Main entry point for running this visualization interactively."""
     presenter = RatesMainPresenter('Rates Viz', None)
     assert presenter is not None
 

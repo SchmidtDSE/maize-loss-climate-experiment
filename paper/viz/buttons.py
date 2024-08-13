@@ -1,12 +1,41 @@
+"""Supporting utilities for common UI elements.
+
+License:
+    BSD
+"""
 import math
 
 import const
 
 
 class ToggleButtonSet:
+    """A set of buttons representing choices where only one can be selected at a time."""
 
     def __init__(self, sketch, x, y, label, options, selected, on_change, make_rows=True,
         narrow=False, show_label=False, keyboard_button=None):
+        """Create a new toggle button set.
+
+        Args:
+            sketch: The Sketchingpy sketch in which this widget will operate.
+            x: The x coordinate at which the widget should be drawn.
+            y: The y coordinate at which the widget should be drawn.
+            label: The human readable label describing the question or option for which the toggle
+                buttons are provided.
+            options: List of string options the user can select for the configuration.
+            selected: The initially selected configuration option. Should appear in the options
+                string list.
+            on_change: Function to invoke when the option slected by the user changes, taking in a
+                single string argument which is the new option selected.
+            make_rows: Flag indicating if the buttons should appear in a grid where each row has
+                three options. True will make the grid and false will leave the buttons
+                horizontally adjacent regardless of the option count. Defaults to true.
+            narrow: Flag indicating if the button widths should be made smaller. True if this
+                compact configuration should be used and false otherwise. Defaults to false.
+            show_label: Flag indicating if the label should be shown to the user. True if it should
+                be shown and false otherwise.
+            keyboard_button: Keyboard button which, when pressed should cycle between toggle button
+                options or None if no keyboard button should cycle between choices.
+        """
         self._sketch = sketch
         self._x = x
         self._y = y
@@ -20,9 +49,27 @@ class ToggleButtonSet:
         self._keyboard_button = keyboard_button
 
     def set_value(self, option):
+        """Update the value selected by the user.
+
+        Update the value selected by the user, changing internal state and the display of this
+        widget but not causing the callback function to be invoked.
+
+        Args:
+            option: String option to use as the new selected value.
+        """
         self._selected = option
 
     def step(self, mouse_x, mouse_y, clicked, keypress=None):
+        """Update and redraw this button.
+
+        Args:
+            mouse_x: The horizontal coordinate of the cursor.
+            mouse_y: The vertical coordinate of the cursor.
+            clicked: Flag indicating if the the mouse button has been pressed since step was last
+                called. True if the button was pressed and false otherwise.
+            keypress: The key pressed since step was last called or None if no key pressed. A
+                string if the button was pressed and None otherwise.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -112,6 +159,11 @@ class ToggleButtonSet:
         self._sketch.pop_transform()
 
     def get_height(self):
+        """Get how much vertical space this widget takes up.
+
+        Returns:
+            Height of this widget in pixels.
+        """
         if self._make_rows:
             rows = math.ceil(len(self._options) / 3)
             height = const.BUTTON_HEIGHT * rows
@@ -125,8 +177,23 @@ class ToggleButtonSet:
 
 
 class Button:
+    """Widget which shows text and can be clicked on."""
 
     def __init__(self, sketch, x, y, label, on_click, narrow=False, keyboard_button=None):
+        """Create a new button.
+
+        Args:
+            sketch: The sketchingpy sketch in which to build this widget.
+            x: The horizontal coordinate at which the button should be made.
+            y: The vertical coordinate at which the button should be made.
+            label: The text to display on the button.
+            on_click: Function to call with single argument (the label of this button) when this
+                button is clicked. This will also be fired if the button is tapped.
+            narrow: Flag indicating if the width of this button should be shortened. True if it
+                should use the compact configuration and false if normal width.
+            keyboard_button: The string button name that, when pressed, causes this button to act
+                as if it was clicked.
+        """
         self._sketch = sketch
         self._x = x
         self._y = y
@@ -136,6 +203,16 @@ class Button:
         self._keyboard_button = keyboard_button
 
     def step(self, mouse_x, mouse_y, clicked, keypress=None):
+        """Update and draw this button.
+
+        Args:
+            mouse_x: The horizontal coordinate of the cursor.
+            mouse_y: The vertical coordinate of the cursor.
+            clicked: Flag indicating if the the mouse button has been pressed since step was last
+                called. True if the button was pressed and false otherwise.
+            keypress: The key pressed since step was last called or None if no key pressed. A
+                string if the button was pressed and None otherwise.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -193,4 +270,9 @@ class Button:
         self._sketch.pop_transform()
 
     def get_height(self):
+        """Get how much vertical space this widget takes up.
+
+        Returns:
+            Height of this widget in pixels.
+        """
         return const.BUTTON_HEIGHT

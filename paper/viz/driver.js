@@ -1,10 +1,18 @@
+/**
+ * Main entrypoint and structural logic for the corn climate adaptation explorable explanation.
+ *
+ * @license BSD
+ */
+
 let globalTooltips = null;
 let globalTabs = null;
 let globalSlider = null;
 
 
 /**
- * Start the web application.
+ * Load all explorable explanation interactive components.
+ *
+ * @param event The event which invoked the start of the interactive components.
  */
 function openWebApp(event) {
     document.querySelectorAll(".app-intro").forEach((x) => x.style.display = "none");
@@ -22,7 +30,7 @@ function openWebApp(event) {
     progressBars.forEach((x) => x.value = 0);
     const incrementBar = () => {
         let updateWaiting = false;
-        
+
         progressBars.forEach((progressBar) => {
             progressBar.value += 1;
             updateWaiting = updateWaiting || progressBar.value < 19;
@@ -40,6 +48,9 @@ function openWebApp(event) {
 }
 
 
+/**
+ * Initialize the tabs which structure the online experience.
+ */
 function initTabs() {
     globalTabs = new Tabby("[data-tabs]");
 
@@ -62,6 +73,9 @@ function initTabs() {
 }
 
 
+/**
+ * Initialize the background section slide show.
+ */
 function initSlider() {
     globalSlider = tns({
         container: ".intro-slider",
@@ -76,7 +90,7 @@ function initSlider() {
         if (globalSlider === null) {
             return;
         }
-        
+
         globalSlider.goTo("next");
         document.getElementById("intro-slider").scrollIntoView({
             "behavior": "smooth",
@@ -89,7 +103,7 @@ function initSlider() {
         if (globalSlider === null) {
             return;
         }
-        
+
         globalSlider.goTo(3);
         document.getElementById("intro-slider").scrollIntoView({
             "behavior": "smooth",
@@ -103,7 +117,7 @@ function initSlider() {
         if (globalSlider === null) {
             return;
         }
-        
+
         globalSlider.goTo("last");
         document.getElementById("intro-slider").scrollIntoView({
             "behavior": "smooth",
@@ -117,12 +131,18 @@ function initSlider() {
 }
 
 
+/**
+ * Add event listeners to the buttons which load the interactive components.
+ */
 function initInteractivesLinks() {
     const loadLinks = document.querySelectorAll(".load-app-link");
     loadLinks.forEach((x) => x.addEventListener("click", openWebApp));
 }
 
 
+/**
+ * Add event listeners for special links which interact with details.
+ */
 function initBespokeControls() {
     document.getElementById("expand-rate-var-link").addEventListener("click", (event) => {
         document.getElementById("rate-var-details").setAttribute("open", true);
@@ -138,6 +158,9 @@ function initBespokeControls() {
 }
 
 
+/**
+ * Initialize accessibility controls and callbacks.
+ */
 function initAccessibility() {
     const symbolRadios = document.querySelectorAll(".symbols-setting-radio");
     symbolRadios.forEach((x) => x.addEventListener("change", function () {
@@ -239,6 +262,9 @@ function initAccessibility() {
 }
 
 
+/**
+ * Main entry point for the explorable explanation.
+ */
 function main() {
     globalTooltips = tippy("[data-tippy-content]");
     globalTabs = initTabs();

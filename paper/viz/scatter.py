@@ -1,3 +1,9 @@
+"""Scatterplot component for the neighborhood-level results visualization.
+
+License:
+    BSD
+"""
+
 import math
 
 import toolz.itertoolz
@@ -7,9 +13,26 @@ import data_struct
 
 
 class ScatterMainPresenter:
+    """Presenter for the non-geographic scatterplot."""
 
     def __init__(self, sketch, x, y, width, height, records, metric, variable, selected_geohashes,
         on_selection):
+        """Create a new scatter plot.
+
+        Args:
+            sketch: The Sketchingpy sketch in which to build the scatterplot.
+            x: The horizontal location at which to build the scatterplot.
+            y: The vertical location at which to build the scatterplot.
+            width: The horizontal size of the scatterplot in pixels.
+            height: The vertical size of the scatterplot in pixels.
+            records: The Records to display within this visualization.
+            metric: The metric matching the Configuration indicating if yield, risk, etc should be
+                displayed.
+            variable: The supporting dimension like chirps or no var to display.
+            selected_geohashes: Collection of strings indicating geohashes that should be
+                highlighted.
+            on_selection: Function to call when the geohashes highlighted changes.
+        """
         self._sketch = sketch
         self._x = x
         self._y = y
@@ -29,9 +52,18 @@ class ScatterMainPresenter:
         self._make_scatter_image(records, metric, variable)
 
     def start_selecting(self):
+        """Indicate that the visualization has started highlight selection mode."""
         self._selecting = True
 
     def step(self, mouse_x, mouse_y, clicked):
+        """Update this visualization component.
+
+        Args:
+            mouse_x: The horizontal location of the mouse cursor.
+            mouse_y: The vertical location of the mouse cursor.
+            clicked: True if the mouse button was pressed since last calling step or false
+                otherwise.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -79,6 +111,15 @@ class ScatterMainPresenter:
         self._sketch.pop_transform()
 
     def update_data(self, records, metric, variable, selected_geohashes):
+        """Update the data displayed by this component.
+
+        Args:
+            records: The list of Records to display within this component.
+            metric: The name of the metric indicating the response being shown like yield or risk.
+            variable: The supporting dimension like chirps or no var to display.
+            selected_geohashes: Collection of strings indicating geohashes that should be
+                highlighted.
+        """
         self._records = records
         self._metric = metric
         self._variable = variable
@@ -87,12 +128,27 @@ class ScatterMainPresenter:
         self._selecting = False
 
     def _select_points(self, rel_x, rel_y):
+        """Select all points within a certain distance of a center point.
+
+        Args:
+            rel_x: The horizontal position of the center point relative to the start of the widget
+                expressed in pixels.
+            rel_x: The vertical position of the center point relative to the start of the widget
+                expressed in pixels.
+        """
         in_range = filter(lambda x: x.in_range(rel_x, rel_y, 20), self._placed_records)
         geohashes = set(map(lambda x: x.get_record().get_geohash(), in_range))
         self._on_selection(geohashes)
         self._selecting = False
 
     def _make_scatter_image(self, records, metric, variable):
+        """Make a cached (buffered) copy of the scatterplot.
+
+        Args:
+            records: The Records to display.
+            metric: The name of the metric indicating the response being shown like yield or risk.
+            variable: The supporting dimension like chirps or no var to display.
+        """
         usable_height = self._get_usable_height()
         effective_height = usable_height - 60
         effective_width = self._width - 80
@@ -427,4 +483,9 @@ class ScatterMainPresenter:
         self._sketch.exit_buffer()
 
     def _get_usable_height(self):
+        """Get the height of the usable chart display space.
+
+        Returns:
+            Height in pixels.
+        """
         return self._height - 5

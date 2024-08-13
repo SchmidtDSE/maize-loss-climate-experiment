@@ -1,3 +1,12 @@
+"""Visualization of the model sweep.
+
+Visualization of the model sweep which is called the hyperparameters visualization in the
+manuscript.
+
+License:
+    BSD
+"""
+
 import sketchingpy
 
 import buttons
@@ -5,8 +14,16 @@ import const
 
 
 class SweepMainPresenter:
+    """Presenter for the sweep visualization."""
 
     def __init__(self, target, loading_id):
+        """Create a new sweep visualization.
+
+        Args:
+            target: The ID at which create the visualization or the window title if not rendering
+                on web.
+            loading_id: The ID of the loading indictaor to hide after initialization.
+        """
         self._click_waiting = False
         self._key_waiting = None
         self._last_x = None
@@ -53,15 +70,23 @@ class SweepMainPresenter:
         self._sketch.show()
 
     def _request_redraw(self):
+        """Require that the visualization be redrawn on the next step."""
         self._requires_refresh = True
 
     def _update_config(self, config):
+        """Update the configuration of the tool.
+
+        Args:
+            config: New FilterConfig.
+        """
         self._scatter_presenter.show_config(config)
 
     def _show_all(self):
+        """Show all options found within the sweep."""
         self._scatter_presenter.show_all()
 
     def _draw(self):
+        """Update this visualization and redraw if needed or requested."""
         mouse = self._sketch.get_mouse()
         mouse_x = mouse.get_pointer_x()
         mouse_y = mouse.get_pointer_y()
@@ -111,42 +136,117 @@ class SweepMainPresenter:
 
 
 class FilterConfig:
+    """Object representing a configuration of the sweep visualization."""
 
     def __init__(self, layers, l2, dropout, data_filter):
+        """Create a new configuration describing a filter on the sweep results.
+
+        Args:
+            layers: The number of layers to consider.
+            l2: The L2 regularization level (0 - 1) to consider.
+            dropout: The dropout rate (0 - 1) to consider.
+            data_filter: The data attribute hidden from training or 'all attrs' if all data
+                included.
+        """
         self._layers = layers
         self._l2 = l2
         self._dropout = dropout
         self._data_filter = data_filter
 
     def get_layers(self):
+        """Get the number of layers that the user is filtering for.
+
+        Returns:
+            The number of layers to consider.
+        """
         return self._layers
 
     def get_with_layers(self, new_layers):
+        """Create a copy of this configuration object with a new number of layers.
+
+        Args:
+            new_layers: The new value to use.
+
+        Returns:
+            Copy of this object but with the new value.
+        """
         return FilterConfig(new_layers, self._l2, self._dropout, self._data_filter)
 
     def get_l2(self):
+        """Get the L2 regularization strength that the user is filtering for.
+
+        Returns:
+            The L2 regularization level (0 - 1) to consider.
+        """
         return self._l2
 
     def get_with_l2(self, new_l2):
+        """Create a copy of this configuration object with a new L2 regularization strength.
+
+        Args:
+            new_l2: The new value to use.
+
+        Returns:
+            Copy of this object but with the new value.
+        """
         return FilterConfig(self._layers, new_l2, self._dropout, self._data_filter)
 
     def get_dropout(self):
+        """Get the dropout rate that the user is filtering for.
+
+        Returns:
+            The dropout rate (0 - 1) to consider.
+        """
         return self._dropout
 
     def get_with_dropout(self, new_dropout):
+        """Create a copy of this configuration object with a new dropout rate.
+
+        Args:
+            new_dropout: The new dropout rate to use.
+
+        Returns:
+            Copy of this object but with the new value.
+        """
         return FilterConfig(self._layers, self._l2, new_dropout, self._data_filter)
 
     def get_data_filter(self):
+        """Get the data attribute filter that the user has applied.
+
+        Returns:
+            The data attribute hidden from training or 'all attrs' if all data included.
+        """
         return self._data_filter
 
     def get_with_data_filter(self, new_filter):
+        """Create a copy of this configuration object with a new data filter.
+
+        Args:
+            new_filter: The new value to use.
+
+        Returns:
+            Copy of this object but with the new value.
+        """
         return FilterConfig(self._layers, self._l2, self._dropout, new_filter)
 
 
 class SweepResult:
+    """Object representing a single model candidate within the sweep."""
 
     def __init__(self, block, layers, l2, dropout, mean_error, std_err,
         train_mean_error, train_std_err):
+        """Create a new record of a sweep outcome.
+
+        Args:
+            block: The variable name that was blocked from training or 'all attrs' if no blocks.
+            layers: The number of hidden layers used in the candidate.
+            l2: The L2 regularization strength used in the candidate.
+            dropout: The dropout rate used in this candidate.
+            mean_error: The validation set MAE when predicting mean found for this candidate.
+            std_err: The validation set MAE when predicting std found for this candidate.
+            train_mean_error: The training set MAE when predicting mean found for this candidate.
+            train_std_err: The training set MAE when predicting mean found for this candidate.
+        """
         self._block = block
         self._layers = layers
         self._l2 = l2
@@ -157,30 +257,50 @@ class SweepResult:
         self._train_std_err = train_std_err
 
     def get_block(self):
+        """Get the variable blocked from training.
+
+        Returns:
+            The variable name that was blocked from training or 'all attrs' if no blocks.
+        """
         return self._block
 
     def get_layers(self):
+        """Get the numer of hidden layers in the model candidate."""
         return self._layers
 
     def get_l2(self):
+        """Get the L2 strength that was attempted in this candidate."""
         return self._l2
 
     def get_dropout(self):
+        """Get the dropout rate that was attempted in this candidate."""
         return self._dropout
 
     def get_mean_error(self):
+        """Get the MAE in validation set for mean prediction."""
         return self._mean_error
 
     def get_std_err(self):
+        """Get the MAE in validation set for standard deviation prediction."""
         return self._std_err
 
     def get_train_mean_error(self):
+        """Get the MAE in training set for mean prediction."""
         return self._train_mean_error
 
     def get_train_std_err(self):
+        """Get the MAE in training set for standard deviation prediction."""
         return self._train_std_err
 
     def matches_filter(self, filter_config):
+        """Determine if this candidate should be included in a results set for a filter.
+
+        Args:
+            filter_config: The FitlerConfig for which we are testing inclusion.
+
+        Returns:
+            True if should be included and false otherwise.
+        """
 
         def floats_match(a, b):
             return abs(a - b) < 0.0001
@@ -196,6 +316,14 @@ class SweepResult:
 
 
 def parse_record(raw_record):
+    """Parse a sweep output dataset.
+
+    Args:
+        raw_record: The raw record as a primitives only dictionary.
+
+    Returns:
+        SweepResult after parsing values into exepcted types.
+    """
     return SweepResult(
         raw_record['block'],
         int(raw_record['layers']),
@@ -208,15 +336,34 @@ def parse_record(raw_record):
     )
 
 
-def load_data(sketch):
-    data = sketch.get_data_layer().get_csv('data/sweep_ag_all.csv')
+def load_data(sketch, loc='data/sweep_ag_all.csv'):
+    """Load all available sweep data.
+
+    Args:
+        loc: The location (path) as string from which to load data.
+
+    Returns:
+        list of SweepResult.
+    """
+    data = sketch.get_data_layer().get_csv(loc)
     data_in_scope = filter(lambda x: x['allowCount'] == '1', data)
     return [parse_record(x) for x in data_in_scope]
 
 
 class ConfigPresenter:
+    """Presenter which allows the user to change the sweep filter."""
 
     def __init__(self, sketch, x, y, on_config_change, on_run_sweep):
+        """Create a new configuration presenter / meta-widget.
+
+        Args:
+            sketch: The Sketchingpy sketch in which to bulid this widget.
+            x: The horizontal position at which to build this widget in pixels.
+            y: The horizontal position at which to build this widget in pixels.
+            on_config_change: Callback to invoke with a FilterConfig when the filter settings are
+                changed by the user.
+            on_run_sweep: Callback to invoke when the user requests a sweep.
+        """
         self._sketch = sketch
         self._x = x
         self._y = y
@@ -322,6 +469,16 @@ class ConfigPresenter:
         )
 
     def draw(self, mouse_x, mouse_y, click_waiting, keypress):
+        """Update and draw this visualization.
+
+        Args:
+            mouse_x: The horizontal position of cursor.
+            mouse_y: The vertical position of cursor.
+            click_waiting: Flag indicating if the mouse button was pressed since the last time draw
+                was invoked. True if the mouse button was pressed and false otherwise.
+            keypress: String indicating the keyboard key pressed since draw was last called or None
+                if no keys pressed since draw last called.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -340,18 +497,38 @@ class ConfigPresenter:
         self._sketch.pop_transform()
 
     def _change_layers(self, new_val):
+        """Internal callback for when the filter's number of hidden layers has changed.
+
+        Args:
+            new_val: The new value for this parameter.
+        """
         interpreted = int(new_val.split(' ')[0])
         self._filter_config = self._filter_config.get_with_layers(interpreted)
 
     def _change_l2(self, new_val):
+        """Internal callback for when the filter's L2 strength has changed.
+
+        Args:
+            new_val: The new value for this parameter.
+        """
         interpreted = 0 if new_val == 'No L2' else float(new_val)
         self._filter_config = self._filter_config.get_with_l2(interpreted)
 
     def _change_dropout(self, new_val):
+        """Internal callback for when the filter's dropout rate has changed.
+
+        Args:
+            new_val: The new value for this parameter.
+        """
         interpreted = 0 if new_val == 'No Dropout' else float(new_val)
         self._filter_config = self._filter_config.get_with_dropout(interpreted)
 
     def _change_data_filter(self, new_val):
+        """Internal callback for when the filter's attribute inclusion has changed.
+
+        Args:
+            new_val: The new value for this parameter.
+        """
         if new_val == 'All Data':
             interpreted = 'all attrs'
         else:
@@ -362,9 +539,11 @@ class ConfigPresenter:
         self._filter_config = self._filter_config.get_with_data_filter(interpreted)
 
     def _try_model(self):
+        """Use the current filter to find a simulation result."""
         self._on_config_change(self._filter_config)
 
     def _run_sweep(self):
+        """Run a sweep in which all filters are included and a preferred config selected."""
         self._layers_buttons.set_value('4 layers')
         self._l2_buttons.set_value('0.10')
         self._drop_buttons.set_value('0.01')
@@ -380,8 +559,20 @@ class ConfigPresenter:
 
 
 class ScatterPresenter:
+    """Presenter which runs a scatterplot within the sweep visualization."""
 
     def __init__(self, sketch, x, y, width, height, data, request_draw):
+        """Create a new scatterplot.
+
+        Args:
+            sketch: The Sketchingpy sketch in which to build the chart.
+            x: The horizontal position at which to build the chart.
+            y: The vertical position at which to build the chart.
+            width: The horizontal size of the chart in pixels.
+            height: The vertical size of the chart in pixels.
+            data: The SweepResults to display.
+            request_draw: Function to call to force a full tool redraw.
+        """
         self._sketch = sketch
         self._x = x
         self._y = y
@@ -393,9 +584,18 @@ class ScatterPresenter:
         self._request_draw = request_draw
 
     def get_awaiting_draw(self):
+        """Determine if this component requires the full visualization to redraw."""
         return self._requires_refresh
 
     def draw(self, mouse_x, mouse_y, click_waiting):
+        """Update and redraw this component.
+
+        Args:
+            mouse_x: The horizontal position of the cursor.
+            mouse_y: The vertical position of the cursor.
+            click_waiting: Flag indicating if the mouse button was pressed since the last time draw
+                was invoked. True if the mouse button was pressed and false otherwise.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -409,6 +609,11 @@ class ScatterPresenter:
         self._sketch.pop_transform()
 
     def show_config(self, config):
+        """Show a single model candidate.
+
+        Args:
+            config: The FilterConfig for which a model should be displayed.
+        """
         matching = list(filter(lambda x: x.matches_filter(config), self._data))
         if len(matching) == 0:
             return
@@ -420,6 +625,7 @@ class ScatterPresenter:
         self._requires_refresh = True
 
     def show_all(self):
+        """Execute a sweep and show all model candidates."""
         converted_points = map(
             lambda x: self._convert_point(x),
             self._data
@@ -430,6 +636,14 @@ class ScatterPresenter:
         self._requires_refresh = True
 
     def _convert_point(self, target):
+        """Convert a point into a simplified dict representation.
+
+        Args:
+            target: The SweepResult to convert to a simplified dictionary.
+
+        Returns:
+            Simplified primitives-only dictionary.
+        """
         return {
             'mean': target.get_mean_error(),
             'std': target.get_std_err(),
@@ -438,6 +652,7 @@ class ScatterPresenter:
         }
 
     def _draw_contents(self):
+        """Draw the contents of the scatter plot."""
         if self._requires_refresh:
             self._sketch.create_buffer('sweep-points', self._width, self._height)
             self._sketch.enter_buffer('sweep-points')
@@ -500,17 +715,34 @@ class ScatterPresenter:
         self._sketch.draw_buffer(0, 0, 'sweep-points')
 
     def _get_x(self, val):
+        """Get the horizontal position corresponding to a mean prediction error.
+
+        Args:
+            val: The mean absolute error (MAE).
+
+        Returns:
+            Horizontal pixels coordinate.
+        """
         if val > 0.2:
             val = 0.2
         return val * 100 / 20 * (self._width - 80 - 20) + 80
 
     def _get_y(self, val):
+        """Get the vertical position corresponding to a mean prediction error.
+
+        Args:
+            val: The mean absolute error (MAE).
+
+        Returns:
+            Vertical pixels coordinate.
+        """
         if val > 0.2:
             val = 0.2
         offset = val * 100 / 20 * (self._height - 50 - 20) + 50
         return self._height - offset
 
     def _draw_horiz_axis(self):
+        """Draw a chart axis for error in predicting mean."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -545,6 +777,7 @@ class ScatterPresenter:
         self._sketch.pop_transform()
 
     def _draw_vert_axis(self):
+        """Draw a chart axis for error in predicting standard deviation."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -581,6 +814,7 @@ class ScatterPresenter:
         self._sketch.pop_transform()
 
     def _draw_frame(self):
+        """Draw the background frame for this scatterplot."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -594,6 +828,7 @@ class ScatterPresenter:
 
 
 def main():
+    """Entrypoint for this visualization."""
     presenter = SweepMainPresenter('Sweep Viz', None)
     assert presenter is not None
 

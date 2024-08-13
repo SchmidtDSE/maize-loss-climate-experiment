@@ -1,3 +1,13 @@
+"""Visualization of a single APH and claims under different regulatory schemes.
+
+Visualization of a single APH and claims under different regulatory schemes with a small window
+into system-wide effects of adopting that scheme. This is the "claims visualization" as named in
+the paper.
+
+License:
+    BSD
+"""
+
 import copy
 import statistics
 import sys
@@ -15,8 +25,15 @@ USAGE_STR = 'python history_viz.py [csv location] [output location] [threshold] 
 
 
 class SummaryDataFacade:
+    """Facade allowing for access to data summarizing the impact of a policy system-wide."""
 
     def __init__(self, raw_rows):
+        """Create a new data model facade.
+
+        Args:
+            raw_rows: The rows around which this facade will simplify access. These will be parsed
+                with expected data types.
+        """
         with_offset = filter(lambda x: x['offsetBaseline'] == 'always', raw_rows)
         with_size = filter(lambda x: x['geohashSimSize'] == '4.0', with_offset)
         with_threshold = filter(lambda x: x['threshold'] == '0.25', with_size)
@@ -28,16 +45,46 @@ class SummaryDataFacade:
         self._inner_records = dict(parsed_tuple)
 
     def get_claims(self, year, condition, using_std):
+        """Get the claims rate for a year, simulation condition, and regulatory scheme.
+
+        Args:
+            year: Get the year for which the claims rate is requested.
+            condition: The condition like historic or 2050_SSP245.
+            using_std: True if using a standard deviation-based threshold or false if using the
+                average-based threshold.
+
+        Returns:
+            The claims rate (0 - 100) for the simulation configuration requested.
+        """
         key = self._get_key(condition, year)
         attr = 'claimsRate' + ('Std' if using_std else '')
         return self._inner_records[key][attr]
 
     def get_threshold(self, year, condition, using_std):
+        """Get the loss threshold associated with a threshold.
+
+        Args:
+            year: The year in which the the data are requested.
+            condition: The condition like historic or 2050_SSP245.
+            using_std: True if using a standard deviation-based threshold or false if using the
+                average-based threshold.
+
+        Returns:
+            The loss threshold used for the simulation requested.
+        """
         key = self._get_key(condition, year)
         attr = 'threshold' + ('Std' if using_std else '')
         return self._inner_records[key][attr]
 
     def _parse_record(self, target):
+        """Parse a raw record.
+
+        Args:
+            target: The raw dictionary to parse.
+
+        Returns:
+            Parsed record.
+        """
         return {
             'year': int(target['year']),
             'condition': target['condition'],
@@ -48,13 +95,39 @@ class SummaryDataFacade:
         }
 
     def _get_key(self, condition, year):
+        """Get a key refering to a combination of simulated condition and year.
+
+        Args:
+            condition: The condition like future or 2050_SSP245 for which a key is being generated.
+            year: The year for which a key is being generated.
+
+        Returns:
+            Key describing a year within a condition.
+        """
         return '%s_%d' % (condition, year)
 
 
 class HistoryMainPresenter:
+    """Presenter running the history viz."""
 
     def __init__(self, target, loading_id, csv_loc=None, output_loc=None,
         default_threshold='average', default_scenario='high'):
+        """Create a new presenter.
+
+        Args:
+            target: The title of of the window for the visualization or the HTML ID in which the
+                visualization should be drawn.
+            loading_id: The ID of the HTML element where the loading indicator can be found which
+                should be hidden after the visualization is loaded. Ignored if not running in web.
+            csv_loc: The path to the CSV file with the system-wide data to be used to contextualize
+                chosen regulatory structures. If None, will use a default. Defaults to None.
+            output_loc: The location at which the visualization should be written or None if the
+                visualization should run interactively. Defaults to None.
+            default_threshold: The regulatory scheme to use like 'average' for average-based
+                thresholds. Defaults to average.
+            default_scenario: The scenario to be shown like 2050_SSP245 when offering contextual
+                information.
+        """
         if output_loc:
             self._sketch = sketchingpy.Sketch2DStatic(const.WIDTH, const.HEIGHT)
         else:
@@ -141,6 +214,7 @@ class HistoryMainPresenter:
             self._sketch.show()
 
     def _step(self):
+        """Check for changes and optionally redraw the visualization."""
         mouse = self._sketch.get_mouse()
 
         if mouse:
@@ -179,6 +253,7 @@ class HistoryMainPresenter:
         self._key_waiting = None
 
     def _draw_annotation(self):
+        """Draw a label with instructions."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -191,23 +266,56 @@ class HistoryMainPresenter:
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
-    def _update_threshold(self, new_value):
+    def _update_threshold(self, new_value, update_buttons=False):
+        """Update the loss threshold type.
+
+        Args:
+            new_value: Description of the regulatory structure where 'Stdev-based' uses the
+                standard deviation-based thresholds.
+            update_buttons: Flag indicating if the buttons for this parameter should be updated.
+                Defaults to false.
+        """
         self._change_waiting = True
         using_std = new_value == 'Stdev-based'
         self._chart_presenter.set_using_std(using_std)
         self._summary_presenter.set_using_std(using_std)
 
-    def _update_stability(self, new_setting):
+        if update_buttons:
+            self._threshold_type_buttons.set_value(new_value)
+
+    def _update_stability(self, new_setting, update_buttons=False):
+        """Update the stability setting.
+
+        Args:
+            new_value: Description of the stability level like 'Low Stability' to use as an APH
+                starting point that the user can further modify.
+            update_buttons: Flag indicating if the buttons for this parameter should be updated.
+                Defaults to false.
+        """
         self._change_waiting = True
         if new_setting == 'Low Stability':
             self._chart_presenter.set_values(HIGH_VARIABILITY_SCENARIO)
         else:
             self._chart_presenter.set_values(LOW_VARIABILITY_SCENARIO)
 
+        if update_buttons:
+            self._scenario_buttons.set_value(new_setting)
+
 
 class HistoryChartPresenter:
+    """Presenter running the modifiable APH chart."""
 
     def __init__(self, sketch, x, y, width, height, start_values):
+        """Create a new APH presenter.
+
+        Args:
+            sketch: The Sketchingpy sketch in which the chart should be created.
+            x: The horizontal position at which the chart should be created.
+            y: The vertical position at which the chart should be created.
+            width: The horizontal size in pixels of the chart.
+            height: The vertical size in pixels of the chart.
+            start_values: The starting APH values to show in the chart.
+        """
         self._sketch = sketch
         self._use_std = False
         self._x = x
@@ -217,6 +325,14 @@ class HistoryChartPresenter:
         self._values = start_values
 
     def step(self, mouse_x_abs, mouse_y_abs, clicked):
+        """Update and redraw this chart.
+
+        Args:
+            mouse_x_abs: The x coordinate of the cursor.
+            mouse_y_abs: The y coordinate of the cursor.
+            clicked: True if a mouse button has been pressed since the last call to step or false
+                if no mouse button press since the last invocation.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -247,12 +363,32 @@ class HistoryChartPresenter:
         self._sketch.pop_transform()
 
     def set_using_std(self, new_use_std):
+        """Update if a standard deviation-based threshold should be used.
+
+        Args:
+            new_use_std: True if a standard deviation-based threshold should be used or false if
+                an average-based threshold should be used.
+        """
         self._use_std = new_use_std
 
     def set_values(self, new_values):
+        """Set the APH yield values.
+
+        Args:
+            new_values: Yield values per year.
+        """
         self._values = new_values
 
     def _get_year(self, mouse_x, mouse_y):
+        """Get the year corresponding to a mouse position.
+
+        Args:
+            mouse_x: The horizontal position of the cursor.
+            mouse_y: The vertical position of the cursor.
+
+        Returns:
+            Year corresponding to the cursor position.
+        """
         if mouse_x < 0 or mouse_y < 0:
             return None
         elif mouse_x > (self._width - 100) or mouse_y > self._height:
@@ -266,6 +402,12 @@ class HistoryChartPresenter:
             return None
 
     def _draw_hover(self, mouse_x, mouse_y):
+        """Draw a hover indicator below the cursor.
+
+        Args:
+            mouse_x: The horizontal position of the cursor.
+            mouse_y: The vertical position of the cursor.
+        """
         year = self._get_year(mouse_x, mouse_y)
         if year is None:
             return
@@ -284,6 +426,7 @@ class HistoryChartPresenter:
         self._sketch.pop_transform()
 
     def _draw_x_axis(self):
+        """Draw the horizontal axis showing years."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -301,6 +444,7 @@ class HistoryChartPresenter:
         self._sketch.pop_transform()
 
     def _draw_y_axis(self):
+        """Draw the vertical axis showing yield."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -328,6 +472,14 @@ class HistoryChartPresenter:
         self._sketch.pop_transform()
 
     def _draw_candidate(self, mouse_x, mouse_y, clicked):
+        """Draw a potential APH change below the cursor.
+
+        Args:
+            mouse_x_abs: The x coordinate of the cursor.
+            mouse_y_abs: The y coordinate of the cursor.
+            clicked: True if a mouse button has been pressed since the last call to step or false
+                if no mouse button press since the last invocation.
+        """
         selected_year = self._get_year(mouse_x, mouse_y)
         if selected_year is None:
             return
@@ -360,6 +512,7 @@ class HistoryChartPresenter:
         self._sketch.pop_transform()
 
     def _draw_content(self):
+        """Draw the content of the chart."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -436,6 +589,7 @@ class HistoryChartPresenter:
         self._sketch.pop_transform()
 
     def _draw_average(self):
+        """Draw indicator of average of yields displayed."""
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -471,19 +625,58 @@ class HistoryChartPresenter:
         self._sketch.pop_transform()
 
     def _get_x(self, year):
+        """Get the x position corresponding to a year.
+
+        Args:
+            year: The year for which to find an x position.
+
+        Returns:
+            Horizontal coordinate of a year.
+        """
         return 80 + (self._width - 80 - 100) * (year - 1) / 10
 
     def _get_y(self, value):
+        """Get the y position corresponding to a yield.
+
+        Args:
+            value: The yield level.
+
+        Returns:
+            Vertical coordinate of a yield.
+        """
         offset = 40 + (self._height - 50) * value / 400
         return self._height - offset
 
     def _invert_y(self, y):
+        """Convert from a y position to a yield level.
+
+        Args:
+            y: The vertical coordinate.
+
+        Returns:
+            Yield level corresponding to the coordinate.
+        """
         return ((self._height - y - 40) * 400) / (self._height - 50)
 
 
 class SummaryPresenter:
+    """Small visualization element showing overall impact of a regulatory scheme.
+
+    Small visualization element showing overall impact of a regulatory scheme if it were applied
+    system-wide using historic data.
+    """
 
     def __init__(self, sketch, x, y, width, height, data_facade):
+        """Create new presenter.
+
+        Args:
+            sketch: The Sketchingpy sketch in which the summary should be created.
+            x: The horizontal position at which the summary should be made.
+            y: The vertical position at which the summary should be made.
+            width: The horizontal size of the element.
+            height: The vertical size of the element.
+            data_facade: Facade through which system-wide data can be accessed.
+        """
         self._sketch = sketch
         self._x = x
         self._y = y
@@ -493,9 +686,23 @@ class SummaryPresenter:
         self._using_std = False
 
     def set_using_std(self, using_std):
+        """Change if the standard deviation-based threshold should be used.
+
+        Args:
+            using_std: True if a standard deviation-based loss threshold should be used or false if
+                average-based loss threshold should be used.
+        """
         self._using_std = using_std
 
     def step(self, mouse_x_abs, mouse_y_abs, clicked):
+        """Update and redraw this component.
+
+        Args:
+            mouse_x_abs: The horizontal position of the cursor.
+            mouse_y_abs: The vertical position of the cursor.
+            clicked: True if the mouse button has been pressed since the last call to step or false
+                otherwise.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -557,6 +764,12 @@ class SummaryPresenter:
 
 
 def main():
+    """Entrypoint into this visualization.
+
+    Entrypoint into this visualization which runs interactively if no arguments provided or draws
+    into a file if arguments provided.
+    """
+
     if len(sys.argv) == 1:
         presenter = HistoryMainPresenter('History Viz', None)
     elif len(sys.argv) != NUM_ARGS + 1:
