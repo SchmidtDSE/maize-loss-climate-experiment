@@ -1,11 +1,31 @@
+"""Legend component for the neighborhood-level results_viz.
+
+License:
+    BSD
+"""
+
 import const
 import symbols
 
 
 class LegendPresenter:
+    """Presenter for the supporting legend component."""
 
     def __init__(self, sketch, x, y, legend_width, legend_height, initial_percents,
         metric, var, viz):
+        """Create a new legend.
+        
+        Args:
+            sketch: The Sketchingpy sketch in which the lengend should be built.
+            x: The horizontal location at which the legend should be constructed.
+            y: The vertical location at which the legend should be constructed.
+            legend_width: The horizontal size of the legend in pixels.
+            legend_height: The vertical size of the legend in pixels.
+            initial_percents: Initial set of records with group name and percent.
+            metric: The name of the metric being displayed corresponding to Configuration values.
+            var: The contextualizing dimension corresponding to Configuration values.
+            viz: The visualization type being displayed corresponding to Configuration values.
+        """
         self._sketch = sketch
         self._x = x
         self._y = y
@@ -17,12 +37,28 @@ class LegendPresenter:
         self._viz = viz
 
     def update_data(self, new_data, metric, var, viz):
+        """Update the legend to reflect new data being displayed in the main visualization.
+        
+        Args:
+            new_data: The percents as a set of records with group name and percent.
+            metric: The name of the metric being displayed corresponding to Configuration values.
+            var: The contextualizing dimension corresponding to Configuration values.
+            viz: The visualization type being displayed corresponding to Configuration values.
+        """
         self._percents = new_data
         self._metric = metric
         self._var = var
         self._viz = viz
 
     def step(self, mouse_x, mouse_y, clicked):
+        """Update and redraw this component.
+        
+        Args:
+            mouse_x: The horizontal position of the cursor.
+            mouse_y: The vertical position of the cursor.
+            clicked: True if the mouse button has been pressed since the last time step was called
+                or false if not pressed since the last time step was called.
+        """
         self._sketch.push_transform()
         self._sketch.push_style()
 
@@ -123,5 +159,13 @@ class LegendPresenter:
         self._sketch.pop_transform()
 
     def _get_width(self, percent):
+        """Get the width of a bar for percent.
+        
+        Args:
+            percent: The percent associated with the bar (0 - 1).
+        
+        Returns:
+            Width of bar in pixels.
+        """
         working_width = self._legend_width - 40
         return percent * working_width
