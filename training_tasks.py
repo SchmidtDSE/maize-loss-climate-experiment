@@ -1,3 +1,8 @@
+"""Tasks to train the neural network-based regressor.
+
+License:
+    BSD
+"""
 import csv
 import itertools
 import os
@@ -53,6 +58,18 @@ OUTPUT_FIELDS = [
 
 
 def get_input_attrs(additional_block, allow_count):
+    """Get the list of input attributes allowed to feed into the neural network.
+
+    Args:
+        additional_block: Collection of strings that are manually blocked from being used as neural
+            network inputs.
+        allow_count: Flag indicating if sample information can be included in model inputs. True if
+            included and false otherwise.
+
+    Returns:
+        Sorted list of strings corresponding to attributes that can be used as neural network
+        inputs.
+    """
     all_attrs = const.TRAINING_FRAME_ATTRS
     all_attrs_no_geohash = filter(lambda x: x != 'geohash', all_attrs)
     all_attrs_no_output = filter(lambda x: x not in OUTPUT_ATTRS, all_attrs_no_geohash)
@@ -70,6 +87,20 @@ def get_input_attrs(additional_block, allow_count):
 
 
 def build_model(num_layers, num_inputs, l2_reg, dropout):
+    """Function to build a single model without fitting.
+
+    Self-contained function to build a single model without fitting which can be exported to
+    other machines for distributed computation.
+
+    Args:
+        num_layers: The number of internal hidden layers to use.
+        num_inputs: The number of inputs the network should expect.
+        l2_reg: Level of L2 regularization to apply to connections or 0 if no regularization.
+        dropout: The dropout rate to apply for regularization or 0 if no dropout.
+
+    Returns:
+        Untrained keras model.
+    """
     import keras
 
     model = keras.Sequential()
@@ -109,6 +140,20 @@ def build_model(num_layers, num_inputs, l2_reg, dropout):
 def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, filename,
     additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=30,
     blocked_attrs=BLOCKED_ATTRS):
+    """Try building and training a model.
+
+    Self-contained function to try building and training a model with imports such that it can be
+    exported to other machines or used in distributed computing.
+
+    Args:
+        access_key: The AWS access key to use to get training data or empty string ('') if training
+            data are local.
+        secret_key: The AWS secret key to use to get training data or empty string ('') if training
+            data are local.
+
+    Returns:
+        Primives-only dictionary describing the model trained and the evaluation outcome.
+    """
     import os
     import random
 
@@ -261,14 +306,31 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
 
 
 class UploadHistoricTrainingFrame(luigi.Task):
+    """Upload the model training frame to distributed computing-friendly storage.
+
+    Upload the model training frame to distributed computing-friendly storage or, if remote
+    distributed computing is disabled (AWS_ACCESS_KEY or AWS_ACCESS_SECRET env vars are blank),
+    make a copy of the data to be used for local training.
+    """
 
     def requires(self):
+        """Indicate that the training frame is required before model training can be performed.
+
+        Returns:
+            NormalizeHistoricTrainingFrameTask
+        """
         return normalize_tasks.NormalizeHistoricTrainingFrameTask()
 
     def output(self):
+        """Indicate where the confirmation of the upload should be written.
+
+        Returns:
+            LocalTarget where the status update sould be written.
+        """
         return luigi.LocalTarget(const.get_file_location('upload_historic_confirm.txt'))
 
     def run(self):
+        """Perform the upload or, if local, copy."""
         access_key = os.environ.get('AWS_ACCESS_KEY', '')
         access_secret = os.environ.get('AWS_ACCESS_SECRET', '')
 
@@ -291,17 +353,33 @@ class UploadHistoricTrainingFrame(luigi.Task):
 
 
 class SweepTemplateTask(luigi.Task):
+    """Template task for a sweep operation.
+
+    Abstract base class (template class) for a model sweep  which tries multiple configurations and
+    records the evaluative results. This is performed as a grid search.
+    """
 
     def requires(self):
+        """Require that the training frame and cluster (or local distribution) be available.
+
+        Returns:
+            UploadHistoricTrainingFrame and StartClusterTask
+        """
         return {
             'upload': UploadHistoricTrainingFrame(),
             'cluster': cluster_tasks.StartClusterTask()
         }
 
     def output(self):
+        """Indicate where the sweep results should be recorded.
+
+        Returns:
+            LocalTarget at which the CSV summary of the sweep should be written.
+        """
         return luigi.LocalTarget(const.get_file_location(self.get_filename()))
 
     def run(self):
+        """Perform the model sweep."""
         num_layers = self.get_num_layers()
         l2_regs = self.get_l2_regs()
         dropouts = self.get_dropouts()
@@ -347,70 +425,180 @@ class SweepTemplateTask(luigi.Task):
                 f.flush()
 
     def get_filename(self):
+        """Get the filename where the results should be written within the workspace.
+
+        Returns:
+            Filename (not full path) of the file to be written.
+        """
         raise NotImplementedError('Must use implementor.')
 
     def get_num_layers(self):
+        """Get list of number of layer options to include the sweep.
+
+        Returns:
+            List of integers. Behavior not defined if an option is not between 1 and 6.
+        """
         raise NotImplementedError('Must use implementor.')
 
     def get_l2_regs(self):
+        """Get the list of L2 strengths to include the sweep.
+
+        Returns:
+            List of float. Behavior not defined if an option is not between 0 and 1.
+        """
         raise NotImplementedError('Must use implementor.')
 
     def get_dropouts(self):
+        """Get the list of dropout rates to include the sweep.
+
+        Returns:
+            List of float. Behavior not defined if an option is not between 0 and 1.
+        """
         raise NotImplementedError('Must use implementor.')
 
     def get_blocks(self):
+        """Get the variables to exclude from inputs.
+
+        Returns:
+            List of strings where the 'all attrs' option does not exclude any variables. Behavior
+            not defined if unknown fields provided.
+        """
         raise NotImplementedError('Must use implementor.')
 
     def get_max_workers(self):
+        """Get the maximum number of workers to allow if using remote distribution.
+
+        Returns:
+            The maximum number of workers to allow. Ignored if using local distribution.
+        """
         raise NotImplementedError('Must use implementor.')
 
     def get_allow_counts(self):
+        """Get options for allowing / not allowing sample count information to be used as an input.
+
+        Returns:
+            List of boolean values (True, False) allowed.
+        """
         raise NotImplementedError('Must use implementor.')
 
 
 class SweepTask(SweepTemplateTask):
+    """Perform the main sweep."""
 
     def get_filename(self):
+        """Get the filename where the results should be written within the workspace.
+
+        Returns:
+            Filename (not full path) of the file to be written.
+        """
         return 'sweep.csv'
 
     def get_num_layers(self):
+        """Get list of number of layer options to include the sweep.
+
+        Returns:
+            List of integers. Behavior not defined if an option is not between 1 and 6.
+        """
         return DEFAULT_NUM_LAYERS
 
     def get_l2_regs(self):
+        """Get the list of L2 strengths to include the sweep.
+
+        Returns:
+            List of float. Behavior not defined if an option is not between 0 and 1.
+        """
         return DEFAULT_REGULARIZATION
 
     def get_dropouts(self):
+        """Get the list of dropout rates to include the sweep.
+
+        Returns:
+            List of float. Behavior not defined if an option is not between 0 and 1.
+        """
         return DEFAULT_DROPOUT
 
     def get_blocks(self):
+        """Get the variables to exclude from inputs.
+
+        Returns:
+            List of strings where the 'all attrs' option does not exclude any variables. Behavior
+            not defined if unknown fields provided.
+        """
         return BLOCKS
 
     def get_max_workers(self):
+        """Get the maximum number of workers to allow if using remote distribution.
+
+        Returns:
+            The maximum number of workers to allow. Ignored if using local distribution.
+        """
         return 300
 
     def get_allow_counts(self):
+        """Get options for allowing / not allowing sample count information to be used as an input.
+
+        Returns:
+            List of boolean values (True, False) allowed.
+        """
         return [True, False]
 
 
 class SweepExtendedTask(SweepTemplateTask):
+    """Sweep parameters unlikely to be chosen but informative."""
 
     def get_filename(self):
+        """Get the filename where the results should be written within the workspace.
+
+        Returns:
+            Filename (not full path) of the file to be written.
+        """
         return 'sweep_extended.csv'
 
     def get_num_layers(self):
+        """Get list of number of layer options to include the sweep.
+
+        Returns:
+            List of integers. Behavior not defined if an option is not between 1 and 6.
+        """
         return DEFAULT_NUM_LAYERS
 
     def get_l2_regs(self):
+        """Get the list of L2 strengths to include the sweep.
+
+        Returns:
+            List of float. Behavior not defined if an option is not between 0 and 1.
+        """
         return DEFAULT_REGULARIZATION
 
     def get_dropouts(self):
+        """Get the list of dropout rates to include the sweep.
+
+        Returns:
+            List of float. Behavior not defined if an option is not between 0 and 1.
+        """
         return DEFAULT_DROPOUT
 
     def get_blocks(self):
+        """Get the variables to exclude from inputs.
+
+        Returns:
+            List of strings where the 'all attrs' option does not exclude any variables. Behavior
+            not defined if unknown fields provided.
+        """
         return BLOCKS_EXTENDED
 
     def get_max_workers(self):
+        """Get the maximum number of workers to allow if using remote distribution.
+
+        Returns:
+            The maximum number of workers to allow. Ignored if using local distribution.
+        """
         return 500
 
     def get_allow_counts(self):
+        """Get options for allowing / not allowing sample count information to be used as an input.
+
+        Returns:
+            List of boolean values (True, False) allowed.
+        """
         return [True]
