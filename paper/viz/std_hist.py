@@ -1,3 +1,12 @@
+"""Create a static supporting histogram for the manuscript.
+
+Supporting script to build a static histogram of std / avg threshold equilvancy for the paper which
+shows how, in actual data, the conversion would be performed at system-wide scale.
+
+License:
+    BSD
+"""
+
 import sys
 
 import matplotlib.font_manager
@@ -10,6 +19,7 @@ USAGE_STR = 'python std_hist.py [source csv] [destination graphic]'
 
 
 def main():
+    """Main entrypoint for the histogram drawing script."""
     if len(sys.argv) != NUM_ARGS + 1:
         print(USAGE_STR)
         sys.exit(1)
