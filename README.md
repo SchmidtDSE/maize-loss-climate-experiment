@@ -38,7 +38,7 @@ A summary of the pipeline is created in `stats.json`.
 ### Interactive tools
 Written in [Sketchingpy](https://sketchingpy.org/), the tools can be executed locally on your computer, in a static context for building the paper, or through a web browser. First, one needs to get data from the pipeline or download prior results:
 
- - **Download prior results**: Retrieve the [latest results](https://ag-adaptation-study.pub/archive/data.zip) and move them into the viz directory (`paper/viz/data`).
+ - **Download prior results**: Retrieve the [latest results](https://ag-adaptation-study.pub/archive/data.zip) and move them into the viz directory (`paper/viz/data`). Simply use wget when in the `paper/viz directory` as so: `wget https://ag-adaptation-study.pub/archive/data.zip; unzip data.zip`.
  - **Use your own results**: Update the paper output data (see paper local setup below). The visualizations use the same files.
 
 There are two options for executing the tools:
