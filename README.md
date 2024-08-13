@@ -74,7 +74,7 @@ To deploy changes to production, CI / CD will automatically release to ag-adapta
 <br>
 
 ## Development standards
-Where possible, please follow the [Python Google Style Guide](https://google.github.io/styleguide/pyguide.html) unless an override is provided in `setup.cfg`. Docstrings and type hints are encouraged but not currently enforced. JS code is used in a utility context but, though not currently enforced, [JSDoc](https://jsdoc.app/) is encouraged.
+Where possible, please follow the [Python Google Style Guide](https://google.github.io/styleguide/pyguide.html) unless an override is provided in `setup.cfg`. Docstrings and type hints are required for all top-level or public members but not currently enforced for private members. [JSDoc](https://jsdoc.app/) is required for top level members. Docstring / JSDoc not required for "utility" code.
 
 <br>
 
