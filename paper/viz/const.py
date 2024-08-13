@@ -1,3 +1,9 @@
+"""Constants shared across mulitple visualizations or components.
+
+License:
+    BSD
+"""
+
 BACKGROUND_COLOR = '#F5F5F5'
 PANEL_BG_COLOR = '#FFFFFF'
 BUTTON_BG_COLOR = '#E0E0E0'
