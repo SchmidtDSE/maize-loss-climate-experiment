@@ -274,6 +274,11 @@ Maize production not only suffers from climate warming's effects [@jagermeyr_cli
 
 \bigskip
 
+# Data availability
+Our software [@pottinger_data_2024] and data pipline outputs [@pottinger_data_2024-1] are made publically available on Zenodo as open source / creative common licensed resouces.
+
+\bigskip
+
 # Acknowledgements
 Study funded by the Eric and Wendy Schmidt Center for Data Science and Environment at the University of California, Berkeley. We have no conflicts of interest to disclose. Using yield estimation data from @lobell_scalable_2015 and @deines_million_2021 with our thanks to David Lobell for permission. We also wish to thank Magali de Bruyn, Nick Gondek, Jiajie Kong, Kevin Koy, and Ciera Martinez for conversation regarding these results. Thanks to Color Brewer [@brewer_colorbrewer_2013] and Public Sans [@general_services_administration_public_2024].
 
