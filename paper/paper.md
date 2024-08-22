@@ -31,7 +31,7 @@ output:
     template: default.tex
 ---
 
-**Abstract:** Climate change not only threatens agricultural producers but also strains financial institutions. These important food system actors include government entities tasked with both insuring grower livelihoods and supporting response to continued global warming. We use an artificial neural network to predict future maize yields in the U.S. Corn Belt, finding alarming changes to institutional risk exposure within the Federal Crop Insurance Program. Specifically, our machine learning method anticipates more frequent and more severe yield losses that would result in the annual probability of Yield Protection (YP) claims to more than double at mid-century relative to simulations without continued climate change. Furthermore, our dual finding of relatively unchanged average yields paired with decreasing yield stability reveals targeted opportunities to adjust coverage formulas to include variability. This important structural shift may help regulators support grower adaptation to continued climate change by recognizing the value of risk-reducing strategies such as regenerative agriculture. Altogether, paired with open source interactive tools for deeper investigation, our risk profile simulations fill an actionable gap in current understanding, bridging granular historic yield estimation and climate-informed prediction of future insurer-relevant loss.
+**Abstract:** Climate change not only threatens agricultural producers but also strains financial institutions. These important food system actors include government entities tasked with both insuring grower livelihoods and supporting response to continued global warming. We use an artificial neural network to predict future maize yields in the U.S. Corn Belt, finding alarming changes to institutional risk exposure within the Federal Crop Insurance Program. Specifically, our machine learning method anticipates more frequent and severe yield losses that would result in the annual probability of Yield Protection (YP) claims to more than double at mid-century relative to simulations without continued climate change. Furthermore, our dual finding of relatively unchanged average yields paired with decreasing yield stability reveals targeted opportunities to adjust coverage formulas to include variability. This important structural shift may help regulators support grower adaptation to continued climate change by recognizing the value of risk-reducing strategies such as regenerative agriculture. Altogether, paired with open source interactive tools for deeper investigation, our risk profile simulations fill an actionable gap in current understanding, bridging granular historic yield estimation and climate-informed prediction of future insurer-relevant loss.
 
 \bigskip
 
@@ -166,7 +166,7 @@ Table: Overview of Monte Carlo simulation results. Counterfactual is a future wi
 
 Regardless, with Table @tbl:simresults highlighting these climate threats, these simulations suggest that warming disrupts historic trends of increasing average yield [@nielsen_historical_2023]. Furthermore, in addition to wiping out the gains that our neural network would otherwise expect without climate change, the loss probability increases in both of the time frames considered for SSP245. Indeed, as shown in Figure @fig:hist, the SSP245 overall yield mean remains similar to the historic baseline in the 2050 series even as distribution tails differ more substantially.
 
-![Interactive tool screenshot showing 2050 outcomes distribution (changes from $y_{expected}$), highlighting loss with and without climate change. In addition to showing increased claims rate, this also depicts climate change reducing the expected increase in yields that would otherwise follow historic trends.](./img/hist.png "One of our interactive tools showing 2050 outcomes distribution relative to $y_{expected}$ highlighting loss with and without climate change."){#fig:hist }
+![Interactive tool screenshot showing 2050 outcomes distribution (changes from $y_{expected}$), highlighting loss with and without climate change. In addition to showing increased claims rate, this also depicts climate change reducing the expected increase in yields that would otherwise follow historic trends.](./img/hist.png "One of our interactive tools showing 2050 outcomes distribution relative to $y_{expected}$ highlighting loss with and without climate change."){#fig:hist}
 
 Granular simulation results reflect this system-wide finding: {{ dualIncreasePercent2050 }} of neighborhoods seeing instances of higher claims rates under SSP245 in the 2050 series simultaneously report overall multi-year average yields remaining unchanged or even increasing. This observation around stability and changing tails shows how yield volatility could allow a sharp elevation in loss probability without necessarily decreasing overall mean yields.
 
@@ -176,7 +176,7 @@ Granular simulation results reflect this system-wide finding: {{ dualIncreasePer
 In addition to highlighting future work opportunities, we observe a number of policy-relevant dynamics within our simulations.
 
 ## Adaptation and policy structure
-Adaptation to these adverse conditions is imperative for both farmers and insurers [@oconnor_covering_2017; @mcbride_redefining_2020.]. In order to confront this alarming increase in climate-driven risk, preparations may include:
+Adaptation to these adverse conditions is imperative for both farmers and insurers [@oconnor_covering_2017; @mcbride_redefining_2020]. In order to confront this alarming increase in climate-driven risk, preparations may include:
 
  - Altering planting dates [@mangani_projecting_2023].
  - Physically moving operations [@butler_adaptation_2013].
@@ -205,7 +205,7 @@ Regardless, $l_\sigma$ enables rate setters to directly reward outcomes instead 
 ## Geographic bias
 Neighborhoods with significant results ($p < 0.05 / n$) may be more common in some areas as shown in Figure @fig:geo. This spatial pattern may partially reflect that a number of neighborhoods have less land dedicated to maize so simulations have smaller sample sizes and fail to reach significance. In other cases, this geographic effect may also reflect disproportionate stress or other changes relative to historic conditions. In particular, as further explorable in our interactive tools, we note some geographic bias in changes to precipitation, temperature, and VPD / SVP.
 
-![Interactive geographic view. Color describes type of change and larger dots are larger areas of maize growing activity. Band of increased risk concentrates in Iowa, Illinois, and Indiana.](./img/map.png "Interactive geographic view. Color describes type of change and larger dots are larger areas of maize growing activity. Band of increased risk concentrates in Iowa, Illinois, and Indiana."){#fig:geo }
+![Interactive geographic view. Color describes type of change and larger dots are larger areas of maize growing activity. Band of increased risk concentrates in Iowa, Illinois, and Indiana.](./img/map.png "Interactive geographic view. Color describes type of change and larger dots are larger areas of maize growing activity. Band of increased risk concentrates in Iowa, Illinois, and Indiana."){#fig:geo}
 
 ## Trend-adjustment
 @nielsen_historical_2023 suggests that historic trends would anticipate continued increases in maize outputs but our simulations predict climate change to wipe out the {{ counterfactualMean2050 }} yield increase that our neural network would otherwise expect within the counterfactual simulation without further warming. This flattening of yield increases may impact not just aggregate output but also how growers choose options such as trend adjustment  [@plastina_trend-adjusted_2014].
@@ -256,9 +256,9 @@ Table: Observations we made from our own tools in the "exploratory" graphic cont
 
 Then, continuing to "presentation" [@unwin_why_2020], we next release these tools into a open source website at [https://ag-adaptation-study.pub](https://ag-adaptation-study.pub).
 
-![Example interactive showing how a high stability unit could see a claim for a bad year under $l_{\sigma}$ but not $l_{\%}$.](./img/yield_sim.png "Example interactive showing how a high stability unit could see a claim for a bad year under $l_{\sigma}$ but not $l_{\%}$."){ width=90% #fig:stdev }
+![Example interactive showing how a high stability unit could see a claim for a bad year under $l_{\sigma}$ but not $l_{\%}$.](./img/yield_sim.png "Example interactive showing how a high stability unit could see a claim for a bad year under $l_{\sigma}$ but not $l_{\%}$."){ width=90% #fig:stdev}
 
-These public interactive visualizations allow for further exploration of our modeling such as different loss thresholds for other insurance products, finding relationships of outcomes to different climate variables, answering geographically specific questions beyond the scope of this study, and modification of machine learning parameters to understand performance. This may include use as workshop activity and we also report^[We collect information about the tool only and not generalizable knowledge about users or these patterns, falling under "quality assurance" activity. IRB questionnaire on file.] briefly on design changes made to our interactive tools in response to its participation in a 9 person "real-world" workshop session co-exploring these results:
+These public interactive visualizations like Figure @fig:stdev allow for further exploration of our modeling such as different loss thresholds for other insurance products, finding relationships of outcomes to different climate variables, answering geographically specific questions beyond the scope of this study, and modification of machine learning parameters to understand performance. This may include use as workshop activity and we also report^[We collect information about the tool only and not generalizable knowledge about users or these patterns, falling under "quality assurance" activity. IRB questionnaire on file.] briefly on design changes made to our interactive tools in response to its participation in a 9 person "real-world" workshop session co-exploring these results:
 
  - Facilitators elected to alternate between presentation and interaction similar to @pottinger_combining_2023 but we added the rates simulator to further improve presentation of the rate setting process.
  - Facilitators suggest that single loop [@brazie_designing_2024] designs perform best within the limited time of the workshop and we now let facilitators hold the longer two loop neighborhood simulator till the end by default.
@@ -274,8 +274,8 @@ Maize production not only suffers from climate warming's effects [@jagermeyr_cli
 
 \bigskip
 
-# Data availability
-Our software [@pottinger_data_2024] and data pipline outputs [@pottinger_data_2024-1] are made publically available on Zenodo as open source / creative common licensed resouces.
+# Data availability statement
+Our software [@pottinger_data_2024] and data pipeline outputs [@pottinger_data_2024-1] are available on Zenodo as open source / creative common licensed resources.
 
 \bigskip
 
