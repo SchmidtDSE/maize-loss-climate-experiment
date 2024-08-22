@@ -5,6 +5,13 @@ header-includes: |
   \usepackage{float}
   \floatplacement{figure}{H}
 date: 2024-07-31
+affiliations:
+  - id: 1
+    name: Hidden for Double Blind Review
+author:
+  - name: Hidden for Double Blind Review
+    affil-id: 1
+    correspondence: yes
 output:
   pdf_document:
     number_sections: yes
