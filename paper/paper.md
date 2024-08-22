@@ -275,7 +275,7 @@ Maize production not only suffers from climate warming's effects [@jagermeyr_cli
 \bigskip
 
 # Data availability statement
-Our software [@pottinger_data_2024] and data pipeline outputs [@pottinger_data_2024-1] are available on Zenodo as open source / creative common licensed resources.
+Our software [@pottinger_data_2024] and data pipeline outputs [@pottinger_data_2024-1] are available on Zenodo as open source / creative common licensed resources. Climate inputs are publicly available from @williams_high_2024 under a creative commons license. Historic yield estimations for model training are available from @lobell_scalable_2015 upoon request under a privacy / data use agreement.
 
 \bigskip
 
