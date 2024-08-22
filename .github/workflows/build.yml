@@ -161,6 +161,14 @@ jobs:
           name: arxiv
           path: arxiv.zip
           if-no-files-found: error
+      - name: Zip paper images
+        run: zip -r paper_images.zip paper/img
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: paper_images
+          path: paper_images.zip
+          if-no-files-found: error
   buildDeploy:
     environment: build
     runs-on: ubuntu-latest
