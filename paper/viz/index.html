@@ -76,6 +76,7 @@
             
             <nav>
                 <ul data-tabs>
+                    <li><a href="#tools">Tools</a></li>
                     <li><a data-tabby-default href="#introduction">Intro</a></li>
                     <li><a href="#background">Background</a></li>
                     <li><a href="#methods">Methods</a></li>
@@ -87,10 +88,271 @@
                     <li><a href="#glossary">Glossary</a></li>
                 </ul>
             </nav>
-            
+
             <main class="presentation" id="main">
+                <section id="tools">
+                    <h2><span class="emoji" aria-hidden="true">💻</span> Tools</h2>
+                    <div class="body-text">
+                        <div class="paragraph" role="paragraph">This section contains just the tools. If you want to return to the guided exploration, <a href="#tools" tab="tools" class="advance-button">return to the introduction tab</a>. 
+                    </div>
+
+                    <section>
+                        <h3 class="body-text">Rates Visulization</h3>
+                        <div class="body-text">
+                            Visualization showing how subsidy changes according to different parameters either in an average-based APH or the proposed standard deviation-based APH. Uses <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a> as a starting point.
+                        </div>
+                        <div class="interactive">
+                            <div class="default-viz">
+                                <div class="app-intro">
+                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
+                                </div>
+                                <div class="sketch">
+                                    <div id="sketch-load-message-rates-tools">
+                                        Loading...
+                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                    </div>
+                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-rates-tools"></canvas>
+                                </div>
+                            </div>
+                            <div class="viz-alternative">
+                                <span class="emoji" aria-hidden="true">💻</span> The formulas which can conceptually simulate rate setting:
+                                
+                                <ul>
+                                    <li><span class="vocab">overall price</span> = insured unit aph * projected price * county preimum rate * coverage amount</li>
+                                    <li><span class="vocab">subsidy</span> = subsidy rate * overall price</li>
+                                    <li><span class="vocab">cost to grower</span> = (1 - subsidy rate) * overall price</li>
+                                </ul>
+                                
+                                This is an alternative to a visualization which evaluates these equations for some examples. One such set of examples:
+                                
+                                <ul>
+                                    <li><span class="vocab">overall price</span> = 200 bushel / acre * $4 / bushel * 4% * 75% = $24 / acre</li>
+                                    <li><span class="vocab">subsidy</span> = 55% * $24 / acre = $13.20 / acre</li>
+                                    <li><span class="vocab">cost to grower</span> = (1 - 55%) * $24 = $10.80 / acre</li>
+                                </ul>
+                                
+                                The subsidy increases as <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> increases. Uses <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a> as a starting point.
+                            </div>
+                            <div class="keyboard-controls">
+                                <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-rates">rates visualization</a> has the following controls:
+
+                                <ul>
+                                    <li><span class="vocab">Esc</span>: Exit the visualization</li>
+                                    <li><span class="vocab">i</span>: Change insured unit APH</li>
+                                    <li><span class="vocab">c</span>: Change county average yield</li>
+                                    <li><span class="vocab">p</span>: Change projected price</li>
+                                    <li><span class="vocab">r</span>: Change county premium rate</li>
+                                    <li><span class="vocab">s</span>: Change subsidy rate</li>
+                                    <li><span class="vocab">a</span>: Change coverage amount</li>
+                                    <li><span class="vocab">t</span>: Change APH type</li>
+                                    <li><span class="vocab">o</span>: Change output variable</li>
+                                </ul>
+
+                                The visualization will need focus in order to recieve keyboard commands.
+                            </div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="body-text">Hyper-Parameters Visualization</h3>
+                        <div class="body-text">
+                            Visualization that allows users to try different neural network configurations and see their validation set performance. How would you balance the error between predicted mean and predicted standard deviation?
+                        </div>
+                        <div class="interactive" id="sweep-viz-holder">
+                            <div class="default-viz">
+                                <div class="app-intro">
+                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
+                                </div>
+                                <div class="sketch">
+                                    <div id="sketch-load-message-methods-tools">
+                                        Loading...
+                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                    </div>
+                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-methods-tools"></canvas>
+                                </div>
+                                <div>Hyper-parameters: </div>
+                            </div>
+                            <div class="viz-alternative">
+                                <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
+                                
+                                <ul>
+                                    <li><a href="/data/sweep_ag_all.csv">Sweep Ag All</a>: Information about candidates considered in our model sweep.</li>
+                                </ul>
+    
+                                These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
+                            </div>
+                            <div class="keyboard-controls">
+                                <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-methods">hyper-parameters visualization</a> has the following controls:
+    
+                                <ul>
+                                    <li><span class="vocab">Esc</span>: Exit the visualization</li>
+                                    <li><span class="vocab">n</span>: Change depth</li>
+                                    <li><span class="vocab">l</span>: Change L2</li>
+                                    <li><span class="vocab">d</span>: Change dropout</li>
+                                    <li><span class="vocab">b</span>: Change variable block</li>
+                                    <li><span class="vocab">t</span>: Try the currently selected configuration</li>
+                                    <li><span class="vocab">s</span>: Execute model sweep</li>
+                                </ul>
+    
+                                The visualization will need focus in order to recieve keyboard commands.
+                            </div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="body-text">Distribution Visualization</h3>
+                        <div class="body-text">
+                            Visualization that explores the details of the results in depth. Which type of loss on which time horizon are we most worried about?
+                        </div>
+                        <div class="interactive">
+                            <div class="default-viz">
+                                <div class="app-intro">
+                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
+                                </div>
+                                <div class="sketch">
+                                    <div id="sketch-load-message-results-tools">
+                                        Loading...
+                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                    </div>
+                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-results-tools"></canvas>
+                                </div>
+                            </div>
+                            <div class="viz-alternative">
+                                <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
+                                
+                                <ul>
+                                    <li><a href="/data/sim_hist.csv">Sim Hist</a>: Frequency information about changes from historic average geohash yields. Predicted refers to simulations with climate change and counterfactual refers to simulations without further warming.</li>
+                                </ul>
+    
+                                These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
+                            </div>
+                            <div class="keyboard-controls">
+                                <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-results">distribution visualization</a> has the following controls:
+    
+                                <ul>
+                                    <li><span class="vocab">Esc</span>: Exit the visualization</li>
+                                    <li><span class="vocab">y</span>: Change year</li>
+                                    <li><span class="vocab">c</span>: Change coverage</li>
+                                    <li><span class="vocab">v</span>: Change vs historic or counterfactual</li>
+                                    <li><span class="vocab">u</span>: Change unit size</li>
+                                </ul>
+    
+                                The visualization will need focus in order to recieve keyboard commands.
+                            </div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="body-text">Claims Visualization</h3>
+                        <div class="body-text">
+                            Visualization that explores how using mean and standard deviation influences different behavior. Which kinds of growing patterns does each seem to encourage?
+                        </div>
+                        <div class="interactive">
+                            <div class="default-viz">
+                                <div class="app-intro">
+                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
+                                </div>
+                                <div class="sketch">
+                                    <div id="sketch-load-message-conclusion-tools">
+                                        Loading...
+                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                    </div>
+                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-conclusion-tools"></canvas>
+                                </div>
+                            </div>
+                            <div class="viz-alternative">
+                                <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
+                                
+                                <ul>
+                                    <li><a href="/data/export_claims.csv">export_claims.csv</a>: The claims rate expected under different scenarios. Here threshold refers to coverage level (YP is 0.25 meaning 25% below average), thresholdStd refers to the translation of an average-based <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> to <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields are expected to be in a grid cell.">std</span>, and offsetBaseline refers to if this includes <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> changes over time (we recommend using "always").</li>
+                                </ul>
+    
+                                These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
+                            </div>
+                            <div class="keyboard-controls">
+                                <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-conclusion">claims visualization</a> has the following controls:
+    
+                                <ul>
+                                    <li><span class="vocab">Esc</span>: Exit the visualization</li>
+                                    <li><span class="vocab">t</span>: Change type</li>
+                                    <li><span class="vocab">s</span>: Change between high and low stability</li>
+                                </ul>
+    
+                                The visualization will need focus in order to recieve keyboard commands.
+                            </div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="body-text">Neighborhood Visualization</h3>
+                        <div class="body-text">
+                            Visualization that explores the impacts of this study on insurers at the geohash level. How much does the yield distribution change? How does that impact insurers?
+                        </div>
+                        <div class="interactive">
+                            <div class="default-viz">
+                                <div class="app-intro">
+                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
+                                </div>
+                                <div class="sketch">
+                                    <div id="sketch-load-message-discussion-tools">
+                                        Loading...
+                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                    </div>
+                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-discussion-tools"></canvas>
+                                </div>
+                            </div>
+                            <div class="viz-alternative">
+                                <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
+                                
+                                <ul>
+                                    <li><a href="/data/climate.csv">climate.csv</a>: Information about expected changes to climate.</li>
+                                    <li><a href="/data/tool.csv">tool.csv</a>: <span tabindex="0" class="tooltip" data-tippy-content="We create a grid through a process called geohashing (Niemeyer 2008) where all of the US Corn Belt gets assigned to a cell. Longer geohashes mean smaller cells and, in the 4 character version, each cell is the size of about 28 by 20 kilometers (Haugen 2020)">Geohash</span>-level simulation outcomes.</li>
+                                </ul>
+    
+                                These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
+                            </div>
+                            <div class="keyboard-controls">
+                                <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-discussion">neighborhood visualization</a> has the following controls:
+    
+                                <ul>
+                                    <li><span class="vocab">Esc</span>: Exit the visualization</li>
+                                    <li><span class="vocab">v</span>: Change visualization (map, scatter)</li>
+                                    <li><span class="vocab">o</span>: Change output (yield, risk)</li>
+                                    <li><span class="vocab">c</span>: Change coverage level (scatter only)</li>
+                                    <li><span class="vocab">y</span>: Change year</li>
+                                    <li><span class="vocab">s</span>: Change sample (avg year, all years)</li>
+                                    <li><span class="vocab">t</span>: Change threshold (p &lt; 0.05 or p &lt; 0.10)</li>
+                                    <li><span class="vocab">b</span>: Disable / enable Bonferroni correction</li>
+                                    <li><span class="vocab">f</span>: Disable / enable significance filter</li>
+                                    <li><span class="vocab">g</span>: Change growing condition variable</li>
+                                    <li><span class="vocab">m</span>: Change month (only if growing condition var selected)</li>
+                                </ul>
+    
+                                The visualization will need focus in order to recieve keyboard commands.
+                            </div>
+                        </div>
+                    </section>
+                </section>
+
                 <section id="introduction">
                     <h2><span class="emoji" aria-hidden="true">🌽</span> Introduction: Corn is in trouble.</h2>
+                    <div class="body-text">
+                        <div class="paragraph" role="paragraph">
+                            <span class="emphasis">Crop insurance, corn, and climate change:</span> This website serves as an interactive notebook where we will explore what the future looks like in the US Corn Belt and how policy may influence those outcomes.
+
+                            <details>
+                                <summary class="button">Skip to the tools <span class="chevron" aria-hidden="true">>></span></summary>
+                                <div class="sub-content">
+                                    If you are a returning user or already know about maize and crop insurance, feel free to <a href="#tools" tab="tools" class="advance-button">skip to our interactive tools</a>.
+                                </div>
+                            </details>
+                        </div>
+                    </div>
                     <div class="body-text">
                         <div class="paragraph" role="paragraph">
                             <span class="emphasis">Climate change threatens the future of corn.</span> Studies expect planet-wide <span tabindex="0" class="tooltip" data-tippy-content="In scientific settings, we often refer to the corn crop as a whole regardless of its usage as maize.">maize</span> yields to drop by up to 24% by the end of this century (<a href="https://www.nature.com/articles/s43016-021-00400-y" target="_blank">Jägermeyr et al. 2021</a>). Why? Climate change alters growing conditions (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>), including a higher frequency and severity of stressful weather (<a href="https://www.nature.com/articles/nclimate1633" target="_blank">Dai 2013</a>) which can impact yields (<a href="https://linkinghub.elsevier.com/retrieve/pii/S0098847204000206" target="_blank">Sinsawat et al 2004</a>; <a href="https://www.researchgate.net/publication/309186398_Effects_of_drought_stress_on_yield_and_yield_components_in_maize_cultivars_Zea_mays_L" target="_blank">Marouf et al 2013</a>; <a href="https://www.nature.com/articles/s43016-020-00165-w" target="_blank">Lobell et al 2020</a>). Of course, these threats can endanger farmer revenue (<a href="https://farmdocdaily.illinois.edu/2023/07/extreme-heat-and-kansas-farm-income.html" target="_blank">Sajid et al 2023</a>). However, these changes can also challenge the institutions tasked with protecting and helping those <span tabindex="0" class="tooltip" data-tippy-content="Grower is a more general term we use to farmers and producers regradless of their method of production.">growers</span> (<a href="https://farmpolicynews.illinois.edu/2024/02/crop-insurance-costs-projected-to-jump-29/" target="_blank">Hanrahan 2024</a>).
