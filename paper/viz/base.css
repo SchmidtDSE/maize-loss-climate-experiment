@@ -7,8 +7,14 @@ a, a:link, a:visited, a:hover, a:focus, a:active {
     color: #555555;
 }
 
-a:hover, a:focus, a:active {
+a.emphasized-link, a.emphasized-link:link, a.emphasized-link:visited, a.emphasized-link:hover, a.emphasized-link:focus, a.emphasized-link:active {
+    color: #5050C0;
+    text-decoration: none;
+}
+
+a:hover, a:focus, a:active, a.emphasized-link:hover, a.emphasized-link:focus, a.emphasized-link:active {
     color: #3333C0;
+    text-decoration: underline;
 }
 
 html {
@@ -25,7 +31,7 @@ body {
 }
 
 details {
-    margin-top: 15px;e
+    margin-top: 15px;
 }
 
 details summary.button {
