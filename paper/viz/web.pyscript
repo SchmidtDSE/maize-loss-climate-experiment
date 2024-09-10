@@ -9,9 +9,3 @@ results_viz.ResultsVizPresenter('sketch-canvas-discussion', 'sketch-load-message
 rates_viz.RatesMainPresenter('sketch-canvas-rates', 'sketch-load-message-rates')
 history_viz.HistoryMainPresenter('sketch-canvas-conclusion', 'sketch-load-message-conclusion')
 sweep_viz.SweepMainPresenter('sketch-canvas-methods', 'sketch-load-message-methods')
-
-hist_viz.MainPresenter('sketch-canvas-results-tools', 'sketch-load-message-results-tools')
-results_viz.ResultsVizPresenter('sketch-canvas-discussion-tools', 'sketch-load-message-discussion-tools')
-rates_viz.RatesMainPresenter('sketch-canvas-rates-tools', 'sketch-load-message-rates-tools')
-history_viz.HistoryMainPresenter('sketch-canvas-conclusion-tools', 'sketch-load-message-conclusion-tools')
-sweep_viz.SweepMainPresenter('sketch-canvas-methods-tools', 'sketch-load-message-methods-tools')

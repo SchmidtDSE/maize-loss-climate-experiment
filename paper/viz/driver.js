@@ -6,7 +6,6 @@
 
 let globalTooltips = null;
 let globalTabs = null;
-let globalSlider = null;
 
 
 /**
@@ -70,64 +69,6 @@ function initTabs() {
     }));
 
     return globalTabs;
-}
-
-
-/**
- * Initialize the background section slide show.
- */
-function initSlider() {
-    globalSlider = tns({
-        container: ".intro-slider",
-        items: 1,
-        slideBy: "page",
-        autoplay: false,
-        nav: false
-    });
-
-    const slideAdvanceLinks = document.querySelectorAll(".slide-advance-link");
-    slideAdvanceLinks.forEach((x) => x.addEventListener("click", (event) => {
-        if (globalSlider === null) {
-            return;
-        }
-
-        globalSlider.goTo("next");
-        document.getElementById("intro-slider").scrollIntoView({
-            "behavior": "smooth",
-            "block": "start"
-        });
-        event.preventDefault();
-    }));
-
-    document.getElementById("model-skip-link").addEventListener("click", (event) => {
-        if (globalSlider === null) {
-            return;
-        }
-
-        globalSlider.goTo(3);
-        document.getElementById("intro-slider").scrollIntoView({
-            "behavior": "smooth",
-            "block": "start"
-        });
-        document.getElementById("model-overview").focus();
-        event.preventDefault();
-    });
-
-    document.getElementById("finish-slides-link").addEventListener("click", (event) => {
-        if (globalSlider === null) {
-            return;
-        }
-
-        globalSlider.goTo("last");
-        document.getElementById("intro-slider").scrollIntoView({
-            "behavior": "smooth",
-            "block": "start"
-        });
-        document.getElementById("finish-slide").focus();
-        event.preventDefault();
-    });
-
-    return globalSlider;
 }
 
 
@@ -222,18 +163,6 @@ function initAccessibility() {
         }
     }));
 
-    const sliderRadios = document.querySelectorAll(".slider-setting-radio");
-    sliderRadios.forEach((x) => x.addEventListener("change", function () {
-        if (this.checked) {
-            if (this.value === "show") {
-                initSlider();
-            } else {
-                globalSlider.destroy();
-                globalSlider = null;
-            }
-        }
-    }));
-
     const tooltipRadios = document.querySelectorAll(".tooltips-setting-radio");
     tooltipRadios.forEach((x) => x.addEventListener("change", function () {
         if (this.checked) {
@@ -268,7 +197,6 @@ function initAccessibility() {
 function main() {
     globalTooltips = tippy("[data-tippy-content]");
     globalTabs = initTabs();
-    globalSlider = initSlider();
     initInteractivesLinks();
     initBespokeControls();
     initAccessibility();

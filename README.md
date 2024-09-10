@@ -128,7 +128,6 @@ The web version also uses:
  - [Pyscript](https://pyscript.net/) under the [Apache v2 License](https://pyscript.github.io/docs/2023.12.1/license/).
  - [Sketchingpy](https://sketchingpy.org/) under the [BSD 3-Clause License](https://codeberg.org/sketchingpy/Sketchingpy/src/branch/main/LICENSE.md).
  - [Tabby](https://github.com/cferdinandi/tabby) under the [MIT License](https://github.com/cferdinandi/tabby?tab=MIT-1-ov-file#readme).
- - [Tiny-slider](https://github.com/ganlanyuan/tiny-slider) under the [MIT License](https://github.com/ganlanyuan/tiny-slider?tab=MIT-1-ov-file#readme).
  - [Tippy.js](https://atomiks.github.io/tippyjs/) under the [MIT License](https://github.com/atomiks/tippyjs?tab=MIT-1-ov-file#readme).
  - [toml (Jak Wings)](https://www.npmjs.com/package/tomlify-j0.4?activeTab=readme) under the [MIT License](https://www.npmjs.com/package/tomlify-j0.4?activeTab=code).
  - [ua-parser 1.0.36](https://uaparser.js.org/) under the [MIT License](https://www.npmjs.com/package/ua-parser-js).
