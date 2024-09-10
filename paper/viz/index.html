@@ -9,7 +9,6 @@
         <script type="module" src="/third_party/core.js"></script>
 
         <link rel="stylesheet" href="/third_party/tabby.css">
-        <link rel="stylesheet" href="/third_party/tiny_slider.css">
 
         <title>Interactive Look at Climate-Driven Doubling of US Maize Loss Probability</title>
         <meta name="description" content="Interactive exploration of climate-driven doubling in maize loss probability within U.S. Crop Insurance: AI, prediction, and policy.">
@@ -71,18 +70,17 @@
 
             <header>
                 <h1>Climate-Driven Doubling of Maize Loss Probability in U.S. Crop Insurance</h1>
-                <div class="header-subtext">Interactively exploring AI, spatiotemporal prediction, and possible policy responses</div>
+                <div class="header-subtext">Interactively exploring AI, spatiotemporal prediction, and possible policy responses.</div>
             </header>
             
             <nav>
                 <ul data-tabs>
-                    <li><a href="#tools">Tools</a></li>
                     <li><a data-tabby-default href="#introduction">Intro</a></li>
-                    <li><a href="#background">Background</a></li>
-                    <li><a href="#methods">Methods</a></li>
-                    <li><a href="#results">Results</a></li>
-                    <li><a href="#discussion">Discussion</a></li>
-                    <li><a href="#conclusion">Conclusion</a></li>
+                    <li><a href="#rates">Rates</a></li>
+                    <li><a href="#hyperparameters">ML &amp; Hyperparameters</a></li>
+                    <li><a href="#distributions">Predicted Distributions</a></li>
+                    <li><a href="#claims">Claims &amp; Policy</a></li>
+                    <li><a href="#neighborhoods">Neighborhoods</a></li>
                     <li><a href="#about">About</a></li>
                     <li><a href="#settings">Settings</a></li>
                     <li><a href="#glossary">Glossary</a></li>
@@ -90,298 +88,46 @@
             </nav>
 
             <main class="presentation" id="main">
-                <section id="tools">
-                    <h2><span class="emoji" aria-hidden="true">💻</span> Tools</h2>
-                    <div class="body-text">
-                        <div class="paragraph" role="paragraph">This section contains just the tools. If you want to return to the guided exploration, <a href="#tools" tab="tools" class="advance-button">return to the introduction tab</a>. 
-                    </div>
-
-                    <section>
-                        <h3 class="body-text">Rates Visulization</h3>
-                        <div class="body-text">
-                            Visualization showing how subsidy changes according to different parameters either in an average-based APH or the proposed standard deviation-based APH. Uses <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a> as a starting point.
-                        </div>
-                        <div class="interactive">
-                            <div class="default-viz">
-                                <div class="app-intro">
-                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
-                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
-                                </div>
-                                <div class="sketch">
-                                    <div id="sketch-load-message-rates-tools">
-                                        Loading...
-                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
-                                    </div>
-                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-rates-tools"></canvas>
-                                </div>
-                            </div>
-                            <div class="viz-alternative">
-                                <span class="emoji" aria-hidden="true">💻</span> The formulas which can conceptually simulate rate setting:
-                                
-                                <ul>
-                                    <li><span class="vocab">overall price</span> = insured unit aph * projected price * county preimum rate * coverage amount</li>
-                                    <li><span class="vocab">subsidy</span> = subsidy rate * overall price</li>
-                                    <li><span class="vocab">cost to grower</span> = (1 - subsidy rate) * overall price</li>
-                                </ul>
-                                
-                                This is an alternative to a visualization which evaluates these equations for some examples. One such set of examples:
-                                
-                                <ul>
-                                    <li><span class="vocab">overall price</span> = 200 bushel / acre * $4 / bushel * 4% * 75% = $24 / acre</li>
-                                    <li><span class="vocab">subsidy</span> = 55% * $24 / acre = $13.20 / acre</li>
-                                    <li><span class="vocab">cost to grower</span> = (1 - 55%) * $24 = $10.80 / acre</li>
-                                </ul>
-                                
-                                The subsidy increases as <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> increases. Uses <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a> as a starting point.
-                            </div>
-                            <div class="keyboard-controls">
-                                <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-rates-tools">rates visualization</a> has the following controls:
-
-                                <ul>
-                                    <li><span class="vocab">Esc</span>: Exit the visualization</li>
-                                    <li><span class="vocab">i</span>: Change insured unit APH</li>
-                                    <li><span class="vocab">c</span>: Change county average yield</li>
-                                    <li><span class="vocab">p</span>: Change projected price</li>
-                                    <li><span class="vocab">r</span>: Change county premium rate</li>
-                                    <li><span class="vocab">s</span>: Change subsidy rate</li>
-                                    <li><span class="vocab">a</span>: Change coverage amount</li>
-                                    <li><span class="vocab">t</span>: Change APH type</li>
-                                    <li><span class="vocab">o</span>: Change output variable</li>
-                                </ul>
-
-                                The visualization will need focus in order to recieve keyboard commands.
-                            </div>
-                        </div>
-                    </section>
-
-                    <section>
-                        <h3 class="body-text">Hyper-Parameters Visualization</h3>
-                        <div class="body-text">
-                            Visualization that allows users to try different neural network configurations and see their validation set performance. How would you balance the error between predicted mean and predicted standard deviation?
-                        </div>
-                        <div class="interactive" id="sweep-viz-holder">
-                            <div class="default-viz">
-                                <div class="app-intro">
-                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
-                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
-                                </div>
-                                <div class="sketch">
-                                    <div id="sketch-load-message-methods-tools">
-                                        Loading...
-                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
-                                    </div>
-                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-methods-tools"></canvas>
-                                </div>
-                            </div>
-                            <div class="viz-alternative">
-                                <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
-                                
-                                <ul>
-                                    <li><a href="/data/sweep_ag_all.csv">Sweep Ag All</a>: Information about candidates considered in our model sweep.</li>
-                                </ul>
-    
-                                These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
-                            </div>
-                            <div class="keyboard-controls">
-                                <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-methods-tools">hyper-parameters visualization</a> has the following controls:
-    
-                                <ul>
-                                    <li><span class="vocab">Esc</span>: Exit the visualization</li>
-                                    <li><span class="vocab">n</span>: Change depth</li>
-                                    <li><span class="vocab">l</span>: Change L2</li>
-                                    <li><span class="vocab">d</span>: Change dropout</li>
-                                    <li><span class="vocab">b</span>: Change variable block</li>
-                                    <li><span class="vocab">t</span>: Try the currently selected configuration</li>
-                                    <li><span class="vocab">s</span>: Execute model sweep</li>
-                                </ul>
-    
-                                The visualization will need focus in order to recieve keyboard commands.
-                            </div>
-                        </div>
-                    </section>
-
-                    <section>
-                        <h3 class="body-text">Distribution Visualization</h3>
-                        <div class="body-text">
-                            Visualization that explores the details of the results in depth. Which type of loss on which time horizon are we most worried about?
-                        </div>
-                        <div class="interactive">
-                            <div class="default-viz">
-                                <div class="app-intro">
-                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
-                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
-                                </div>
-                                <div class="sketch">
-                                    <div id="sketch-load-message-results-tools">
-                                        Loading...
-                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
-                                    </div>
-                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-results-tools"></canvas>
-                                </div>
-                            </div>
-                            <div class="viz-alternative">
-                                <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
-                                
-                                <ul>
-                                    <li><a href="/data/sim_hist.csv">Sim Hist</a>: Frequency information about changes from historic average geohash yields. Predicted refers to simulations with climate change and counterfactual refers to simulations without further warming.</li>
-                                </ul>
-    
-                                These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
-                            </div>
-                            <div class="keyboard-controls">
-                                <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-results-tools">distribution visualization</a> has the following controls:
-    
-                                <ul>
-                                    <li><span class="vocab">Esc</span>: Exit the visualization</li>
-                                    <li><span class="vocab">y</span>: Change year</li>
-                                    <li><span class="vocab">c</span>: Change coverage</li>
-                                    <li><span class="vocab">v</span>: Change vs historic or counterfactual</li>
-                                    <li><span class="vocab">u</span>: Change unit size</li>
-                                </ul>
-    
-                                The visualization will need focus in order to recieve keyboard commands.
-                            </div>
-                        </div>
-                    </section>
-
-                    <section>
-                        <h3 class="body-text">Claims Visualization</h3>
-                        <div class="body-text">
-                            Visualization that explores how using mean and standard deviation influences different behavior. Which kinds of growing patterns does each seem to encourage?
-                        </div>
-                        <div class="interactive">
-                            <div class="default-viz">
-                                <div class="app-intro">
-                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
-                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
-                                </div>
-                                <div class="sketch">
-                                    <div id="sketch-load-message-conclusion-tools">
-                                        Loading...
-                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
-                                    </div>
-                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-conclusion-tools"></canvas>
-                                </div>
-                            </div>
-                            <div class="viz-alternative">
-                                <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
-                                
-                                <ul>
-                                    <li><a href="/data/export_claims.csv">export_claims.csv</a>: The claims rate expected under different scenarios. Here threshold refers to coverage level (YP is 0.25 meaning 25% below average), thresholdStd refers to the translation of an average-based <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> to <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields are expected to be in a grid cell.">std</span>, and offsetBaseline refers to if this includes <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> changes over time (we recommend using "always").</li>
-                                </ul>
-    
-                                These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
-                            </div>
-                            <div class="keyboard-controls">
-                                <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-conclusion-tools">claims visualization</a> has the following controls:
-    
-                                <ul>
-                                    <li><span class="vocab">Esc</span>: Exit the visualization</li>
-                                    <li><span class="vocab">t</span>: Change type</li>
-                                    <li><span class="vocab">s</span>: Change between high and low stability</li>
-                                </ul>
-    
-                                The visualization will need focus in order to recieve keyboard commands.
-                            </div>
-                        </div>
-                    </section>
-
-                    <section>
-                        <h3 class="body-text">Neighborhood Visualization</h3>
-                        <div class="body-text">
-                            Visualization that explores the impacts of this study on insurers at the geohash level. How much does the yield distribution change? How does that impact insurers?
-                        </div>
-                        <div class="interactive">
-                            <div class="default-viz">
-                                <div class="app-intro">
-                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
-                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
-                                </div>
-                                <div class="sketch">
-                                    <div id="sketch-load-message-discussion-tools">
-                                        Loading...
-                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
-                                    </div>
-                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-discussion-tools"></canvas>
-                                </div>
-                            </div>
-                            <div class="viz-alternative">
-                                <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
-                                
-                                <ul>
-                                    <li><a href="/data/climate.csv">climate.csv</a>: Information about expected changes to climate.</li>
-                                    <li><a href="/data/tool.csv">tool.csv</a>: <span tabindex="0" class="tooltip" data-tippy-content="We create a grid through a process called geohashing (Niemeyer 2008) where all of the US Corn Belt gets assigned to a cell. Longer geohashes mean smaller cells and, in the 4 character version, each cell is the size of about 28 by 20 kilometers (Haugen 2020)">Geohash</span>-level simulation outcomes.</li>
-                                </ul>
-    
-                                These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
-                            </div>
-                            <div class="keyboard-controls">
-                                <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-discussion-tools">neighborhood visualization</a> has the following controls:
-    
-                                <ul>
-                                    <li><span class="vocab">Esc</span>: Exit the visualization</li>
-                                    <li><span class="vocab">v</span>: Change visualization (map, scatter)</li>
-                                    <li><span class="vocab">o</span>: Change output (yield, risk)</li>
-                                    <li><span class="vocab">c</span>: Change coverage level (scatter only)</li>
-                                    <li><span class="vocab">y</span>: Change year</li>
-                                    <li><span class="vocab">s</span>: Change sample (avg year, all years)</li>
-                                    <li><span class="vocab">t</span>: Change threshold (p &lt; 0.05 or p &lt; 0.10)</li>
-                                    <li><span class="vocab">b</span>: Disable / enable Bonferroni correction</li>
-                                    <li><span class="vocab">f</span>: Disable / enable significance filter</li>
-                                    <li><span class="vocab">g</span>: Change growing condition variable</li>
-                                    <li><span class="vocab">m</span>: Change month (only if growing condition var selected)</li>
-                                </ul>
-    
-                                The visualization will need focus in order to recieve keyboard commands.
-                            </div>
-                        </div>
-                    </section>
-                </section>
-
                 <section id="introduction">
                     <h2><span class="emoji" aria-hidden="true">🌽</span> Introduction: Corn is in trouble.</h2>
                     <div class="body-text">
                         <div class="paragraph" role="paragraph">
-                            <span class="emphasis">Crop insurance, corn, and climate change:</span> This website serves as an interactive notebook where we will explore what the future looks like in the US Corn Belt and how policy may influence those outcomes.
-                        </div>
-                        <div class="paragraph" role="paragraph">
-                            <a data-tippy-content="If you are a returning user or already know about maize and crop insurance, feel free to skip to our interactive tools." href="#tools" tab="tools" class="advance-button emphasized-link">Skip to the tools <span class="chevron" aria-hidden="true">>></span></a>
-                        </div>
-                    </div>
-                    <div class="body-text">
-                        <div class="paragraph" role="paragraph">
-                            <span class="emphasis">Climate change threatens the future of corn.</span> Studies expect planet-wide <span tabindex="0" class="tooltip" data-tippy-content="In scientific settings, we often refer to the corn crop as a whole regardless of its usage as maize.">maize</span> yields to drop by up to 24% by the end of this century (<a href="https://www.nature.com/articles/s43016-021-00400-y" target="_blank">Jägermeyr et al. 2021</a>). Why? Climate change alters growing conditions (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>), including a higher frequency and severity of stressful weather (<a href="https://www.nature.com/articles/nclimate1633" target="_blank">Dai 2013</a>) which can impact yields (<a href="https://linkinghub.elsevier.com/retrieve/pii/S0098847204000206" target="_blank">Sinsawat et al 2004</a>; <a href="https://www.researchgate.net/publication/309186398_Effects_of_drought_stress_on_yield_and_yield_components_in_maize_cultivars_Zea_mays_L" target="_blank">Marouf et al 2013</a>; <a href="https://www.nature.com/articles/s43016-020-00165-w" target="_blank">Lobell et al 2020</a>). Of course, these threats can endanger farmer revenue (<a href="https://farmdocdaily.illinois.edu/2023/07/extreme-heat-and-kansas-farm-income.html" target="_blank">Sajid et al 2023</a>). However, these changes can also challenge the institutions tasked with protecting and helping those <span tabindex="0" class="tooltip" data-tippy-content="Grower is a more general term we use to farmers and producers regradless of their method of production.">growers</span> (<a href="https://farmpolicynews.illinois.edu/2024/02/crop-insurance-costs-projected-to-jump-29/" target="_blank">Hanrahan 2024</a>).
-                        </div>
-                        <div class="paragraph" role="paragraph">
-                            <span class="emphasis">How might we use AI to understand this future and prepare for it?</span> This "explorable explanation" (<a href="http://worrydream.com/ExplorableExplanations/" target="_blank">Victor 2011</a>) walks through an analysis of future maize yields from the perspective of one of these important institutions: the US Federal Crop Insurance Program. Climate change increasingly threatens this crucial resource for farmers and the broader US food system (<a href="https://www.nature.com/articles/ncomms6989" target="_blank">Ray et al 2015</a>). In this online notebook, we will go step by step through a machine learning / artifical intelligence experiment predicting what might happen to the Yield Protection option within this program in the 2030 and 2050 timeframes. Specifically, we will use a series of small tools to build a neural network to understand this problem. After creating our model, we will then examine its predictions to determine how we might respond to these climate-driven threats.
+                            <span class="emphasis">Crop insurance, corn, and climate change:</span> This website serves as an interactive toolset where users can explore what the future looks like in the US Corn Belt and how policy may influence those outcomes. This complements our <a href="https://arxiv.org/abs/2408.02217" target="_blank">scientific paper (preprint)</a> as interactive supplemental material.
 
                             <details id="toc">
                                 <summary class="button">Table of contents <span class="chevron" aria-hidden="true">>></span></summary>
                                 <div class="sub-content">
                                     <div class="paragraph" role="paragraph">
                                         Here's an outline of what is available on this website:
-
+    
                                         <ul>
                                             <li><a href="#introduction" tab="introduction" class="advance-button">Introduction</a>: This is the tab you are currently on which introduces this problem at a high level and hints at what the outcomes of the experiment might be.</li>
-                                            <li><a href="#background" tab="background" class="advance-button">Background</a>: We will first learn about how crop insurance works in the US prior to trying to simulate it.</li>
-                                            <li><a href="#methods" tab="methods" class="advance-button">Methods</a>:  We will then build a neural network to predict the probability and severity of maize loss within the <a href="https://www.ncei.noaa.gov/access/monitoring/reference-maps/corn-belt" target="_blank">U.S. Corn Belt</a> (<a href="https://www.ncei.noaa.gov/access/monitoring/reference-maps/corn-belt" target="_blank">NCEI</a>) by forecasting the Multiple Peril Crop Insurance Program, "the oldest and most common form of federal crop insurance" (<a href="https://www.policyarchive.org/download/4403" target="_blank">Chite et al 2005</a>).</li>
-                                            <li><a href="#results" tab="results" class="advance-button">Results</a>: We will use those results to see how insurer risk may change under the Yield Protection (YP) plan. This covers farmers in the event of yield losses due to an insured cause (<a href="https://farms.extension.wisc.edu/articles/crop-insurance-policy-types/" target="_blank">Reuss</a>). Specifically, we will contrast simulations with climate change to those without further warming. This will let us quantitatively highlight the insurer-relevant effects of climate change in the 2030 and 2050 timeframes.</li>
-                                            <li><a href="#discussion" tab="discussion" class="advance-button">Discussion</a>: We will use these data to design possible policy changes to help mitigate and enable adaptation to the specific climate-fueled risks we observe in our results.</li>
-                                            <li><a href="#conclusion" tab="conclusion" class="advance-button">Conclusion</a>: We will end by exploring other trends in the data which may inform policy action.</li>
-                                            <li><a href="#about" tab="about" class="advance-button">About</a>: Information about this webpage is also available including licensing information. This tab includes data downloads.</li>
-                                            <li><a href="#settings" tab="settings" class="advance-button">Settings</a>: Configuration options including those for accessiblity can be changed for this application.</li>
-                                            <li><a href="#glossary" tab="glossary" class="advance-button">Glossary</a>: Definitions of terms used throughout the explorable.</li>
-                                            <li><a href="/terms.html">Terms and Privacy</a>: More information about terms of service and privacy.</li>
+                                            <li><a href="#rates" tab="rates" class="advance-button">Rates</a>: Exploration of how rates are set within crop insurance and highlighting possible policy levers.</li>
+                                            <li><a href="#hyperparameters" tab="hyperparameters">ML &amp; Hyperparameters</a>: Discussion of machine learning hyperparameters considered with additional information on model performance.</li>
+                                            <li><a href="#distributions" tab="distributions">Predicted Distributions</a>: Examination of Monte Carlo outcomes with predicted distributions under different conditions.</li>
+                                            <li><a href="#claims" tab="claims">Claims &amp; Policy</a>: Examination of how policy choices could change claims rates and repsonse to adverse conditions.</li>
+                                            <li><a href="#neighborhoods" tab="neighborhoods">Neighborhoods</a>: Exploration of individual neighborhood-level outcomes with options for gegographic visualization.</li>
+                                            <li><a href="#about">About</a>: Information about these tools.</li>
+                                            <li><a href="#settings">Settings</a>: Settings including accessibility options.</li>
+                                            <li><a href="#glossary">Glossary</a>: Terms used within this website.</li>
+                                            <li><a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment">Repository</a>: Source code for our modeling and this website.</li>
+                                            <li><a href="https://8080-schmidtdse-maizelosscli-x09co8hoanu.ws-us116.gitpod.io/terms.html">Terms and Privacy</a>: Terms of use and privacy policy.</li>
                                         </ul>
-
-                                        Our model will likely find that climate change will increase the rate at which farmers file insurance claims. However, we will also discover small tweaks to insurance formulas to include yield variance that could help mitigate these threats, benefitting both growers and insurers as they work to reduce the level of future crop loss and safeguard our food system.
                                     </div>
                                 </div>
                             </details>
                         </div>
+                    </div>
+                    <div class="body-text">
+                        <div class="paragraph" role="paragraph">
+                            <span class="emphasis">Climate change threatens the future of corn.</span> Studies expect planet-wide maize yields to drop by up to 24% by the end of this century (<a href="https://www.nature.com/articles/s43016-021-00400-y" target="_blank">Jägermeyr et al. 2021</a>). Why? Climate change alters growing conditions (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>), including a higher frequency and severity of stressful weather (<a href="https://www.nature.com/articles/nclimate1633" target="_blank">Dai 2013</a>) which can impact yields (<a href="https://linkinghub.elsevier.com/retrieve/pii/S0098847204000206" target="_blank">Sinsawat et al 2004</a>; <a href="https://www.researchgate.net/publication/309186398_Effects_of_drought_stress_on_yield_and_yield_components_in_maize_cultivars_Zea_mays_L" target="_blank">Marouf et al 2013</a>; <a href="https://www.nature.com/articles/s43016-020-00165-w" target="_blank">Lobell et al 2020</a>). Of course, these threats can endanger farmer revenue (<a href="https://farmdocdaily.illinois.edu/2023/07/extreme-heat-and-kansas-farm-income.html" target="_blank">Sajid et al 2023</a>). However, these changes can also challenge the institutions tasked with protecting and helping those <span tabindex="0" class="tooltip" data-tippy-content="Grower is a more general term we use to farmers and producers regradless of their method of production.">growers</span> (<a href="https://farmpolicynews.illinois.edu/2024/02/crop-insurance-costs-projected-to-jump-29/" target="_blank">Hanrahan 2024</a>).
+                        </div>
+                        <div class="paragraph" role="paragraph">
+                            <span class="emphasis">How might we use AI to understand this future and prepare for it?</span> These explorables (<a href="http://worrydream.com/ExplorableExplanations/" target="_blank">Victor 2011</a>) detail key aspects of <a href="https://arxiv.org/abs/2408.02217" target="_blank">our analysis</a> of future maize yields from the perspective of one of these important institutions: the US Federal Crop Insurance Program. Climate change increasingly threatens this crucial resource for farmers and the broader US food system (<a href="https://www.nature.com/articles/ncomms6989" target="_blank">Ray et al 2015</a>). Specifically, this website houses tools which complement an <a href="https://arxiv.org/abs/2408.02217" target="_blank">academic paper (preprint)</a>, allowing for further exploration beyond the manuscript.
+                        </div>
 
                         <div class="paragraph" role="paragraph">
-                            <span class="emphasis">You only need a web browser.</span> You don't need to install any special software. No prior expertise is needed but those with a policy, agriculture, or machine learning background may skip certain sections.
+                            <span class="emphasis">You only need a web browser.</span> You don't need to install any special software.
 
                             <details>
                                 <summary class="button">Technical details about the interactives <span class="chevron" aria-hidden="true">>></span></summary>
@@ -397,12 +143,12 @@
                         </div>
 
                         <div class="paragraph" role="paragraph">
-                            <span class="emphasis">Let's get started.</span> Every section of this website dives into one step of the <span tabindex="0" class="tooltip" data-tippy-content="This is the type of mathematical and computational science in which we build models like through artifical intelligence to make sense of data and predict the future (IBM).">data science</span> pipeline. Each includes a "mini-lab" in which you will operate analysis tools and uncover insights. All that said, this online "interactive article" complements a more traditional <a href="https://arxiv.org/abs/2408.02217" target="_blank">scientific paper (preprint)</a>.
+                            <span class="emphasis">Let's get started.</span> Each section of this website dives into one aspect of analysis. Each is a "mini-lab" in which you can operate analysis tools as described in our <a href="https://arxiv.org/abs/2408.02217" target="_blank">scientific paper (preprint)</a>.
                         </div>
 
                         <div class="paragraph" role="paragraph">
                             <div class="next-button-holder">
-                                <a href="#background" tab="background" class="advance-button">Start exploring <span class="chevron" aria-hidden="true">>></span></a>
+                                <a href="#rates" tab="rates" class="advance-button">Start exploring <span class="chevron" aria-hidden="true">>></span></a>
                             </div>
                         </div>
 
@@ -415,7 +161,6 @@
                             <div class="paragraph" role="paragraph">
                                 The citations for this introduction section are as follows:
                                 <ul>
-                                    <li>R. Chite et al., “Agriculture: A Glossary of Terms, Programs, and Laws, 2005 Edition.” Congressional Research Service, Jun. 16, 2005. [Online]. Available: https://crsreports.congress.gov/product/pdf/RL/97-905/6</li>
                                     <li>A. Dai, “Increasing drought under global warming in observations and models,” Nature Clim Change, vol. 3, no. 1, pp. 52–58, Jan. 2013, doi: 10.1038/nclimate1633.</li>
                                     <li>R. Hanrahan, “Crop Insurance Costs Projected to Jump 29%.” University of Illinois, Feb. 15, 2024. [Online]. Available: https://farmpolicynews.illinois.edu/2024/02/crop-insurance-costs-projected-to-jump-29/</li>
                                     <li>J. Jägermeyr et al., “Climate impacts on global agriculture emerge earlier in new generation of climate and crop models,” Nat Food, vol. 2, no. 11, pp. 873–885, Nov. 2021, doi: 10.1038/s43016-021-00400-y.</li>
@@ -423,7 +168,6 @@
                                     <li>K. Marouf, M. Naghavi, A. Pour-Aboughadareh, and H. Naseri rad, “Effects of drought stress on yield and yield components in maize cultivars (Zea mays L),” International Journal of Agronomy and Plant Production, vol. 4, pp. 809–812, Jan. 2013.</li>
                                     <li>NCEI, “Corn Belt.” NOAA, 2024. [Online]. Available: https://www.ncei.noaa.gov/access/monitoring/reference-maps/corn-belt</li>
                                     <li>D. K. Ray, J. S. Gerber, G. K. MacDonald, and P. C. West, “Climate variation explains a third of global crop yield variability,” Nat Commun, vol. 6, no. 1, p. 5989, Jan. 2015, doi: 10.1038/ncomms6989.</li>
-                                    <li>S. Reuss, “Crop Insurance Policy Types.” [Online]. Available: https://farms.extension.wisc.edu/articles/crop-insurance-policy-types/</li>
                                     <li>O. Sajid, A. Ortiz-Bobea, J. Ifft, and V. Gauthier, “Extreme Heat and Kansas Farm Income.” Farmdoc Daily of Department of Agricultural and Consumer Economics, University of Illinois at Urbana-Champaign, Jul. 26, 2023. [Online]. Available: https://farmdocdaily.illinois.edu/2023/07/extreme-heat-and-kansas-farm-income.html</li>
                                     <li>V. Sinsawat, J. Leipner, P. Stamp, and Y. Fracheboud, “Effect of heat stress on the photosynthetic apparatus in maize (Zea mays L.) grown at control or high temperature,” Environmental and Experimental Botany, vol. 52, no. 2, pp. 123–129, Oct. 2004, doi: 10.1016/j.envexpbot.2004.01.010.</li>
                                     <li>B. Victor, “Explorable Explanations.” Bret Victor, Mar. 10, 2011. [Online]. Available: http://worrydream.com/ExplorableExplanations/</li>
@@ -445,246 +189,135 @@
                         </details>
                     </div>
                 </section>
-                <section id="background">
-                    <h2><span class="emoji" aria-hidden="true">📚</span> Background: Crop insurance and neural networks.</h2>
-                    <div class="body-text separated">
+                <section id="rates">
+                    <h2><span class="emoji" aria-hidden="true">💰</span> Rates Explorer</h2>
+                    <div class="body-text">
                         <div class="paragraph" role="paragraph">
-                            We begin with background information and a look at the data available for forecasting the future of the Federal Crop Insurance Program. If you are already familiar with how US crop insurance works and what laws guide it, feel free to <a href="#model-overview" id="model-skip-link">skip ahead</a>.
+                            This first interactive tool explores the structure of <span tabindex="0" class="tooltip" data-tippy-content="MPCI: Covering 494 million acres (Tsiboe and Turner 2023), this is the 'oldest and most common form of federal crop insurance' (Chite et al 2005)">Multi-Peril Crop Insurance</span>'s <span tabindex="0" class="tooltip" data-tippy-content="YP: This coverage option within MPCI typically guarantees yield itself up to 75% of an APH (Osiensky 2021)">Yield Protection</span> option. We specifically will walk through the rates setting aspects of <span tabindex="0" class="tooltip" data-tippy-content="Multi-Peril Crop Insurance. Covering 494 million acres (Tsiboe and Turner 2023), this is the 'oldest and most common form of federal crop insurance' (Chite et al 2005)">MPCI</span> <span tabindex="0" class="tooltip" data-tippy-content="Yield Protection. This coverage option within MPCI typically guarantees yield itself up to 75% of an APH (Osiensky 2021)">YP</span> in which a mixture of many variables determines the price a producer pays for insurance (<a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards 2020</a>). First, the grower chooses how much of their <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> they want to insure (horizontal axis in the <a href="#policy-abstract">interactive</a>). However, certain county-level data, the <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> for a <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together in a policy. This is sometimes also called a risk unit.">insured unit</span>, and a series of adjustments also play a role. By combining everything together, this sets a price and a subsidy from the government (vertical axis in the <a href="#policy-abstract">interactive</a>). See <a href="#rate-var-details" id="expand-rate-var-link">details about variables used for rate setting</a>.
+
+                            <details id="rate-var-details">
+                                <summary class="button">Details about variables used for rate setting <span class="chevron" aria-hidden="true">>></span></summary>
+                                <div class="sub-content">
+                                    <div class="paragraph" role="paragraph">
+                                        These are not technical definitions but, conceptually, here are simplified meanings of each variable in rate setting and the hypothetical rate interactive.
+
+                                        <ul>
+                                            <li>
+                                                <span class="vocab">Insured Unit APH</span>: <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> for the set of fields in the <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together. This is sometimes also called a risk unit.">insured unit</span> for which a policy is being created.
+                                            </li>
+                                            <li>
+                                                <span class="vocab">County average yield</span>: The average yield (<span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> equivalent) for all fields in the county.
+                                            </li>
+                                            <li>
+                                                <span class="vocab">Projected price</span>: Expected price at which the crop will sell often based on daily futures market data.
+                                            </li>
+                                            <li>
+                                                <span class="vocab">County preimum rate</span>: Based on the crop and county, how much it costs to insure one future dollar of expected crop. A value of 4% means 4 cents for each dollar insured.
+                                            </li>
+                                            <li>
+                                                <span class="vocab">Subsidy rate</span>: What percent of the overall policy cost is covered by subsidy. A value of 55% means that the grower pays for 45% of the overall cost of the policy.
+                                            </li>
+                                            <li>
+                                                <span class="vocab">Coverage amount</span>: Up to what percent of <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> will be covered. If one sees a yield that is only 75% of <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> then the policy will pay out 75% - 70% or 5% of <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span>.
+                                            </li>
+                                        </ul> 
+
+                                        To expand upon or clarify these simplified or abbreviated definitions, see <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a>.
+                                    </div>
+                                </div>
+                            </details>
                         </div>
-                    </div>
-                    <div id="intro-slider">
-                        <div class="intro-slider">
-                            <div>
-                                <h3>
-                                    Some terms:
-                                </h3>
-                                <div class="body-text">(Slide 1 of 5) The US Federal Government plays a large role in crop insurance. As with any government program, there are some acronyms and jargon. We recommend giving this a quick read before getting started. However, don't worry if you don't have all of these memorized. You can reference these definitions from within the text later or within our <a href="#glossary" tab="glossary" class="advance-button">glossary</a>.</div>
-                                <div class="block-quote">
-                                    <ul>
-                                        <li><span class="vocab">MPCI</span>: Multi-Peril Crop Insurance. Covering 494 million acres (<a href="https://www.ers.usda.gov/topics/farm-practices-management/risk-management/crop-insurance-at-a-glance/" target="_blank">Tsiboe and Turner 2023</a>), this is the "oldest and most common form of federal crop insurance" (<a href="https://www.policyarchive.org/download/4403" target="_blank">Chite et al 2005</a>).
-                                        <li><span class="vocab">APH</span>: Actual Production History. For our purposes, this will refer to the average of the last ten years of crop yields (<a href="https://www.rma.usda.gov/-/media/RMA/Publications/Risk-Management-Publications/rma_glossary.ashx?la=en">FCIC 2020</a>). This has a number of different roles in insurance but is often used to estimate an expected or typical yield.</li>
-                                        <li><span class="vocab">YP</span>: Yield Protection. This is the coverage option within MPCI that we will simulate. That said, climate effects seen here may impact other options available to growers such as Revenue Proection. Regardless, Yield Protection typically guarantees yield itself up to 75% of an APH (<a href="https://smallgrains.wsu.edu/understanding-the-price-side-of-revenue-crop-insurance/" target="_blank">Osiensky 2021</a>).</li>
-                                        <li><span class="vocab">Insured Unit</span>: A set of fields which are insured together in a policy (<a href="https://www.fb.org/market-intel/crop-insurance-101-the-basics" target="_blank">Munch 2024</a>). For reference, this is sometimes also called a risk unit.</li>
-                                        <li><span class="vocab">508h</span>: Process by which new insurance products can be suggested. This could include supplemental policies covering more than 75% of yields (<a href="https://farmdocdaily.illinois.edu/2023/03/privately-developed-crop-insurance-products-and-the-next-farm-bill.html" target="_blank">Schnitkey et al 2023</a>) though typically programs cannot cover more than 85% as we will see in a moment.</li>
-                                        <li><span class="vocab">US Corn Belt</span>: A multi-state area within the United States with substantial corn growing activity (<a href="https://www.ncei.noaa.gov/access/monitoring/reference-maps/corn-belt" target="_blank">NCEI 2024</a>).</li>
-                                    </ul>
+                        <div class="interactive" id="policy-abstract">
+                            <div class="default-viz">
+                                <div class="app-intro">
+                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
                                 </div>
-                                <div class="body-text">In many cases, there's more nuance to these terms and programs than these short descriptions can capture. Still, these high level definitions are workable enough for the sake of our simulations. All that in mind, we are going to focus on MPCI for maize and YP loss, exploring policy changes either through 508h or by changing the law directly. Anyway, <a href="#rates-slide" class="slide-advance-link">next let's examine the structure of MPCI</a>.</div>
+                                <div class="sketch">
+                                    <div id="sketch-load-message-rates">
+                                        Loading...
+                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                    </div>
+                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-rates"></canvas>
+                                </div>
+                                <div>Rates: Visualization showing how subsidy changes according to different parameters either in an average-based APH or the proposed standard deviation-based APH. Uses <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a> as a starting point.</div>
                             </div>
-                            <div id="rates-slide">
-                                <h3>
-                                    How rates are set:
-                                </h3>
-                                <div class="body-text">
-                                    <div class="paragraph" role="paragraph">
-                                        (Slide 2 of 5) To understand how all of this works to set rates and losses, we will walk through the structure of <span tabindex="0" class="tooltip" data-tippy-content="Multi-Peril Crop Insurance. Covering 494 million acres (Tsiboe and Turner 2023), this is the 'oldest and most common form of federal crop insurance' (Chite et al 2005)">MPCI</span>'s <span tabindex="0" class="tooltip" data-tippy-content="Yield Protection. This coverage option within MPCI typically guarantees yield itself up to 75% of an APH (Osiensky 2021)">YP</span> option.
-                                    </div>
-                                    <div class="paragraph" role="paragraph">
-                                        A mixture of many variables determines the price a producer pays for insurance (<a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards 2020</a>). First, the grower chooses how much of their <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> they want to insure (horizontal axis in the <a href="#policy-abstract">interactive</a>). However, certain county-level data, the <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> for a <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together in a policy. This is sometimes also called a risk unit.">insured unit</span>, and a series of adjustments also play a role. By combining everything together, this sets a price and a subsidy from the government (vertical axis in the <a href="#policy-abstract">interactive</a>).
-                                    </div>
-                                    <div class="paragraph" role="paragraph">
-                                        In this first interactive, we will explore  factors influencing price setting in detail. It asks you to change each variable to see how the size of subsidy and cost evolve as a result. For explanations of each factor involved, see <a href="#rate-var-details" id="expand-rate-var-link">details about variables used for rate setting</a>.
-                                    </div>
-
-                                    <details id="rate-var-details">
-                                        <summary class="button">Details about variables used for rate setting <span class="chevron" aria-hidden="true">>></span></summary>
-                                        <div class="sub-content">
-                                            <div class="paragraph" role="paragraph">
-                                                These are not technical definitions but, conceptually, here are simplified meanings of each variable in rate setting and the hypothetical rate interactive.
-
-                                                <ul>
-                                                    <li>
-                                                        <span class="vocab">Insured Unit APH</span>: <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> for the set of fields in the <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together. This is sometimes also called a risk unit.">insured unit</span> for which a policy is being created.
-                                                    </li>
-                                                    <li>
-                                                        <span class="vocab">County average yield</span>: The average yield (<span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> equivalent) for all fields in the county.
-                                                    </li>
-                                                    <li>
-                                                        <span class="vocab">Projected price</span>: Expected price at which the crop will sell often based on daily futures market data.
-                                                    </li>
-                                                    <li>
-                                                        <span class="vocab">County preimum rate</span>: Based on the crop and county, how much it costs to insure one future dollar of expected crop. A value of 4% means 4 cents for each dollar insured.
-                                                    </li>
-                                                    <li>
-                                                        <span class="vocab">Subsidy rate</span>: What percent of the overall policy cost is covered by subsidy. A value of 55% means that the grower pays for 45% of the overall cost of the policy.
-                                                    </li>
-                                                    <li>
-                                                        <span class="vocab">Coverage amount</span>: Up to what percent of <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> will be covered. If one sees a yield that is only 75% of <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> then the policy will pay out 75% - 70% or 5% of <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span>.
-                                                    </li>
-                                                </ul> 
-
-                                                To expand upon or clarify these simplified or abbreviated definitions, see <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a>.
-                                            </div>
-                                        </div>
-                                    </details>
-                                </div>
-                                <div class="interactive" id="policy-abstract">
-                                    <div class="default-viz">
-                                        <div class="app-intro">
-                                            <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
-                                            <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
-                                        </div>
-                                        <div class="sketch">
-                                            <div id="sketch-load-message-rates">
-                                                Loading...
-                                                <progress class="sketch-load-progress" max="20" value="0"></progress>
-                                            </div>
-                                            <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-rates"></canvas>
-                                        </div>
-                                        <div>Rates: Visualization showing how subsidy changes according to different parameters either in an average-based APH or the proposed standard deviation-based APH. Uses <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a> as a starting point.</div>
-                                    </div>
-                                    <div class="viz-alternative">
-                                        <span class="emoji" aria-hidden="true">💻</span> The formulas which can conceptually simulate rate setting:
-                                        
-                                        <ul>
-                                            <li><span class="vocab">overall price</span> = insured unit aph * projected price * county preimum rate * coverage amount</li>
-                                            <li><span class="vocab">subsidy</span> = subsidy rate * overall price</li>
-                                            <li><span class="vocab">cost to grower</span> = (1 - subsidy rate) * overall price</li>
-                                        </ul>
-                                        
-                                        This is an alternative to a visualization which evaluates these equations for some examples. One such set of examples:
-                                        
-                                        <ul>
-                                            <li><span class="vocab">overall price</span> = 200 bushel / acre * $4 / bushel * 4% * 75% = $24 / acre</li>
-                                            <li><span class="vocab">subsidy</span> = 55% * $24 / acre = $13.20 / acre</li>
-                                            <li><span class="vocab">cost to grower</span> = (1 - 55%) * $24 = $10.80 / acre</li>
-                                        </ul>
-                                        
-                                        The subsidy increases as <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> increases. Uses <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a> as a starting point.
-                                    </div>
-                                    <div class="keyboard-controls">
-                                        <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-rates">rates visualization</a> has the following controls:
-
-                                        <ul>
-                                            <li><span class="vocab">Esc</span>: Exit the visualization</li>
-                                            <li><span class="vocab">i</span>: Change insured unit APH</li>
-                                            <li><span class="vocab">c</span>: Change county average yield</li>
-                                            <li><span class="vocab">p</span>: Change projected price</li>
-                                            <li><span class="vocab">r</span>: Change county premium rate</li>
-                                            <li><span class="vocab">s</span>: Change subsidy rate</li>
-                                            <li><span class="vocab">a</span>: Change coverage amount</li>
-                                            <li><span class="vocab">t</span>: Change APH type</li>
-                                            <li><span class="vocab">o</span>: Change output variable</li>
-                                        </ul>
-
-                                        The visualization will need focus in order to recieve keyboard commands.
-                                    </div>
-                                </div>
-                                <div class="body-text">
-                                    <div class="paragraph" role="paragraph">
-                                        Before we move on, note that the horizontal axis in the <a href="#policy-abstract">interactive</a> representing desired coverage level is currently defined as a percent of <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span>. We will later explore what happens if this includes an understanding of yield volatility. More specifically, <a href="https://www.investopedia.com/terms/s/standarddeviation.asp" target="_blank">standard deviation</a> (<a href="https://www.investopedia.com/terms/s/standarddeviation.asp" target="_blank">Hargrave 2024</a>) gets smaller as a grower's yields become more stable, offering a way to quantify stability. Including <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields are expected to be in a grid cell.">std</span> in <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span>-based coverage levels could happen by <span data-tippy-content="Process by which new insurance products can be suggested. This could include supplemental policies covering more than 75% of yields (Schnitkey et al 2023) though typically programs cannot cover more than 85% as we will see in a moment." class="tooltip">508h</span> or by changing the law. With that in mind, let's <a href="#law-slide" class="slide-advance-link">look at the law</a>.
-                                    </div>
-                                </div>
+                            <div class="viz-alternative">
+                                <span class="emoji" aria-hidden="true">💻</span> The formulas which can conceptually simulate rate setting:
+                                
+                                <ul>
+                                    <li><span class="vocab">overall price</span> = insured unit aph * projected price * county preimum rate * coverage amount</li>
+                                    <li><span class="vocab">subsidy</span> = subsidy rate * overall price</li>
+                                    <li><span class="vocab">cost to grower</span> = (1 - subsidy rate) * overall price</li>
+                                </ul>
+                                
+                                This is an alternative to a visualization which evaluates these equations for some examples. One such set of examples:
+                                
+                                <ul>
+                                    <li><span class="vocab">overall price</span> = 200 bushel / acre * $4 / bushel * 4% * 75% = $24 / acre</li>
+                                    <li><span class="vocab">subsidy</span> = 55% * $24 / acre = $13.20 / acre</li>
+                                    <li><span class="vocab">cost to grower</span> = (1 - 55%) * $24 = $10.80 / acre</li>
+                                </ul>
+                                
+                                The subsidy increases as <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> increases. Uses <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards (2020)</a> as a starting point.
                             </div>
-                            <div id="law-slide">
-                                <h3>
-                                    What US law says:
-                                </h3>
-                                <div class="body-text">
-                                    (Slide 3 of 5) It's worth mentioning that some of these structures may be set by US <span class="tooltip" data-tippy-content="Some pieces of crop insurance are dictated by statute / legislation. See US Code 1508.">law</span> (<a href="https://uscode.house.gov/view.xhtml?req=(title:7%20section:1508%20edition:prelim)" target="_blank">CFR and USC</a>). For example:
-                                </div>
-                                <div class="block-quote">
-                                    the level of coverage ... may be purchased at any level not to exceed 85 percent of the [expected] individual yield ... the yield for a crop shall be based on the actual production history for the crop
-                                </div>
-                                <div class="body-text">
-                                    Text specifics can dramatically change the outlook for both crop insurance and the farmers it serves. For example, we will explore what might happen if that definition were to change to this:
-                                </div>
-                                <div class="block-quote">
-                                    the level of coverage ... may be purchased at any level not to exceed 2.1 standard deviations below the [expected] individual yield ... the yield for a crop shall be based on the actual production history for the crop
-                                </div>
-                                <div class="body-text">
-                                    We will come back to this question after we do some modeling. Speaking of, let's turn our attention to <a href="#model-overview" class="slide-advance-link">how we will make these predictions</a>.
-                                </div>
+                            <div class="keyboard-controls">
+                                <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-rates">rates visualization</a> has the following controls:
+
+                                <ul>
+                                    <li><span class="vocab">Esc</span>: Exit the visualization</li>
+                                    <li><span class="vocab">i</span>: Change insured unit APH</li>
+                                    <li><span class="vocab">c</span>: Change county average yield</li>
+                                    <li><span class="vocab">p</span>: Change projected price</li>
+                                    <li><span class="vocab">r</span>: Change county premium rate</li>
+                                    <li><span class="vocab">s</span>: Change subsidy rate</li>
+                                    <li><span class="vocab">a</span>: Change coverage amount</li>
+                                    <li><span class="vocab">t</span>: Change APH type</li>
+                                    <li><span class="vocab">o</span>: Change output variable</li>
+                                </ul>
+
+                                The visualization will need focus in order to recieve keyboard commands.
                             </div>
-                            <div id="model-overview">
-                                <h3>
-                                    How we will predict the future:
-                                </h3>
-                                <div class="body-text">
-                                    <div class="paragraph" role="paragraph">
-                                        (Slide 4 of 5) We will have a neural network predict yields. It will be trained on historic growing conditions using data from a public resource called CHC-CMIP6 (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>) and the resulting maize yields as estimated by a model called SCYM (<a href="https://linkinghub.elsevier.com/retrieve/pii/S0034425715001637" target="_blank">Lobell et al 2015</a>). Then, we will use climate projections from CHC-CMIP6 (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>) to predict what future growing outcomes might look like. Finally, we will simulate <span tabindex="0" class="tooltip" data-tippy-content="Yield Protection. This coverage option within MPCI typically guarantees yield itself up to 75% of an APH (Osiensky 2021)">YP</span> across the <span tabindex="0" class="tooltip" data-tippy-content="A multi-state area within the United States that frequently grows corn (NCEI 2024)">US Corn Belt</span> through a method called Monte Carlo (<a href="https://towardsdatascience.com/monte-carlo-simulation-a-practical-guide-85da45597f0e" target="_blank">Kwiatkowski 2022</a>).
-                                    </div>
-                                    <div class="paragraph" role="paragraph">
-                                        We offer additional optional reading material depending on your background. Click or tap to open each section. When ready, <a href="#finish-slide" id="finish-slides-link">finish the introductory slides</a>.
-                                    </div>
-                                    <details>
-                                        <summary class="button">Introduction to neural networks <span class="chevron" aria-hidden="true">>></span></summary>
-                                        <div class="sub-content">
-                                            <div class="paragraph" role="paragraph">
-                                                We will use a form of AI called a neural network. Modeled after how biological brains work, there are different neurons connected to each other in a network that learn over time.
-                                            </div>
-                                            <div class="paragraph" role="paragraph">
-                                                Artifical neural networks in a computer have multiple layers of neurons where, in our case, all neurons from one layer are connected to all the neurons in the following layer. The model learns by example: changing the connections between those neurons ("weights") based on "training" data. In other words, these models modify "neural pathways" based off of observing a series of inputs and their corresponding outputs.
-                                            </div>
-                                            <div class="paragraph" role="paragraph">
-                                                We will dig into how we create these systems in the next step but the most important thing to understand is that we have a computer "learn" what types of outcomes are expected from what kinds of inputs by showing that system many examples in a "training" step. The challenge for the engineers and scientists constructing these models is figuring out how many neurons to use, in what structure, and how they should process examples.
-                                            </div>
-                                            <div class="paragraph" role="paragraph">
-                                                For more information see the <a href="https://natureofcode.com/neural-networks/">Nature of Code</a> (<a href="https://natureofcode.com" target="_blank">Shiffman 2024</a>).
-                                            </div>
-                                        </div>
-                                    </details>
-                                    <details>
-                                        <summary class="button">Introduction to Monte Carlo <span class="chevron" aria-hidden="true">>></span></summary>
-                                        <div class="sub-content">
-                                            <div class="paragraph" role="paragraph">
-                                                This modeling exercise is an example of dealing with unceratinty. In these kinds of systems, some variables have a range of values where sometimes all are equally likely and sometimes some in that range are more likely than others.
-                                            </div>
-                                            <div class="paragraph" role="paragraph">
-                                                Let's imagine that we are evaluating the following equation for cost to purchase corn where unit cost ("c") is typically $2 but can be any value between $1 and $5 depending on the market. Meanwhile, the number of units needed ("n") can be any value between 50 and 100 based on the demand which changes day to day. The challenge is figuring out what the expenditure on the corn will be ("e").
-                                            </div>
-                                            <div class="block-quote">
-                                                e = c * n
-                                            </div>
-                                            <div class="paragraph" role="paragraph">
-                                                In our model, we similarly predict a range of possibilities instead of a single value. To solve this problem, we use a method called Monte Carlo such that, in each simulation, we randomly choose a single value for each variable from among its range of possibilities. Some values may be more likely to be chosen than others based on how likely they are predicted to be. Anyway, this method then repeats that process many thousands of times to arrive at a distribution of outcomes.
-                                            </div>
-                                            <div class="paragraph" role="paragraph">
-                                                We use Monte Carlo beacuse it lets us find probabilities of different events happening. In our hypothetical, it could be the probability that the daily cost exceeds $160. In the model we will build together in later steps looking at insurance risk, this could the probability of <span tabindex="0" class="tooltip" data-tippy-content="Covered loss is the amount of crop loss for which YP pays out. For our purposes, this insurance begins paying out to a grower when the yields of their insured unit drop below 75% of that unit's APH (Osiensky 2021; Plastina and Johnson 2022).">YP loss</span> found by looking at how often simulated yields were below the simulated <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> for a simulated <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together. This is sometimes also called a risk unit.">insured unit</span>.
-                                            </div>
-                                            <div class="paragraph" role="paragraph">
-                                                For more information, see <a href="https://towardsdatascience.com/monte-carlo-simulation-a-practical-guide-85da45597f0e" target="_blank">a Monte Carlo tutorial</a> (<a href="https://towardsdatascience.com/monte-carlo-simulation-a-practical-guide-85da45597f0e" target="_blank">Kwiatkowski 2022</a>).
-                                            </div>
-                                        </div>
-                                    </details>
-                                </div>
-                                <div class="diagram">
-                                    <img src="/img/diagram.png" alt="Data flow diagram">
-                                </div>
+                        </div>
+                        <div class="body-text">
+                            <div class="paragraph" role="paragraph">
+                                Note that the horizontal axis in the <a href="#policy-abstract">interactive</a> representing desired coverage level is currently defined as a percent of <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span>. Other interactives explore what happens if this includes an understanding of yield volatility. More specifically, <a href="https://www.investopedia.com/terms/s/standarddeviation.asp" target="_blank">standard deviation</a> (<a href="https://www.investopedia.com/terms/s/standarddeviation.asp" target="_blank">Hargrave 2024</a>) gets smaller as a grower's yields become more stable, offering a way to quantify stability. Including <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are expected to be in a grid cell.">std</span> in <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span>-based coverage levels could happen by <span data-tippy-content="Process by which new insurance products can be suggested. This could include supplemental policies covering more than 75% of yields (Schnitkey et al 2023) though typically programs cannot cover more than 85% as we will see in a moment." class="tooltip">508h</span> or by changing the law.
                             </div>
-                            <div id="finish-slide">
-                                <h3>
-                                    You are ready!
-                                </h3>
-                                <div class="body-text">
-                                    <div class="next-button-holder">
-                                        <a href="#methods" tab="methods" class="advance-button">Build a neural network <span class="chevron" aria-hidden="true">>></span></a>
-                                    </div>
+                            <div class="paragraph" role="paragraph">
+                                With that in mind, It's worth mentioning that some of these structures may be set by US <span class="tooltip" data-tippy-content="Some pieces of crop insurance are dictated by statute / legislation. See US Code 1508.">law</span> (<a href="https://uscode.house.gov/view.xhtml?req=(title:7%20section:1508%20edition:prelim)" target="_blank">CFR and USC</a>). For example:
+                            </div>
+                            <div class="block-quote">
+                                the level of coverage ... may be purchased at any level not to exceed 85 percent of the [expected] individual yield ... the yield for a crop shall be based on the actual production history for the crop
+                            </div>
+                            <div class="body-text paragraph" role="paragraph">
+                                Text specifics can dramatically change the outlook for both crop insurance and the farmers it serves. For example, our paper explores what might happen if that definition were to change to this:
+                            </div>
+                            <div class="block-quote">
+                                the level of coverage ... may be purchased at any level not to exceed 2.1 standard deviations below the [expected] individual yield ... the yield for a crop shall be based on the actual production history for the crop
+                            </div>
+                            <div class="body-text">
+                                <div class="next-button-holder">
+                                    <a href="#hyperparameters" tab="hyperparameters" class="advance-button">Explore neural network <span class="chevron" aria-hidden="true">>></span></a>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="body-text">
                         <details class="citations">
-                            <summary>Citations for background</summary>
+                            <summary>Citations for this section</summary>
                             <div class="paragraph" role="paragraph">
-                                The citations for this background section are as follows:
+                                The citations for this section are as follows:
                                 <ul>
                                     <li>CFR and USC, Crop insurance. [Online]. Available: https://uscode.house.gov/view.xhtml?req=(title:7%20section:1508%20edition:prelim)</li>
                                     <li>R. Chite et al., “Agriculture: A Glossary of Terms, Programs, and Laws, 2005 Edition.” Congressional Research Service, Jun. 16, 2005. [Online]. Available: https://crsreports.congress.gov/product/pdf/RL/97-905/6</li>
                                     <li>FCIC, “Common Crop Insurance Policy 21.1-BR.” United States Department of Agriculture, Nov. 2020. [Online]. Available: https://www.rma.usda.gov/-/media/RMA/Publications/Risk-Management-Publications/rma_glossary.ashx?la=en</li>
                                     <li>M. Hargrave, “Standard Deviation Formula and Uses vs. Variance.” Investopedia, May 23, 2024. [Online]. Available: https://www.investopedia.com/terms/s/standarddeviation.asp</li>
-                                    <li>R. Kwiatkowski, “Monte Carlo Simulation — a practical guide.” Jan. 30, 2022. [Online]. Available: https://towardsdatascience.com/monte-carlo-simulation-a-practical-guide-85da45597f0e</li>
-                                    <li>D. B. Lobell, D. Thau, C. Seifert, E. Engle, and B. Little, “A scalable satellite-based crop yield mapper,” Remote Sensing of Environment, vol. 164, pp. 324–333, Jul. 2015, doi: 10.1016/j.rse.2015.04.021.</li>
-                                    <li>D. Munch, “Crop Insurance 101: The Basics.” Farm Bureau, May 02, 2024. [Online]. Available: https://www.fb.org/market-intel/crop-insurance-101-the-basics</li>
                                     <li>NCEI, “Corn Belt.” NOAA, 2024. [Online]. Available: https://www.ncei.noaa.gov/access/monitoring/reference-maps/corn-belt</li>
                                     <li>J. Osiensky, “Understanding the Price Side of Revenue Crop Insurance.” Washington State University, Aug. 19, 2021. [Online]. Available: https://smallgrains.wsu.edu/understanding-the-price-side-of-revenue-crop-insurance/</li>
                                     <li>A. Plastina and W. Edwards, “Yield Protection Crop Insurance.” Iowa State University Extension and Outreach, Dec. 2020. [Online]. Available: https://www.extension.iastate.edu/agdm/crops/html/a1-52.html</li>
                                     <li>A. Plastina and S. Johnson, “Supplemental Coverage Option (SCO) and Enhanced Coverage Option (ECO).” Iowa State University Extension and Outreach, Oct. 2022. [Online]. Available: https://www.extension.iastate.edu/agdm/crops/html/a1-44.html</li>
                                     <li>G. Schnitkey, N. Paulson, and C. Zulauf, “Privately Developed Crop Insurance Products and the Next Farm Bill.” Unviersity of Illinois, Mar. 14, 2023. [Online]. Available: https://farmdocdaily.illinois.edu/2023/03/privately-developed-crop-insurance-products-and-the-next-farm-bill.html</li>
-                                    <li>D. Shiffman, The nature of code: simulating natural systems with JavaScript. San Francisco: No Starch Press, 2024.</li>
                                     <li>F. Tsiboe and D. Turner, “Crop Insurance at a Glance.” Economic Research Service, USDA, May 03, 2023. [Online]. Available: https://www.ers.usda.gov/topics/farm-practices-management/risk-management/crop-insurance-at-a-glance/</li>
-                                    <li>E. Williams, C. Funk, P. Peterson, and C. Tuholske, “High resolution climate change observations and projections for the evaluation of heat-related extremes,” Sci Data, vol. 11, no. 1, p. 261, Mar. 2024, doi: 10.1038/s41597-024-03074-w.</li>
                                 </ul>
 
                                 Some definition citations are in <a href="#glossary" tab="glossary" class="advance-button">glossary</a>.
@@ -692,8 +325,8 @@
                         </details>
                     </div>
                 </section>
-                <section id="methods">
-                    <h2><span class="emoji" aria-hidden="true">✨</span> Methods: Predicting the future.</h2>
+                <section id="hyperparameters">
+                    <h2><span class="emoji" aria-hidden="true">✨</span> Hyper-Parameters Explorer</h2>
                     <div class="body-text">
                         <div class="paragraph" role="paragraph">
                             Our neural network will learn from past growing conditions and their associated outcomes (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>; <a href="https://linkinghub.elsevier.com/retrieve/pii/S0034425715001637" target="_blank">Lobell et al 2015</a>) in order to predict future yields given climate projections (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>).
@@ -702,7 +335,7 @@
                                 <summary class="button">More details about inputs, outputs, and climate variables <span class="chevron" aria-hidden="true">>></span></summary>
                                 <div class="sub-content">
                                     <div class="paragraph" role="paragraph">
-                                        The inputs to the neural network include climate variables, year, and baseline yield (<span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> and <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields are expected to be in a grid cell.">std</span> of all historic yields for the cell). The output is <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> and <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields are within a grid cell.">std</span> of <span tabindex="0" class="tooltip" data-tippy-content="This is technically the change in yield from baseline for stability reasons. For the purposes of this explorable explanation, this can essentially be considered directly predicting future yield.">changes</span> to that future yield for the grid cell. Yield data come from SCYM (<a href="https://linkinghub.elsevier.com/retrieve/pii/S0034425715001637" target="_blank">Lobell et al 2015</a>). Historic growing conditions and future climate <span tabindex="0" class="tooltip" data-tippy-content="CHC-CMIP6 offers multiple options for future projections and we use SSP245 as further described in our scientific paper.">projections</span> come from CHC-CMIP6 (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>). The climate variables are as follows (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>) where all are daily:
+                                        The inputs to the neural network include climate variables, year, and baseline yield (<span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> and <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are expected to be in a grid cell.">std</span> of all historic yields for the cell). The output is <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> and <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are within a grid cell.">std</span> of <span tabindex="0" class="tooltip" data-tippy-content="This is technically the change in yield from baseline for stability reasons. For the purposes of this explorable explanation, this can essentially be considered directly predicting future yield.">changes</span> to that future yield for the grid cell. Yield data come from SCYM (<a href="https://linkinghub.elsevier.com/retrieve/pii/S0034425715001637" target="_blank">Lobell et al 2015</a>). Historic growing conditions and future climate <span tabindex="0" class="tooltip" data-tippy-content="CHC-CMIP6 offers multiple options for future projections and we use SSP245 as further described in our scientific paper.">projections</span> come from CHC-CMIP6 (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>). The climate variables are as follows (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>) where all are daily:
 
                                         <ul>
                                             <li><span class="vocab">rhn</span>: overall relative humidity </li>
@@ -715,13 +348,13 @@
                                             <li><span class="vocab">wbgt</span>: wet bulb globe temperature</li>
                                         </ul>
 
-                                        These daily climate values are summarized to min, max, <span tabindex="0" class="tooltip" data-tippy-content="This is the average of the climate value.">mean</span>, and <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of a distribution is.">std</span> per month per grid cell before going to the neural network.
+                                        These daily climate values are summarized to min, max, <span tabindex="0" class="tooltip" data-tippy-content="This is the average of the climate value.">mean</span>, and <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of a distribution is.">std</span> per month per grid cell before going to the neural network. We use the dataset variable names for consistency.
                                     </div>
                                 </div>
                             </details>
                         </div>
                         <div class="paragraph" role="paragraph">
-                            First, we will divide up the <span tabindex="0" class="tooltip" data-tippy-content="A multi-state area within the United States that frequently grows corn (NCEI 2024)">US Corn Belt</span> into a <span tabindex="0" class="tooltip" data-tippy-content="We create a grid through a process called geohashing where all of the US Corn Belt gets assigned to a cell each the size of about 28 by 20 kilometers (Haugen 2020)">geographic grid</span>, breaking up the problem so it becomes tractable for modeling. Next, our network will go year by year, forecasting the yields for each cell in that grid. As yield may vary within even those <span tabindex="0" class="tooltip" data-tippy-content="The size of each cell is about 28 by 20 kilometers (Haugen 2020)">small</span> areas, the network will describe the range of expected yields as a <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> and <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of yields are expected to be in a grid cell.">standard deviation</span> per cell.
+                            First, we will divide up the <span tabindex="0" class="tooltip" data-tippy-content="A multi-state area within the United States that frequently grows corn (NCEI 2024)">US Corn Belt</span> into a <span tabindex="0" class="tooltip" data-tippy-content="We create a grid through a process called geohashing where all of the US Corn Belt gets assigned to a cell each the size of about 28 by 20 kilometers (Haugen 2020)">geographic grid</span>, breaking up the problem so it becomes tractable for modeling. Next, our network goes year by year, forecasting the yields for each cell ("neighborhood") in that grid. As yield may vary within even those <span tabindex="0" class="tooltip" data-tippy-content="The size of each cell is about 28 by 20 kilometers (Haugen 2020)">small</span> areas, the network describes the range of expected yields as a <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> and <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are expected to be in a grid cell.">standard deviation</span> per cell.
 
                             <details>
                                 <summary class="button">More details about the grid <span class="chevron" aria-hidden="true">>></span></summary>
@@ -733,54 +366,10 @@
                             </details>
                         </div>
                         <div class="paragraph" role="paragraph">
-                            Input data goes in one side and comes out the other as a prediction in our neural network. In the middle, a series of layers transforms those data where all neurons from one layer connect to all of those in the next. This is the part of the network that changes as the model learns from examples, altering pathways between neurons.
+                            This interactive lets us try out different hyper-parameters: depths, L2s, dropouts, and blocks. Clicking the "Try Model" button will test a new model where we split the historic data such that the network trains from one piece (training set) before we grade it on the part it has not seen before (validation set). We score performance with <span tabindex="0" class="tooltip" data-tippy-content="This is a simple average of the error magnitude. In other words, it indicates, on average, how far off predictions from the network are from actuals regardless of if the model was too high or too low">mean absolute error</span> (<a href="https://towardsdatascience.com/what-are-rmse-and-mae-e405ce230383" target="_blank">Acharya 2021</a>). For example, if the model predicts that a neighborhood's yield will drop by 10% and it actually drops by 15%, the MAE would be <span tabindex="0" class="tooltip" data-tippy-content="Mean Absolute Error: this is a simple average of the error magnitude. In other words, it indicates, on average, how far off predictions from the network are from actuals regardless of if the model was too high or too low.">5%</span>. Our goal: go left on the horizontal axis (minimize error predicting <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span>) and to the bottom on the vertical axis (minimize error predicting <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">std</span>).
 
                             <details>
-                                <summary class="button">More about how we build a neural network <span class="chevron" aria-hidden="true">>></span></summary>
-                                <div class="sub-content">
-                                    <div class="paragraph" role="paragraph">
-                                        We are buliding a dense feed-forward model (<a href="https://www.v7labs.com/blog/neural-network-architectures-guide" target="_blank">Baheti 2021</a>), often considered the simpliest kind of neural network. Usage spans 5 steps:
-
-                                        <ul>
-                                            <li>
-                                                <span class="vocab">Prepare</span>: Create the grid of cells on which the neural network will operate.
-                                            </li>
-                                            <li>
-                                                <span class="vocab">Split</span>: Divide our data by year where our <span tabindex="0" class="tooltip" data-tippy-content="This is the set of data / examples from which the model learns. These will change the connections between neurons.">training set</span> includes 1999 to 2012, our <span tabindex="0" class="tooltip" data-tippy-content="This is a set of data we don't show the model while it learns. It lets us compare competing models if we are experimenting with different options in construting our neural network.">validation set</span> includes 2014 and 2016, and our fully hidden <span tabindex="0" class="tooltip" data-tippy-content="This is a set of data we save until the very end. This lets us estimate how our model will perform in data it hasn't seen before. It helps us set expectations for future performance.">test set</span> includes 2013 and 2015 (<a href="https://towardsdatascience.com/train-validation-and-test-sets-72cb40cba9e7" target="_blank">Shah 2017</a>).
-                                            </li>
-                                            <li>
-                                                <span class="vocab">Learn</span>: Train a neural network by providing CHC-CMIP6 (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>) data on actual historic growing conditions and yield estimations through SCYM (<a href="https://linkinghub.elsevier.com/retrieve/pii/S0034425715001637" target="_blank">Lobell et al 2015</a>).
-                                            </li>
-                                            <li>
-                                                <span class="vocab">Evaluate and retrain</span>: Use the validation set to choose <span tabindex="0" class="tooltip" data-tippy-content="Typically parameters refer to the weight of connections between neurons and hyper-parameters refer to things like L2 and Dropout values.">hyper-parameters</span> and retrain on all data.
-                                            </li>
-                                            <li>
-                                                <span class="vocab">Predict</span>: Use that neural network to predict future yields in a predicted future climate (<a href="https://www.nature.com/articles/s41597-024-03074-w">Williams et al 2024</a>). This is a prediction of <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> and <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of yields are expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">std</span> per 4 character geohash used for Monte Carlo.
-                                            </li>
-                                        </ul>
-
-                                        Of course, all of this is a high level overview. For more information see the <a href="https://natureofcode.com/neural-networks/">Nature of Code</a> (<a href="https://natureofcode.com" target="_blank">Shiffman 2024</a>). Our <a href="https://arxiv.org/abs/2408.02217" target="_blank">scientific paper (preprint)</a> further details the neural network including training as well as multiple different test sets for different kinds of operations that describe expected performance for different situations.
-                                    </div>
-                                    <div class="paragraph" role="paragraph">
-                                        For those wanting to get deep into the details, note that the model specifically estimates <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> and <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields are expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">std</span> of percent change from <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> for a grid cell, explaining why the hyper-parameter interactive reports <span tabindex="0" class="tooltip" data-tippy-content="Mean Absolute Error: this is a simple average of the error magnitude. In other words, it indicates, on average, how far off predictions from the network are from actuals regardless of if the model was too high or too low.">MAEs</span> in percents. Furthermore, we use relu activation functions for hidden nodes (<a href="https://ai.stanford.edu/~amaas/papers/relu_hybrid_icml2013_final.pdf" target="_blank">Maas et al 2013</a>) with the AdamM optimizer (<a href="https://arxiv.org/abs/1412.6980" target="_blank">Kingma 2014</a>; <a href="https://api.semanticscholar.org/CorpusID:53592270" target="_blank">Loshchilov and Hutter</a>). When we say "1 layer" we refer to one hidden layer.
-                                    </div>
-                                </div>
-                            </details>
-                        </div>
-                        <div class="paragraph" role="paragraph">
-                            The magic lies in helping the model understand if small fluctations in the data are real trends or just noise, a crucial task for which we have four tools:
-
-                            <ul>
-                                <li><span class="vocab">Depth</span>: The number of layers in the network (<a href="https://machinelearningmastery.com/how-to-control-neural-network-model-capacity-with-nodes-and-layers/" target="_blank">Brownlee 2020</a>). Deeper networks can learn more sophisticated lessons from the data but can require more data to train (<a href="https://machinelearningmastery.com/much-training-data-required-machine-learning/" target="_blank">Brownlee 2019</a>) otherwise it may memorize examples instead of learning broader trends (<a href="https://machinelearningmastery.com/how-to-control-neural-network-model-capacity-with-nodes-and-layers/" target="_blank">Brownlee 2020</a>).</li>
-                                <li><span class="vocab">L2</span>: A penalty on the model for very deep pathways between neurons (<a href="https://towardsdatascience.com/regularization-in-deep-learning-l1-l2-and-dropout-377e75acc036" target="_blank">Oppermann 2020</a>). Conceptually, this avoids focusing too much on small specifics in the data unless there is strong evidence for that connection. Turning this "knob" up sets a higher bar for the evidence required for those deep connections.</li>
-                                <li><span class="vocab">Dropout</span>: Randomly turn off neurons while training (<a href="http://jmlr.org/papers/v15/srivastava14a.html" target="_blank">Srivastava et al 2014</a>). Conceptually, this encourages finding multiple ways to use inputs in making predictions. This avoids relying on one small aspect of the data (though at the risk of disrupting learning). This "knob" turned up means neurons are disabled with higher frequency.</li>
-                                <li><span class="vocab">Blocks</span>: Sometimes certain data can be distracting to the model or simply having a large number of variables can become overwhelming (<a href="https://towardsdatascience.com/curse-of-dimensionality-a-curse-to-machine-learning-c122ee33bfeb" target="_blank">Karanam 2021</a>). This option lets us take out individual climate variables.</li>
-                            </ul>
-
-                            This interactive lets us try out different depths, L2s, dropouts, and blocks. Clicking the "Try Model" button will test a new model where we split the historic data such that the network trains from one piece (called the "training set") before we grade it on the part it has not seen before (called the "validation set"). We score performance with <span tabindex="0" class="tooltip" data-tippy-content="This is a simple average of the error magnitude. In other words, it indicates, on average, how far off predictions from the network are from actuals regardless of if the model was too high or too low">mean absolute error</span> (<a href="https://towardsdatascience.com/what-are-rmse-and-mae-e405ce230383" target="_blank">Acharya 2021</a>). For example, if the model predicts that a neighborhood's yield will drop by 10% and it actually drops by 15%, the MAE would be <span tabindex="0" class="tooltip" data-tippy-content="Mean Absolute Error: this is a simple average of the error magnitude. In other words, it indicates, on average, how far off predictions from the network are from actuals regardless of if the model was too high or too low.">5%</span>. Our goal: go left on the horizontal axis (minimize error predicting <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span>) and to the bottom on the vertical axis (minimize error predicting <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of yields are expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">std</span>).
-
-                            <details>
-                                <summary class="button">How to optimize model preformance <span class="chevron" aria-hidden="true">>></span></summary>
+                                <summary class="button">Details of hyper-parameters <span class="chevron" aria-hidden="true">>></span></summary>
                                 <div class="sub-content">
                                     <div class="paragraph" role="paragraph">
                                         Optimizing the model requires a lot of experimentation. In general, we can follow some basic rules:
@@ -794,7 +383,14 @@
                                             </li>
                                         </ul>
 
-                                        All that said, sometimes changing the parameters does not have the intended effect. Instead, data scientists building these models simply have to try a lot of different combinations.
+                                        All that said, sometimes changing the parameters does not have the intended effect. Instead, data scientists building these models simply have to try a lot of different combinations of our hyper-parameters:
+
+                                        <ul>
+                                            <li><span class="vocab">Depth</span>: The number of layers in the network (<a href="https://machinelearningmastery.com/how-to-control-neural-network-model-capacity-with-nodes-and-layers/" target="_blank">Brownlee 2020</a>). Deeper networks can learn more sophisticated lessons from the data but can require more data to train (<a href="https://machinelearningmastery.com/much-training-data-required-machine-learning/" target="_blank">Brownlee 2019</a>) otherwise it may memorize examples instead of learning broader trends (<a href="https://machinelearningmastery.com/how-to-control-neural-network-model-capacity-with-nodes-and-layers/" target="_blank">Brownlee 2020</a>).</li>
+                                            <li><span class="vocab">L2</span>: A penalty on the model for very deep pathways between neurons (<a href="https://towardsdatascience.com/regularization-in-deep-learning-l1-l2-and-dropout-377e75acc036" target="_blank">Oppermann 2020</a>). Conceptually, this avoids focusing too much on small specifics in the data unless there is strong evidence for that connection. Turning this "knob" up sets a higher bar for the evidence required for those deep connections.</li>
+                                            <li><span class="vocab">Dropout</span>: Randomly turn off neurons while training (<a href="http://jmlr.org/papers/v15/srivastava14a.html" target="_blank">Srivastava et al 2014</a>). Conceptually, this encourages finding multiple ways to use inputs in making predictions. This avoids relying on one small aspect of the data (though at the risk of disrupting learning). This "knob" turned up means neurons are disabled with higher frequency.</li>
+                                            <li><span class="vocab">Blocks</span>: Sometimes certain data can be distracting to the model or simply having a large number of variables can become overwhelming (<a href="https://towardsdatascience.com/curse-of-dimensionality-a-curse-to-machine-learning-c122ee33bfeb" target="_blank">Karanam 2021</a>). This option lets us take out individual climate variables.</li>
+                                        </ul>
                                     </div>
                                 </div>
                             </details>
@@ -852,7 +448,7 @@
 
                                         <ul>
                                             <li>
-                                                Do we favor the model's ability to predict the <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> equally with its ability to predict <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of yields are expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">standard deviation</span>?
+                                                Do we favor the model's ability to predict the <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> equally with its ability to predict <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">standard deviation</span>?
                                             </li>
                                             <li>
                                                 After chosing a model configuration, we retrain with all available data so do we want to emphasize a model with the best metrics in the <span tabindex="0" class="tooltip" data-tippy-content="The data witheld from model training used to compare candidates found during the model sweep.">validation set</span> or one that has just slightly worse performance but less <span tabindex="0" class="tooltip" data-tippy-content="An overfit model has mistaken noise in the training examples as actual trends so may perform poorly when predicting outcomes for data it has not seen before.">overfit</span> so might do better with more examples to learn from?
@@ -862,19 +458,19 @@
                                             </li>
                                         </ul>
 
-                                        Sadly there is no one right answer but, in the selection we are using for the rest of this online lab, we prefer the ability to predict <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> over <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: This is a measure of how wide the range of yields are expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">std</span> by a ratio in weights of 3 to 1. We also elect for a slightly deeper model in anticipation of retraining with all historic data.
+                                        Sadly there is no one right answer but, in the selection we are using for the rest of this online lab, we prefer the ability to predict <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> over <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">std</span> by a ratio in weights of 3 to 1. We also elect for a slightly deeper model in anticipation of retraining with all historic data.
                                     </div>
                                 </div>
                             </details>
                         </div>
                         <div id="after-sweep" class="paragraph" role="paragraph">
-                            The errors in the <a href="#sweep-viz-holder">visualization</a> reflect a smaller dataset than the one used to train the final model. After retraining with more information, the model sees an <span tabindex="0" class="tooltip" data-tippy-content="Mean Absolute Error: this is a simple average of the error magnitude. In other words, it indicates, on average, how far off predictions from the network are from actuals regardless of if the model was too high or too low.">MAE</span> of 5% for <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> prediction and 2% for <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields are.">std</span> prediction.
+                            The errors in the <a href="#sweep-viz-holder">visualization</a> reflect a smaller dataset than the one used to train the final model. After retraining with more information, the model sees an <span tabindex="0" class="tooltip" data-tippy-content="Mean Absolute Error: this is a simple average of the error magnitude. In other words, it indicates, on average, how far off predictions from the network are from actuals regardless of if the model was too high or too low.">MAE</span> of 5% for <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> prediction and 2% for <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are.">std</span> prediction.
 
                             <details>
                                 <summary class="button">More about model performance and uncertainty <span class="chevron" aria-hidden="true">>></span></summary>
                                 <div class="sub-content">
                                     <div class="paragraph" role="paragraph">
-                                        During the model sweep, we have to divide up our data into three different sets. In this process, we split the data by year so all of the observations from 2011 ends up in only one of the sets (<a href="https://towardsdatascience.com/train-validation-and-test-sets-72cb40cba9e7" target="_blank">Shah 2017</a>):
+                                        During the model sweep, we have to divide up our data into three different sets. In this process, we split the data by year. For example, all of the observations from 2011 end up in only one of the sets (<a href="https://towardsdatascience.com/train-validation-and-test-sets-72cb40cba9e7" target="_blank">Shah 2017</a>):
 
                                         <ul>
                                             <li>The <span tabindex="0" class="tooltip" data-tippy-content="This is a set of data we don't show the model while it learns. It lets us compare competing models if we are experimenting with different options in construting our neural network.">validation</span> set allows us to compare different models together (what is used in the visualization).</li>
@@ -882,7 +478,7 @@
                                             <li>Only the <span tabindex="0" class="tooltip" data-tippy-content="The model trains from the training set. This is the set of data / examples from which the model learns. These will change the connections between neurons.">training</span> set teaches the model while we try to optimize parameters like L2, dropout, etc.</li>
                                         </ul>
 
-                                        That said, after determining our model preferred model configuration, we can have the model learn from the combined <span tabindex="0" class="tooltip" data-tippy-content="This is a set of data we don't show the model while it learns. It lets us compare competing models if we are experimenting with different options in construting our neural network.">validation</span> and <span tabindex="0" class="tooltip" data-tippy-content="The model trains from the training set. This is the set of data / examples from which the model learns. These will change the connections between neurons.">training</span> sets before we make a final estimation of error we expect in the future using the <span tabindex="0" class="tooltip" data-tippy-content="This is a set of data we save until the very end. This lets us estimate how our model will perform in data it hasn't seen before. It helps us set expectations for future performance.">test</span> set. In this final trial, we see an <span tabindex="0" class="tooltip" data-tippy-content="Mean Absolute Error: this is a simple average of the error magnitude. In other words, it indicates, on average, how far off predictions from the network are from actuals regardless of if the model was too high or too low.">MAE</span> of 5% for <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> prediction and 2% for <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields are.">std</span> prediction. We can later use an understanding of this model uncertainty in Monte Carlo.
+                                        That said, after determining our model preferred model configuration, we can have the model learn from the combined <span tabindex="0" class="tooltip" data-tippy-content="This is a set of data we don't show the model while it learns. It lets us compare competing models if we are experimenting with different options in construting our neural network.">validation</span> and <span tabindex="0" class="tooltip" data-tippy-content="The model trains from the training set. This is the set of data / examples from which the model learns. These will change the connections between neurons.">training</span> sets before we make a final estimation of error we expect in the future using the <span tabindex="0" class="tooltip" data-tippy-content="This is a set of data we save until the very end. This lets us estimate how our model will perform in data it hasn't seen before. It helps us set expectations for future performance.">test</span> set. In this final trial, we see an <span tabindex="0" class="tooltip" data-tippy-content="Mean Absolute Error: this is a simple average of the error magnitude. In other words, it indicates, on average, how far off predictions from the network are from actuals regardless of if the model was too high or too low.">MAE</span> of 5% for <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> prediction and 2% for <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are.">std</span> prediction. We can later use an understanding of this model uncertainty in Monte Carlo.
                                     </div>
                                     <div class="paragraph" role="paragraph">
                                        Finally, despite all of this work, we still need to determine if our model sees similar error across different parts of the <span tabindex="0" class="tooltip" data-tippy-content="A multi-state area within the United States that frequently grows corn (NCEI 2024)">US Corn Belt</span> and types of yield changes.
@@ -894,7 +490,7 @@
                                         Though not technically a test set, follow up visualizations suggest that:
 
                                         <ul>
-                                            <li>Error remains generally stable across geography. The southwest corner has smaller <span tabindex="0" class="tooltip" data-tippy-content="There are fewer fields so these areas may have more noise in the data.">sample size</span> so slightly eleveated error makes sense. These are also areas where results are not typically <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means unlikely to have occurred by chance alone.">significant</span>.</li>
+                                            <li>Error remains generally stable across geography. The southwest corner has smaller <span tabindex="0" class="tooltip" data-tippy-content="There are fewer fields so these areas may have more noise in the data.">sample size</span> so slightly eleveated error makes sense. These are also areas where results are not typically <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant here means p < 0.05/n to be unlikely to have occurred by chance alone.">significant</span>.</li>
                                             <li>The network appears reluctant to predict highly negative changes to yield. That said, these dramatic drops are overall less common and the error across the entire dataset is symmetric (+3% slightly too optimistic) so this likely does not impact system-wide findings. Furthermore, sampling error during Monte Carlo may address this concern.</li>
                                         </ul>
 
@@ -904,17 +500,17 @@
                             </details>
                         </div>
                         <div class="paragraph" role="paragraph">
-                            Anyway, with this neural network built, we will next run Monte Carlo simulations to see what the future of <span tabindex="0" class="tooltip" data-tippy-content="Multi-Peril Crop Insurance. Covering 494 million acres (Tsiboe and Turner 2023), this is the 'oldest and most common form of federal crop insurance' (Chite et al 2005)">MPCI</span> and <span tabindex="0" class="tooltip" data-tippy-content="Yield Protection. This coverage option within MPCI typically guarantees yield itself up to 75% of an APH (Osiensky 2021)">YP</span> might look like while incorporating these measures of neural network uncertainty.
+                            Anyway, with this neural network built, we run Monte Carlo simulations to see what the future of <span tabindex="0" class="tooltip" data-tippy-content="Multi-Peril Crop Insurance. Covering 494 million acres (Tsiboe and Turner 2023), this is the 'oldest and most common form of federal crop insurance' (Chite et al 2005)">MPCI</span> and <span tabindex="0" class="tooltip" data-tippy-content="Yield Protection. This coverage option within MPCI typically guarantees yield itself up to 75% of an APH (Osiensky 2021)">YP</span> might look like while incorporating these measures of neural network uncertainty.
                         </div>
 
                         <div class="next-button-holder">
-                            <a href="#results" tab="results" class="advance-button">Simulate insurance outcomes <span class="chevron" aria-hidden="true">>></span></a>
+                            <a href="#distributions" tab="distributions" class="advance-button">Simulate insurance outcomes <span class="chevron" aria-hidden="true">>></span></a>
                         </div>
 
                         <details class="citations">
-                            <summary>Citations for methods</summary>
+                            <summary>Citations for this section</summary>
                             <div class="paragraph" role="paragraph">
-                                The citations for this methods section are as follows:
+                                The citations for this section are as follows:
                                 
                                 <ul>
                                     <li> S. Acharya, “What are RMSE and MAE?” Towards Data Science, May 13, 2021. [Online]. Available: https://towardsdatascience.com/what-are-rmse-and-mae-e405ce230383</li>
@@ -956,11 +552,11 @@
                         </details>
                     </div>
                 </section>
-                <section id="results">
-                    <h2><span class="emoji" aria-hidden="true">🔭</span> Results: Explore model predictions.</h2>
+                <section id="distributions">
+                    <h2><span class="emoji" aria-hidden="true">🔭</span> Predicted Distributions Explorer</h2>
                     <div class="body-text">
                         <div class="paragraph" role="paragraph">
-                            We <a href="#methods" tab="methods" class="advance-button">made our neural network</a> and Monte Carlo next lets us explore the results. This simulation tool examines what crop insurance outcomes might look like in the future given what our model learned. This lets us calculate loss frequency and severity, revealing how often we expect claims in the future. While running these trials, we can also incorporate neural network uncertainty.
+                            We <a href="#hyperparameters" tab="hyperparameters" class="advance-button">made our neural network</a> and Monte Carlo next lets us explore the results. This simulation tool examines what crop insurance outcomes might look like in the future given what our model learned. This lets us calculate loss frequency and severity, revealing how often we expect claims in the future. While running these trials, we can also incorporate neural network uncertainty.
 
                             <details>
                                 <summary class="button">Details about the simulations <span class="chevron" aria-hidden="true">>></span></summary>
@@ -1022,20 +618,20 @@
                                     <span class="emphasis">Coverage levels</span>: The picture may look different for policies insuring 75% of yield versus 85% of yield due to the way that the edges of the distribution or "tails" are changing. Those insuring at higher levels see some very high claims rates under climate change.
                                 </li>
                                 <li>
-                                    <span class="emphasis">Reference point</span>: Things look different depending on what we compare against. Constrating the continued climate change scenario (SSP245) to "historic" values in the recent past sees average yields stay about the same but the risk of loss increase. On the other hand, comparing to the "counterfactual" (a simulated future where climate change stops today) has our neural network actually expecting yields to increase relative to SSP245. 
+                                    <span class="emphasis">Reference point</span>: Things look different depending on what we compare against. Contrasting the continued climate change scenario (SSP245) to "historic" values in the recent past sees average yields stay about the same but the risk of loss increases. On the other hand, comparing to the "counterfactual" (a simulated future where climate change stops today) has our neural network actually expecting yields to increase relative to SSP245. 
                                 </li>
                                 <li>
-                                    <span class="emphasis">Unit size</span>: The effects of climate change become less pronounced when simulating with the full <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together. This is sometimes also called a risk unit.">insured unit</span> where there may be more fields in a single policy compared to sub-unit which simulates at a samller scale (simulates 5 character <span tabindex="0" class="tooltip" data-tippy-content="We create a grid through a process called geohashing (Niemeyer 2008) where all of the US Corn Belt gets assigned to a cell. Longer geohashes mean smaller cells and, in the 4 character version, each cell is the size of about 28 by 20 kilometers (Haugen 2020)">geohashes</span> and near-individual field samples). This is due to the "portfolio effect" where larger units offer more chances for high performing fields to offset fields with worse outcomes (<a href="http://www.jstor.org/stable/40647972" target="_blank">Knight et al 2024</a>).
+                                    <span class="emphasis">Unit size</span>: The effects of climate change become less pronounced when simulating with the full <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together. This is sometimes also called a risk unit.">insured unit</span> where there may be more fields in a single policy compared to sub-unit which simulates at a smaller scale (simulates 5 character <span tabindex="0" class="tooltip" data-tippy-content="We create a grid through a process called geohashing (Niemeyer 2008) where all of the US Corn Belt gets assigned to a cell. Longer geohashes mean smaller cells and, in the 4 character version, each cell is the size of about 28 by 20 kilometers (Haugen 2020)">geohashes</span> and near-individual field samples). This is due to the "portfolio effect" where larger units offer more chances for high performing fields to offset fields with worse outcomes (<a href="http://www.jstor.org/stable/40647972" target="_blank">Knight et al 2024</a>).
                                 </li>
                             </ul>
 
-                            In looking at how these variables influence the results, notice that the claims rate increases in all cases when looking to the simulations with further climate change but the specific size of that change may depend on some of these parameters.
+                            In looking at how these variables influence the results, notice that the claims rate increases in all cases when looking to the SSP245 simulations with further climate change but the specific size of that change may depend on some of these parameters.
 
                             <details>
                                 <summary class="button">More about unit size <span class="chevron" aria-hidden="true">>></span></summary>
                                 <div class="sub-content">
                                     <div class="paragraph" role="paragraph">
-                                        Due to the portfolio effect where combining more fields together into an <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together in a policy. This is sometimes also called a risk unit.">insured unit</span> offers more opportunities for good outcomes in some fields to offset the negative outcomes in others, one of the more influential parameters on these results is unit size. In our Monte Carlo, we sample the actual unit size as reported by the Risk Management Agency (<a href="https://www.rma.usda.gov/SummaryOfBusiness/StateCountyCrop" target="_blank">RMA 2024</a>). However, in experiments where we either increase or decrease that size, this portfolio effect impacts both the climate change simulations and the counterfactual simulation without further warming. This means that the gap between the climate change and non-climate change simulations persists. This follow up result may suggest that these concerns remain regardless of how unit size may evolve.
+                                        Due to the portfolio effect (where combining more fields together into an <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together in a policy. This is sometimes also called a risk unit.">insured unit</span> offers more opportunities for good outcomes in some fields to offset the negative outcomes in others), one of the more influential parameters on these results is unit size. In our Monte Carlo, we sample the actual unit size as reported by the Risk Management Agency (<a href="https://www.rma.usda.gov/SummaryOfBusiness/StateCountyCrop" target="_blank">RMA 2024</a>). However, in experiments where we either increase or decrease that size, this portfolio effect impacts both the climate change simulations and the counterfactual simulation without further warming. This means that the gap between the climate change and non-climate change simulations persists. This follow up result may suggest that these concerns remain regardless of how unit size may evolve.
                                     </div>
                                 </div>
                             </details>
@@ -1050,8 +646,8 @@
                                         The resolution of these data could also influence results. In <span tabindex="0" class="tooltip" data-tippy-content="We create a grid through a process called geohashing (Niemeyer 2008) where all of the US Corn Belt gets assigned to a cell. Longer geohashes mean smaller cells and, in the 4 character version, each cell is the size of about 28 by 20 kilometers (Haugen 2020)">geohashing</span> we currently use the 4 character size corresponding to 28 by 20 kilometers (<a href="https://bhaugen.com/blog/geohash-sizes/" target="_blank">Haugen 2020</a>). We could also try:
 
                                         <ul>
-                                            <li><span class="vocab">Making the grid cells larger</span>: Currently the data are finding <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means unlikely to have occurred by chance alone.">significant</span> results in 91% of grid cells so increasing the sample at the cost of predictive resolution offers very limited benefit.</li>
-                                            <li><span class="vocab">Making the grid cells smaller</span>: We attempt to approximate this in the sub-unit size results with simulation of 5 character geohashes. That said, this lowers the frequency with which a grid cell sees <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means unlikely to have occurred by chance alone.">significant</span> results by more than half though this number can vary from simulation to simulation. This makes sense as the 5 character level nears the resolution of the underlying data so increasing resolution introduces unacceptable noise.</li>
+                                            <li><span class="vocab">Making the grid cells larger</span>: Currently the data are finding <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means p < 0.05 / n to be deemed as unlikely to have occurred by chance alone.">significant</span> results in 91% of grid cells so increasing the sample at the cost of predictive resolution offers very limited benefit.</li>
+                                            <li><span class="vocab">Making the grid cells smaller</span>: We attempt to approximate this in the sub-unit size results with simulation of 5 character geohashes. That said, this lowers the frequency with which a grid cell sees <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means p < 0.05 / n to be deemed as unlikely to have occurred by chance alone.">significant</span> results by more than half though this number can vary from simulation to simulation. This makes sense as the 5 character level nears the resolution of the underlying data so increasing resolution introduces unacceptable noise.</li>
                                         </ul>
 
                                         Altogether, we continue to suggest use of the 4 character <span tabindex="0" class="tooltip" data-tippy-content="We create a grid through a process called geohashing (Niemeyer 2008)  where all of the US Corn Belt gets assigned to a cell. Longer geohashes mean smaller cells and, in the 4 character version, each cell is the size of about 28 by 20 kilometers (Haugen 2020)">geohash</span>.
@@ -1063,12 +659,12 @@
                             All of this in mind, we will next explore possible policy adaptations that take into account the specific shape of the threat that we uncovered in this step.
                         </div>
                         <div class="next-button-holder">
-                            <a href="#discussion" tab="discussion" class="advance-button">Find policy solutions <span class="chevron" aria-hidden="true">>></span></a>
+                            <a href="#claims" tab="claims" class="advance-button">Find policy solutions <span class="chevron" aria-hidden="true">>></span></a>
                         </div>
                         <details class="citations">
-                            <summary>Citations for results</summary>
+                            <summary>Citations for this section</summary>
                             <div class="paragraph" role="paragraph">
-                                The citations for this results section are as follows:
+                                The citations for this section are as follows:
                                 
                                 <ul>
                                     <li>B. Haugen, “Geohash Size Variation by Latitude.” Mar. 14, 2020. [Online]. Available: https://bhaugen.com/blog/geohash-sizes/</li>
@@ -1096,11 +692,11 @@
                         </details>
                     </div>
                 </section>
-                <section id="discussion">
-                    <h2><span class="emoji" aria-hidden="true">📝</span> Discussion: How we might address these concerns?</h2>
+                <section id="claims">
+                    <h2><span class="emoji" aria-hidden="true">✋</span> Claims Visualization</h2>
                     <div class="body-text">
                         <div class="paragraph" role="paragraph">
-                            We have a number of options to confront <a href="#results" tab="results" class="advance-button">these increases in risk</a>. For example, regenerative practices can reduce risks through diverse crop rotations (<a href="https://linkinghub.elsevier.com/retrieve/pii/S2590332220300889" target="_blank">Bowles et al 2020</a>) and improvements to soil health (<a href="https://iopscience.iop.org/article/10.1088/1748-9326/ac1468" target="_blank">Renwick et al 2021</a>). This could provide output stability in addition to other environmental benefits (<a href="https://pubs.acs.org/doi/10.1021/acs.est.9b06929" target="_blank">Hunt et al 2020</a>).
+                            We have a number of options to confront <a href="#distributions" tab="distributions" class="advance-button">these increases in risk</a>. For example, regenerative practices can reduce risks through diverse crop rotations (<a href="https://linkinghub.elsevier.com/retrieve/pii/S2590332220300889" target="_blank">Bowles et al 2020</a>) and improvements to soil health (<a href="https://iopscience.iop.org/article/10.1088/1748-9326/ac1468" target="_blank">Renwick et al 2021</a>). This could provide output stability in addition to other environmental benefits (<a href="https://pubs.acs.org/doi/10.1021/acs.est.9b06929" target="_blank">Hunt et al 2020</a>).
 
                             <details>
                                 <summary class="button">Some options for confronting this risk <span class="chevron" aria-hidden="true">>></span></summary>
@@ -1122,10 +718,10 @@
                             </details>
                         </div>
                         <div class="paragraph" role="paragraph">
-                            If we have the tools, what is the hold up? Recalling the <a href="#introduction" tab="introduction" class="advance-button">intro</a>, the average-based <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> may play a part in the delay. Despite valuable resilience offered by regenerative agriculture (given that our results see higher claims not through overall reduced averages but higher volatility), these important practices may not always improve <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> yields or can even come at the cost of a slightly reduced average (<a href="https://onlinelibrary.wiley.com/doi/10.1111/gcb.16489" target="_blank">Deines et al 2023</a>). This may be part of why, even though they guard against elevations in the probability of loss events (<a href="https://iopscience.iop.org/article/10.1088/1748-9326/ac1468" target="_blank">Renwick et al 2021</a>), crop insurance may discourage these resilience-building steps (<a href="https://academic.oup.com/erae/article/48/5/1109/6332812" target="_blank">Wang et al 2021</a>; <a href="https://linkinghub.elsevier.com/retrieve/pii/S030691922200015X" target="_blank">Chemeris et al 2022</a>).
+                            If we have the tools, what is the hold up? Recalling the <a href="#rates" tab="rates" class="advance-button">rates explorer</a>, the average-based <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> may play a part in the delay. Despite valuable resilience offered by regenerative agriculture (given that our results see higher claims not through overall reduced averages but higher volatility), these important practices may not always improve <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span> yields or can even come at the cost of a slightly reduced average (<a href="https://onlinelibrary.wiley.com/doi/10.1111/gcb.16489" target="_blank">Deines et al 2023</a>). This may be part of why, even though they guard against elevations in the probability of loss events (<a href="https://iopscience.iop.org/article/10.1088/1748-9326/ac1468" target="_blank">Renwick et al 2021</a>), crop insurance may discourage these resilience-building steps (<a href="https://academic.oup.com/erae/article/48/5/1109/6332812" target="_blank">Wang et al 2021</a>; <a href="https://linkinghub.elsevier.com/retrieve/pii/S030691922200015X" target="_blank">Chemeris et al 2022</a>).
                         </div>
                         <div class="paragraph" role="paragraph">
-                            Instead of insuring up to a percentage below average yield, what if instead one insures up to a certain number of  <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of yields are.">standard deviations</span> below average? This next interactive explores this question by looking at how different risk units might respond to this kind of structural shift.
+                            Instead of insuring up to a percentage below average yield, what if instead one insures up to a certain number of  <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are.">standard deviations</span> below average? This next interactive explores this question by looking at how different risk units might respond to this kind of structural shift.
                         </div>
                     </div>
                     <div class="interactive">
@@ -1147,7 +743,7 @@
                             <span class="emoji" aria-hidden="true">💾</span> Alternative data downloads:
                             
                             <ul>
-                                <li><a href="/data/export_claims.csv">export_claims.csv</a>: The claims rate expected under different scenarios. Here threshold refers to coverage level (YP is 0.25 meaning 25% below average), thresholdStd refers to the translation of an average-based <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> to <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields are expected to be in a grid cell.">std</span>, and offsetBaseline refers to if this includes <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> changes over time (we recommend using "always").</li>
+                                <li><a href="/data/export_claims.csv">export_claims.csv</a>: The claims rate expected under different scenarios. Here threshold refers to coverage level (YP is 0.25 meaning 25% below average), thresholdStd refers to the translation of an average-based <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> to <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are expected to be in a grid cell.">std</span>, and offsetBaseline refers to if this includes <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> changes over time (we recommend using "always").</li>
                             </ul>
 
                             These are CSV files which can be opened in spreadsheet software. These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
@@ -1166,13 +762,13 @@
                     </div>
                     <div class="body-text">
                         <div class="paragraph" role="paragraph">
-                            In examining hypothetical growing histories, what kinds of behaviors do each type of APH (the current average-based vs a possible <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields are.">std</span>-based option) encourage? If an average-based approach encourages one to drive up the <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average, in this case of 10 years of crop yields.">mean</span> as high as possible, this alternative offers balance where increasing the average and stability both become beneficial. This recognizes the value that some growers offer the broader system in the form of resilience during difficult conditions.
+                            In examining hypothetical growing histories, what kinds of behaviors do each type of <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> (the current average-based vs a possible <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are.">std</span>-based option) encourage? If an average-based approach encourages one to drive up the <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average, in this case of 10 years of crop yields.">mean</span> as high as possible, this alternative offers balance where increasing the average and stability both become beneficial. This recognizes the value that some growers offer the broader system in the form of resilience during difficult conditions.
 
                             <details>
                                 <summary class="button">More about the policy <span class="chevron" aria-hidden="true">>></span></summary>
                                 <div class="sub-content">
                                     <div class="paragraph" role="paragraph">
-                                        Using recent data, the equivalent to insuring up to 25% below average using present-day risk is insuring up to 2.11 <span tabindex="0" class="tooltip" data-tippy-content="This is a measure of how wide the range of yields are.">standard deviations</span> below average though this does already have some small effects absent behavior change as units not typically making claims pull down that equivalency or, in other words, it already shifts exposure towards more stable yields. Here is how this would get formulated:
+                                        Using recent data, the equivalent to insuring up to 25% below average using present-day risk is insuring up to 2.11 <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are.">standard deviations</span> below average though this does already have some small effects absent behavior change as units not typically making claims pull down that equivalency or, in other words, it already shifts exposure towards more stable yields. Here is how this would get formulated:
                                     
                                         <ul>
                                             <li><span class="vocab">Average-based (current)</span>: loss = max(coverage percentage * average yield - actual yield, 0) </li>
@@ -1188,12 +784,12 @@
                             Some of these changes may take place through <span data-tippy-content="Process by which new insurance products can be suggested. This could include supplemental policies covering more than 75% of yields (Schnitkey et al 2023) though typically programs cannot cover more than 85% as we will see in a moment." class="tooltip">508h</span> but recall that <span class="tooltip" data-tippy-content="Some pieces of crop insurance are dictated by statute / legislation. See US Code 1508.">law</span> sets some of these structures (<a href="https://uscode.house.gov/view.xhtml?req=(title:7%20section:1508%20edition:prelim)" target="_blank">CFR and USC</a>). Therefore, some adaptation may require legislative action. In any case, we will next conclude our conversation by looking for other insights from these data.
                         </div>
                         <div class="next-button-holder">
-                            <a href="#conclusion" tab="conclusion" class="advance-button">Find more insights <span class="chevron" aria-hidden="true">>></span></a>
+                            <a href="#neighborhoods" tab="neighborhoods" class="advance-button">Find more insights <span class="chevron" aria-hidden="true">>></span></a>
                         </div>
                         <details class="citations">
-                            <summary>Citations for discussion</summary>
+                            <summary>Citations for this section</summary>
                             <div class="paragraph" role="paragraph">
-                                The citations for this discussion section are as follows:
+                                The citations for this section are as follows:
                                 
                                 <ul>
                                     <li>T. M. Bowles et al., “Long-Term Evidence Shows that Crop-Rotation Diversification Increases Agricultural Resilience to Adverse Growing Conditions in North America,” One Earth, vol. 2, no. 3, pp. 284–293, Mar. 2020, doi: 10.1016/j.oneear.2020.02.007.</li>
@@ -1219,7 +815,7 @@
                                 The data downloads for this discussion section ("how might we address these concerns") are as follows:
                                 
                                 <ul>
-                                    <li><a href="/data/export_claims.csv">export_claims.csv</a>: The claims rate expected under different scenarios. Here threshold refers to coverage level (YP is 0.25 meaning 25% below average), thresholdStd refers to the translation of an average-based <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> to <span tabindex="0" class="tooltip" data-tippy-content="Standard deviation: this is a measure of how wide the range of yields are expected to be in a grid cell.">std</span>, and offsetBaseline refers to if this includes <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> changes over time (we recommend using "always").</li>
+                                    <li><a href="/data/export_claims.csv">export_claims.csv</a>: The claims rate expected under different scenarios. Here threshold refers to coverage level (YP is 0.25 meaning 25% below average), thresholdStd refers to the translation of an average-based <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> to <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are expected to be in a grid cell.">std</span>, and offsetBaseline refers to if this includes <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> changes over time (we recommend using "always").</li>
                                 </ul>
 
                                 These are available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>.
@@ -1227,26 +823,17 @@
                         </details>
                     </div>
                 </section>
-                <section id="conclusion">
-                    <h2><span class="emoji" aria-hidden="true">💡</span> Conclusion: What does this all mean?</h2>
+                <section id="neighborhoods">
+                    <h2><span class="emoji" aria-hidden="true">🔬</span> Neighborhood Explorer</h2>
                     <div class="body-text">
                         <div class="paragraph" role="paragraph">
-                            Briefly recapping what we've done so far:
-
-                            <ul>
-                                <li>We <a href="#background" tab="background" class="advance-button">learned about crop insurance</a>, specifically <span tabindex="0" class="tooltip" data-tippy-content="Multi-Peril Crop Insurance. Covering 494 million acres (Tsiboe and Turner 2023), this is the 'oldest and most common form of federal crop insurance' (Chite et al 2005)">MPCI</span> and <span tabindex="0" class="tooltip" data-tippy-content="Yield Protection. This coverage option within MPCI typically guarantees yield itself up to 75% of an APH (Osiensky 2021)">YP</span>.</li>
-                                <li>We <a href="#methods" tab="methods" class="advance-button">built a neural network</a> which predicts distributions of future yields cell by cell and year by year across the <span tabindex="0" class="tooltip" data-tippy-content="A multi-state area within the United States that frequently grows corn (NCEI 2024)">US Corn Belt</span>.</li>
-                                <li>We <a href="#results" tab="results" class="advance-button">ran simulations</a> to discover that the loss (claims) rate will more than double at 2050 according to our work. After wiping out yield improvements which would have happend otherwise, climate change leaves average yields relatively unchanged. Instead, the distribution "tails" change to show that yields will become less stable.</li>
-                                <li>We <a href="#discussion" tab="discussion" class="advance-button">examined coverage formulas</a>. In this section we explored how the current <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> is based on a percentage of an average and that it can be difficult for crop insurance to adjust to these threats. This same policy structure may also inhibit adoption of risk reducing practices such as regenerative agriculture. However, we also explored how incorporating variance into coverage formulas may help.</li>
-                            </ul>
-
-                            Though important, this is just one of the stories these data can tell and this final interactive encourages you to explore others. Note that this refers to statistically <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means unlikely to have occurred by chance alone.">significant</span> results to cut through noise but, if desired, one can turn off that filter.
+                            So far, we have explored data aggregated across many neighborhoods. This final graphic looks at those neighborhoods individually. Note that this refers to statistically <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means p < 0.05 / n to be deemed as unlikely to have occurred by chance alone.">significant</span> results to cut through noise but, if desired, one can turn off that filter.
 
                             <details>
                                 <summary class="button">More about the statistical tests <span class="chevron" aria-hidden="true">>></span></summary>
                                 <div class="sub-content">
                                     <div class="paragraph" role="paragraph">
-                                        Around 91% of maize-growing acerage examined in this study see statistically <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means unlikely to have occurred by chance alone.">significant</span> results (p &lt; 0.05 / n) in at least one year of the 2050 series. We determine this by a Bonferroni-corrected (<a href="https://www.semanticscholar.org/paper/Il-calcolo-delle-assicurazioni-su-gruppi-di-teste-Bonferroni-Bonferroni/98da9d46e4c442945bfd88db72be177e7a198fd3" target="_blank">Bonferroni 1935</a>; <a href="https://www.biostathandbook.com/multiplecomparisons.html" target="_blank">McDonald 2014</a>) Mann Whitney U (<a href="http://projecteuclid.org/euclid.aoms/1177730491" target="_blank">Mann and Whitney 1947</a>; <a href="https://www.biostathandbook.com/multiplecomparisons.html" target="_blank">McDonald 2014</a>) per neighborhood per year as variance may differ between the two expected and counterfactual sets (<a href="https://www.biostathandbook.com/multiplecomparisons.html" target="_blank">McDonald 2014</a>).
+                                        Around 91% of maize-growing acerage examined in this study see statistically <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means p < 0.05 / n to be deemed as unlikely to have occurred by chance alone.">significant</span> results (p &lt; 0.05 / n) in at least one year of the 2050 series. We determine this by a Bonferroni-corrected (<a href="https://www.semanticscholar.org/paper/Il-calcolo-delle-assicurazioni-su-gruppi-di-teste-Bonferroni-Bonferroni/98da9d46e4c442945bfd88db72be177e7a198fd3" target="_blank">Bonferroni 1935</a>; <a href="https://www.biostathandbook.com/multiplecomparisons.html" target="_blank">McDonald 2014</a>) Mann Whitney U (<a href="http://projecteuclid.org/euclid.aoms/1177730491" target="_blank">Mann and Whitney 1947</a>; <a href="https://www.biostathandbook.com/multiplecomparisons.html" target="_blank">McDonald 2014</a>) per neighborhood per year as variance may differ between the two expected and counterfactual sets (<a href="https://www.biostathandbook.com/multiplecomparisons.html" target="_blank">McDonald 2014</a>).
                                     </div>
                                 </div>
                             </details>
@@ -1303,13 +890,13 @@
 
                             <ul>
                                 <li>
-                                    Preciptiation may offer a protective benefit: an increased <span tabindex="0" class="tooltip" data-tippy-content="Variable name referring to a model for daily precipitation (Williams et al 2024).">chirps</span> value has a weak but <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means unlikely to have occurred by chance alone.">significant</span> <span tabindex="0" class="tooltip" data-tippy-content="A relationship where as one variable moves so does another but not necessarily to the same degree. This is specifically a Spearman Rank Correlation.">rank correlation</span> (<a href="https://www.jstor.org/stable/1412159?origin=crossref" target="_blank">Spearman 1904</a>) to lower changes in risk. This would potentially agree with prior work (<a href="https://linkinghub.elsevier.com/retrieve/pii/S0098847204000206" target="_blank">Sinsawat et al 2004</a>; <a href="https://www.researchgate.net/publication/309186398_Effects_of_drought_stress_on_yield_and_yield_components_in_maize_cultivars_Zea_mays_L" target="_blank">Marouf et al 2013</a>).
+                                    Preciptiation may offer a protective benefit: an increased <span tabindex="0" class="tooltip" data-tippy-content="Variable name referring to a model for daily precipitation (Williams et al 2024).">chirps</span> value has a weak but <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means p < 0.05 / n to be deemed as unlikely to have occurred by chance alone.">significant</span> <span tabindex="0" class="tooltip" data-tippy-content="A relationship where as one variable moves so does another but not necessarily to the same degree. This is specifically a Spearman Rank Correlation.">rank correlation</span> (<a href="https://www.jstor.org/stable/1412159?origin=crossref" target="_blank">Spearman 1904</a>) to lower changes in risk. This would potentially agree with prior work (<a href="https://linkinghub.elsevier.com/retrieve/pii/S0098847204000206" target="_blank">Sinsawat et al 2004</a>; <a href="https://www.researchgate.net/publication/309186398_Effects_of_drought_stress_on_yield_and_yield_components_in_maize_cultivars_Zea_mays_L" target="_blank">Marouf et al 2013</a>).
                                 </li>
                                 <li>
                                     Different geographies may see different outcomes with increased risk potentially concentrated in a band stretching through Iowa, Illinois, and Indiana.
                                 </li>
                                 <li>
-                                    Many of the areas without <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means unlikely to have occurred by chance alone.">significant</span> changes to risk may have had too little acreage growing maize and so have too small a <span tabindex="0" class="tooltip" data-tippy-content="There are fewer fields so these areas may have more noise in the data.">sample size</span>.
+                                    Many of the areas without <span tabindex="0" class="tooltip" data-tippy-content="Statistically significant means p < 0.05 / n to be deemed as unlikely to have occurred by chance alone.">significant</span> changes to risk may have had too little acreage growing maize and so have too small a <span tabindex="0" class="tooltip" data-tippy-content="There are fewer fields so these areas may have more noise in the data.">sample size</span>.
                                 </li>
                             </ul>
 
@@ -1323,9 +910,9 @@
                         </div>
 
                         <details class="citations">
-                            <summary>Citations for conclusion</summary>
+                            <summary>Citations for this section</summary>
                             <div class="paragraph" role="paragraph">
-                                The citations for this conclusion section are as follows:
+                                The citations for this section are as follows:
                                 
                                 <ul>
                                     <li>C. Bonferroni, “Il calcolo delle assicurazioni su gruppi di teste,” Studi in Onore del Professore Salvatore Ortu Carboni, 1935, [Online]. Available: https://www.semanticscholar.org/paper/Il-calcolo-delle-assicurazioni-su-gruppi-di-teste-Bonferroni-Bonferroni/98da9d46e4c442945bfd88db72be177e7a198fd3</li>
@@ -1358,7 +945,7 @@
                     <h2><span class="emoji" aria-hidden="true">ℹ️</span> About this website</h2>
                     <div class="body-text">
                         <div class="paragraph" role="paragraph">
-                            This website houses an interactive explanation in which users are guided through predicting future maize yields with continued climate change. These data reveal both threats to the US Federal Crop Insurance program and possible policy responses. This online application complements a traditional <a href="https://arxiv.org/abs/2408.02217" target="_blank">scientific paper (preprint)</a> which offers further details (<a href="/literature/paper.pdf">archived PDF</a>).
+                            This website houses interactive exploratory tools to complement a traditional <a href="https://arxiv.org/abs/2408.02217" target="_blank">scientific paper (preprint)</a> which offers further details (<a href="/literature/paper.pdf">archived PDF</a>).
 
                             <details>
                                 <summary class="button">Read scientific abstract <span class="chevron" aria-hidden="true">>></span></summary>
@@ -1428,25 +1015,7 @@
                 <section id="settings">
                     <h2><span class="emoji" aria-hidden="true">⚙️</span> Settings</h2>
                     <div class="body-text">
-                        The following options may help some more comfortably engage with this content. When you are done configuring your preferred experience, you can <a href="#introduction" tab="introduction" class="advance-button">return to the start of this interactive lab</a>.
-
-                        <section class="setting">
-                            <h3>Slide shows</h3>
-                            
-                            Some readers may prefer to navigate the slide show on the <a href="#background" tab="background" class="advance-button">background</a> tab as a regular article. This may improve compatibility with some adaptive technologies or be easier for those not using a mouse or touchscreen.
-
-                            <div class="option-set">
-                                <div>
-                                    <input type="radio" name="slider-settings" class="slider-setting-radio" id="show-slider" value="show" checked>
-                                    <label for="show-slider">Use slide show format for <a href="#background" tab="background" class="advance-button">background</a>.</label>
-                                </div>
-
-                                <div>
-                                    <input type="radio" name="slider-settings" class="slider-setting-radio" id="hide-slider" value="hide">
-                                    <label for="hide-slider">Use regular article format for <a href="#background" tab="background" class="advance-button">background</a>.</label>
-                                </div>
-                            </div>
-                        </section>
+                        The following options may help some more comfortably engage with this content. When you are done configuring your preferred experience, you can <a href="#introduction" tab="introduction" class="advance-button">return to the start of this interactive lab</a> complementing our <a href="https://arxiv.org/abs/2408.02217" target="_blank">scientific paper (preprint)</a>.
 
                         <section class="setting" id="keyboard-setting">
                             <h3>Visualization keyboard controls</h3>
@@ -1733,7 +1302,6 @@
 
     <script src="/third_party/popper.min.js"></script>
     <script src="/third_party/tabby.js"></script>
-    <script src="/third_party/tiny_slider.js"></script>
     <script src="/third_party/tippy-bundle.umd.min.js"></script>
     <script src="driver.js?v=EPOCH"></script>
 
