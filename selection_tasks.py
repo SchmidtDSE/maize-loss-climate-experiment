@@ -298,6 +298,7 @@ class PostHocTestRawDataClimateCountTask(PostHocTestRawDataTemplateTask):
         """
         # Weighting by geohash
         return [
+            'geohash',
             'setAssign',
             'yieldMean',
             'yieldStd',
