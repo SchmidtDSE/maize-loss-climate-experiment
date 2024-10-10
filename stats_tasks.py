@@ -115,6 +115,7 @@ class ExportPosthocTestTask(luigi.Task):
         return {
             'retrain': selection_tasks.PostHocTestRawDataRetrainCountTask(),
             'temporal': selection_tasks.PostHocTestRawDataTemporalCountTask(),
+            'climate': selection_tasks.PostHocTestRawDataClimateTask(),
             'random': selection_tasks.PostHocTestRawDataRandomCountTask(),
             'spatial': selection_tasks.PostHocTestRawDataSpatialCountTask()
         }
@@ -132,6 +133,7 @@ class ExportPosthocTestTask(luigi.Task):
         temporal_record = self._summarize_post_hoc('temporal')
         random_record = self._summarize_post_hoc('random')
         spatial_record = self._summarize_post_hoc('spatial')
+        climate_record = self._summarize_post_hoc('climate')
         retrain_record = self._summarize_post_hoc('retrain')
 
         output_record = {
@@ -153,6 +155,12 @@ class ExportPosthocTestTask(luigi.Task):
             'randomStdMdae': format_percent(spatial_record['stdMdae']),
             'randomCount': round(spatial_record['count']),
             'randomPercent': format_percent(spatial_record['percent']),
+            'climateMeanMae': format_percent(climate_record['meanMae']),
+            'climateMeanMdae': format_percent(climate_record['meanMdae']),
+            'climateStdMae': format_percent(climate_record['stdMae']),
+            'climateStdMdae': format_percent(climate_record['stdMdae']),
+            'climateCount': round(climate_record['count']),
+            'climatePercent': format_percent(climate_record['percent']),
             'retrainMeanMae': format_percent(retrain_record['meanMae']),
             'retrainMeanMdae': format_percent(retrain_record['meanMdae']),
             'retrainStdMae': format_percent(retrain_record['stdMae']),
