@@ -78,7 +78,7 @@ def get_finite_maybe(target):
     """
     value = try_float(target)
 
-    if numpy.isfinite(value):
+    if value is not None and numpy.isfinite(value):
         return value
     else:
         return None
