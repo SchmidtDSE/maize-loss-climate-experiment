@@ -74,7 +74,7 @@ def get_cluster():
     if using_local:
         return simulated_cluster
     else:
-        pip= [
+        pip = [
             "bokeh!=3.0.*,>=2.4.2",
             "boto3==1.34.65",
             "coiled==1.28.0",
