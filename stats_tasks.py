@@ -115,7 +115,7 @@ class ExportPosthocTestTask(luigi.Task):
         return {
             'retrain': selection_tasks.PostHocTestRawDataRetrainCountTask(),
             'temporal': selection_tasks.PostHocTestRawDataTemporalCountTask(),
-            'climate': selection_tasks.PostHocTestRawDataClimateTask(),
+            'climate': selection_tasks.PostHocTestRawDataClimateCountTask(),
             'random': selection_tasks.PostHocTestRawDataRandomCountTask(),
             'spatial': selection_tasks.PostHocTestRawDataSpatialCountTask()
         }

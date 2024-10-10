@@ -268,7 +268,7 @@ class PostHocTestRawDataTemporalResidualsTask(PostHocTestRawDataTemplateTask):
         return True
 
 
-class PostHocTestRawDataClimateTask(PostHocTestRawDataTemplateTask):
+class PostHocTestRawDataClimateCountTask(PostHocTestRawDataTemplateTask):
     """Post-hoc test which tests a model's ability to predict with out of sample climate data."""
 
     def get_set_assign(self, record):
@@ -304,7 +304,8 @@ class PostHocTestRawDataClimateTask(PostHocTestRawDataTemplateTask):
             'predictedMean',
             'predictedStd',
             'meanResidual',
-            'stdResidual'
+            'stdResidual',
+            'yieldObservations'
         ]
 
     def output_test_only(self):
