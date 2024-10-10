@@ -288,7 +288,7 @@ class PostHocTestRawDataClimateCountTask(PostHocTestRawDataTemplateTask):
         Returns:
             Filename at which results should be written.
         """
-        return 'post_hoc_climate.csv'
+        return 'post_hoc_climate_count.csv'
 
     def get_output_cols(self):
         """Get the columns expected in output records.
