@@ -3,7 +3,7 @@ Study looking at how climate change may impact loss rates for insurance by simul
 
 <br>
 
-## Purpose 
+## Purpose
 This repository contains three components for a study looking at how crop insurance claims rates may change in the future within the US Corn Belt using [SCYM](https://www.sciencedirect.com/science/article/pii/S0034425715001637) and [CHC-CMIP6](https://www.chc.ucsb.edu/data/chc-cmip6).
 
  - **Pipeline**: Contained within the root of this repository, this [Luigi](https://luigi.readthedocs.io/en/stable/)-based pipeline trains neural networks and runs Monte Carlo simulations to project future insurance claims under various different parameters, outputting data to a workspace directory.
@@ -30,16 +30,16 @@ First, get access to the [SCYM](https://www.sciencedirect.com/science/article/pi
 
 You can then execute either by:
 
- - **Run directly**: First, install the Python requirements (`pip install -r requirements.txt`) optionally within a [virtual environment](https://python-guide-es.readthedocs.io/es/guide-es/dev/virtualenvs.html). Then, simply execute `bash run.sh` to execute the pipeline from start to finish. See also `breakpoint_tasks.py` for [Luigi](https://luigi.readthedocs.io/en/stable/) targets for running subsets of the pipeline. 
+ - **Run directly**: First, install the Python requirements (`pip install -r requirements.txt`) optionally within a [virtual environment](https://python-guide-es.readthedocs.io/es/guide-es/dev/virtualenvs.html). Then, simply execute `bash run.sh` to execute the pipeline from start to finish. See also `breakpoint_tasks.py` for [Luigi](https://luigi.readthedocs.io/en/stable/) targets for running subsets of the pipeline.
  - **Run through Docker**: Simply execute `bash run_docker.sh` to execute the pipeline from start to finish. See also `breakpoint_tasks.py` for [Luigi](https://luigi.readthedocs.io/en/stable/) targets for running subsets of the pipeline and update `run.sh` which is executed within the container. Note that this will operate on the `workspace` directory.
 
-A summary of the pipeline is created in `stats.json`.
+A summary of the pipeline is created in `stats.json`. See local package below for use in other repository components such as the interactive tools or paper rendering.
 
 ### Interactive tools
 Written in [Sketchingpy](https://sketchingpy.org/), the tools can be executed locally on your computer, in a static context for building the paper, or through a web browser. First, one needs to get data from the pipeline or download prior results:
 
  - **Download prior results**: Retrieve the [latest results](https://ag-adaptation-study.pub/archive/data.zip) and move them into the viz directory (`paper/viz/data`). Simply use wget when in the `paper/viz directory` as so: `wget https://ag-adaptation-study.pub/archive/data.zip; unzip data.zip`.
- - **Use your own results**: Update the paper output data (see paper local setup below). The visualizations use the same files.
+ - **Use your own results**: Update the output data per instructions regarding local package below.
 
 There are two options for executing the tools:
 
@@ -52,9 +52,12 @@ Note that the visualizations are also invoked through `paper/viz/render_images.s
 Due to the complexities of the software install, the only officially supported way to build the paper is through the Docker image. First update the data:
 
  - **Download prior results**: Retrieve the [latest results](https://ag-adaptation-study.pub/archive/outputs.zip) and move them into the paper directory (`paper/outputs`).
- - **Use your own results**: Place the following in the `outputs` directory: `export_claims.csv`, `export_climate.csv`, `export_combined_tasks.csv`, `export_hist.csv`, `export_summary.csv`, `export_sweep.csv`, `stats.json`.
+ - **Use your own results**: Update the output data per instructions regarding local package below.
 
 Then, execute `render_docker.sh` to drop the results into the `paper_rendered` directory.
+
+### Local package
+Instead of retrieving data from https://ag-adaptation-study.pub, you can use your own pipeline data outputs by running `bash package.sh`. This will produce the `data` and `outputs` sub-directories inside of a new `package` directory which can be used for the interactive tools and paper rendering respectively.
 
 <br>
 

@@ -8,4 +8,5 @@ paper/outputs
 paper/paper_rendered
 paper/viz/data
 paper/viz/data.zip
+package
 .gitpod.yml
