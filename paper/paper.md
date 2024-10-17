@@ -1,6 +1,6 @@
 ---
 bibliography: ./paper.bib
-title: "Neural Network Prediction of Climate-Driven Doubling in U.S. Maize Crop Loss Probability through Monte Carlo"
+title: "Climate-Driven Doubling of U.S. Maize Loss Probability: Simulation through Neural Network Monte Carlo"
 header-includes: |
   \usepackage{float}
   \floatplacement{figure}{H}
@@ -33,55 +33,63 @@ output:
     template: default.tex
 ---
 
-**Abstract:** Climate change not only threatens individual agricultural producers but also strains public agencies and financial institutions concerned with system-wide outcomes. These important food system actors include government entities tasked with both insuring grower livelihoods and supporting response to continued global warming. Combining existing spatiotemporal data products, we present Monte Carlo simulations on artificial neural networks to predict yields across the U.S. Corn Belt. This effort builds on prior work by offering probabilsitic outputs at a spatial granularity relevant to institutional decision makers. Specifically, we predict risk exposure for the U.S. Federal Crop Insuarnce Program, finding that more frequent and severe losses would result in the annual probability of the Yield Protection (YP) program claims to more than double at mid-century relative to simulations without continued climate change. Finally, we provide visualization-rich interactive tools for deeper investigation to complement our open source risk profile simulations pipeline. Altogether, this work fills an actionable gap in current understanding, bridging existing historic yield estimation and climate prediction to support simulation of future policy-relevant loss which may help inform public response to continued warming.
+**Abstract:** Climate change not only threatens agricultural producers but also strains public agencies and financial institutions. These important food system actors include government entities tasked with insuring grower livelihoods and supporting agricultural response to continued global warming. We build upon prior work by offering prediction of institutionally-relevant future yield loss by employing neural network Monte Carlo to achieve a policy-salient "risk unit" scale. We demonstrate this simulation of future risk within the U.S. Corn Belt from the perspective of the crucial U.S. Federal Crop Insurance Program (FCIP). Our results worryingly suggest more frequent and severe losses seen within our predictions would result in a financially onerous doubling in the annual probability of maize loss claims within FCIP's Yield Protection (YP) at mid-century relative to current levels. To further explore these results, we offer visualization-rich interactive tools to complement our presented method and open source pipeline. Altogether, we fill an actionable gap in current understanding by bridging existing historic yield estimation and climate prediction to support simulation of future crop loss. This perspective may help inform response needed to sustain essential agricultural programs in the face of continued warming.
 
 \bigskip
 
 # Introduction
-Global warming threatens production of key staple crops, including maize [@rezaei_climate_2023]. Climate variability already drives a substantial proportion of year-to-year crop yield variation [@ray_climate_2015] and continued climate change may reduce planet-wide maize yields by up to 24% by the end of this century [@jagermeyr_climate_2021]. Beyond reduced mean output, growing frequency and severity of stressful weather [@dai_increasing_2013] to which maize is increasingly sensitive [@lobell_changes_2020] will also impact both farmers’ revenue [@sajid_extreme_2023] and the institutions designed to protect those producers [@hanrahan_crop_2024].
+We present the use of Monte Carlo simulations on top of neural network regressors in order to build upon prior work by offering probabilistic future agricultural yield loss predictions at an institutionally-relevant spatial scale. Specifically focusing on maize, we employ this method to investigate how climate change may impact the claims rate within the U.S. Federal Crop Insurance's Yield Protection scheme.
 
-For example, the United States of America is the world’s largest maize producer and exporter [@ates_feed_2023] and its government-backed Federal Crop Insurance Program (FCIP) covers a large share of this growing risk [@tsiboe_crop_2023]. The costs of crop insurance in the U.S. have already increased by 500% since the early 2000s with annual indemnities reaching $19B in 2022 [@schechinger_crop_2023]. Furthermore, retrospective analysis attributes 19% of "national-level crop insurance losses" between 1991 and 2017 to climate warming, an estimate rising to 47% during the drought-stricken 2012 growing season [@diffenbaugh_historical_2021]. Looking forward, @li_impact_2022 show progressively higher U.S. maize loss rates as warming elevates.
+## Motiviation
+Global warming threatens production of key staple crops, including maize [@rezaei_climate_2023]. Climate variability already drives a substantial proportion of year-to-year crop yield variation [@ray_climate_2015] and continued climate change may reduce planet-wide maize yields by up to 24% by the end of this century [@jagermeyr_climate_2021]. Beyond reduced mean output, growing frequency and severity of stressful weather [@dai_increasing_2013] to which maize is increasingly sensitive [@lobell_changes_2020] will also impact both farmers' revenue [@sajid_extreme_2023] and the institutions designed to protect those producers [@hanrahan_crop_2024].
 
-Modeling the possible changes in frequency and severity of crop loss events that trigger indemnity claims is an important step to prepare for the future impacts of global warming. Related studies have predicted changes in crop yields at broad scales such county-level aggregation [@leng_predicting_2020] and have estimated climate change impacts to U.S. maize within whole-sector or whole-economy analysis [@hsiang_estimating_2017]. This includes traditional statistical models [] though recent work also establishes the value of machine learning approaches []. Even so, as insurance products may include elements operating at the producer level [@rma_crop_2008], often missing are more granular models of insurer-focused claims rate and loss severity at a policy-relevant spatial scale. For example, the "insured unit" or "risk unit" refers to set of insured fields or an insured area within an individual policy which are typically much smaller than a county. Such far-reaching but detailed data are prerequisite to designing proactive policy instruments benefiting both institutions and growers.
+Within this context, the United States of America is the world's largest maize producer and exporter [@ates_feed_2023]. Its government-backed Federal Crop Insurance Program (FCIP) covers a large share of this growing risk [@tsiboe_crop_2023]. The costs of crop insurance in the U.S. have already increased by 500% since the early 2000s with annual indemnities reaching $19B in 2022 [@schechinger_crop_2023]. Furthermore, retrospective analysis attributes 19% of "national-level crop insurance losses" between 1991 and 2017 to climate warming, an estimate rising to 47% during the drought-stricken 2012 growing season [@diffenbaugh_historical_2021]. Looking forward, @li_impact_2022 show progressively higher U.S. maize loss rates as warming elevates.
 
-We address this need by predicting the probability and severity of maize loss within the U.S. Corn Belt at the level of insured units, probabilistically forecasting insurer-relevant outcome metrics under climate change. We find these projections using simulations of the Multiple Peril Crop Insurance Program, "the oldest and most common form of federal crop insurance" [@chite_agricultural_2006]. More precisely, we model changes to risk under the Yield Protection (YP) plan, which covers farmers in the event of yield losses due to an insured cause. Furthermore, by contrasting those simulations to a "counterfactual" which does not include further climate warming, we then quantitatively highlight the insurer-relevant effects of climate change in the 2030 and 2050 timeframes. Finally, we consider our results in the context of prior studies to further understand the possible role of machine learning within this problem domain.
+Altogether, modeling the possible changes in frequency and severity of crop loss events that trigger indemnity claims is an important step to prepare for the future impacts of global warming. This perspective may inform institutional adaptation and public investment.
+
+## Prior work
+Related studies have predicted changes in crop yields at broad scales such county-level aggregation [@leng_predicting_2020] and have estimated climate change impacts to U.S. maize within whole-sector or whole-economy analysis [@hsiang_estimating_2017]. This includes deployment of traditional statistical models [@lobell_statistical_2010]. However, an increasing body of work favors machine learning approaches [@leng_predicting_2020]. In either case, insurance products frequently include elements operating at the producer level [@rma_crop_2008]. That in mind, prior studies often do not include more granular models of insurer-focused claims rate and loss severity at that policy-relevant spatial scale. For example, a "risk" or "insured" unit refers to a set of  fields that are insured together within an individual policy, a land area which is typically much smaller than a county [@fcic_common_2020]. While modeling at this scale may provide important institutional insight, the studies that do examine these smaller geographic scales generally focus on estimating historic yields instead of future prediction or do not included insurer-relevant metrics [@lobell_scalable_2015; @ma_qdann_2024].
+
+## Contribution
+We address this need for institutionally-relevant granular future loss prediction through neural network Monte Carlo which we demonstrate within the U.S. Corn Belt. We provide these projections at the risk unit scale, probabilistically forecasting institution-relevant outcome metrics under climate change. We find these projections using simulations of the Multiple Peril Crop Insurance Program, "the oldest and most common form of federal crop insurance" [@chite_agricultural_2006]. More precisely, we model changes to risk under the Yield Protection (YP) plan, which covers farmers in the event of yield losses due to an insured cause. Furthermore, by contrasting those simulations to a "counterfactual" which does not include further climate warming, we then quantitatively highlight the insurer-relevant effects of climate change in the 2030 and 2050 timeframes. Finally, we consider our results in the context of prior studies to further understand the possible role of machine learning within this problem domain.
 
 \bigskip
 
 # Methods
 We first build predictive models of crop yield distributions using a neural network at a spatial scale relevant to insurers. We then estimate changes to yield losses under different climate conditions with Monte Carlo simulation in order to estimate loss probability and severity.
 
-## Formalization
-Before modeling these systems, we articulate specific mathematical definitions of the attributes we seek to predict. First, from the insurer perspective, unit-level losses ($l$) under the YP program represents yield below a guarantee threshold [@rma_crop_2008] with terms defined below.
+## Definitions
+Before modeling these systems, we articulate specific mathematical definitions of the attributes we seek to predict. First, insurers pay out based on the magnitude of a yield loss across the aggregation of all of the fields in an insured unit. This loss ($l$) is defined as the difference between actual yield ($y_{actual}$) and a guarantee threshold. This is set by a coverage level ($c$) which is a precentage of an expected yield ($y_{expected}$) [@rma_crop_2008].
 
 $l = max(c * y_{expected} - y_{actual}, 0)$
 
-We use up to 10 years of historic yields data ($d=10$) with 75% coverage level ($c=0.75$) per Federal Crop Insurance Corporation guidelines [@fcic_crop_2023], with our interactive tools allowing for consideration of different coverage levels.
+This expectation is based on historic yields. To establish these numbers, growers submit production histories for the covered crop ($y_{historic}$). The average of the 10 most recent years of that information ($d=10$) are generally used to define yield expectations [@rma_crop_2008]. This is further explored in our interactive tools.
 
 $y_{expected} = \frac{y_{historic}[-d:]}{d}$
 
-Within this formulation we create working definitions of loss probability ($p$) and severity ($s$) in order to model changes to these insurer-relevant metrics.
+Next, we can create a definition of loss risk ($p$) or, in other words, the probability of experiencing a loss that may incur a claim.
 
 $p = P(l > 0) = P(c * y_{expected} - y_{actual} > 0) = P(\frac{y_{actual} - y_{expected}}{y_{expected}} < c - 1) = P(y_{\Delta\%} < c - 1)$
 
+Of course, the severity ($s$) of a loss and, thus, the size of the claim is also required to understand the future of an institution like the U.S. Federal Crop Insurance Program.
+
 $s = \frac{l}{y_{expected}} = \max(c - \frac{y_{actual}}{y_{expected}}, 0) = \max(-1 * y_{\Delta\%} - (1 - c), 0)$
 
-Note that we define severity from the insurer perspective, reporting the percentage points gap between actual yield and the covered portion of expected yield.
+Note that this paper presents results using 75% coverage level ($c=0.75$) per Federal Crop Insurance Corporation guidelines [@fcic_crop_2023] though our interactive tools allow for consideration of different coverage levels which may be available in certain cases.
 
 ## Data
-As YP operates at unit-level, modeling these formulations requires highly local yield and climate information. Therefore, we use the Scalable Crop Yield Mapper (SCYM) which provides remotely sensed yield estimations from 1999 to 2022 at 30m resolution across the US Corn Belt [@lobell_scalable_2015; @deines_million_2021]. Meanwhile, we use climate data from CHC-CMIP6 [@williams_high_2024] which, at daily 0.05 degree scale, offers both historic data from 1983 to 2016 as well as future projections in a 2030 and 2050 series. In choosing from its two available shared socioeconomic pathways, we prefer the "intermediate" SSP245 within CHC-CMIP6 over SSP585 per @hausfather_emissions_2020. This offers the following climate variables for modeling: precipitation, temperature (minimum and maximum), relative humidity (average, peak), heat index, wet bulb temperature, vapor pressure deficit, and saturation vapor pressure.
+As Yield Protection operates at the level of an insured unit (set of fields insured together), modeling these formulations requires highly local yield and climate information. Therefore, we use the Scalable Crop Yield Mapper (SCYM) which provides remotely sensed yield estimations from 1999 to 2022 at 30m resolution across the US Corn Belt [@lobell_scalable_2015; @deines_million_2021]. Meanwhile, we use climate data from CHC-CMIP6 [@williams_high_2024] which, at daily 0.05 degree scale, offers both historic data from 1983 to 2016 as well as future projections in a 2030 and 2050 series. In choosing from its two available shared socioeconomic pathways, we prefer the "intermediate" SSP245 within CHC-CMIP6 over SSP585 per the advice of @hausfather_emissions_2020. This offers the following climate variables for modeling: precipitation, temperature (minimum and maximum), relative humidity (average, peak), heat index, wet bulb temperature, vapor pressure deficit, and saturation vapor pressure. Note that we prefer SCYM over some more recent alternatives [@ma_qdann_2024] given its temporal overlap with CMIP6 data. However, a different or longer year range should be revisited after the release of later data products like CMIP7.
 
-We align these variables to a common grid in order to create the discrete instances needed for model training and evaluation. More specifically, we create "neighborhoods" [@manski_diversified_2024] of geographically proximate fields paired with climate data through 4 character^[We also evaluate alternative neighborhood sizes in the interactive tools.] geohashing [@niemeyer_geohashorg_2008], defining small populations in a grid of cells roughly 28 by 20 kilometers for use within statistical tests [@haugen_geohash_2020]. Having created these spatial groups, we model against observed deviations from yield expectations which YP defines through historic yield ($y_{expected}$). This creates a distribution of changes or "yield deltas" which we summarize as neighborhood-level means and standard deviations. This helps ensure appropriate dimensionality for the dataset size given approximate normalilty in 79% of geohashes per @kim_statistical_2013. Finally, we similarly describe climate deltas as min, max, mean and standard deviation per month.
+With these inputs in mind, we align available variables to a common grid in order to create the discrete instances needed for model training and evaluation. More specifically, we create "neighborhoods" [@manski_diversified_2024] of geographically proximate fields paired with climate data through 4 character^[We also evaluate alternative neighborhood sizes in the interactive tools.] geohashing [@niemeyer_geohashorg_2008]. This algorithm defines small populations in a grid of cells roughly 28 by 20 kilometers for use within statistical tests [@haugen_geohash_2020]. We have a median of 83k annual yield observations at roughly field-scale per neighborhood represented within the neighborhood-level distribution.
+
+Having created these spatial groups, we model against SCYM-observed deviations from yield expectations ($y_{expected} - y_{actual}$) which can be used to calculate loss probability ($l$) and severity ($s$). This converts from a distribution of absolute yield outcomes to a distribution of changes or "yield deltas" which we summarize as neighborhood-level means and standard deviations. Using these summary statistics as the response variables for regression helps ensure appropriate dimensionality for the dataset size given approximate normalilty (79% of geohashes  are approximately normal per @kim_statistical_2013 though remaining neighborhoods may have few yield observations so are sparse). See interactive tools for further exploration. Finally, we similarly describe climate deltas as min, max, mean and standard deviation per month.
 
 ## Regression
-With these data in mind, we next build predictive models for use in simulations of future insurance outcomes. Using machine learning per @leng_predicting_2020, we build regressors ($f$) by fitting neighborhood-level climate variables ($C$) and year ($x$) against neighborhood-level mean and standard deviation of yield changes [@kim_investigating_2024].
+With these data in mind, we next build predictive models for use in simulations of future yield loss outcomes. Our regressors ($f$) fit neighborhood-level climate variables ($C$) and year ($x$) to predict neighborhood-level mean and standard deviation of yield changes [@kim_investigating_2024].
 
 $y_{\Delta\%}(x) = \frac{y_{actual} - y_{expected}}{y_{expected}} = \frac{y_{\Delta}}{y_{\mu-historic}} = f(C, x, z_{\mu-historic}, z_{\sigma-historic})$
 
-For $f$, we use feed forward artificial neural networks [@baheti_essential_2021] as they support:
-
-- Multi-variable output [@brownlee_deep_2020], helpful as we need to predict both mean and standard deviation.
-- Out-of-sample range estimation [@mwiti_random_2023], important as warming may incur conditions outside the historical record.
+Note that we use machine learning per the advice of @leng_predicting_2020 and @klompenburg_crop_2020 though we explore comparison to traditional approaches in discussion. In addition to this literature precedent, we specifically use feed forward artificial neural networks [@baheti_essential_2021] as they "natively" support multi-variable output [@brownlee_deep_2020] and may perform better in out-of-sample range estimation [@mwiti_random_2023].
 
 Many different kinds of neural network structures and configurations could meet these criteria. Therefore, we try various combinations of "hyper-parameters" in a grid search sweep [@joseph_grid_2018]. 
 
@@ -94,29 +102,37 @@ Many different kinds of neural network structures and configurations could meet 
 
 Table: Parameters which we try in different permutations to find an optimal configuration. {#tbl:sweepparam}
 
-We permute different option combinations from Table @tbl:sweepparam before we select a preferred configuration^[All non-output neurons use Leaky ReLU activation per @maas_rectifier_2013 and we use AdamW optimizer [@kingma_adam_2014; @loshchilov_decoupled_2017].] from 1,500 candidate models. Finally, with meta-parameters chosen, we can then retrain on all available data ahead of simulations.
+In order to find a suitable combintaion of hyper-parameters, this process involves permuting different option combinations from Table @tbl:sweepparam before we select a configuration^[All non-output neurons use Leaky ReLU activation per @maas_rectifier_2013 and we use AdamW optimizer [@kingma_adam_2014; @loshchilov_decoupled_2017].] from the 1,500 candidate models. Finally, with meta-parameters chosen, we can then retrain on all available data ahead of simulations.
 
 ## Simulation
-After training machine learning models using historical data, predictions of future distributions feed into Monte Carlo simulations [@metropolis_beginning_1987; @kwiatkowski_monte_2022] in the 2030 and 2050 CHC-CMIP6 series [@williams_high_2024] as described in Figure @fig:pipeline. With trials consisting of sampling at the neighborhood scale, this approach allows us to consider many possible values to understand what the distribution of outcomes may look like in the future. These results then enable us to make probability statements about insurance-relevant events such as claims rate. In addition to sampling climate variables and model error residuals to propagate uncertainty [@yanai_estimating_2010], we also draw multiple times to approximate the size of an insured unit^[In this operation, we also draw the unit size itself randomly per trial from historic data [@rma_statecountycrop_2024].] as the exact geospatial risk unit structure is not publicly known. Altogether, this simulates each unit individually per year. Finally, we determine significance via Bonferroni-corrected [@bonferroni_il_1935] Mann Whitney U [@mann_test_1947] per neighborhood per year as variance may differ between the two expected and counterfactual sets [@mcdonald_handbook_2014]. 
+After training machine learning models using historical data, predictions of future distributions feed into Monte Carlo simulations [@metropolis_beginning_1987; @kwiatkowski_monte_2022]. This happens for five individual years separately in both the 2030 and 2050 CHC-CMIP6 series [@williams_high_2024] as described in Figure @fig:pipeline.
+
 
 ![Model pipeline overview diagram. Code released as open source.](./img/pipeline.png "Model pipeline overview diagram. Code released as open source."){ width=80% #fig:pipeline }
 
-Note that, though offering predictions at 30 meter scale, SYCM uses Daymet variables at 1 km resolution [@thornton_daymet_2014] and, thus, we more conservatively assume this 1km granularity in determining sample sizes.
+With trials consisting of sampling at the neighborhood scale, this approach allows us to consider many possible values to understand what the distribution of outcomes may look like in the future for each neighborhood. These results then enable us to make statistical statements about systems-wide institution-relevant events such as claims rate.
+
+### Trials
+Each trial in the Monte Carlo involves multiple sampling operations. First, we sample climate variables and model error residuals to propagate uncertainty [@yanai_estimating_2010]. Next, we also draw multiple times to approximate the size of an insured unit. These drawn values are averaged to simulate a portfolio effect. Note that the size but not location of insured units is publicly disclosed. Therefore, we first draw the geographic size of an insured unit randomly from historic data [@rma_statecountycrop_2024]. Afterwards, we can then draw yields from the neighborhood distribution with the number of samples dependent on that insured unit size.
+
+### Statistical tests
+Altogether, this approach simulates each insured unit individually per year. Having found these outcomes as a distribution, we can then evaluate these results probabilistically. For example, we determine significance both in this paper and our interactive tools via Bonferroni-corrected [@bonferroni_il_1935] Mann Whitney U [@mann_test_1947] per neighborhood per year (selected as variance may differ between the two expected and counterfactual sets) [@mcdonald_handbook_2014].  Note that, though offering predictions at 30 meter scale, the granularity of the response variable may influence statistical power. SYCM uses Daymet variables at 1 km resolution [@thornton_daymet_2014] and, thus, we more conservatively assume this 1km granularity in determining sample sizes for the purposes of statistical tests.
 
 ## Evaluation
-We choose our model using each candidate’s capability to predict into future years, a "sweep temporal displacement" task representative of the Monte Carlo simulations [@brownlee_what_2020]:
+We choose our model using each candidate's capability to predict into future years, a task representative of the Monte Carlo simulations [@brownlee_what_2020]:
 
 - Train on all data between 1999 to 2012 inclusive.
 - Use 2014 and 2016 as validation set to compare the 1,500 candidates.
 - Test in which 2013 and 2015 serve as a fully hidden set in order to estimate how the chosen model may perform in the future.
 
-Having performed model selection, we further evaluate our chosen regressor through three additional tests which more practically estimate performance in different ways one may consider using this method (see Table @tbl:posthoc) while using a larger training set.
+Having performed model selection, we further evaluate our chosen regressor through four additional tests which more practically estimate performance in different ways one may consider using this method (see Table @tbl:posthoc) while using a larger training set.
 
 | **Trial**             | **Purpose**                                               | **Train**                                                                                                   | **Test**                                         |
 | ------------------------------------------------------------------------ | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 | Random Assignment     | Evaluate ability to predict generally.                    | Random 75% of year / geohash combinations such that a geohash may be in training one year and test another. | The remaining 25% of year / region combinations. |
 | Temporal Displacement | Evaluate ability to predict into future years.            | All data from 1999 to 2013 inclusive.                                                                       | All data 2014 to 2016 inclusive.                 |
 | Spatial Displacement  | Evaluate ability to predict into unseen geographic areas. | All 4 character geohashes in a randomly chosen 75% of 3 character regions.                                  | Remaining 25% of regions.                        |
+| Climatic Displacement | Evaluate ability to predict into out of sample growing conditions. | All years but 2012. | 2012 (unusually dry / hot) |
 
 Table: Overview of trials after model selection. {#tbl:posthoc}
 
@@ -145,9 +161,10 @@ Next, having chosen this set of hyper-parameters, we also evaluate regression pe
 
 | **Task**              | **Test Mean Pred MAE** | **Test Std Pred MAE** | **% of Units in Test Set** |
 | --------------------- | ---------------------- | --------------------- | -------------------------- |
+| Random   | {{randomMeanMae}}      | {{randomStdMae}}      | {{randomPercent}}          |
 | Temporal | {{temporalMeanMae}}    | {{temporalStdMae}}    | {{temporalPercent}}        |
 | Spatial  | {{spatialMeanMae}}     | {{spatialStdMae}}     | {{spatialPercent}}         |
-| Random                | {{randomMeanMae}}      | {{randomStdMae}}      | {{randomPercent}}          |
+| Climatic | {{climateMeanMae}}     | {{climateStdMae}}     | {{climatePercent}}         |
 
 Table: Results of tests after model selection. {#tbl:posthocresults}
 
@@ -267,6 +284,9 @@ These public interactive visualizations like Figure @fig:stdev allow for further
  - As expected by the JG design [@jm8_secret_2024], discussion contrasts different results sets and configurations of models but meta-parameter visualization relies heavily on memory so we now offer a "sweep" button for facilitators to show all results at once.
 
 Later work may further explore this design space through controlled experimentation [@lewis_using_1982] or diary studies [@shneiderman_strategies_2006].
+
+## Open source
+TKTK
 
 
 \bigskip
