@@ -165,4 +165,4 @@ We also use:
 <br>
 
 ## License
-Code is released under BSD 3-Clause and data under CC-BY-NC. Please see `LICENSE.md`.
+Code is released under BSD 3-Clause and data under CC-BY-NC 4.0 International. Please see `LICENSE.md`.
