@@ -32,3 +32,9 @@ These public interactive visualizations like Figure @fig:stdev allow for further
  - As expected by the JG design [@jm8_secret_2024], discussion contrasts different results sets and configurations of models but meta-parameter visualization relies heavily on memory so we now offer a "sweep" button for facilitators to show all results at once.
 
 Later work may further explore this design space through controlled experimentation [@lewis_using_1982] or diary studies [@shneiderman_strategies_2006].
+
+First, we specifically use the Mann Whitney U [@mann_test_1947] as variance is observed to differ between the two expected and counterfactual sets [@mcdonald_handbook_2014]. Furthermore, as the neural network attempts to predict the distribution of yield values, we note that the granularity of the response variable (SCYM yield) specifically may influence statistical power. Though prior validation sutides offer confidence [@deines_million_2021], we observe that SYCM [@lobell_scalable_2015] uses Daymet variables at 1 km resolution [@thornton_daymet_2014]. Therefore, we assume 1km resolution for the purposes of statistical tests as autocorrelation in our response variable could artificially increase the number of "true" SCYM yield estimations per neighborhood.
+
+The USDA provides anonymized information about insured units [@rma_statecountycrop_2024] though this information lacks geographic specificity and note that some units may span more than one county. We provide a histogram of this distribution in Figure @fig:insuredunit.
+
+Lacking more geographically detailed information, this distribution is used across the entire U.S. Corn Belt. Even so, inspection of records with county information reveals that this distribution is relatively similar across the corn belt. In comparing the county with the largest insured unit to the one with the smallest, we fail to find a statistically significant difference ($p \geq 0.05$).
