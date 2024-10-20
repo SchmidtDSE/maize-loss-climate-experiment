@@ -189,7 +189,7 @@ These results highlight possible challenges if average-based production historie
 ## Geographic bias
 Neighborhoods with significant results ($p < 0.05 / n$) may be more common in some areas as shown in Figure @fig:geo.
 
-![Interactive geographic view. Color describes type of change. Larger dots are larger areas of maize growing activity. Band of increased risk concentrates in Iowa, Illinois, and Indiana. This could reveal a possible geographic bias within our results.](./img/map.png "Interactive geographic view. Color describes type of change and larger dots are larger areas of maize growing activity. Band of increased risk concentrates in Iowa, Illinois, and Indiana."){#fig:geo}
+![Interactive geographic view. Color describes type of change. Larger dots are larger areas of maize growing activity. Band of increased risk concentrates in Iowa, Illinois, and Indiana. This could reveal a possible geographic bias within our results. Use of the interactive tool allows for consideration of different parameters including alternative statistical treatments.](./img/map.png "Interactive geographic view. Color describes type of change and larger dots are larger areas of maize growing activity. Band of increased risk concentrates in Iowa, Illinois, and Indiana."){#fig:geo}
 
 This spatial pattern may partially reflect that a number of neighborhoods have less land dedicated to maize so simulations have smaller sample sizes and fail to reach significance. However, this geographic effect may also reflect disproportionate stress or other changes relative to historic conditions. In particular, as further explorable in our interactive tools, we note some geographic bias in changes to precipitation, temperature, and VPD / SVP.
 
