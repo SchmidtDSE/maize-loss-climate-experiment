@@ -196,6 +196,9 @@ This spatial pattern may partially reflect that a number of neighborhoods have l
 ## Heat and drought stress
 Our model shows depressed yields during combined warmer and drier conditions, combinations similar to 2012 and its historically poor maize production [@ers_weather_2013]. In this context, precipitation may serve as a protective factor: neighborhoods with drier July conditions see higher loss probability ($p < 0.05 / 2$) in both the 2030 and 2050 series via rank correlation [@spearman_proof_1904]. Our predictions thus reflect empirical studies that document the negative impacts of heat stress and water deficits on maize yields [@sinsawat_effect_2004; @marouf_effects_2013]. As further described in our interactive tools, these outputs may also reveal geographically and temporally specific outlines of these protective factors as possibly useful for insurer and grower adaptation. Even so, we caution that analysis finds significant but still weak rank correlations in both series, indicating that model expectations cannot be described by precipitation alone.
 
+## Performance relative to prior work
+The literature do not provide a perfectly comparable study but @lobell_statistical_2010 offer important context. This prior work reports an $R^2$ of 0.54 for their traditional model while we report an $R^2$ of 0.77 in the climate out of sample task. In line with their discussion, the difference between these measures may arise from our expanded climate factors included in model inputs. However, our use of SCYM as opposed to the narrower set of yields in @lobell_statistical_2010 may also account for this behavior.
+
 ## Other future work
 We also highlight limitations and additional future modeling opportunities beyond the scope of this study.
 
