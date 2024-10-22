@@ -196,17 +196,31 @@ This spatial pattern may partially reflect that a number of neighborhoods have l
 ## Heat and drought stress
 Our model shows depressed yields during combined warmer and drier conditions, combinations similar to 2012 and its historically poor maize production [@ers_weather_2013]. In this context, precipitation may serve as a protective factor: neighborhoods with drier July conditions see higher loss probability ($p < 0.05 / 2$) in both the 2030 and 2050 series via rank correlation [@spearman_proof_1904]. Our predictions thus reflect empirical studies that document the negative impacts of heat stress and water deficits on maize yields [@sinsawat_effect_2004; @marouf_effects_2013]. As further described in our interactive tools, these outputs may also reveal geographically and temporally specific outlines of these protective factors as possibly useful for insurer and grower adaptation. Even so, we caution that analysis finds significant but still weak rank correlations in both series, indicating that model expectations cannot be described by precipitation alone.
 
-## Other future work
+## Other limitations and future work
 We also highlight limitations and additional future modeling opportunities beyond the scope of this study.
 
-- We evaluate yield deltas and include historic yield as inputs into our neural network, allowing those data to "embed" adaptability measures [@hsiang_estimating_2017] such as soil properties and practices. However, those estimating absolute yield prediction may consider @rayburn_comparison_2022 as well as @woodard_efficiency_2017 to incorporate other variables like soil properties.
-- Later research may also extend to genetic modification and climate-motivated practice changes which we assume to be latent in historic data.
-- Though our interactive tools consider different spatial aggregations such as 5 character (4 x 5 km) geohashes, future work may consider modeling with actual field-level yield data and the actual risk unit structure. To that end, we observe that the actual unit yields / revenue and risk unit structure are not currently public.
-- Due to the robustness of yield data, we examine Yield Protection but future agroeconomic study could extend this to the highly related Revenue Protection (RP) form of insurance. Indeed, the yield stresses seen in YP that we describe in this model may also impact RP.
-- With additional data, future modeling could relax our normality assumption though, in addition to 79% of neighborhoods seeing approximately normal yield deltas, we observe that 88% of neighborhoods see approximate symmetry per @kim_statistical_2013 so that later work would likely not remove a systemic directional bias in results.
-- This work focuses on systematic changes in growing conditions impacting claims rates across a broad geographic scale. It does not necessarily capture inclement weather events which may require an alternative form of modeling. However, as left for future work, this step could further impact claims rates at a localized level which may be relevant to programs with portfolios spanning a smaller geographic scale.
-- We offer a unique focus on broad geographic institutionally-relevant loss probability prediction at risk unit scale given remote sensed yield estimations. As we do not have a perfectly compatible study to which can directly contrast performance measures, we invite further research on alternative regression and simulation approaches for similar modeling objectives. We observe that @lobell_statistical_2010 as well as @leng_predicting_2020 from adjacent objectives may offer precedent for this future work.
+### Expanded inputs
+We evaluate yield deltas and include historic yield as inputs into our neural network, allowing those data to "embed" adaptability measures [@hsiang_estimating_2017] such as soil properties and practices. However, those estimating absolute yield prediction may consider @rayburn_comparison_2022 as well as @woodard_efficiency_2017 to incorporate other variables like soil properties.
 
+### Practices
+Later research may also extend to explicitly attributing some changes to genetic modification and climate-motivated practice changes which we assume to be latent in historic data.
+
+### Field-level prediction
+Though our interactive tools consider different spatial aggregations such as 5 character (4 x 5 km) geohashes, future work may consider modeling with actual field-level yield data and the actual risk unit structure. To that end, we observe that the actual unit yields / revenue and risk unit structure are not currently public.
+
+### Other programs
+Due to the robustness of yield data, we examine Yield Protection but future agroeconomic study could extend this to the highly related Revenue Protection (RP) form of insurance. Indeed, the yield stresses seen in YP that we describe in this model may also impact RP.
+
+### Normality assumption
+With additional data, future modeling could relax our normality assumption though, in addition to 79% of neighborhoods seeing approximately normal yield deltas, we observe that 88% of neighborhoods see approximate symmetry per @kim_statistical_2013 so that later work would likely not remove a systemic directional bias in results.
+
+### Specific inclement events
+This work focuses on systematic changes in growing conditions impacting claims rates across a broad geographic scale. It does not necessarily capture inclement weather events which may require an alternative form of modeling. However, as left for future work, this step could further impact claims rates at a localized level which may be relevant to programs with portfolios spanning a smaller geographic scale.
+
+### Benchmarking
+We offer a unique focus on broad geographic institutionally-relevant loss probability prediction at risk unit scale given remote sensed yield estimations. As we do not have a perfectly compatible study to which can directly contrast performance measures, we invite further research on alternative regression and simulation approaches for similar modeling objectives. We observe that @lobell_statistical_2010 as well as @leng_predicting_2020 from adjacent objectives may offer precedent for this future work. Towards that end, we further express the need for public insitutitons to make privacy-respecting mechanisms available to support performance evaluation efforts for risk unit or field level crop loss prediction.
+
+### Trend adjustment
 Note that, while we do anticipate changing historic yield averages in our simulations, we take a conservative approach and do not consider trend adjustment [@plastina_trend-adjusted_2014] and yield exclusion years [@schnitkey_yield_2015]. In raising $y_{expected}$, both would likely increase simulated loss rates.
 
 ## Interactive tools
