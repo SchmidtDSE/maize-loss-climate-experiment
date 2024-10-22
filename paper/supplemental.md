@@ -38,3 +38,4 @@ First, we specifically use the Mann Whitney U [@mann_test_1947] as variance is o
 The USDA provides anonymized information about insured units [@rma_statecountycrop_2024] though this information lacks geographic specificity and note that some units may span more than one county. We provide a histogram of this distribution in Figure @fig:insuredunit.
 
 Lacking more geographically detailed information, this distribution is used across the entire U.S. Corn Belt. Even so, inspection of records with county information reveals that this distribution is relatively similar across the corn belt. In comparing the county with the largest insured unit to the one with the smallest, we fail to find a statistically significant difference ($p \geq 0.05$).
+
