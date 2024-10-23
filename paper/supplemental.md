@@ -1,3 +1,53 @@
+---
+bibliography: ./paper.bib
+title: "Supplementary Materials for Climate-Driven Doubling of U.S. Maize Loss Probability: Simulation through Neural Network Monte Carlo"
+header-includes: |
+  \usepackage{float}
+  \floatplacement{figure}{H}
+date: 2024-10-23
+affiliations:
+  - id: 1
+    name: Eric and Wendy Schmidt Center for Data Science and Environment, University of California Berkeley, Berkeley 94720, CA, USA
+  - id: 2
+    name: Department of Agricultural Economics and Agribusiness, University of Arkansas, Fayetteville 72701, AR, USA
+  - id: 3
+    name: Department of Environmental Science, Policy & Management, University of California Berkeley, Berkeley 94720, CA, USA
+author:
+  - name: A Samuel Pottinger \orcidlink{0000-0002-0458-4985}
+    affil-id: 1
+    correspondence: yes
+    email: sam.pottinger@berkeley.edu
+  - name: Lawson Connor \orcidlink{0000-0001-5951-5752}
+    affil-id: 2
+  - name: Brookie Guzder-Williams \orcidlink{0000-0001-6855-8260}
+    affil-id: 1
+  - name: Maya Weltman-Fahs
+    affil-id: 1
+  - name: Nick Gondek
+    affil-id: 1
+  - name: Timothy Bowles \orcidlink{0000-0002-4840-3787}
+    affil-id: 3
+output:
+  pdf_document:
+    number_sections: yes
+    template: default.tex
+---
+
+# Overview
+These supplementary materials complement "Climate-Driven Doubling of U.S. Maize Loss Probability: Simulation through Neural Network Monte Carlo" to further describe the statistical tests employed, the simulation of insured units, and further details on the interactive tools deployed at https://ag-adaptation-study.pub.
+
+# Statistical tests
+We specifically use Mann Whitney U [@mann_test_1947] as variance is observed to differ between the two expected and counterfactual sets [@mcdonald_handbook_2014]. Furthermore, as the neural network attempts to predict the distribution of yield values, we note that the granularity of the response variable (SCYM yield) specifically may influence statistical power. Though prior validation sutides offer confidence [@deines_million_2021], we observe that SYCM [@lobell_scalable_2015] uses Daymet variables at 1 km resolution [@thornton_daymet_2014]. Therefore, we assume 1km resolution for the purposes of statistical tests as autocorrelation in our response variable could artificially increase the number of "true" SCYM yield estimations per neighborhood.
+
+# Risk unit size
+The USDA provides anonymized information about insured units [@rma_statecountycrop_2024. Though this information lacks geographic specificity, the USDA indicates the county in which these units are located. We provide a histogram of this distribution in Figure @fig:riskunit.
+
+![Examination of risk unit size in years 2013, 2018, and 2023. Visualizes the average size of the risk unit within a county. First, this figure shows how risk unit size changed between each year examined (A) to highlight that the structures do evolve substantially between years. However, these results also indicate that the overall distribution of risk unit sizes is relatively stable (B).](./img_static/risk_unit_shape.png "Examination of risk unit size in years 2013, 2018, and 2023. Visualizes the average size of the risk unit within a county. First, this figure shows how risk unit size changed between each year examined (A) to highlight that the structures do evolve substantially between years. However, these results also indicate that the overall distribution of risk unit sizes is relatively stable (B)."){ width=95% #fig:riskunit}
+
+Analysis highlights year to year instability at the county level which may reflect growers reconfiguring their risk structure to opitimize rates as yield profiles change over time. All this in mind, sampling the risk unit size at the county level likely represents over-confidence or overfitting to previous configurations. Instead, as the system-wide distribution remains stable, we use that larger distribution to sample risk unit sizes within our Monte Carlo simulation. This propogates uncertainty into results.
+
+# Tool design
+
 | **Simulator**   | **Question**                                                                    | **Loop**                                                                                                                                                                   | **JG**                                            |
 | --------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | Rates | What factors influence the price and subsidy of a policy? | Iteratively change variables to increase subsidy.  | Improving on previous hypotheses. |
@@ -33,9 +83,4 @@ These public interactive visualizations like Figure @fig:stdev allow for further
 
 Later work may further explore this design space through controlled experimentation [@lewis_using_1982] or diary studies [@shneiderman_strategies_2006].
 
-First, we specifically use the Mann Whitney U [@mann_test_1947] as variance is observed to differ between the two expected and counterfactual sets [@mcdonald_handbook_2014]. Furthermore, as the neural network attempts to predict the distribution of yield values, we note that the granularity of the response variable (SCYM yield) specifically may influence statistical power. Though prior validation sutides offer confidence [@deines_million_2021], we observe that SYCM [@lobell_scalable_2015] uses Daymet variables at 1 km resolution [@thornton_daymet_2014]. Therefore, we assume 1km resolution for the purposes of statistical tests as autocorrelation in our response variable could artificially increase the number of "true" SCYM yield estimations per neighborhood.
-
-The USDA provides anonymized information about insured units [@rma_statecountycrop_2024] though this information lacks geographic specificity and note that some units may span more than one county. We provide a histogram of this distribution in Figure @fig:insuredunit.
-
-Lacking more geographically detailed information, this distribution is used across the entire U.S. Corn Belt. Even so, inspection of records with county information reveals that this distribution is relatively similar across the corn belt. In comparing the county with the largest insured unit to the one with the smallest, we fail to find a statistically significant difference ($p \geq 0.05$).
-
+# Works cited

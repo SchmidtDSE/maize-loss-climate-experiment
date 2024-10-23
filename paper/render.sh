@@ -9,6 +9,10 @@ pandoc -o paper_filled.pdf --citeproc --number-sections --filter pandoc-tablenos
 pandoc -o paper_filled.tex --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos --template=default.tex paper_filled.md
 pandoc -o paper_filled.docx --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos paper_filled.md
 
+pandoc -o supplemental.pdf --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos --template=default.tex supplemental.md
+pandoc -o supplemental.tex --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos --template=default.tex supplemental.md
+pandoc -o supplemental.docx --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos supplemental.md
+
 rm -r arxiv
 mkdir arxiv
 
