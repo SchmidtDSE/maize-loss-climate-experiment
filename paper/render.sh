@@ -18,6 +18,7 @@ mkdir arxiv
 
 cp paper_filled.* arxiv
 cp -r img arxiv/img
+cp supplemental.* arxiv
 
 cd arxiv
 zip arxiv.zip *.*
