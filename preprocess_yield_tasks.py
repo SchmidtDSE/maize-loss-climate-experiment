@@ -250,6 +250,37 @@ class PreprocessYieldGeotiffsTask(luigi.Task):
         return client.gather(futures)
 
 
+class PreprocessYieldWithMinGeotiffsTask(luigi.Task):
+    """Enforce a minimum sample size per geohash."""
+
+    def requires(self):
+        """Returns the task generating the unfiltered yield data.
+
+        Returns:
+            PreprocessYieldGeotiffsTask
+        """
+        return PreprocessYieldGeotiffsTask()
+    
+    def output(self):
+        """Get the location where the yield information should be written.
+
+        Returns:
+            LocalTarget where the preprocessed data should be written.
+        """
+        return luigi.LocalTarget(const.get_file_location('yield_allowed.csv'))
+    
+    def run(self):
+        """Perform the filter."""
+        with self.input().open('r') as f_in:
+            reader = csv.DictReader(f_in)
+            allowed = filter(lambda x: float(x['count']) >= const.MIN_SAMPLE_SIZE, reader)
+            
+            with self.output().open('w') as f_out:
+                writer = csv.DictWriter(f_out, fieldnames=const.GEOHASH_YIELD_COLS)
+                writer.writeheader()
+                writer.writerows(allowed)
+
+
 class GetTargetGeohashesTask(luigi.Task):
     """Get the list of geohashes to be included in analysis."""
 

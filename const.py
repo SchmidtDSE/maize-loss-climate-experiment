@@ -14,6 +14,7 @@ CLUSTER_NAME = 'maize-insurance-adapt-cluster'
 START_WORKERS = 10
 BUCKET_OR_DIR = os.environ.get('SOURCE_DATA_LOC', '')
 SAMPLE_DAY_GAP = 1
+MIN_SAMPLE_SIZE = 33334
 
 HISTORIC_TRAINING_FILENAME = 'training_historic.csv'
 

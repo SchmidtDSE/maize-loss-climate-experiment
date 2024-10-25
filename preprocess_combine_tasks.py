@@ -185,7 +185,7 @@ class CombineHistoricPreprocessTask(luigi.Task):
         """Indicate that preprocessed climate and yields data are required.
 
         Returns:
-            PreprocessClimateGeotiffsTask and PreprocessYieldGeotiffsTask
+            PreprocessClimateGeotiffsTask and PreprocessYieldWithMinGeotiffsTask
         """
         return {
             'climate': preprocess_climate_tasks.PreprocessClimateGeotiffsTask(
@@ -193,7 +193,7 @@ class CombineHistoricPreprocessTask(luigi.Task):
                 conditions=['observations'],
                 years=const.YEARS
             ),
-            'yield': preprocess_yield_tasks.PreprocessYieldGeotiffsTask()
+            'yield': preprocess_yield_tasks.PreprocessYieldWithMinGeotiffsTask()
         }
 
     def output(self):
@@ -238,17 +238,18 @@ class CombineHistoricPreprocessTask(luigi.Task):
                 max_val = float(row['max'])
                 count = float(row['count'])
 
-                geohash_builder = geohash_builders[geohash]
-                geohash_builder.add_climate_value(
-                    year,
-                    month,
-                    var,
-                    mean,
-                    std,
-                    min_val,
-                    max_val,
-                    count
-                )
+                if geohash in geohash_builders:
+                    geohash_builder = geohash_builders[geohash]
+                    geohash_builder.add_climate_value(
+                        year,
+                        month,
+                        var,
+                        mean,
+                        std,
+                        min_val,
+                        max_val,
+                        count
+                    )
 
         builders_flat = geohash_builders.values()
         dicts_nested = map(lambda x: x.to_dicts(), builders_flat)
