@@ -260,7 +260,7 @@ class PreprocessYieldWithMinGeotiffsTask(luigi.Task):
             PreprocessYieldGeotiffsTask
         """
         return PreprocessYieldGeotiffsTask()
-    
+
     def output(self):
         """Get the location where the yield information should be written.
 
@@ -268,13 +268,13 @@ class PreprocessYieldWithMinGeotiffsTask(luigi.Task):
             LocalTarget where the preprocessed data should be written.
         """
         return luigi.LocalTarget(const.get_file_location('yield_allowed.csv'))
-    
+
     def run(self):
         """Perform the filter."""
         with self.input().open('r') as f_in:
             reader = csv.DictReader(f_in)
             allowed = filter(lambda x: float(x['count']) >= const.MIN_SAMPLE_SIZE, reader)
-            
+
             with self.output().open('w') as f_out:
                 writer = csv.DictWriter(f_out, fieldnames=const.GEOHASH_YIELD_COLS)
                 writer.writeheader()
