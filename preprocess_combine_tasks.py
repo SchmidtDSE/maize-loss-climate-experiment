@@ -13,6 +13,8 @@ import const
 import preprocess_climate_tasks
 import preprocess_yield_tasks
 
+MIN_SAMPLE = 33334
+
 
 class GeohashCollectionBuilder:
     """Builder to create yearly summaries for a geohash that include all variables."""
@@ -150,6 +152,14 @@ class TrainingInstanceBuilder:
         self._climate_maxes[key] = max_val
         self._climate_counts[key] = count
         self._total_climate_counts += 1
+    
+    def get_has_sufficient_sample(self):
+        """Determine if the sample is large enough to include in outputs.
+        
+        Returns:
+            True if sufficient sample and false otherwise.
+        """
+        return self._yield_observations >= MIN_SAMPLE
 
     def to_dict(self):
         """Generate a single output record describing all variables for this year.
@@ -251,7 +261,8 @@ class CombineHistoricPreprocessTask(luigi.Task):
                 )
 
         builders_flat = geohash_builders.values()
-        dicts_nested = map(lambda x: x.to_dicts(), builders_flat)
+        builders_flat_allowed = filter(lambda x: x.get_has_sufficient_sample(), builders_flat)
+        dicts_nested = map(lambda x: x.to_dicts(), builders_flat_allowed)
         dicts = itertools.chain(*dicts_nested)
 
         with self.output().open('w') as f:
@@ -327,7 +338,8 @@ class ReformatFuturePreprocessTask(luigi.Task):
                 )
 
         builders_flat = geohash_builders.values()
-        dicts_nested = map(lambda x: x.to_dicts(), builders_flat)
+        builders_flat_allowed = filter(lambda x: x.get_has_sufficient_sample(), builders_flat)
+        dicts_nested = map(lambda x: x.to_dicts(), builders_flat_allowed)
         dicts = itertools.chain(*dicts_nested)
 
         with self.output().open('w') as f:
