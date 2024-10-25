@@ -1038,7 +1038,7 @@ positive impacts in some parts of the Pacific Northwest and New England.
 
 @misc{rma_statecountycrop_2024,
 	title = {State/County/Crop Summary of Business},
-	url = {https://www.rma.usda.gov/SummaryOfBusiness/StateCountyCrop},
+	url = {https://old.rma.usda.gov/en/Information-Tools/Summary-of-Business/State-County-Crop-Summary-of-Business},
 	publisher = {United States Department of Agriculture},
 	author = {{RMA}},
 	date = {2024},
@@ -1125,4 +1125,65 @@ See the {README}.md for more details.},
 	author = {Pottinger, A and Connor, Lawson and Guzder-Williams, Brookie and Weltman-Fahs, Maya and Bowles, Timothy},
 	urldate = {2024-08-21},
 	date = {2024-08-21},
+}
+
+@article{lobell_statistical_2010,
+title = {On the use of statistical models to predict crop yield responses to climate change},
+journal = {Agricultural and Forest Meteorology},
+volume = {150},
+number = {11},
+pages = {1443-1452},
+year = {2010},
+issn = {0168-1923},
+doi = {https://doi.org/10.1016/j.agrformet.2010.07.008},
+url = {https://www.sciencedirect.com/science/article/pii/S0168192310001978},
+author = {David B. Lobell and Marshall B. Burke},
+keywords = {CERES-Maize, Africa, Marksim, Maize},
+abstract = {Predicting the potential effects of climate change on crop yields requires a model of how crops respond to weather. As predictions from different models often disagree, understanding the sources of this divergence is central to building a more robust picture of climate change's likely impacts. A common approach is to use statistical models trained on historical yields and some simplified measurements of weather, such as growing season average temperature and precipitation. Although the general strengths and weaknesses of statistical models are widely understood, there has been little systematic evaluation of their performance relative to other methods. Here we use a perfect model approach to examine the ability of statistical models to predict yield responses to changes in mean temperature and precipitation, as simulated by a process-based crop model. The CERES-Maize model was first used to simulate historical maize yield variability at nearly 200 sites in Sub-Saharan Africa, as well as the impacts of hypothetical future scenarios of 2°C warming and 20% precipitation reduction. Statistical models of three types (time series, panel, and cross-sectional models) were then trained on the simulated historical variability and used to predict the responses to the future climate changes. The agreement between the process-based and statistical models’ predictions was then assessed as a measure of how well statistical models can capture crop responses to warming or precipitation changes. The performance of statistical models differed by climate variable and spatial scale, with time-series statistical models ably reproducing site-specific yield response to precipitation change, but performing less well for temperature responses. In contrast, statistical models that relied on information from multiple sites, namely panel and cross-sectional models, were better at predicting responses to temperature change than precipitation change. The models based on multiple sites were also much less sensitive to the length of historical period used for training. For all three statistical approaches, the performance improved when individual sites were first aggregated to country-level averages. Results suggest that statistical models, as compared to CERES-Maize, represent a useful if imperfect tool for projecting future yield responses, with their usefulness higher at broader spatial scales. It is also at these broader scales that climate projections are most available and reliable, and therefore statistical models are likely to continue to play an important role in anticipating future impacts of climate change.}
+}
+
+@article{ma_qdann_2024,
+title = {Subfield-level crop yield mapping without ground truth data: A scale transfer framework},
+journal = {Remote Sensing of Environment},
+volume = {315},
+pages = {114427},
+year = {2024},
+issn = {0034-4257},
+doi = {https://doi.org/10.1016/j.rse.2024.114427},
+url = {https://www.sciencedirect.com/science/article/pii/S003442572400453X},
+author = {Yuchi Ma and Sang-Zi Liang and D. Brenton Myers and Anu Swatantran and David B. Lobell},
+keywords = {Crop yields, Landsat, Agricultural monitoring, Deep learning, Transfer learning},
+abstract = {Ongoing advances in satellite remote sensing data and machine learning methods have enabled crop yield estimation at various spatial and temporal resolutions. While yield mapping at broader scales (e.g., state or county level) has become common, mapping at finer scales (e.g., field or subfield) has been limited by the lack of ground truth data for model training and evaluation. Here we present a scale transfer framework, named Quantile loss Domain Adversarial Neural Networks (QDANN), that leverages knowledge from county-level datasets to map crop yields at the subfield level. Based on the strategy of unsupervised domain adaptation, QDANN is trained on labeled county-level data and unlabeled subfield-level data, with no requirement for yield information at the subfield level. We evaluate the proposed method applied to Landsat imagery and Gridmet weather data for maize, soybean, and winter wheat fields in the United States, using as reference data yield monitor records from roughly one million field-year observations. The model is compared with several process-based and machine learning-based benchmark approaches that train on simulated yield records or county-level data. QDANN-estimated yields achieved an R2 score (RMSE) of 48 % (2.29 t/ha), 32 % (0.85 t/ha), and 39 % (1.40 t/ha) for maize, soybean, and winter wheat in comparison with the ground-based yield measures, respectively. These performances are higher than benchmark approaches and are nearly as good as models trained on field-level data. When aggregated to the county level, the improvement achieved by QDANN is more pronounced and the R2 scores (RMSE) improved to 78 % (0.98 t/ha), 62 % (0.37 t/ha), and 53 % (1.00 t/ha) for maize, soybean, and winter wheat, respectively. This study demonstrates that the proposed scale transfer framework can serve as a reliable approach for yield mapping at the subfield level when there is no access to fine-scale yield information. Based on the QDANN model, we have generated and made publicly available 30-m annual yield maps for major crop-producing states in the U.S. since 2008.}
+}
+
+
+@article{klompenburg_crop_2020,
+title = {Crop yield prediction using machine learning: A systematic literature review},
+journal = {Computers and Electronics in Agriculture},
+volume = {177},
+pages = {105709},
+year = {2020},
+issn = {0168-1699},
+doi = {https://doi.org/10.1016/j.compag.2020.105709},
+url = {https://www.sciencedirect.com/science/article/pii/S0168169920302301},
+author = {Thomas {van Klompenburg} and Ayalew Kassahun and Cagatay Catal},
+keywords = {Crop yield prediction, Decision support system, Systematic literature review, Machine learning, Deep learning},
+abstract = {Machine learning is an important decision support tool for crop yield prediction, including supporting decisions on what crops to grow and what to do during the growing season of the crops. Several machine learning algorithms have been applied to support crop yield prediction research. In this study, we performed a Systematic Literature Review (SLR) to extract and synthesize the algorithms and features that have been used in crop yield prediction studies. Based on our search criteria, we retrieved 567 relevant studies from six electronic databases, of which we have selected 50 studies for further analysis using inclusion and exclusion criteria. We investigated these selected studies carefully, analyzed the methods and features used, and provided suggestions for further research. According to our analysis, the most used features are temperature, rainfall, and soil type, and the most applied algorithm is Artificial Neural Networks in these models. After this observation based on the analysis of machine learning-based 50 papers, we performed an additional search in electronic databases to identify deep learning-based studies, reached 30 deep learning-based papers, and extracted the applied deep learning algorithms. According to this additional analysis, Convolutional Neural Networks (CNN) is the most widely used deep learning algorithm in these studies, and the other widely used deep learning algorithms are Long-Short Term Memory (LSTM) and Deep Neural Networks (DNN).}
+}
+
+@article{koumou_diversification_2020,
+  title={Diversification and portfolio theory: a review},
+  author={Gilles Boevi Koumou},
+  journal={Financial Markets and Portfolio Management},
+  year={2020},
+  pages={1-46},
+  url={https://api.semanticscholar.org/CorpusID:219917027}
+}
+
+@article{mahul_government_2010,
+  title={Government Support to Agricultural Insurance : Challenges and Options for Developing Countries},
+  author={Oliver Mahul and Charles Stutley},
+  year={2010},
+  url={https://openknowledge.worldbank.org/entities/publication/8a605230-3df5-5a4e-8996-5a6de07747e1},
+  journal={The World Bank Open Knowledge Repository}
 }
