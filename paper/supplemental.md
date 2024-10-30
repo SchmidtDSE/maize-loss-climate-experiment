@@ -86,4 +86,10 @@ These public interactive visualizations like Figure @fig:stdev allow for further
 
 Later work may further explore this design space through controlled experimentation [@lewis_using_1982] or diary studies [@shneiderman_strategies_2006].
 
+# Additional notes on included years and areas
+Note that we report on and compare against yield averages for a single maize crop for five individual years in the 2030 CHC-CMIP6 series and five individual years in 2050 CHC-CMIP6 series. Note that predictions are not necessarily intended as specific predictions in specific years. Instead, our analysis produces distributions of anticipated outcomes at the 2030 and 2050 timeframes, following a similar structure from CHC-CMIP6.
+
+# Crop rotations
+In practice, a very large share of growers will engage in at least simple crop rotations so a 10 year production history for corn may actually span 20 calendar years. A 2 crop rotation is quite common [@manski_diversified_2024]. We use SCYM to implicitly handle that the geographic areas growing corn may evolve from one year to the next. These reported sample sizes impact the sampling behavior during Monte Carlo and, while this approach does not require explicit consideration of crop rotations, the set of geohashes present in results may vary from one year to the next in part due to this behavior. Historic locations of growth and crop rotation behavior from the past are sampled in the future simulations.
+
 # Works cited
