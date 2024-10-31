@@ -33,8 +33,7 @@ output:
     template: default.tex
 ---
 
-# Overview
-These supplementary materials complement "Climate-Driven Doubling of U.S. Maize Loss Probability: Interactive Simulation through Neural Network Monte Carlo" to further describe the work including statistical tests employed, the simulation of insured units, and further details on the interactive tools available at https://ag-adaptation-study.pub.
+**Overview**: These supplementary materials complement "Climate-Driven Doubling of U.S. Maize Loss Probability: Interactive Simulation through Neural Network Monte Carlo" to further describe the work including statistical tests employed, the simulation of insured units, and further details on the interactive tools available at https://ag-adaptation-study.pub.
 
 # Methods and data
 These materials start with further consideration of the methods and data empoloyed.
