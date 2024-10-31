@@ -4,7 +4,7 @@ title: "Climate-Driven Doubling of U.S. Maize Loss Probability: Interactive Simu
 header-includes: |
   \usepackage{float}
   \floatplacement{figure}{H}
-date: 2024-10-23
+date: 2024-10-31
 affiliations:
   - id: 1
     name: Eric and Wendy Schmidt Center for Data Science and Environment, University of California Berkeley, Berkeley 94720, CA, USA
@@ -33,7 +33,7 @@ output:
     template: default.tex
 ---
 
-**Abstract:** Climate change not only threatens agricultural producers but also strains related public agencies and financial institutions. These important food system actors include government entities tasked with insuring grower livelihoods and supporting response to continued global warming. We examine future risk within the U.S. Corn Belt geographic region in the context of one such crucial institution: the U.S. Federal Crop Insurance Program. Specifically, we simulate the impacts of climate-driven crop loss through neural network Monte Carlo at a policy-salient "risk unit" scale. Our simulations predict more frequent and severe losses that would result in a financially onerous doubling in the annual probability of maize Yield Protection insurance claims at mid-century relative to current levels. We also present an open source pipeline and interactive visualization tools to further explore these results with configurable statistical treatments. Altogether, we fill an important gap in current understanding by bridging existing historic yield estimation and climate projection to predict institutionally relevant crop loss metrics at policy-relevant granularity.
+**Abstract:** Climate change not only threatens agricultural producers but also strains related public agencies and financial institutions. These important food system actors include government entities tasked with insuring grower livelihoods and supporting response to continued global warming. We examine future risk within the U.S. Corn Belt geographic region for one such crucial institution: the U.S. Federal Crop Insurance Program. Specifically, we simulate the impacts of climate-driven crop loss through neural network Monte Carlo at a policy-salient "risk unit" scale. Our simulations predict more frequent and severe losses that would result in a financially onerous doubling in the annual probability of maize Yield Protection insurance claims at mid-century relative to current levels. We also present an open source pipeline and interactive visualization tools to further explore these results with configurable statistical treatments. Altogether, we fill an important gap in current understanding by bridging existing historic yield estimation and climate projection to predict institutionally relevant crop loss metrics at policy-relevant granularity.
 
 # Introduction
 Public institutions such as government-supported crop insurance play an important role in agricultural stability across much of the world [@mahul_government_2010]. We add to existing work regarding global warming impacts to these essential food systems actors [@diffenbaugh_historical_2021] by examining the U.S. Federal Crop Insurance Program inside the U.S. Corn Belt geographic region. More specifically, we build upon prior climate projections [@williams_high_2024] and remote sensing yield estimations [@lobell_scalable_2015] to generate yield loss projections for maize through Monte Carlo simulations on top of neural network regressors. As further described below, this enables prediction of future insurance claims rates under climate change at an institutionally-relevant spatial scale.
