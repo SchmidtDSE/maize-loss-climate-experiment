@@ -1,10 +1,10 @@
 ---
 bibliography: ./paper.bib
-title: "Supplementary Materials for Climate-Driven Doubling of U.S. Maize Loss Probability: Simulation through Neural Network Monte Carlo"
+title: "Supplementary Materials for Climate-Driven Doubling of U.S. Maize Loss Probability: Interactive Simulation through Neural Network Monte Carlo"
 header-includes: |
   \usepackage{float}
   \floatplacement{figure}{H}
-date: 2024-10-23
+date: 2024-10-31
 affiliations:
   - id: 1
     name: Eric and Wendy Schmidt Center for Data Science and Environment, University of California Berkeley, Berkeley 94720, CA, USA
@@ -23,7 +23,7 @@ author:
     affil-id: 1
   - name: Maya Weltman-Fahs
     affil-id: 1
-  - name: Nick Gondek
+  - name: Nick Gondek \orcidlink{0009-0007-7431-4669}
     affil-id: 1
   - name: Timothy Bowles \orcidlink{0000-0002-4840-3787}
     affil-id: 3
@@ -33,20 +33,35 @@ output:
     template: default.tex
 ---
 
-# Overview
-These supplementary materials complement "Climate-Driven Doubling of U.S. Maize Loss Probability: Simulation through Neural Network Monte Carlo" to further describe the statistical tests employed, the simulation of insured units, and further details on the interactive tools deployed at https://ag-adaptation-study.pub.
+**Overview**: These supplementary materials complement "Climate-Driven Doubling of U.S. Maize Loss Probability: Interactive Simulation through Neural Network Monte Carlo" to further describe the work including statistical tests employed, the simulation of insured units, and further details on the interactive tools available at https://ag-adaptation-study.pub.
 
-# Statistical tests
-We specifically use Mann Whitney U [@mann_test_1947] as variance is observed to differ between the two expected and counterfactual sets [@mcdonald_handbook_2014]. Furthermore, as the neural network attempts to predict the distribution of yield values, we note that the granularity of the response variable (SCYM yield) specifically may influence statistical power. Though prior validation sutides offer confidence [@deines_million_2021], we observe that SYCM [@lobell_scalable_2015] uses Daymet variables at 1 km resolution [@thornton_daymet_2014]. Therefore, we assume 1km resolution for the purposes of statistical tests as autocorrelation in our response variable could artificially increase the number of "true" SCYM yield estimations per neighborhood.
+# Methods and data
+These materials start with further consideration of the methods and data empoloyed.
 
-# Risk unit size
-The USDA provides anonymized information about insured units [@rma_statecountycrop_2024]. Though this information lacks geographic specificity, the USDA indicates the county in which these units are located. We provide a histogram of this distribution in Figure @fig:riskunit.
+## Statistical tests
+We specifically use Mann Whitney U [@mann_test_1947] as variance is observed to differ between the two expected and counterfactual sets [@mcdonald_handbook_2014]. Furthermore, as our neural network attempts to predict the distribution of yield values, we note that the granularity of the response variable (SCYM yield) specifically may influence statistical power. Though prior validation studies offer confidence [@deines_million_2021], we observe that SYCM [@lobell_scalable_2015] uses Daymet variables at 1 km resolution [@thornton_daymet_2014]. Therefore, due to potential correlation within those 1km cells, we assume 1km resolution for the purposes of statistical tests as autocorrelation in our response variable could artificially increase the number of "true" SCYM yield estimations per neighborhood.
 
-![Examination of risk unit size in years 2013, 2018, and 2023. Visualizes the average size of the risk unit within a county. First, this figure shows how risk unit size changed between each year examined (A) to highlight that the structures do evolve substantially between years. However, these results also indicate that the overall distribution of risk unit sizes is relatively stable (B).](./img_static/risk_unit_shape.png "Examination of risk unit size in years 2013, 2018, and 2023. Visualizes the average size of the risk unit within a county. First, this figure shows how risk unit size changed between each year examined (A) to highlight that the structures do evolve substantially between years. However, these results also indicate that the overall distribution of risk unit sizes is relatively stable (B) when considered system-wide."){ width=95% #fig:riskunit}
+## Insured risk unit data
+The USDA provides anonymized information about insured units [@rma_statecountycrop_2024]. Though these data lack geographic specificity, the USDA indicates the county in which these units are located. We provide a histogram of this distribution in Figure @fig:riskunit.
 
-Analysis highlights year to year instability at the county level which may reflect growers reconfiguring their risk structure to opitimize rates as yield profiles change over time. All this in mind, sampling the risk unit size at the county level likely represents over-confidence or overfitting to previous configurations. Even so, we observe that the system-wide risk unit size distribution remains relatively stable. This may suggest taht, even as more local changes to risk unit structure may be more substantial between years, overall expectations for the size of risk units are less fluid. All this in mind, we use that larger system-wide distribution to sample risk unit sizes within our Monte Carlo simulation instead of the county-level distributions. This also has the effect of propogating risk unit size uncertainty into results through the mechanics of the Monte Carlo.
+![Examination of risk unit size in years 2013, 2018, and 2023. Visualizes the average size of the risk unit within a county. First, this figure shows how risk unit size changed between each year examined (A) to highlight that the structures do evolve substantially between years. However, these results also indicate that the overall distribution of risk unit sizes is relatively stable (B) when considered system-wide. Some extreme outliers not shown to preseve detail.](./img_static/risk_unit_shape.png "Examination of risk unit size in years 2013, 2018, and 2023. Visualizes the average size of the risk unit within a county. First, this figure shows how risk unit size changed between each year examined (A) to highlight that the structures do evolve substantially between years. However, these results also indicate that the overall distribution of risk unit sizes is relatively stable (B) when considered system-wide. Some extreme outliers not shown to preseve detail."){ width=95% #fig:riskunit}
 
-# Tool design
+Analysis highlights year to year instability at the county level which may reflect growers reconfiguring their risk structure to opitimize rates as yield profiles change over time, causing the geographic location of larger units to shift over time.
+
+All this in mind, sampling the risk unit size at the county level likely represents over-confidence or overfitting to previous configurations. Even so, we observe that the system-wide risk unit size distribution remains relatively stable. This may suggest that, even as more local changes to risk unit structure may be more substantial between years, overall expectations for the size of risk units are less fluid. Therefore, we use that larger system-wide distribution to sample risk unit sizes within our Monte Carlo simulation instead of the county-level distributions. This also has the effect of propogating risk unit size uncertainty into results through the mechanics of Monte Carlo.
+
+## Additional notes on included years and areas
+Note that we report on and compare against yield averages for maize for five individual years in the 2030 CHC-CMIP6 series and five individual years in 2050 CHC-CMIP6 series. Predictions are not necessarily intended as specific predictions in specific years. Instead, our analysis produces distributions of anticipated outcomes at the 2030 and 2050 timeframes, following a similar structure from CHC-CMIP6.
+
+## Crop rotations
+In practice, a very large share of growers will engage in at least simple crop rotations so a 10 year production history for corn may actually span 20 calendar years [@manski_diversified_2024]. We use SCYM to implicitly handle that the geographic areas growing corn may evolve from one year to the next. These reported sample sizes impact the sampling behavior during Monte Carlo and, while this approach does not require explicit consideration of crop rotations, the set of geohashes present in results may vary from one year to the next in part due to this behavior. All that said, historic locations of growth and crop rotation behavior from the past are sampled in the future simulations.
+
+## Normality assumption
+We observe that 79% of neighborhoods see approximately normal yield deltas and 88% see approximate symmetry [@kim_statistical_2013]. Even so, future modeling could relax our normality assumption with additional data.
+
+# Interactive tools
+Next, we consider our interactive tools. In crafting these "explorable explanations" [@victor_explorable_2011] in Table @tbl:apps, we draw analogies to micro-apps  [@bridgwater_what_2015] or mini-games [@dellafave_designing_2014] in which the user encounters a series of small experiences that, each with distinct interaction and objectives, can only provide minimal instruction [@brown_100_2024]. As these visualizations cannot take advantage of design techniques like Hayashida-style tutorials [@pottinger_pyafscgaporg_2023], they rely on simple "loops" [@brazie_designing_2024] for immediate "juxtaposition gratification" (JG) [@jm8_secret_2024], showing fast progression after minimal input.
+
 
 | **Simulator**   | **Question**                                                                    | **Loop**                                                                                                                                                                   | **JG**                                            |
 | --------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
@@ -58,9 +73,10 @@ Analysis highlights year to year instability at the county level which may refle
 
 Table: Overview of explorable explanations. {#tbl:apps}
 
-In crafting the "explorable explanations" [@victor_explorable_2011] in Table @tbl:apps, we draw analogies to micro-apps  [@bridgwater_what_2015] or mini-games [@dellafave_designing_2014] in which the user encounters a series of small experiences that, each with distinct interaction and objectives, can only provide minimal instruction [@brown_100_2024]. As these visualizations cannot take advantage of design techniques like Hayashida-style tutorials [@pottinger_pyafscgaporg_2023], they rely on simple "loops" [@brazie_designing_2024] for immediate "juxtaposition gratification" (JG) [@jm8_secret_2024], showing fast progression after minimal input.
+Following @unwin_why_2020, our custom tools first serve as internal exploratory graphics enabling the insights detailed in our results before acting as a medium of sharing our work with others.
 
-Following @unwin_why_2020, our custom tools first serve as internal "exploratory" graphics enabling the insights detailed in our results with Table @tbl:insights outlining specific observations we attribute to our use of these tools.
+## Internal use
+First, these tools were built during our own internal exploration of data and results with Table @tbl:insights outlining specific observations we attribute to our use of these tools.
 
 | **Simulator**   | **Observation**                                                                                                                         |
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------- |
@@ -71,16 +87,15 @@ Following @unwin_why_2020, our custom tools first serve as internal "exploratory
 
 Table: Observations we made from our own tools in the "exploratory" graphic context of @unwin_why_2020. {#tbl:insights}
 
-Then, continuing to "presentation" [@unwin_why_2020], we next release these tools into a open source website at [https://ag-adaptation-study.pub](https://ag-adaptation-study.pub).
+Altogether, these tools served to support our exploration of our modeling such as different loss thresholds for other insurance products, finding relationships of outcomes to different climate variables, answering geographically specific questions beyond the scope of this study, and modification of machine learning parameters to understand performance.
 
-![Example interactive showing how a high stability unit could see a claim for a bad year under $l_{\sigma}$ but not $l_{\%}$.](./img/yield_sim.png "Example interactive showing how a high stability unit could see a claim for a bad year under $l_{\sigma}$ but not $l_{\%}$."){ width=90% #fig:stdev}
-
-These public interactive visualizations like Figure @fig:stdev allow for further exploration of our modeling such as different loss thresholds for other insurance products, finding relationships of outcomes to different climate variables, answering geographically specific questions beyond the scope of this study, and modification of machine learning parameters to understand performance. This may include use as workshop activity and we also report^[We collect information about the tool only and not generalizable knowledge about users or these patterns, falling under "quality assurance" activity. IRB questionnaire on file.] briefly on design changes made to our interactive tools in response to its participation in a 9 person "real-world" workshop session co-exploring these results:
+## Workshops
+In addition to supporting our finding of our own conclusions, we released this software publicly at https://ag-adaptation-study.pub/. Possible use of these tools include workshop activity and we also report^[We collect information about the tool only and not generalizable knowledge about users or these patterns, falling under "quality assurance" activity. IRB questionnaire on file.] briefly on design changes made to our interactive tools in response to its participation in a 9 person "real-world" workshop session encompassing scientists and engineers which was intended to improve these tools through active co-exploration of study results:
 
  - Facilitators elected to alternate between presentation and interaction similar to @pottinger_combining_2023 but we added the rates simulator to further improve presentation of the rate setting process.
  - Facilitators suggest that single loop [@brazie_designing_2024] designs perform best within the limited time of the workshop and we now let facilitators hold the longer two loop neighborhood simulator till the end by default.
  - As expected by the JG design [@jm8_secret_2024], discussion contrasts different results sets and configurations of models but meta-parameter visualization relies heavily on memory so we now offer a "sweep" button for facilitators to show all results at once.
 
-Later work may further explore this design space through controlled experimentation [@lewis_using_1982] or diary studies [@shneiderman_strategies_2006].
+That said, while we are thankful for this workshop which only focused on quality improvements specific to the service offered by https://ag-adaptation-study.pub/, later work may further explore this design space through controlled experimentation [@lewis_using_1982] or diary studies [@shneiderman_strategies_2006].
 
 # Works cited
