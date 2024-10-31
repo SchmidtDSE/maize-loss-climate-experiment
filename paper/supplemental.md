@@ -37,7 +37,7 @@ output:
 These supplementary materials complement "Climate-Driven Doubling of U.S. Maize Loss Probability: Simulation through Neural Network Monte Carlo" to further describe the statistical tests employed, the simulation of insured units, and further details on the interactive tools deployed at https://ag-adaptation-study.pub.
 
 # Statistical tests
-We specifically use Mann Whitney U [@mann_test_1947] as variance is observed to differ between the two expected and counterfactual sets [@mcdonald_handbook_2014]. Furthermore, as the neural network attempts to predict the distribution of yield values, we note that the granularity of the response variable (SCYM yield) specifically may influence statistical power. Though prior validation sutides offer confidence [@deines_million_2021], we observe that SYCM [@lobell_scalable_2015] uses Daymet variables at 1 km resolution [@thornton_daymet_2014]. Therefore, we assume 1km resolution for the purposes of statistical tests as autocorrelation in our response variable could artificially increase the number of "true" SCYM yield estimations per neighborhood.
+We specifically use Mann Whitney U [@mann_test_1947] as variance is observed to differ between the two expected and counterfactual sets [@mcdonald_handbook_2014]. Furthermore, as the neural network attempts to predict the distribution of yield values, we note that the granularity of the response variable (SCYM yield) specifically may influence statistical power. Though prior validation studies offer confidence [@deines_million_2021], we observe that SYCM [@lobell_scalable_2015] uses Daymet variables at 1 km resolution [@thornton_daymet_2014]. Therefore, due to potential correlation within those 1km cells, we assume 1km resolution for the purposes of statistical tests as autocorrelation in our response variable could artificially increase the number of "true" SCYM yield estimations per neighborhood.
 
 # Risk unit size
 The USDA provides anonymized information about insured units [@rma_statecountycrop_2024]. Though this information lacks geographic specificity, the USDA indicates the county in which these units are located. We provide a histogram of this distribution in Figure @fig:riskunit.
@@ -90,5 +90,8 @@ Note that we report on and compare against yield averages for a single maize cro
 
 # Crop rotations
 In practice, a very large share of growers will engage in at least simple crop rotations so a 10 year production history for corn may actually span 20 calendar years. A 2 crop rotation is quite common [@manski_diversified_2024]. We use SCYM to implicitly handle that the geographic areas growing corn may evolve from one year to the next. These reported sample sizes impact the sampling behavior during Monte Carlo and, while this approach does not require explicit consideration of crop rotations, the set of geohashes present in results may vary from one year to the next in part due to this behavior. Historic locations of growth and crop rotation behavior from the past are sampled in the future simulations.
+
+# Normality assumption
+We observe that 79% of neighborhoods see approximately normal yield deltas and 88% see approximate symmetry [@kim_statistical_2013]. Even so, future modeling could relax our normality assumption with additional data.
 
 # Works cited
