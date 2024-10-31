@@ -109,19 +109,6 @@ Table: Parameters which we try in different permutations to find an optimal conf
 
 In order to find a suitable combintaion of hyper-parameters, this process involves permuting different option combinations from Table @tbl:sweepparam before we select a configuration^[All non-output neurons use Leaky ReLU activation per @maas_rectifier_2013 and we use AdamW optimizer [@kingma_adam_2014; @loshchilov_decoupled_2017].] from the 1,500 candidate models. Finally, with meta-parameters chosen, we can then retrain on all available data ahead of simulations.
 
-## Simulation
-After training machine learning models using historic data, predictions of future distributions feed into Monte Carlo simulations [@metropolis_beginning_1987; @kwiatkowski_monte_2022] as described in Figure @fig:pipeline. This happens for five individual years sampled separately from both the 2030 and 2050 CHC-CMIP6 series [@williams_high_2024].
-
-![Model pipeline overview diagram. Code released as open source.](./img/pipeline.png "Model pipeline overview diagram. Code released as open source."){ width=80% #fig:pipeline }
-
-With trials consisting of sampling at the neighborhood scale, this approach allows us to consider a distribution of future outcomes for each neighborhood. These results then enable us to make statistical statements about systems-wide institution-relevant events such as claims rate.
-
-### Trials
-Each Monte Carlo trial involves multiple sampling operations. First, we sample climate variables and model error residuals to propagate uncertainty [@yanai_estimating_2010]. Next, we draw multiple times to approximate the size of a risk unit with its portfolio effects. Note that the size but not the specific location of insured units is publicly disclosed. Therefore, we first draw the geographic size of an insured unit randomly from historic data [@rma_statecountycrop_2024]. Afterwards, we can then draw yields from the neighborhood distribution with the number of samples dependent on that insured unit size. Our supplemental materials provide further details.
-
-### Statistical tests
-Altogether, this approach simulates insured units individually per year. Having found these outcomes as a distribution per neighborhood, we can then evaluate these results probabilistically. As further described in supplemental, we determine significance both in this paper and our interactive tools via Bonferroni-corrected [@bonferroni_il_1935] Mann Whitney U [@mann_test_1947] per neighborhood.
-
 ## Evaluation
 We choose our model using each candidate's capability to predict into future years, a task representative of the Monte Carlo simulations [@brownlee_what_2020]:
 
@@ -142,6 +129,19 @@ Table: Overview of trials after model selection. {#tbl:posthoc}
 
 These post-hoc trials use only training and test sets as we fully retrain models using unchanging sweep-chosen hyper-parameters as described in Table @tbl:sweepparam. Note that some of these tests use "regions" which we define as all geohashes sharing the same first three characters. This two tier definition creates a grid of 109 x 156 km cells [@haugen_geohash_2020] each including all neighborhoods (4 character geohashes) found within that area.
 
+## Simulation
+After training machine learning models using historic data, predictions of future distributions feed into Monte Carlo simulations [@metropolis_beginning_1987; @kwiatkowski_monte_2022] as described in Figure @fig:pipeline. This happens for five individual years sampled separately from both the 2030 and 2050 CHC-CMIP6 series [@williams_high_2024].
+
+![Model pipeline overview diagram. Code released as open source.](./img/pipeline.png "Model pipeline overview diagram. Code released as open source."){ width=80% #fig:pipeline }
+
+With trials consisting of sampling at the neighborhood scale, this approach allows us to consider a distribution of future outcomes for each neighborhood. These results then enable us to make statistical statements about systems-wide institution-relevant events such as claims rate.
+
+### Trials
+Each Monte Carlo trial involves multiple sampling operations. First, we sample climate variables and model error residuals to propagate uncertainty [@yanai_estimating_2010]. Next, we draw multiple times to approximate the size of a risk unit with its portfolio effects. Note that the size but not the specific location of insured units is publicly disclosed. Therefore, we first draw the geographic size of an insured unit randomly from historic data [@rma_statecountycrop_2024]. Afterwards, we can then draw yields from the neighborhood distribution with the number of samples dependent on that insured unit size. Our supplemental materials provide further details.
+
+### Statistical tests
+Altogether, this approach simulates insured units individually per year. Having found these outcomes as a distribution per neighborhood, we can then evaluate these results probabilistically. As further described in supplemental, we determine significance both in this paper and our interactive tools via Bonferroni-corrected [@bonferroni_il_1935] Mann Whitney U [@mann_test_1947] per neighborhood.
+
 # Results
 We project loss probabilities to more than double ({{experimentalProbability2050}} claims rate) under SSP245 at mid-century in comparison to the no additional warming counterfactual scenario ({{counterfactualProbability2050}} claims rate).
 
@@ -157,9 +157,7 @@ With bias towards performance in mean prediction, we select {{numLayers}} hidden
 
 Table: Results of chosen configuration during the "sweep" for model selection. {#tbl:sweep}
 
-After retraining with train and validation together, we see {{retrainMeanMae}} MAE when predicting neighborhood mean and {{retrainStdMae}} when predicting neighborhood standard deviation when using the fully hidden test set.
-
-Next, having chosen this set of hyper-parameters, we also evaluate regression performance through varied definitions of test sets.
+After retraining with train and validation together, we see {{retrainMeanMae}} MAE when predicting neighborhood mean and {{retrainStdMae}} when predicting neighborhood standard deviation when using the fully hidden test set. Next, having chosen this set of hyper-parameters, we also evaluate regression performance through varied definitions of test sets.
 
 | **Task**              | **Test Mean Pred MAE** | **Test Std Pred MAE** | **% of Units in Test Set** |
 | --------------------- | ---------------------- | --------------------- | -------------------------- |
@@ -185,7 +183,7 @@ After retraining on all available data using the selected configuration from our
 
 Table: Overview of Monte Carlo simulation results. Counterfactual is a future without continued warming in contrast to SSP245. {#tbl:simresults}
 
-As described in Table @tbl:simresults, the loss probability increases in both the 2030 and 2050 time frames considered for SSP245. This also wipes out the yield gains that our neural network would otherwise expect without climate change given historic trends [@nielsen_historical_2023]. 
+As described in Table @tbl:simresults, the loss probability increases in both the 2030 and 2050 time frames considered for SSP245. This also reduces the yield gains that our neural network would otherwise expect without climate change given historic trends [@nielsen_historical_2023]. 
 
 # Discussion
 In addition to highlighting future work opportunities, we observe a number of policy-relevant dynamics within our simulations.
@@ -193,7 +191,7 @@ In addition to highlighting future work opportunities, we observe a number of po
 ## Yield expectations
 Figure @fig:hist highlights possible challenges with using a simple average in crop insurance products: simulations anticipate that the claims rate increases under climate change (SSP245) even as the overall yield mean remains similar to the historic baseline in the 2050 series. Indeed, {{ dualIncreasePercent2050 }} of neighborhoods seeing higher claims rates under SSP245 in the 2050 series also report overall multi-year average yields remaining unchanged or even increasing. In other words, yield volatility could allow a sharp elevation in loss probability without necessarily decreasing overall mean yields that would be reflected in $y_{expected}$.
 
-![Interactive tool screenshot showing 2050 outcomes distribution. This graphic depicts changes from $y_{expected}$, showing deltas and claims rates with climate change on the top and without climate change on the bottom. In addition to showing increased claims rate, the circles along the horizontal axis also depict climate change reducing the expected increase in yields that would otherwise follow historic trends, effectively keeping average yields level as volatility increases.](./img/hist.png "One of our interactive tools showing 2050 outcomes distribution relative to $y_{expected}$ highlighting loss with and without climate change."){#fig:hist}
+![Interactive tool screenshot showing 2050 outcomes distribution. This graphic depicts changes from $y_{expected}$, showing deltas and claims rates with climate change on the top and without climate change on the bottom. In addition to showing increased claims rate, the circles along the horizontal axis also depict climate change reducing the expected increase in yields that would otherwise follow historic trends, effectively maintaining similar average yields as volatility increases.](./img/hist.png "Interactive tool screenshot showing 2050 outcomes distribution. This graphic depicts changes from $y_{expected}$, showing deltas and claims rates with climate change on the top and without climate change on the bottom. In addition to showing increased claims rate, the circles along the horizontal axis also depict climate change reducing the expected increase in yields that would otherwise follow historic trends, effectively maintaining similar average yields as volatility increases."){#fig:hist}
 
 Our interactive tools further explore these dynamics between yield expectations and volatility. Altogether, our work may highlight a need for future research into alternative policy formulations. This may incorporate, for example, historic yield variance in addition to a simple average. This dynamic may impact both insurers and growers.
 
@@ -204,14 +202,11 @@ Plans where loss is calculated against averages of historic yields may fail to c
 Even though they may guard against this elevated probability of loss events [@renwick_long-term_2021], some risk mitigating practices such as regenerative agriculture may not always improve mean yields or can even come at the cost of a slightly reduced average [@deines_recent_2023]. This may indicate a mechanism for how average-based expectations could possibly disincentivize growers from climate change preparation. That said, we acknowledge that behaviorial effects of crop insurance remain an area of active investigation [@connor_crop_2022; @wang_warming_2021; @chemeris_insurance_2022].
 
 ## Geographic bias
-Neighborhoods with significant results ($p < 0.05 / n$) may be more common in some areas as shown in Figure @fig:geo. This spatial pattern may partially reflect that a number of neighborhoods have less land dedicated to maize so simulations have smaller sample sizes and fail to reach significance. However, this geographic effect may also reflect geographical bias in altered growing conditions relative to historic values.
+Neighborhoods with significant results ($p < 0.05 / n$) may be more common in some areas as shown in Figure @fig:geo. This spatial pattern may partially reflect that a number of neighborhoods have less land dedicated to maize so simulations have smaller sample sizes and fail to reach significance. However, this geographic effect may also reflect geographical bias in altered growing conditions.
 
 ![Interactive geographic view. Color describes type of change. Larger dots are larger areas of maize growing activity. Band of increased risk concentrates in Iowa, Illinois, and Indiana. This could reveal a possible geographic bias within our results. Use of the interactive tool allows for consideration of different parameters including alternative statistical treatments.](./img/map.png "Interactive geographic view. Color describes type of change and larger dots are larger areas of maize growing activity. Band of increased risk concentrates in Iowa, Illinois, and Indiana."){#fig:geo}
 
-As further explorable in our interactive tools, we note some geographic bias in changes to precipitation, temperature, and VPD / SVP that may intersect with these trends.
-
-## Heat and drought stress
-Our model shows depressed yields in response to anticipated combined warmer and drier conditions similar to 2012 and its historically poor maize production [@ers_weather_2013]. In this context, precipitation may serve as a protective factor: neighborhoods with drier July conditions see higher loss probability ($p < 0.05 / 2$) in both the 2030 and 2050 series via rank correlation [@spearman_proof_1904]. Our predictions thus reflect empirical studies that document the negative impacts of heat stress and water deficits on maize yields [@sinsawat_effect_2004; @marouf_effects_2013]. As further described in our interactive tools, our outputs may also reveal geographically and temporally specific outlines of these anticipated impacts.
+In particular, we note some geographic bias in changes to precipitation, temperature, and VPD / SVP that may intersect with these trends. Our model shows depressed yields in response to anticipated combined warmer and drier conditions similar to 2012 and its historically poor maize production [@ers_weather_2013]. In this context, precipitation may serve as a protective factor: neighborhoods with drier July conditions see higher loss probability ($p < 0.05 / 2$) in both the 2030 and 2050 series via rank correlation [@spearman_proof_1904]. Our predictions thus reflect empirical studies that document the negative impacts of heat stress and water deficits on maize yields [@sinsawat_effect_2004; @marouf_effects_2013]. As further described in our interactive tools, our outputs may also reveal geographically and temporally specific outlines of these anticipated impacts.
 
 ## Limitations and future work
 Within the context of Yield Protection, our work remains constrained by limited public data. First, though our interactive tools consider different spatial aggregations such as 5 character (approx 4 x 5 km) geohashes, future work may consider modeling with field-level yield data and the actual risk unit structure which are not currently public. Indeed, while we do simulate changing historic yield averages in our simulations for $y_{expected}$, possible future public insured unit data could alleviate our current conservative need to exclude the policy mechanisms of trend adjustment [@plastina_trend-adjusted_2014] and yield exclusion years [@schnitkey_yield_2015]. In raising $y_{expected}$, both of these limitations likely leads to a supression of future loss rates in our simulations. Second, we focus on systematic changes in growing conditions impacting claims rates across a broad geographic scale but this excludes highly localized effects like certain inclement weather which may require more granular climate predictions. This possible future work may be relevant to programs with smaller geographic portfolios.
