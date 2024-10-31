@@ -96,6 +96,6 @@ In addition to supporting our finding of our own conclusions, we released this s
  - Facilitators suggest that single loop [@brazie_designing_2024] designs perform best within the limited time of the workshop and we now let facilitators hold the longer two loop neighborhood simulator till the end by default.
  - As expected by the JG design [@jm8_secret_2024], discussion contrasts different results sets and configurations of models but meta-parameter visualization relies heavily on memory so we now offer a "sweep" button for facilitators to show all results at once.
 
-That said, while we are thankful for this workshop, later work may further explore this design space through controlled experimentation [@lewis_using_1982] or diary studies [@shneiderman_strategies_2006].
+That said, while we are thankful for this workshop which only focused on quality improvements specific to the service offered by https://ag-adaptation-study.pub/, later work may further explore this design space through controlled experimentation [@lewis_using_1982] or diary studies [@shneiderman_strategies_2006].
 
 # Works cited
