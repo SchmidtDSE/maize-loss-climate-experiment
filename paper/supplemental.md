@@ -60,7 +60,7 @@ We treat practices as latent within our observed yield distributions and we furt
 In consideration of our normality assumption, we document that, in addition to 79% of neighborhoods see approximately normal yield deltas, 88% see approximate symmetry [@kim_statistical_2013]. Even so, future modeling could relax our normality assumption with additional data, potentially by avoiding the use of summary variables.
 
 ## Instance weight
-Finally, we note thatwe train our model with instance weighting. Specifically, we use the number of SCYM pixels in a neighborhood to weight each neighborhood. However, there is no weighting in evaluation.
+Finally, we note that we build our model with instance weighting. Specifically, we use the number (not value) of SCYM pixels in a neighborhood to weight each neighborhood. In other words, the weight is higher in neighborhoods with more maize growing acreage.
 
 # Interactive tools
 Next, we further describe our interactive tools. In crafting these "explorable explanations" [@victor_explorable_2011] in Table @tbl:apps, we draw analogies to micro-apps  [@bridgwater_what_2015] or mini-games [@dellafave_designing_2014] in which the user encounters a series of small experiences that, each with distinct interaction and objectives, can only provide minimal instruction [@brown_100_2024]. As these very brief visualization experiences cannot take advantage of design techniques like Hayashida-style tutorials [@pottinger_pyafscgaporg_2023], they rely on simple "loops" [@brazie_designing_2024] for immediate "juxtaposition gratification" (JG) [@jm8_secret_2024], showing fast progression after minimal input.
