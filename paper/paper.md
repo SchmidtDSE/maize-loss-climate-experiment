@@ -225,9 +225,9 @@ We offer a unique focus on broad geographic institutionally-relevant loss probab
 ## Visualizations and software
 In order to explore these simulations geographically and under different configurations, we offer interactive open source web-based visualizations built alongside our experiments. These both aid us in constructing our own conclusions and allow readers to consider possibilities and analysis beyond our own narrative. Our tools are further described in our supplemental materials.
 
-This software runs within a web browser and is made publicly available at https://ag-adaptation-study.org for further exploration. This includes the ability to explore alternative statistical treatments and regressor configurations through a series of small purpose-specific tools. This also includes some material to explain the structures of crop insurance itself like depicted in Figure @fig:sim.
-
 ![Screenshot of an interactive explorable visualization which demonstrates how actual production histories a calculated and how different yield behaviors impact claims outcomes.](./img/yield_sim.png "Screenshot of an interactive explorable visualization which demonstrates how actual production histories a calculated and how different yield behaviors impact claims outcomes."){#fig:sim}
+
+This software runs within a web browser and is made publicly available at https://ag-adaptation-study.org for further exploration. This includes the ability to explore alternative statistical treatments and regressor configurations through a series of small purpose-specific tools. This also includes some material to explain the structures of crop insurance itself like depicted in Figure @fig:sim.
 
 In addition to these visualizations, we also offer our work as an open source data science pipeline. This software may help aid future research into other crops such as soy, geographic areas such as other parts of the United States of America, other programs such as Revenue Protection, and extension of our results as underlying datasets are updated. This work can execute within a containerized environment.
 
