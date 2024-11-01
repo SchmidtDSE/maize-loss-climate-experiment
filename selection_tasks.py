@@ -58,7 +58,7 @@ class SelectConfigurationTask(luigi.Task):
         def score_option(option):
             mean_z = option['validMean']
             std_z = option['validStd']
-            return mean_z + std_z / 3
+            return mean_z * const.MEAN_WEIGHT + std_z * const.STD_WEIGHT
 
         unconstrained_selection_row = min(rows, key=score_option)
 
