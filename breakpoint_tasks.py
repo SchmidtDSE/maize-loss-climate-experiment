@@ -336,3 +336,23 @@ class ExecuteSupplementalTasksWithCluster(cluster_tasks.EndClusterTask):
             Machine-friendly name.
         """
         return 'end_supplemental'
+
+
+class ExecuteAllWithCluster(cluster_tasks.EndClusterTask):
+    """Execute the entire data pipeline with extended sweep before terminating the cluster."""
+
+    def get_prereq(self):
+        """Get the task that needs to be completed for this breakpoint to be reached.
+
+        Returns:
+            Multiple dependency.
+        """
+        return [ExecuteSupplementalTasks(), training_tasks.SweepExtendedTask()]
+
+    def get_task_name(self):
+        """Get a machine friendly name for this task.
+
+        Returns:
+            Machine-friendly name.
+        """
+        return 'end_supplemental_all'
