@@ -12,9 +12,9 @@ jobs:
     name: Check pipline code
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install checks
@@ -33,9 +33,9 @@ jobs:
     name: Check viz code
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install checks
@@ -97,7 +97,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Update apt
@@ -156,7 +156,7 @@ jobs:
       - name: Move export
         run: mv paper/arxiv.zip arxiv.zip
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: arxiv
           path: arxiv.zip
@@ -170,13 +170,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Build deploy
         run: bash prepare_viz_deploy.sh
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: deploy
           path: deploy.zip
@@ -190,9 +190,9 @@ jobs:
     name: Build social card
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install other dependencies
@@ -238,7 +238,7 @@ jobs:
       - name: Render images
         run: cd paper/viz; bash render_images.sh
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: card
           path: paper/img/map.png
