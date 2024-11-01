@@ -102,7 +102,7 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
         Untrained keras model.
     """
     import keras
-    import keras.optimizer
+    import keras.optimizers
 
     model = keras.Sequential()
     model.add(keras.Input(shape=(num_inputs,)))
