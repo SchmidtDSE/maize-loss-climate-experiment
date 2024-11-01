@@ -33,7 +33,7 @@ output:
     template: default.tex
 ---
 
-**Abstract:** Climate change not only threatens agricultural producers but also strains related public agencies and financial institutions. These important food system actors include government entities tasked with insuring grower livelihoods and supporting response to continued global warming. We examine future risk within the U.S. Corn Belt geographic region for one such crucial institution: the U.S. Federal Crop Insurance Program. Specifically, we simulate the impacts of climate-driven crop loss through neural network Monte Carlo at a policy-salient "risk unit" scale. Our predictions anticipate more frequent and severe losses that would result in a financially onerous doubling in the annual probability of maize Yield Protection insurance claims at mid-century relative to a simulations without further warming. We also present an open source pipeline and interactive visualization tools to further explore these results with configurable statistical treatments. Altogether, we fill an important gap in current understanding for climate adaptation by bridging existing historic yield estimation and climate projection to predict crop loss metrics at policy-relevant granularity.
+**Abstract:** Climate change not only threatens agricultural producers but also strains related public agencies and financial institutions. These important food system actors include government entities tasked with insuring grower livelihoods and supporting response to continued global warming. We examine future risk within the U.S. Corn Belt geographic region for one such crucial institution: the U.S. Federal Crop Insurance Program. Specifically, we simulate the impacts of climate-driven crop loss through neural network Monte Carlo at a policy-salient "risk unit" scale. Our predictions anticipate more frequent and severe losses that would result in a financially onerous more than doubling of the annual probability of maize Yield Protection insurance claims at mid-century. We also present an open source pipeline and interactive visualization tools to further explore these results with configurable statistical treatments. Altogether, we fill an important gap in current understanding for climate adaptation by bridging existing historic yield estimation and climate projection to predict crop loss metrics at policy-relevant granularity.
 
 # Introduction
 Public institutions such as government-supported crop insurance play an important role in agricultural stability across much of the world [@mahul_government_2010]. We add to existing work regarding global warming impacts to these essential food systems actors [@diffenbaugh_historical_2021] by examining the U.S. Federal Crop Insurance Program inside the U.S. Corn Belt geographic region. More specifically, we build upon prior climate projections [@williams_high_2024] and remote sensing yield estimations [@lobell_scalable_2015] to generate yield loss projections for maize through Monte Carlo simulations on top of neural network regressors. As further described below, this enables prediction of future insurance claims rates under climate change at an institutionally-relevant spatial scale. These results may help inform climate adaptation efforts.
@@ -143,7 +143,7 @@ Each Monte Carlo trial involves multiple sampling operations. First, we sample c
 Altogether, this approach simulates insured units individually per year. Having found these outcomes as a distribution per neighborhood, we can then evaluate these results probabilistically. As further described in supplemental, we determine significance both in this paper and our interactive tools via Bonferroni-corrected [@bonferroni_il_1935] Mann Whitney U [@mann_test_1947] per neighborhood.
 
 # Results
-We project loss probabilities to roughly double ({{experimentalProbability2050}} claims rate) under SSP245 in comparison to the no additional warming counterfactual scenario ({{counterfactualProbability2050}} claims rate).
+We project loss probabilities to more than double ({{experimentalProbability2050}} claims rate) under SSP245 in comparison to the no additional warming counterfactual scenario ({{counterfactualProbability2050}} claims rate) at mid-century.
 
 ## Neural network outcomes
 With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. Table @tbl:sweep describes performance for the chosen configuration.
@@ -183,7 +183,7 @@ After retraining on all available data using the selected configuration from our
 
 Table: Overview of Monte Carlo simulation results. Counterfactual is a future without continued warming in contrast to SSP245. {#tbl:simresults}
 
-As described in Table @tbl:simresults, the loss probability increases in both the 2030 and 2050 time frames considered for SSP245. This also reduces the yield gains that our neural network would otherwise expect without climate change given historic trends [@nielsen_historical_2023]. 
+As described in Table @tbl:simresults, the loss probability sharply increases in both the 2030 and 2050 time frames considered for SSP245 whereas the no warming counterfactual sees roughly steady claims rates into the future. Note that, consistent with historic trends [@nielsen_historical_2023], our simulations anticipate yield improvements over time. However, the SSP245 scenario reduces much of those anticipated gains. Furthermore, note that the claims rate in the 2050 series decreases from 2030. This is further explored in discussion.
 
 # Discussion
 In addition to highlighting future work opportunities, we observe a number of policy-relevant dynamics within our simulations.
@@ -208,6 +208,9 @@ Neighborhoods with significant results ($p < 0.05 / n$) may be more common in so
 
 This spatial pattern may partially reflect that a number of neighborhoods have less land dedicated to maize so simulations have smaller sample sizes and fail to reach significance. However, this geographic effect may also reflect geographical bias in altered growing conditions. In particular, we note some geographic bias in changes to precipitation, temperature, and VPD / SVP that may intersect with these trends. Our model shows depressed yields in response to anticipated combined warmer and drier conditions similar to 2012 and its historically poor maize production [@ers_weather_2013]. In this context, precipitation may serve as a protective factor: neighborhoods with drier July conditions see higher loss probability ($p < 0.05 / 2$) in both the 2030 and 2050 series via rank correlation [@spearman_proof_1904]. Our predictions thus reflect empirical studies that document the negative impacts of heat stress and water deficits on maize yields [@sinsawat_effect_2004; @marouf_effects_2013]. As further described in our interactive tools, our outputs may also reveal geographically and temporally specific outlines of these anticipated impacts.
 
+## Claims rate rebound
+The claims rate is higher in the 2030 series compared to the 2050 series. This is in part due to insurance and in part due to system wide changes in yield. First, more yield gains are anticipated between 2030 and 2050 compared to historic and 2030. Specifically, we anticipate a change in mean yields system wide from 2030 to 2050 of {% if counterfactualMean2050|float > 0 %}+{% endif %}{{counterfactualMean2050}} compared to {% if counterfactualMean2030|float > 0 %}+{% endif %}{{counterfactualMean2030}} between historic and 2030. This "rebound" is consistent across multiple executions of the pipeline but, without these gains, the 2050 series sees higher claims rate than 2030. Secondarily, we also acknowledge that yield expectations partially adjust in a minority of areas where $y_{expected}$ decreases from the 2030 series going into the 2050 series.
+
 ## Limitations and future work
 We next highlight opportunities for future work to extend beyond our current results.
 
@@ -223,10 +226,14 @@ Outside of Yield Protection, future study could extend to the highly related Rev
 We offer a unique focus on broad geographic institutionally-relevant loss probability prediction at risk unit scale given remote sensed yield estimations. Lacking a compatible study for direct contrasting of performance measures, we invite further research on alternative regression and simulation approaches for similar modeling objectives. While not directly comparable to our results, we note that @lobell_statistical_2010 as well as @leng_predicting_2020 possibly offer precedent for this comparative study.
 
 ## Visualizations and software
+We offer visualization tools and data science pipelines to further explore this work.
+
+### Web-based visualizations
 In order to explore these simulations geographically and under different configurations, we offer interactive open source web-based visualizations built alongside our experiments. These both aid us in constructing our own conclusions and allow readers to consider possibilities and analysis beyond our own narrative. Our tools are further described in our supplemental materials.
 
 This software runs within a web browser and is made publicly available at https://ag-adaptation-study.org for further exploration. This includes the ability to explore alternative statistical treatments and regressor configurations through a series of small purpose-specific tools. This also includes some material to explain the structures of crop insurance itself.
 
+### Data pipeline
 In addition to these visualizations, we also offer our work as an open source data science pipeline. This software may help aid future research into other crops such as soy, geographic areas such as other parts of the United States of America, other programs such as Revenue Protection, and extension of our results as underlying datasets are updated. This work can execute within a containerized environment.
 
 # Conclusion
