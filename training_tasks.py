@@ -86,7 +86,7 @@ def get_input_attrs(additional_block, allow_count):
     return input_attrs
 
 
-def build_model(num_layers, num_inputs, l2_reg, dropout):
+def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEARNING_RATE):
     """Function to build a single model without fitting.
 
     Self-contained function to build a single model without fitting which can be exported to
@@ -102,6 +102,7 @@ def build_model(num_layers, num_inputs, l2_reg, dropout):
         Untrained keras model.
     """
     import keras
+    import keras.optimizer
 
     model = keras.Sequential()
     model.add(keras.Input(shape=(num_inputs,)))
@@ -132,13 +133,14 @@ def build_model(num_layers, num_inputs, l2_reg, dropout):
 
     model.add(keras.layers.Dense(2, activation='linear'))
 
-    model.compile(optimizer='adamw', loss='mae', metrics=['mae'])
+    optimizer = keras.optimizers.AdamW(learning_rate=learning_rate)
+    model.compile(optimizer=optimizer, loss='mae', metrics=['mae'])
 
     return model
 
 
 def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, filename,
-    additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=30,
+    additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=const.EPOCHS,
     blocked_attrs=BLOCKED_ATTRS):
     """Try building and training a model.
 

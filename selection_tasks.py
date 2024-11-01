@@ -155,7 +155,7 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
         model.fit(
             train_inputs,
             train_outputs,
-            epochs=30,
+            epochs=const.EPOCHS,
             verbose=None,
             sample_weight=train_data[const.SAMPLE_WEIGHT_ATTR]
         )
@@ -581,7 +581,7 @@ class TrainFullModel(luigi.Task):
         model.fit(
             train_inputs,
             train_outputs,
-            epochs=30,
+            epochs=const.EPOCHS,
             verbose=None,
             sample_weight=input_frame[const.SAMPLE_WEIGHT_ATTR]
         )
