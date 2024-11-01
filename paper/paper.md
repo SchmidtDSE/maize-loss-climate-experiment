@@ -143,7 +143,7 @@ Each Monte Carlo trial involves multiple sampling operations. First, we sample c
 Altogether, this approach simulates insured units individually per year. Having found these outcomes as a distribution per neighborhood, we can then evaluate these results probabilistically. As further described in supplemental, we determine significance both in this paper and our interactive tools via Bonferroni-corrected [@bonferroni_il_1935] Mann Whitney U [@mann_test_1947] per neighborhood.
 
 # Results
-We project loss probabilities to roughly double ({{experimentalProbability2050}} claims rate) under SSP245 at mid-century in comparison to the no additional warming counterfactual scenario ({{counterfactualProbability2050}} claims rate).
+We project loss probabilities to roughly double ({{experimentalProbability2050}} claims rate) under SSP245 in comparison to the no additional warming counterfactual scenario ({{counterfactualProbability2050}} claims rate).
 
 ## Neural network outcomes
 With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. Table @tbl:sweep describes performance for the chosen configuration.
