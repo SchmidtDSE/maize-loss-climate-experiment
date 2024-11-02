@@ -667,15 +667,19 @@ class CombineStatsTask(luigi.Task):
         Returns:
             Various statistical tasks that feed into the combined JSON output.
         """
-        return {
+        requirements = {
             'model': ExportModelInfoTask(),
             'posthoc': ExportPosthocTestTask(),
             'significance': DeterminePercentSignificantTask(),
             'sim': ExtractSimStatsTask(),
-            'simHold': ExtractSimStatsHoldYearTask(),
             'std': SummarizeEquivalentStdTask(),
             'dual': FindDivergentAphAndClaimsRate()
         }
+
+        if const.INCLUDE_YEAR_IN_MODEL:
+            requirements['simHold'] = ExtractSimStatsHoldYearTask()
+        
+        return requirements
 
     def output(self):
         """Indicate where the combined statistical output should be written.
@@ -691,7 +695,10 @@ class CombineStatsTask(luigi.Task):
         posthoc_inputs = self._get_subfile('posthoc')
         significance_inputs = self._get_subfile('significance')
         sim_inputs = self._get_subfile('sim')
-        sim_hold_inputs = self._get_subfile('simHold')
+
+        if const.INCLUDE_YEAR_IN_MODEL:
+            sim_hold_inputs = self._get_subfile('simHold')
+        
         std_inputs = self._get_subfile('std')
         dual_inputs = self._get_subfile('dual')
 
@@ -751,20 +758,25 @@ class CombineStatsTask(luigi.Task):
             'experimentalProbability2050': sim_inputs['experimentalProbability2050'],
             'experimentalSeverity2050': sim_inputs['experimentalSeverity2050'],
             'equivalentStd': std_inputs['equivalentStd'],
-            'dualIncreasePercent2050': dual_inputs['dualIncreasePercent2050'],
-            'counterfactualMean2030HoldYr': sim_hold_inputs['counterfactualMean2030'],
-            'counterfactualProbability2030HoldYr': sim_hold_inputs['counterfactualProbability2030'],
-            'counterfactualSeverity2030HoldYr': sim_hold_inputs['counterfactualSeverity2030'],
-            'experimentalMean2030HoldYr': sim_hold_inputs['experimentalMean2030'],
-            'experimentalProbability2030HoldYr': sim_hold_inputs['experimentalProbability2030'],
-            'experimentalSeverity2030HoldYr': sim_hold_inputs['experimentalSeverity2030'],
-            'counterfactualMean2050HoldYr': sim_hold_inputs['counterfactualMean2050'],
-            'counterfactualProbability2050HoldYr': sim_hold_inputs['counterfactualProbability2050'],
-            'counterfactualSeverity2050HoldYr': sim_hold_inputs['counterfactualSeverity2050'],
-            'experimentalMean2050HoldYr': sim_hold_inputs['experimentalMean2050'],
-            'experimentalProbability2050HoldYr': sim_hold_inputs['experimentalProbability2050'],
-            'experimentalSeverity2050HoldYr': sim_hold_inputs['experimentalSeverity2050']
+            'dualIncreasePercent2050': dual_inputs['dualIncreasePercent2050']
         }
+
+        def add_hold_input(source, destination):
+            output_record[destination] = sim_hold_inputs[source]
+
+        if const.INCLUDE_YEAR_IN_MODEL:
+            add_hold_input('counterfactualMean2030', 'counterfactualMean2030HoldYr')
+            add_hold_input('counterfactualProbability2030', 'counterfactualProbability2030HoldYr')
+            add_hold_input('counterfactualSeverity2030', 'counterfactualSeverity2030HoldYr')
+            add_hold_input('experimentalMean2030', 'experimentalMean2030HoldYr')
+            add_hold_input('experimentalProbability2030', 'experimentalProbability2030HoldYr')
+            add_hold_input('experimentalSeverity2030', 'experimentalSeverity2030HoldYr')
+            add_hold_input('counterfactualMean2050', 'counterfactualMean2050HoldYr')
+            add_hold_input('counterfactualProbability2050', 'counterfactualProbability2050HoldYr')
+            add_hold_input('counterfactualSeverity2050', 'counterfactualSeverity2050HoldYr')
+            add_hold_input('experimentalMean2050', 'experimentalMean2050HoldYr')
+            add_hold_input('experimentalProbability2050', 'experimentalProbability2050HoldYr')
+            add_hold_input('experimentalSeverity2050', 'experimentalSeverity2050HoldYr')
 
         with self.output().open('w') as f:
             json.dump(output_record, f)
