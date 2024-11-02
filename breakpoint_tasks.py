@@ -272,7 +272,7 @@ class ExecuteSupplementalTasks(luigi.Task):
             'summary': export_tasks.SummaryExportTask(),
             'combined': export_tasks.CombinedTasksRecordTask(),
             'rates': export_tasks.ExportClaimsRatesTask(),
-            'ratesHold': export_tasks.CombineSimulationsHoldYearTask()
+            'ratesHold': export_tasks.ExportClaimsRatesHoldYearTask()
         }
 
     def output(self):
