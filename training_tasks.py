@@ -542,7 +542,7 @@ class SweepTask(SweepTemplateTask):
         Returns:
             List of boolean values (True, False) allowed.
         """
-        return [True, False]
+        return [True]  # [True, False]
 
 
 class SweepExtendedTask(SweepTemplateTask):
