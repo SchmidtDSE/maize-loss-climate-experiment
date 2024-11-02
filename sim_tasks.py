@@ -1981,7 +1981,7 @@ class CombineSimulationsTask(CombineSimulationsTaskTemplate):
         """
         return luigi.LocalTarget(const.get_file_location('sim_combined.csv'))
     
-        def run(self):
+    def run(self):
         """Combine simulation outputs."""
         with self.output().open('w') as f:
             writer = csv.DictWriter(f, fieldnames=['series'] + OUTPUT_FIELDS)
@@ -2018,7 +2018,7 @@ class CombineSimulationsHoldYearTask(CombineSimulationsTaskTemplate):
         """
         return luigi.LocalTarget(const.get_file_location('sim_combined_hold_year.csv'))
     
-        def run(self):
+    def run(self):
         """Combine simulation outputs."""
         with self.output().open('w') as f:
             writer = csv.DictWriter(f, fieldnames=['series'] + OUTPUT_FIELDS)
