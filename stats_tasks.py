@@ -329,9 +329,9 @@ class ExtractSimStatsTask(luigi.Task):
         """Require that simulation results are available.
 
         Returns:
-            CombineSimulationsTasks
+            CombineSimulationsTask
         """
-        return sim_tasks.CombineSimulationsTasks()
+        return sim_tasks.CombineSimulationsTask()
 
     def output(self):
         """Indicate where simulation result statistics should be written.
@@ -510,9 +510,9 @@ class FindDivergentAphAndClaimsRate(luigi.Task):
         """Require that simulation results are available.
 
         Returns:
-            CombineSimulationsTasks
+            CombineSimulationsTask
         """
-        return sim_tasks.CombineSimulationsTasks()
+        return sim_tasks.CombineSimulationsTask()
 
     def output(self):
         """Determine where the resulting statistics should be written.

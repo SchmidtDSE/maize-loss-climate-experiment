@@ -1175,6 +1175,34 @@ class Project2030Task(ProjectTaskTemplate):
         return '2030_project_dist.csv'
 
 
+class Project2030HoldYearTask(ProjectTaskTemplate):
+    """Project yield for 2030 without advancing the year."""
+
+    def get_target_task(self):
+        """Get the task whose output should be used as model inputs.
+
+        Returns:
+            Luigi task.
+        """
+        return normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2030_SSP245')
+
+    def get_base_year(self):
+        """Get the "center" year of the series to be predicted.
+
+        Returns:
+            Integer year like 2007, 2030, or 2050.
+        """
+        return 2007
+
+    def get_filename(self):
+        """Get the filename at which the projections should be written.
+
+        Returns:
+            Filename (not full path) as string.
+        """
+        return '2030_project_dist_no_year.csv'
+
+
 class Project2030CounterfactualTask(ProjectTaskTemplate):
     """Project yield for 2030 without additional warming."""
 
@@ -1229,6 +1257,34 @@ class Project2050Task(ProjectTaskTemplate):
             Filename (not full path) as string.
         """
         return '2050_project_dist.csv'
+
+
+class Project2050HoldYearTask(ProjectTaskTemplate):
+    """Project yield for 2050 without changing the year."""
+
+    def get_target_task(self):
+        """Get the task whose output should be used as model inputs.
+
+        Returns:
+            Luigi task.
+        """
+        return normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2050_SSP245')
+
+    def get_base_year(self):
+        """Get the "center" year of the series to be predicted.
+
+        Returns:
+            Integer year like 2007, 2030, or 2050.
+        """
+        return 2007
+
+    def get_filename(self):
+        """Get the filename at which the projections should be written.
+
+        Returns:
+            Filename (not full path) as string.
+        """
+        return '2050_project_dist_hold_year.csv'
 
 
 class Project2050CounterfactualTask(ProjectTaskTemplate):
@@ -1299,6 +1355,26 @@ class InterpretProject2030Task(InterpretProjectTaskTemplate):
         return '2030_project_dist_interpret.csv'
 
 
+class InterpretProject2030HoldYearTask(InterpretProjectTaskTemplate):
+    """Interpret 2030 projections without changing the year."""
+
+    def get_target_task(self):
+        """Get the task whose output should be reformatted.
+
+        Returns:
+            Luigi task.
+        """
+        return Project2030HoldYearTask()
+
+    def get_filename(self):
+        """Get the filename at which the reformatted data should be written.
+
+        Returns:
+            String filename (but not full path).
+        """
+        return '2030_project_dist_interpret_hold_year.csv'
+
+
 class InterpretProject2030CounterfactualTask(InterpretProjectTaskTemplate):
     """Interpret 2030 projections without further warming."""
 
@@ -1337,6 +1413,26 @@ class InterpretProject2050Task(InterpretProjectTaskTemplate):
             String filename (but not full path).
         """
         return '2050_project_dist_interpret.csv'
+
+
+class InterpretProject2050HoldYearTask(InterpretProjectTaskTemplate):
+    """Interpret 2050 projections without changing years."""
+
+    def get_target_task(self):
+        """Get the task whose output should be reformatted.
+
+        Returns:
+            Luigi task.
+        """
+        return Project2050HoldYearTask()
+
+    def get_filename(self):
+        """Get the filename at which the reformatted data should be written.
+
+        Returns:
+            String filename (but not full path).
+        """
+        return '2050_project_dist_interpret_hold_year.csv'
 
 
 class InterpretProject2050CounterfactualTask(InterpretProjectTaskTemplate):
@@ -1431,6 +1527,42 @@ class MakeSimulationTasks2030Task(MakeSimulationTasksTemplate):
         return '2030_SSP245'
 
 
+class MakeSimulationTasks2030HoldYearTask(MakeSimulationTasksTemplate):
+    """Make simulation tasks for 2030 prediction without incrementing years."""
+
+    def get_filename(self):
+        """Get the filename at which the task information should be written.
+
+        Returns:
+            Filename but not full path as string.
+        """
+        return '2030_sim_tasks_hold_year.csv'
+
+    def get_baseline_task(self):
+        """Get the task whose output describes geohash-level yield baselines.
+
+        Returns:
+            Luigi task.
+        """
+        return InterpretProjectHistoricTask()
+
+    def get_projection_task(self):
+        """Get the task whose output describes geohash-level yield predictions.
+
+        Returns:
+            Luigi task.
+        """
+        return InterpretProject2030HoldYearTask()
+
+    def get_condition(self):
+        """Get the condition in which the predicted data were made.
+
+        Returns:
+            Name of condition as string like 2050_SSP245.
+        """
+        return '2030_SSP245'
+
+
 class MakeSimulationTasks2050Task(MakeSimulationTasksTemplate):
     """Make simulation tasks for 2050 prediction."""
 
@@ -1457,6 +1589,42 @@ class MakeSimulationTasks2050Task(MakeSimulationTasksTemplate):
             Luigi task.
         """
         return InterpretProject2050Task()
+
+    def get_condition(self):
+        """Get the condition in which the predicted data were made.
+
+        Returns:
+            Name of condition as string like 2050_SSP245.
+        """
+        return '2050_SSP245'
+
+
+class MakeSimulationTasks2050HoldYearTask(MakeSimulationTasksTemplate):
+    """Make simulation tasks for 2050 prediction without changing years."""
+
+    def get_filename(self):
+        """Get the filename at which the task information should be written.
+
+        Returns:
+            Filename but not full path as string.
+        """
+        return '2050_sim_tasks_hold_year.csv'
+
+    def get_baseline_task(self):
+        """Get the task whose output describes geohash-level yield baselines.
+
+        Returns:
+            Luigi task.
+        """
+        return InterpretProject2030HoldYearTask()
+
+    def get_projection_task(self):
+        """Get the task whose output describes geohash-level yield predictions.
+
+        Returns:
+            Luigi task.
+        """
+        return InterpretProject2050HoldYearTask()
 
     def get_condition(self):
         """Get the condition in which the predicted data were made.
@@ -1603,6 +1771,34 @@ class ExecuteSimulationTasks2030PredictedTask(ExecuteSimulationTasksTemplate):
         return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
 
 
+class ExecuteSimulationTasks2030PredictedHoldYearTask(ExecuteSimulationTasksTemplate):
+    """Execute simulation for 2030 projection without incrementing years."""
+
+    def get_tasks_task(self):
+        """Get the simulation task information generation task.
+
+        Returns:
+            Luigi task.
+        """
+        return MakeSimulationTasks2030HoldYearTask()
+
+    def get_filename(self):
+        """Get the filename at which the simulation outputs should be written.
+
+        Returns:
+            String filename (not path).
+        """
+        return '2030_sim_hold_year.csv'
+
+    def get_deltas_task(self):
+        """Get the task whose output are the model residuals.
+
+        Returns:
+            Luigi task.
+        """
+        return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
+
+
 class ExecuteSimulationTasks2050PredictedTask(ExecuteSimulationTasksTemplate):
     """Execute simulation for 2050 projection."""
 
@@ -1621,6 +1817,34 @@ class ExecuteSimulationTasks2050PredictedTask(ExecuteSimulationTasksTemplate):
             String filename (not path).
         """
         return '2050_sim.csv'
+
+    def get_deltas_task(self):
+        """Get the task whose output are the model residuals.
+
+        Returns:
+            Luigi task.
+        """
+        return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
+
+
+class ExecuteSimulationTasks2050PredictedHoldYearTask(ExecuteSimulationTasksTemplate):
+    """Execute simulation for 2050 projection without changing years."""
+
+    def get_tasks_task(self):
+        """Get the simulation task information generation task.
+
+        Returns:
+            Luigi task.
+        """
+        return MakeSimulationTasks2050HoldYearTask()
+
+    def get_filename(self):
+        """Get the filename at which the simulation outputs should be written.
+
+        Returns:
+            String filename (not path).
+        """
+        return '2050_sim_hold_year.csv'
 
     def get_deltas_task(self):
         """Get the task whose output are the model residuals.
@@ -1687,7 +1911,7 @@ class ExecuteSimulationTasks2050Counterfactual(ExecuteSimulationTasksTemplate):
         return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
 
 
-class CombineSimulationsTasks(luigi.Task):
+class CombineSimulationsTaskTemplate(luigi.Task):
     """Combine all simulations into a single data file."""
 
     def requires(self):
@@ -1696,13 +1920,7 @@ class CombineSimulationsTasks(luigi.Task):
         Returns:
             All simulations to be combined.
         """
-        return {
-            'historic': ExecuteSimulationTasksHistoricPredictedTask(),
-            '2030': ExecuteSimulationTasks2030PredictedTask(),
-            '2030_counterfactual': ExecuteSimulationTasks2030Counterfactual(),
-            '2050': ExecuteSimulationTasks2050PredictedTask(),
-            '2050_counterfactual': ExecuteSimulationTasks2050Counterfactual()
-        }
+        raise NotImplementedError('Use implementor.')
 
     def output(self):
         """Get the location at which concatenated outputs should be written.
@@ -1710,18 +1928,7 @@ class CombineSimulationsTasks(luigi.Task):
         Returns:
             LocalTarget at which concatenated outputs should be written.
         """
-        return luigi.LocalTarget(const.get_file_location('sim_combined.csv'))
-
-    def run(self):
-        """Combine simulation outputs."""
-        with self.output().open('w') as f:
-            writer = csv.DictWriter(f, fieldnames=['series'] + OUTPUT_FIELDS)
-            writer.writeheader()
-            self._write_out('historic', writer)
-            self._write_out('2030', writer)
-            self._write_out('2030_counterfactual', writer)
-            self._write_out('2050', writer)
-            self._write_out('2050_counterfactual', writer)
+        return NotImplementedError('Use implementor.')
 
     def _write_out(self, label, writer):
         """Write out a set of simulation results.
@@ -1747,6 +1954,80 @@ class CombineSimulationsTasks(luigi.Task):
         """
         row['series'] = series
         return row
+
+
+class CombineSimulationsTask(CombineSimulationsTaskTemplate):
+    """Combine all simulations into a single data file."""
+
+    def requires(self):
+        """Get the listing of all simulations to be concatenated.
+
+        Returns:
+            All simulations to be combined.
+        """
+        return {
+            'historic': ExecuteSimulationTasksHistoricPredictedTask(),
+            '2030': ExecuteSimulationTasks2030PredictedTask(),
+            '2030_counterfactual': ExecuteSimulationTasks2030Counterfactual(),
+            '2050': ExecuteSimulationTasks2050PredictedTask(),
+            '2050_counterfactual': ExecuteSimulationTasks2050Counterfactual()
+        }
+
+    def output(self):
+        """Get the location at which concatenated outputs should be written.
+
+        Returns:
+            LocalTarget at which concatenated outputs should be written.
+        """
+        return luigi.LocalTarget(const.get_file_location('sim_combined.csv'))
+    
+        def run(self):
+        """Combine simulation outputs."""
+        with self.output().open('w') as f:
+            writer = csv.DictWriter(f, fieldnames=['series'] + OUTPUT_FIELDS)
+            writer.writeheader()
+            self._write_out('historic', writer)
+            self._write_out('2030', writer)
+            self._write_out('2030_counterfactual', writer)
+            self._write_out('2050', writer)
+            self._write_out('2050_counterfactual', writer)
+
+
+class CombineSimulationsHoldYearTask(CombineSimulationsTaskTemplate):
+    """Combine all simulations into a single data file without incrementing year."""
+
+    def requires(self):
+        """Get the listing of all simulations to be concatenated.
+
+        Returns:
+            All simulations to be combined.
+        """
+        return {
+            'historic': ExecuteSimulationTasksHistoricPredictedTask(),
+            '2030': ExecuteSimulationTasks2030PredictedHoldYearTask(),
+            '2030_counterfactual': ExecuteSimulationTasks2030Counterfactual(),
+            '2050': ExecuteSimulationTasks2050PredictedHoldYearTask(),
+            '2050_counterfactual': ExecuteSimulationTasks2050Counterfactual()
+        }
+
+    def output(self):
+        """Get the location at which concatenated outputs should be written.
+
+        Returns:
+            LocalTarget at which concatenated outputs should be written.
+        """
+        return luigi.LocalTarget(const.get_file_location('sim_combined_hold_year.csv'))
+    
+        def run(self):
+        """Combine simulation outputs."""
+        with self.output().open('w') as f:
+            writer = csv.DictWriter(f, fieldnames=['series'] + OUTPUT_FIELDS)
+            writer.writeheader()
+            self._write_out('historic', writer)
+            self._write_out('2030', writer)
+            self._write_out('2030_counterfactual', writer)
+            self._write_out('2050', writer)
+            self._write_out('2050_counterfactual', writer)
 
 
 class DetermineEquivalentStdTask(luigi.Task):

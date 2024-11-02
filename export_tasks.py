@@ -419,9 +419,9 @@ class GetFamilySizeTask(luigi.Task):
         """Require that the simulations have been completed already to determine groups.
 
         Returns:
-            CombineSimulationsTasks
+            CombineSimulationsTask
         """
-        return sim_tasks.CombineSimulationsTasks()
+        return sim_tasks.CombineSimulationsTask()
 
     def output(self):
         """Indicate where the family sizes should be written as a CSV.
@@ -466,9 +466,9 @@ class HistExportSubTask(luigi.Task):
         """Require that the simulations have already been completed.
 
         Returns:
-            CombineSimulationsTasks
+            CombineSimulationsTask
         """
-        return sim_tasks.CombineSimulationsTasks()
+        return sim_tasks.CombineSimulationsTask()
 
     def output(self):
         """Indicate where the bucketed system-wide simulation summary should be written.
@@ -743,7 +743,7 @@ class SummaryExportTemplateTask(luigi.Task):
             Tasks whose outputs are to be summarized.
         """
         return {
-            'sim': sim_tasks.CombineSimulationsTasks(),
+            'sim': sim_tasks.CombineSimulationsTask(),
             'familySize': GetFamilySizeTask()
         }
 
@@ -1019,16 +1019,16 @@ class CombinedTasksRecordTask(luigi.Task):
                     writer.writerows(reader)
 
 
-class ExportClaimsRatesTask(luigi.Task):
+class ExportClaimsRatesTemplateTask(luigi.Task):
     """Determine the rate at which claims are expected in different simluations."""
 
     def requires(self):
         """Require that the simulations be complete.
 
         Returns:
-            CombineSimulationsTasks
+            CombineSimulationsTask
         """
-        return sim_tasks.CombineSimulationsTasks()
+        raise NotImplementedError('Use implementor.')
 
     def output(self):
         """Get the location where information about the claims rate should be written.
@@ -1036,7 +1036,7 @@ class ExportClaimsRatesTask(luigi.Task):
         Returns:
             LocalTarget at which the claims rate should be written.
         """
-        return luigi.LocalTarget(const.get_file_location('export_claims.csv'))
+        raise NotImplementedError('Use implementor.')
 
     def run(self):
         """Calculate claims rate."""
@@ -1157,3 +1157,43 @@ class ExportClaimsRatesTask(luigi.Task):
         key_vals = map(get_value, CLAIMS_RATE_GROUP_KEYS)
         key_vals_str = map(lambda x: str(x), key_vals)
         return '\t'.join(key_vals_str)
+
+
+class ExportClaimsRatesTask(ExportClaimsRatesTemplateTask):
+    """Determine the rate at which claims are expected in different simluations."""
+
+    def requires(self):
+        """Require that the simulations be complete.
+
+        Returns:
+            CombineSimulationsTask
+        """
+        return sim_tasks.CombineSimulationsTask()
+
+    def output(self):
+        """Get the location where information about the claims rate should be written.
+
+        Returns:
+            LocalTarget at which the claims rate should be written.
+        """
+        return luigi.LocalTarget(const.get_file_location('export_claims.csv'))
+
+
+class ExportClaimsRatesHoldYearTask(ExportClaimsRatesTemplateTask):
+    """Determine rate at which claims are expected in different simluations without year change."""
+
+    def requires(self):
+        """Require that the simulations be complete.
+
+        Returns:
+            CombineSimulationsTask
+        """
+        return sim_tasks.CombineSimulationsHoldYearTask()
+
+    def output(self):
+        """Get the location where information about the claims rate should be written.
+
+        Returns:
+            LocalTarget at which the claims rate should be written.
+        """
+        return luigi.LocalTarget(const.get_file_location('export_claims_hold_year.csv'))
