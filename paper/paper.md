@@ -127,7 +127,7 @@ Table: Overview of trials after model selection. {#tbl:posthoc}
 These post-hoc trials use only training and test sets as we fully retrain models using unchanging sweep-chosen hyper-parameters as described in Table @tbl:sweepparam. Note that some of these tests use "regions" which we define as all geohashes sharing the same first three characters. This two tier definition creates a grid of 109 x 156 km cells [@haugen_geohash_2020] each including all neighborhoods (4 character geohashes) found within that area.
 
 ## Simulation
-After training machine learning models using historic data, predictions of future distributions feed into Monte Carlo simulations [@metropolis_beginning_1987; @kwiatkowski_monte_2022] as described in Figure @fig:pipeline. This happens for five individual years sampled separately from both the 2030 and 2050 CHC-CMIP6 series [@williams_high_2024].
+After training machine learning models using historic data, predictions of future distributions feed into Monte Carlo simulations [@metropolis_beginning_1987; @kwiatkowski_monte_2022] as described in Figure @fig:pipeline. This happens for nine individual years sampled separately from both the 2030 and 2050 CHC-CMIP6 series [@williams_high_2024].
 
 ![Model pipeline overview diagram. Code released as open source.](./img/pipeline.png "Model pipeline overview diagram. Code released as open source."){ width=80% #fig:pipeline }
 
