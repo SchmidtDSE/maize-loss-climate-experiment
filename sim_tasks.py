@@ -613,12 +613,12 @@ class ProjectTaskTemplate(luigi.Task):
         additional_block = configuration['block']
         allow_count = configuration['allowCount'].lower() == 'true'
 
-        input_attrs = training_tasks.get_input_attrs(additional_block, allow_count)
-        inputs = target_frame[input_attrs]
-
         target_frame['joinYear'] = target_frame['year']
         target_frame['simYear'] = target_frame['year'] - 2007 + self.get_base_year()
         target_frame['year'] = target_frame['simYear']
+
+        input_attrs = training_tasks.get_input_attrs(additional_block, allow_count)
+        inputs = target_frame[input_attrs]
 
         outputs = model.predict(inputs)
         target_frame['predictedMean'] = outputs[:, 0]
