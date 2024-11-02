@@ -34,6 +34,7 @@ BLOCKS_EXTENDED = [
     'wbgtmax'
 ]
 BLOCKED_ATTRS = {
+    'year',
     'geohash',
     'geohashAgg',
     'yieldMean',
