@@ -1980,7 +1980,7 @@ class CombineSimulationsTask(CombineSimulationsTaskTemplate):
             LocalTarget at which concatenated outputs should be written.
         """
         return luigi.LocalTarget(const.get_file_location('sim_combined.csv'))
-    
+
     def run(self):
         """Combine simulation outputs."""
         with self.output().open('w') as f:
@@ -2017,7 +2017,7 @@ class CombineSimulationsHoldYearTask(CombineSimulationsTaskTemplate):
             LocalTarget at which concatenated outputs should be written.
         """
         return luigi.LocalTarget(const.get_file_location('sim_combined_hold_year.csv'))
-    
+
     def run(self):
         """Combine simulation outputs."""
         with self.output().open('w') as f:
