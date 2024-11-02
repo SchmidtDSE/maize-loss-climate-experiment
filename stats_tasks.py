@@ -507,7 +507,7 @@ class ExtractSimStatsHoldYearTask(ExtractSimStatsTemplateTask):
         Returns:
             LocalTarget at which statistics should be written as JSON.
         """
-        return luigi.LocalTarget(const.get_file_location('stats_sim_hold_yaer.json'))
+        return luigi.LocalTarget(const.get_file_location('stats_sim_hold_year.json'))
 
 
 class SummarizeEquivalentStdTask(luigi.Task):
