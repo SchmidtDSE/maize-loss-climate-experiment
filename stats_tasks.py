@@ -322,16 +322,16 @@ class DeterminePercentSignificantLongTask(DeterminePercentSignificantTemplateTas
         return export_tasks.SummaryExportLongTask()
 
 
-class ExtractSimStatsTask(luigi.Task):
+class ExtractSimStatsTemplateTask(luigi.Task):
     """Extract information for the paper from main simulations."""
 
     def requires(self):
         """Require that simulation results are available.
 
         Returns:
-            CombineSimulationsTasks
+            CombineSimulationsTask
         """
-        return sim_tasks.CombineSimulationsTasks()
+        raise NotImplementedError('Use implementor.')
 
     def output(self):
         """Indicate where simulation result statistics should be written.
@@ -339,7 +339,7 @@ class ExtractSimStatsTask(luigi.Task):
         Returns:
             LocalTarget at which statistics should be written as JSON.
         """
-        return luigi.LocalTarget(const.get_file_location('stats_sim.json'))
+        raise NotImplementedError('Use implementor.')
 
     def run(self):
         """Extract summary statistics for the simulations."""
@@ -470,6 +470,46 @@ class ExtractSimStatsTask(luigi.Task):
         }
 
 
+class ExtractSimStatsTask(ExtractSimStatsTemplateTask):
+    """Extract information for the paper from main simulations."""
+
+    def requires(self):
+        """Require that simulation results are available.
+
+        Returns:
+            CombineSimulationsTask
+        """
+        return sim_tasks.CombineSimulationsTask()
+
+    def output(self):
+        """Indicate where simulation result statistics should be written.
+
+        Returns:
+            LocalTarget at which statistics should be written as JSON.
+        """
+        return luigi.LocalTarget(const.get_file_location('stats_sim.json'))
+
+
+class ExtractSimStatsHoldYearTask(ExtractSimStatsTemplateTask):
+    """Extract information for the paper from main simulations without changing year."""
+
+    def requires(self):
+        """Require that simulation results are available.
+
+        Returns:
+            CombineSimulationsTask
+        """
+        return sim_tasks.CombineSimulationsHoldYearTask()
+
+    def output(self):
+        """Indicate where simulation result statistics should be written.
+
+        Returns:
+            LocalTarget at which statistics should be written as JSON.
+        """
+        return luigi.LocalTarget(const.get_file_location('stats_sim_hold_year.json'))
+
+
 class SummarizeEquivalentStdTask(luigi.Task):
     """Summarize the standard deviation equivalent threshold
 
@@ -510,9 +550,9 @@ class FindDivergentAphAndClaimsRate(luigi.Task):
         """Require that simulation results are available.
 
         Returns:
-            CombineSimulationsTasks
+            CombineSimulationsTask
         """
-        return sim_tasks.CombineSimulationsTasks()
+        return sim_tasks.CombineSimulationsTask()
 
     def output(self):
         """Determine where the resulting statistics should be written.
@@ -627,7 +667,7 @@ class CombineStatsTask(luigi.Task):
         Returns:
             Various statistical tasks that feed into the combined JSON output.
         """
-        return {
+        requirements = {
             'model': ExportModelInfoTask(),
             'posthoc': ExportPosthocTestTask(),
             'significance': DeterminePercentSignificantTask(),
@@ -635,6 +675,11 @@ class CombineStatsTask(luigi.Task):
             'std': SummarizeEquivalentStdTask(),
             'dual': FindDivergentAphAndClaimsRate()
         }
+
+        if const.INCLUDE_YEAR_IN_MODEL:
+            requirements['simHold'] = ExtractSimStatsHoldYearTask()
+
+        return requirements
 
     def output(self):
         """Indicate where the combined statistical output should be written.
@@ -650,6 +695,10 @@ class CombineStatsTask(luigi.Task):
         posthoc_inputs = self._get_subfile('posthoc')
         significance_inputs = self._get_subfile('significance')
         sim_inputs = self._get_subfile('sim')
+
+        if const.INCLUDE_YEAR_IN_MODEL:
+            sim_hold_inputs = self._get_subfile('simHold')
+
         std_inputs = self._get_subfile('std')
         dual_inputs = self._get_subfile('dual')
 
@@ -711,6 +760,23 @@ class CombineStatsTask(luigi.Task):
             'equivalentStd': std_inputs['equivalentStd'],
             'dualIncreasePercent2050': dual_inputs['dualIncreasePercent2050']
         }
+
+        def add_hold_input(source, destination):
+            output_record[destination] = sim_hold_inputs[source]
+
+        if const.INCLUDE_YEAR_IN_MODEL:
+            add_hold_input('counterfactualMean2030', 'counterfactualMean2030HoldYr')
+            add_hold_input('counterfactualProbability2030', 'counterfactualProbability2030HoldYr')
+            add_hold_input('counterfactualSeverity2030', 'counterfactualSeverity2030HoldYr')
+            add_hold_input('experimentalMean2030', 'experimentalMean2030HoldYr')
+            add_hold_input('experimentalProbability2030', 'experimentalProbability2030HoldYr')
+            add_hold_input('experimentalSeverity2030', 'experimentalSeverity2030HoldYr')
+            add_hold_input('counterfactualMean2050', 'counterfactualMean2050HoldYr')
+            add_hold_input('counterfactualProbability2050', 'counterfactualProbability2050HoldYr')
+            add_hold_input('counterfactualSeverity2050', 'counterfactualSeverity2050HoldYr')
+            add_hold_input('experimentalMean2050', 'experimentalMean2050HoldYr')
+            add_hold_input('experimentalProbability2050', 'experimentalProbability2050HoldYr')
+            add_hold_input('experimentalSeverity2050', 'experimentalSeverity2050HoldYr')
 
         with self.output().open('w') as f:
             json.dump(output_record, f)

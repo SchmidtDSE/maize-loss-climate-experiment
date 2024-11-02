@@ -579,6 +579,9 @@ TRAINING_FRAME_ATTRS = [
     'yieldObservations'
 ]
 
+INCLUDE_COUNT_IN_MODEL = False
+INCLUDE_YEAR_IN_MODEL = False
+
 SAMPLE_WEIGHT_ATTR = 'yieldObservations'
 
 NON_Z_FIELDS = {

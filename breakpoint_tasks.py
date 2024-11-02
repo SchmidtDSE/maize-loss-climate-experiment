@@ -217,9 +217,9 @@ class RunThroughSimTask(cluster_tasks.EndClusterTask):
         """Get the dependent task.
 
         Returns:
-            Single dependent task (CombineSimulationsTasks).
+            Single dependent task (CombineSimulationsTask).
         """
-        return sim_tasks.CombineSimulationsTasks()
+        return sim_tasks.CombineSimulationsTask()
 
     def get_task_name(self):
         """Get a machine friendly name for this task.
@@ -271,7 +271,8 @@ class ExecuteSupplementalTasks(luigi.Task):
             'hist': export_tasks.HistExportTask(),
             'summary': export_tasks.SummaryExportTask(),
             'combined': export_tasks.CombinedTasksRecordTask(),
-            'rates': export_tasks.ExportClaimsRatesTask()
+            'rates': export_tasks.ExportClaimsRatesTask(),
+            'ratesHold': export_tasks.ExportClaimsRatesHoldYearTask()
         }
 
     def output(self):

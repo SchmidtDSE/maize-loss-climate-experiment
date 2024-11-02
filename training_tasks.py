@@ -23,7 +23,6 @@ BLOCKS = [
     'all attrs'
 ]
 BLOCKS_EXTENDED = [
-    'year',
     'rhn',
     'rhx',
     'tmax',
@@ -32,15 +31,16 @@ BLOCKS_EXTENDED = [
     'svp',
     'vpd',
     'wbgtmax'
-]
-BLOCKED_ATTRS = {
+] + (['year'] if const.INCLUDE_YEAR_IN_MODEL else [])
+BLOCKED_ATTRS = set([
+    'year',
     'geohash',
     'geohashAgg',
     'yieldMean',
     'yieldStd',
     'yieldObservations',
     'setAssign'
-}
+] + ([] if const.INCLUDE_YEAR_IN_MODEL else ['year']))
 OUTPUT_ATTRS = sorted(['yieldMean', 'yieldStd'])
 OUTPUT_FIELDS = [
     'block',
@@ -542,7 +542,7 @@ class SweepTask(SweepTemplateTask):
         Returns:
             List of boolean values (True, False) allowed.
         """
-        return [True, False]
+        return [True, False] if const.INCLUDE_COUNT_IN_MODEL else [True]
 
 
 class SweepExtendedTask(SweepTemplateTask):
