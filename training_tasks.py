@@ -23,7 +23,6 @@ BLOCKS = [
     'all attrs'
 ]
 BLOCKS_EXTENDED = [
-    'year',
     'rhn',
     'rhx',
     'tmax',
