@@ -38,6 +38,9 @@ output:
 # Methods and data
 These materials start with further explanation of the methods and data empoloyed.
 
+## Input vector
+For our presented results, we allow the model to see the count of growing condition estimations as a possible measure of uncertainty but exclude the year being predicted which, in addition to seeing potential signs of overfit, may also assume more specificity in individual year conditions than potentially appropriate given the 2030 and 2050 series structure of CHC-CMIP6 [@williams_high_2024]. Even so, these options may be configured in our open source data pipeline for model retraining.
+
 ## Statistical tests
 We begin by further describing the exact procedure for our statistical tests to evaluate the change in yield deltas. First, we use Mann Whitney U [@mann_test_1947] as variance is observed to differ between the two expected and counterfactual sets [@mcdonald_handbook_2014]. Next, as our neural network attempts to predict the distribution of yield values, we note that the granularity of the response variable (SCYM yield) specifically may influence statistical power and we observe that SYCM [@lobell_scalable_2015] uses Daymet variables at 1 km resolution [@thornton_daymet_2014]. Therefore, due to potential correlation within those 1km cells, we assume 1km resolution for the purposes of statistical tests to avoid artificially increasing the number of "true" SCYM yield estimations per neighborhood. Finally, we recognize that we are engaging in one statistical test per neighborhood per series (2030, 2050). We control for this through Bonferroni-correction [@bonferroni_il_1935].
 
@@ -61,6 +64,19 @@ In consideration of our normality assumption, we document that, in addition to 7
 
 ## Instance weight
 Finally, we note that we build our model with instance weighting. Specifically, we use the number (not value) of SCYM pixels in a neighborhood to weight each neighborhood. In other words, the weight is higher in neighborhoods with more maize growing acreage.
+
+## Limitations of sample size
+The drop in error observed from validation to test performance may be explained by the increased training set used indicate that the model is data constrained. Indeed, evaluating test performance without retraining with train and validation together leads to an elevated test set error as indicated in Table @tbl:retrain.
+
+| **Set**             | **MAE for Mean Prediction** | **MAE for Std Prediction** |
+| -------------------- | ----------------------- | ---------------------- |
+| Validation           | {{validationMeanMae}}   | {{validationStdMae}}   |
+| Test with retrain    | {{retrainMeanMae}}      | {{retrainStdMae}}      |
+| Test without retrain | {{testMeanMae}}         | {{testStdMae}}         |
+
+Table: Follow up experiment in which the test is evaluated without retraining. {#tbl:retrain}
+
+In particular, this may indicate that the model is specifically limited by the number of years available for training. Our open source data pipeline can and will be used to rerun analysis as input datasets are updated to include additional years in the future.
 
 # Interactive tools
 Next, we further describe our interactive tools. In crafting these "explorable explanations" [@victor_explorable_2011] in Table @tbl:apps, we draw analogies to micro-apps  [@bridgwater_what_2015] or mini-games [@dellafave_designing_2014] in which the user encounters a series of small experiences that, each with distinct interaction and objectives, can only provide minimal instruction [@brown_100_2024]. As these very brief visualization experiences cannot take advantage of design techniques like Hayashida-style tutorials [@pottinger_pyafscgaporg_2023], they rely on simple "loops" [@brazie_designing_2024] for immediate "juxtaposition gratification" (JG) [@jm8_secret_2024], showing fast progression after minimal input.
