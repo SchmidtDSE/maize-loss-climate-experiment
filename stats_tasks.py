@@ -678,7 +678,7 @@ class CombineStatsTask(luigi.Task):
 
         if const.INCLUDE_YEAR_IN_MODEL:
             requirements['simHold'] = ExtractSimStatsHoldYearTask()
-        
+
         return requirements
 
     def output(self):
@@ -698,7 +698,7 @@ class CombineStatsTask(luigi.Task):
 
         if const.INCLUDE_YEAR_IN_MODEL:
             sim_hold_inputs = self._get_subfile('simHold')
-        
+
         std_inputs = self._get_subfile('std')
         dual_inputs = self._get_subfile('dual')
 
