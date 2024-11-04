@@ -140,7 +140,7 @@ Each Monte Carlo trial involves multiple sampling operations. First, we sample c
 Altogether, this approach simulates insured units individually per year. Having found these outcomes as a distribution per neighborhood, we can then evaluate these results probabilistically. As further described in supplemental, we determine significance both in this paper and our interactive tools via Bonferroni-corrected [@bonferroni_il_1935] Mann Whitney U [@mann_test_1947] per neighborhood.
 
 # Results
-We project loss probabilities ($p$) to roughly double at mid-century with {{experimentalProbability2050}} under SSP245 in comparison to the no additional warming counterfactual scenario seeing {{counterfactualProbability2050}}.
+We project loss probabilities ($p$) to roughly double at mid-century: {{experimentalProbability2050}} under SSP245 versus {{counterfactualProbability2050}} with no additional warming.
 
 ## Sample size
 Our resulting dataset spans 1999 to 2016 during which we observe a median of 83k SCYM yield estimations at roughly field-scale per neighborhood. These outcomes are represented within neighborhood-level distributions per year.
