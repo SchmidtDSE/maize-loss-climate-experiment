@@ -36,7 +36,7 @@ output:
 **Overview**: These supplementary materials complement "Climate-Driven Doubling of U.S. Maize Loss Probability: Interactive Simulation through Neural Network Monte Carlo" to further describe the work including statistical tests employed, the simulation of insured units, and the interactive tools available at https://ag-adaptation-study.pub.
 
 # Methods and data
-These materials start with further explanation of the methods and data empoloyed.
+These materials start with further explanation of the methods and data employed.
 
 ## Input vector
 For our presented results, we allow the model to use the count of growing condition estimations as a possible measure of uncertainty. However, we exclude the year being predicted which, in addition to seeing potential signs of overfit, may also assume more specificity in individual year conditions than potentially appropriate given the 2030 and 2050 series structure of CHC-CMIP6 [@williams_high_2024]. Even so, these options may be configured in our open source data pipeline for model retraining.
