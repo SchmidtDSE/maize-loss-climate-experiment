@@ -104,7 +104,7 @@ First, these tools were built during our own internal exploration of data with T
 
 | **Simulator**   | **Observation**                                                                                                                         |
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| Distributional  | Dichotomy of chnges to yield and changes to loss risk.                                         |
+| Distributional  | Dichotomy of changes to yield and changes to loss risk.                                         |
 | Claims          | Issues of using average for $y_{expected}$ [@fcic_common_2020].                                                                                                         |
 | Neighborhood    | Geographic bias of impact. Model output relationships with broader climate factors, highlighting the possible systemic protective value of increased precipitation. |
 | Hyper-parameter | Model resilience to removing individual inputs.                                                                                         |
