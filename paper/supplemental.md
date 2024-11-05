@@ -38,9 +38,6 @@ output:
 # Methods and data
 These materials start with further explanation of the methods and data employed.
 
-## Input vector
-For our presented results, we allow the model to use the count of growing condition estimations as a possible measure of uncertainty. However, we exclude the year being predicted which, in addition to seeing potential signs of overfit, may also assume more specificity in individual year conditions than potentially appropriate given the 2030 and 2050 series structure of CHC-CMIP6 [@williams_high_2024]. Even so, these options may be configured in our open source data pipeline for model retraining.
-
 ## Statistical tests
 To determine significance of changes to loss probability at neighborhood-level, we use Mann Whitney U [@mann_test_1947] as variance is observed to differ between the two expected and counterfactual sets [@mcdonald_handbook_2014]. As our neural network attempts to predict the distribution of yield values, we note that the granularity of the response variable (SCYM yield) specifically may influence statistical power and we observe that SYCM [@lobell_scalable_2015] uses Daymet variables at 1 km resolution [@thornton_daymet_2014]. Therefore, due to potential correlation within those 1km cells, we assume 1km resolution for the purposes of statistical tests to avoid artificially increasing the number of "true" SCYM yield estimations per neighborhood. Finally, we recognize that we are engaging in one statistical test per neighborhood per series (2030, 2050). We control for this through Bonferroni-correction [@bonferroni_il_1935].
 
@@ -52,6 +49,14 @@ To further describe our treatment of insured risk units, consider that the USDA 
 Though these data lack precise geographic specificity, the USDA indicates the county in which these units are located. Even so, we notice year to year instability at the county level. This may reflect growers reconfiguring their risk structure to optimize rates as yield profiles change over time. Altogether, this may cause the geographic location of larger units to shift between years.
 
 All this in mind, sampling the risk unit size at the county level likely represents over-confidence or overfitting to previous configurations. Even so, we observe that the system-wide risk unit size distribution remains relatively stable. This may suggest that, even as more local changes to risk unit structure may be more substantial between years, overall expectations for the size of risk units are less fluid. Therefore, we use that larger system-wide distribution to sample risk unit sizes within our Monte Carlo simulation instead of the county-level distributions. This also has the effect of propogating risk unit size uncertainty into results through the mechanics of Monte Carlo.
+
+## Input vector
+For our presented results, we make two choices in structuring our input vector:
+
+ - We allow the model to use the count of growing condition estimations as a possible measure of uncertainty. This generally leads to better performance.
+ - We exclude the year being predicted which, in addition to seeing potential signs of overfit, may also assume more specificity in individual year conditions than potentially appropriate given the 2030 and 2050 series structure of CHC-CMIP6 [@williams_high_2024].
+
+For further details on these parameters including model sweep configuration, see our open source pipeline. 
 
 ## Additional notes on included years and areas
 To further document how we structure our consideration of timeseries variables, we emphasize that we sample for nine individual years in the 2030 CHC-CMIP6 series and nine individual years in 2050 CHC-CMIP6 series. Importantly, projections in these series are not necessarily intended as specific predictions in specific years. We do not provide a year by year timeseries for this reason. Instead, our analysis produces distributions of anticipated outcomes at the 2030 and 2050 timeframes. Note that our choice to create these two series follows a similar structure to CHC-CMIP6.
