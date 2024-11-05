@@ -104,7 +104,7 @@ First, these tools were built during our own internal exploration of data with T
 
 | **Simulator**   | **Observation**                                                                                                                         |
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| Distributional  | Dichotomy of larger changes to insurer-relevant tails contrasting smaller changes to mean yield.                                         |
+| Distributional  | Dichotomy of chnges to yield and changes to loss risk.                                         |
 | Claims          | Issues of using average for $y_{expected}$ [@fcic_common_2020].                                                                                                         |
 | Neighborhood    | Geographic bias of impact. Model output relationships with broader climate factors, highlighting the possible systemic protective value of increased precipitation. |
 | Hyper-parameter | Model resilience to removing individual inputs.                                                                                         |
@@ -116,7 +116,7 @@ Altogether, these tools serve to support our exploration of our modeling such as
 ## Workshops
 In addition to supporting our finding of our own conclusions, we release this software publicly at https://ag-adaptation-study.pub/. Possible use of these tools include workshop activity and we also report^[We collect information about the tool only and not generalizable knowledge about users or these patterns, falling under "quality assurance" activity. IRB questionnaire on file.] briefly on design changes made to our interactive tools for that purpose. These were implemented in response to our work's participation in a 9 person "real-world" private workshop session encompassing scientists and engineers which was intended to improve these tools specifically through active co-exploration limited to these study results. Changes include:
 
- - Facilitators elected to alternate between presentation and interaction similar to @pottinger_combining_2023 but we added the rates simulator to further improve presentation of the rate setting process.
+ - Facilitators elected to alternate between presentation and interaction similar to @pottinger_combining_2023 but we added the rates simulator to further improve presentation of the rate setting process which was previously explained in static diagrams.
  - Facilitators suggest that single loop [@brazie_designing_2024] designs perform best within the limited time of the workshop and we now let facilitators hold the longer two loop neighborhood simulator till the end by default.
  - As expected by the JG design [@jm8_secret_2024], discussion contrasts different results sets and configurations of models but meta-parameter visualization relies heavily on memory so we now offer a "sweep" button for facilitators to show all results at once.
 
