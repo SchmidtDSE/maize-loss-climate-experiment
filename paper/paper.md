@@ -63,7 +63,7 @@ Growers submit production histories for the covered crop ($y_{historic}$) and th
 
 $y_{expected} = \frac{y_{historic}[-d:]}{d}$
 
-Next, we define probability of experiencing a loss that may incur a Yield Protection claim ($p_{y}$).
+Next, we define probability of experiencing a loss that may incur a Yield Protection claim ($p_{l}$).
 
 $p_{l} = P(l > 0) = P(c * y_{expected} - y_{actual} > 0) = P(\frac{y_{actual} - y_{expected}}{y_{expected}} < c - 1) = P(y_{\Delta\%} < c - 1)$
 
