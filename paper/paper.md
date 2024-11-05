@@ -52,7 +52,7 @@ Despite these prior contributions, important programs and policies often include
 We address this need for institutionally-relevant granular future loss prediction through neural network Monte Carlo. We provide these projections at the informative risk unit scale, probabilistically forecasting institution-relevant outcome metrics under climate change. We focus on the important U.S. Corn Belt, a 9 state region within the United States essential to the nation's maize crop [@green_where_2018]. Within this agriculturally important area, we simulate the Multiple Peril Crop Insurance Program, "the oldest and most common form of federal crop insurance" [@chite_agricultural_2006]. We specifically model changes to risk under the Yield Protection plan. Furthermore, by contrasting results to a "counterfactual" which does not include further climate warming, we quantitatively highlight the insurer-relevant effects of climate change in near (2030) and medium-term (2050) timeframes [@williams_high_2024].
 
 # Methods
-We first build predictive models of maize yield distributions using a neural network at an insurer-relevant spatial scale. We then estimate changes to yield losses under different climate conditions with Monte Carlo simulation in order to estimate crop loss probability and severity. Finally, these changese to yield estimate insurance claims rates.
+We first build predictive models of maize yield distributions using a neural network at an insurer-relevant spatial scale. We then estimate changes to yield losses under different climate conditions with Monte Carlo simulation in order to estimate crop loss probability and severity. Finally, changes to yield estimate insurance claims rates.
 
 ## Definitions
 Before modeling these systems, we articulate mathematical definitions of domain-specific concepts and policy instruments. First, insurers pay out based on the magnitude of a yield loss across the aggregation of all of the fields in an insured unit. This loss ($l$) is defined as the difference between actual yield ($y_{actual}$) and a guarantee threshold set by a coverage level ($c$) typically described as a precentage of an expected yield ($y_{expected}$) [@rma_crop_2008].
@@ -63,9 +63,9 @@ Growers submit production histories for the covered crop ($y_{historic}$) and th
 
 $y_{expected} = \frac{y_{historic}[-d:]}{d}$
 
-Next, we define probability of experiencing a loss that may incur a Yield Protection claim ($p$).
+Next, we define probability of experiencing a loss that may incur a Yield Protection claim ($p_{y}$).
 
-$p = P(l > 0) = P(c * y_{expected} - y_{actual} > 0) = P(\frac{y_{actual} - y_{expected}}{y_{expected}} < c - 1) = P(y_{\Delta\%} < c - 1)$
+$p_{l} = P(l > 0) = P(c * y_{expected} - y_{actual} > 0) = P(\frac{y_{actual} - y_{expected}}{y_{expected}} < c - 1) = P(y_{\Delta\%} < c - 1)$
 
 Genearlly, the severity ($s$) of a loss when it occurs defines the size of the claim.
 
@@ -131,7 +131,7 @@ After training machine learning models using historic data, predictions of futur
 
 ![Model pipeline overview diagram. Code released as open source.](./img/pipeline.png "Model pipeline overview diagram. Code released as open source."){ width=80% #fig:pipeline }
 
-With trials consisting of sampling at the neighborhood scale, this approach allows us to consider a distribution of future outcomes for each neighborhood. These results then enable us to make statistical statements about systems-wide institution-relevant events such as claims probability ($p$).
+With trials consisting of sampling at the neighborhood scale, this approach allows us to consider a distribution of future outcomes for each neighborhood. These results then enable us to make statistical statements about systems-wide institution-relevant events such as claims probability ($p_{l}$).
 
 ### Trials
 Each Monte Carlo trial involves multiple sampling operations. First, we sample climate variables and model error residuals to propagate uncertainty [@yanai_estimating_2010]. Next, we draw multiple times to approximate the size of a risk unit with its portfolio effects. Note that the size but not the specific location of insured units is publicly disclosed. Therefore, we first draw the geographic size of an insured unit randomly from historic data [@rma_statecountycrop_2024]. Afterwards, we can then draw yields from the neighborhood distribution with the number of samples dependent on that insured unit size. Our supplemental materials provide further details.
@@ -140,7 +140,7 @@ Each Monte Carlo trial involves multiple sampling operations. First, we sample c
 Altogether, this approach simulates insured units individually per year. Having found these outcomes as a distribution per neighborhood, we can then evaluate these results probabilistically. As further described in supplemental, we determine significance both in this paper and our interactive tools via Bonferroni-corrected [@bonferroni_il_1935] Mann Whitney U [@mann_test_1947] per neighborhood.
 
 # Results
-We project loss probabilities ($p$) to roughly double at mid-century: {{experimentalProbability2050}} under SSP245 versus {{counterfactualProbability2050}} with no additional warming.
+We project loss probabilities ($p_{l}$) to roughly double at mid-century: {{experimentalProbability2050}} under SSP245 versus {{counterfactualProbability2050}} with no additional warming.
 
 ## Sample size
 Our resulting dataset spans 1999 to 2016 during which we observe a median of 83k SCYM yield estimations at roughly field-scale per neighborhood. These outcomes are represented within neighborhood-level distributions per year.
@@ -178,7 +178,7 @@ After retraining on all available data using the selected configuration from our
 | SSP245         | 2030     | {% if experimentalMean2030|float > 0 %}+{% endif %}{{experimentalMean2030}}   | {{experimentalProbability2030}}   | {{experimentalSeverity2030}}   |
 | Counterfactual | 2050     | {% if counterfactualMean2050|float > 0 %}+{% endif %}{{counterfactualMean2050}} | {{counterfactualProbability2050}} | {{counterfactualSeverity2050}} |
 | SSP245         | 2050     | {% if experimentalMean2050|float > 0 %}+{% endif %}{{experimentalMean2050}}   | {{experimentalProbability2050}}   | {{experimentalSeverity2050}}   |
-|                |          | $y_{\Delta \mu}$           | $p_{\mu}$                         | $s_{\mu}$                      |
+|                |          | $y_{\Delta \mu}$           | $p_{l-\mu}$                         | $s_{\mu}$                      |
 
 Table: Overview of Monte Carlo simulation results. Counterfactual is a future without continued warming in contrast to SSP245. {#tbl:simresults}
 
