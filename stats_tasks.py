@@ -343,12 +343,15 @@ class ExtractSimStatsTemplateTask(luigi.Task):
 
     def run(self):
         """Extract summary statistics for the simulations."""
+
+        def get_in_scope(target):
+            historic_in_scope = is_record_in_scope(target, 0.25, historic=True)
+            future_in_scope = is_record_in_scope(target, 0.25, historic=False)
+            return historic_in_scope or future_in_scope
+
         with self.input().open() as f:
             records = csv.DictReader(f)
-            records_allowed = filter(
-                lambda x: export_tasks.is_record_in_scope(x, 0.25),
-                records
-            )
+            records_allowed = filter(get_in_scope, records)
             simplified_records = map(
                 lambda x: self._simplify_record(x),
                 records_allowed
@@ -419,10 +422,12 @@ class ExtractSimStatsTemplateTask(luigi.Task):
         Returns:
             Dictionary after parsing.
         """
+        is_historic = 'historic' in record['series']
         is_counterfactual = '_counterfactual' in record['series']
         year_series = int(record['series'].split('_')[0])
 
         return {
+            'isHistoric': is_historic,
             'isCounterfactual': is_counterfactual,
             'year': year_series,
             'num': float(record['num']),
@@ -441,6 +446,9 @@ class ExtractSimStatsTemplateTask(luigi.Task):
             String indicating the series type (experimental, counterfactual) and year (like 2024)
             that the record is from or represents.
         """
+        if record['isHistoric']:
+            return 'historic'
+        
         prefix = 'counterfactual' if record['isCounterfactual'] else 'experimental'
         year = record['year']
         return '%s%d' % (prefix, year)
