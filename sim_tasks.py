@@ -2248,6 +2248,7 @@ class CombineSimulationsTask(CombineSimulationsTaskTemplate):
             writer = csv.DictWriter(f, fieldnames=['series'] + OUTPUT_FIELDS)
             writer.writeheader()
             self._write_out('historic', writer)
+            self._write_out('2010', writer)
             self._write_out('2030', writer)
             self._write_out('2030_counterfactual', writer)
             self._write_out('2050', writer)
