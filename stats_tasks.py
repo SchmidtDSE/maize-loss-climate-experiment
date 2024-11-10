@@ -424,7 +424,7 @@ class ExtractSimStatsTemplateTask(luigi.Task):
         """
         is_historic = 'historic' in record['series']
         is_counterfactual = '_counterfactual' in record['series']
-        year_series = int(record['series'].split('_')[0])
+        year_series = 2010 if is_historic else int(record['series'].split('_')[0])
 
         return {
             'isHistoric': is_historic,
