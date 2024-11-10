@@ -529,6 +529,78 @@ class NormalizeRefHistoricTrainingFrameTask(luigi.Task):
                 writer.writerows(allowed_rows)
 
 
+class NormalizeRefHistoricEarlyTask(luigi.Task):
+    """Get the historic reference data for the first 10 years.
+
+    Prepare the historic reference data (not used for model training but for baselines in the
+    simulations). This specifically filters normalized rows prepared in a prior step and checks the
+    output fields are expected.
+    """
+
+    def requires(self):
+        """Indicate which task whose output to filter.
+
+        Returns:
+            NormalizeHistoricTrainingFrameTask
+        """
+        return normalize_tasks.NormalizeHistoricTrainingFrameTask()
+
+    def output(self):
+        """Indicate where the filtered data should be written.
+
+        Returns:
+            LocalTarget at which filtered data should be written.
+        """
+        return luigi.LocalTarget(const.get_file_location('ref_historic_normalized.csv'))
+
+    def run(self):
+        """Run the filter and field check."""
+        with self.input().open('r') as f_in:
+            reader = csv.DictReader(f_in)
+            allowed_rows = filter(lambda x: int(x['year']) <= 2008, reader)
+
+            with self.output().open('w') as f_out:
+                writer = csv.DictWriter(f_out, fieldnames=const.TRAINING_FRAME_ATTRS)
+                writer.writeheader()
+                writer.writerows(allowed_rows)
+
+
+class NormalizeRefHistoricLateTask(luigi.Task):
+    """Get the historic reference data for the final 9 years.
+
+    Prepare the historic reference data (not used for model training but for baselines in the
+    simulations). This specifically filters normalized rows prepared in a prior step and checks the
+    output fields are expected.
+    """
+
+    def requires(self):
+        """Indicate which task whose output to filter.
+
+        Returns:
+            NormalizeHistoricTrainingFrameTask
+        """
+        return normalize_tasks.NormalizeHistoricTrainingFrameTask()
+
+    def output(self):
+        """Indicate where the filtered data should be written.
+
+        Returns:
+            LocalTarget at which filtered data should be written.
+        """
+        return luigi.LocalTarget(const.get_file_location('ref_historic_normalized.csv'))
+
+    def run(self):
+        """Run the filter and field check."""
+        with self.input().open('r') as f_in:
+            reader = csv.DictReader(f_in)
+            allowed_rows = filter(lambda x: int(x['year']) > 2008, reader)
+
+            with self.output().open('w') as f_out:
+                writer = csv.DictWriter(f_out, fieldnames=const.TRAINING_FRAME_ATTRS)
+                writer.writeheader()
+                writer.writerows(allowed_rows)
+
+
 class GetNumObservationsTask(luigi.Task):
     """Get the number of yield observations per geohash and year."""
 
