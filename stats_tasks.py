@@ -360,6 +360,15 @@ class ExtractSimStatsTemplateTask(luigi.Task):
             )
 
         output_record = {
+            'historicMean': format_percent(
+                reduced_records['historic']['mean']
+            ),
+            'historicProbability': format_percent(
+                reduced_records['historic']['probability']
+            ),
+            'historicSeverity': format_severity(
+                reduced_records['historic']['severity']
+            ),
             'counterfactualMean2030': format_percent(
                 reduced_records['counterfactual2030']['mean']
             ),
@@ -745,6 +754,9 @@ class CombineStatsTask(luigi.Task):
             'randomCount': posthoc_inputs['randomCount'],
             'randomPercent': posthoc_inputs['randomPercent'],
             'percentSignificant': significance_inputs['percentSignificant'],
+            'historicMean': sim_inputs['historicMean'],
+            'historicProbability': sim_inputs['historicProbability'],
+            'historicSeverity': sim_inputs['historicSeverity'],
             'counterfactualMean2030': sim_inputs['counterfactualMean2030'],
             'counterfactualProbability2030': sim_inputs['counterfactualProbability2030'],
             'counterfactualSeverity2030': sim_inputs['counterfactualSeverity2030'],
