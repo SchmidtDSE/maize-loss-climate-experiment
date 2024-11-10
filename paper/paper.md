@@ -140,7 +140,7 @@ Each Monte Carlo trial involves multiple sampling operations. First, we sample c
 Altogether, this approach simulates insured units individually per year. Having found these outcomes as a distribution per neighborhood, we can then evaluate these results probabilistically. As further described in supplemental, we determine significance both in this paper and our interactive tools via Bonferroni-corrected [@bonferroni_il_1935] Mann Whitney U [@mann_test_1947] per neighborhood.
 
 # Results
-We project loss probabilities ($p_{l}$) to roughly double at mid-century: {{experimentalProbability2050}} under SSP245 versus {{counterfactualProbability2050}} with no additional warming.
+We project climate change to roughly double loss probabilities ($p_{l}$) at mid-century: {{experimentalProbability2050}} under SSP245 versus {{counterfactualProbability2050}} with no additional warming.
 
 ## Sample size
 Our resulting dataset spans 1999 to 2016 during which we observe a median of 83k SCYM yield estimations at roughly field-scale per neighborhood. These outcomes are represented within neighborhood-level distributions per year.
@@ -172,17 +172,9 @@ Additional performance metrics are offered in supplemental and the interactive t
 ## Simulation outcomes
 After retraining on all available data using the selected configuration from our sweep, Monte Carlo simulates overall outcomes. Despite the conservative nature of the Bonferroni correction [@mcdonald_handbook_2014], {{percentSignificant}} of maize acreage in SSP245 falls within a neighborhood with significant changes to claim probability ($p < 0.05 / n$) at some point during the 2050 series simulations. That said, we observe that some of the remaining neighborhoods failing to meet that threshold have less land dedicated to maize within their area and, thus, a smaller sample size in our simulations.
 
-| **Scenario**   | **Year** | **Unit mean yield change** | **Unit loss probability**         | **Avg covered loss severity**  |
-| ---------------------------- | -------- | -------------------------- | --------------------------------- | ------------------------------ |
-| Counterfactual | 2030     | {% if counterfactualMean2030|float > 0 %}+{% endif %}{{counterfactualMean2030}} | {{counterfactualProbability2030}} | {{counterfactualSeverity2030}} |
-| SSP245         | 2030     | {% if experimentalMean2030|float > 0 %}+{% endif %}{{experimentalMean2030}}   | {{experimentalProbability2030}}   | {{experimentalSeverity2030}}   |
-| Counterfactual | 2050     | {% if counterfactualMean2050|float > 0 %}+{% endif %}{{counterfactualMean2050}} | {{counterfactualProbability2050}} | {{counterfactualSeverity2050}} |
-| SSP245         | 2050     | {% if experimentalMean2050|float > 0 %}+{% endif %}{{experimentalMean2050}}   | {{experimentalProbability2050}}   | {{experimentalSeverity2050}}   |
-|                |          | $y_{\Delta \mu}$           | $p_{l-\mu}$                         | $s_{\mu}$                      |
+![Overview of Monte Carlo simulation results. Counterfactual is a future without continued warming in contrast to SSP245. While results show roughly steady claims rates in the counterfactual, these data suggest that the claims rate roughly doubles from 2 - 3% to 5 - 6%.](./img/sims.png "Overview of Monte Carlo simulation results. Counterfactual is a future without continued warming in contrast to SSP245. While results show roughly steady claims rates in the counterfactual, these data suggest that the claims rate roughly doubles from 2 - 3% to 5 - 6%."){#fig:simresults}
 
-Table: Overview of Monte Carlo simulation results. Counterfactual is a future without continued warming in contrast to SSP245. {#tbl:simresults}
-
-As described in Table @tbl:simresults, the loss probability sharply increases in both the 2030 and 2050 time frames considered for SSP245 whereas the no warming counterfactual sees roughly steady claims rates into the future. Note that the SSP245 scenario also reduces anticipated mean yield gains otherwise consistent with historic trends [@nielsen_historical_2023].
+As described in Figure @fig:simresults, the loss probability sharply increases in both the 2030 and 2050 time frames considered for SSP245 whereas the no warming counterfactual sees roughly steady claims rates into the future. Note that the SSP245 scenario also reduces anticipated mean yield gains otherwise consistent with historic trends [@nielsen_historical_2023].
 
 # Discussion
 In addition to highlighting future work opportunities and further exploring our results, we observe a number of policy-relevant dynamics within our simulations.
