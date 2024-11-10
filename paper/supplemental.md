@@ -97,7 +97,7 @@ Though presented to one decimal place, we consider these results to suggest that
 
 Table: Details of Monte Carlo simulation results. Counterfactual is a future without continued warming in contrast to SSP245. {#tbl:simresults}
 
-We document our detailed simulation results in Table @tbl:simresults. Note that 2010 series is used internally in our model for consistency with 2030 and 2050 from CHC-CMIP6 but it essentailly uses 2007 to 2016.
+We document our detailed simulation results in Table @tbl:simresults. Note that the "2010 series" label is used internally in our model for consistency with 2030 and 2050 from CHC-CMIP6 but it essentailly uses 2007 to 2016.
 
 # Interactive tools
 Next, we further describe our interactive tools. In crafting these "explorable explanations" [@victor_explorable_2011] in Table @tbl:apps, we draw analogies to micro-apps  [@bridgwater_what_2015] or mini-games [@dellafave_designing_2014] in which the user encounters a series of small experiences that, each with distinct interaction and objectives, can only provide minimal instruction [@brown_100_2024]. As these very brief visualization experiences cannot take advantage of design techniques like Hayashida-style tutorials [@pottinger_pyafscgaporg_2023], they rely on simple "loops" [@brazie_designing_2024] for immediate "juxtaposition gratification" (JG) [@jm8_secret_2024], showing fast progression after minimal input.
