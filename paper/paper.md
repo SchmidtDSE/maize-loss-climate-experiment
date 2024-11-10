@@ -52,7 +52,7 @@ Despite these prior contributions, important programs and policies often include
 We address this need for institutionally-relevant granular future loss prediction through neural network Monte Carlo. We provide these projections at the informative risk unit scale, probabilistically forecasting institution-relevant outcome metrics under climate change. We focus on the important U.S. Corn Belt, a 9 state region within the United States essential to the nation's maize crop [@green_where_2018]. Within this agriculturally important area, we simulate the Multiple Peril Crop Insurance Program, "the oldest and most common form of federal crop insurance" [@chite_agricultural_2006]. We specifically model changes to risk under the Yield Protection plan. Furthermore, by contrasting results to a "counterfactual" which does not include further climate warming, we quantitatively highlight the insurer-relevant effects of climate change in near (2030) and medium-term (2050) timeframes [@williams_high_2024].
 
 # Methods
-We first build predictive models of maize yield distributions using a neural network at an insurer-relevant spatial scale. We then estimate changes to yield losses under different climate conditions with Monte Carlo simulation in order to estimate crop loss probability and severity.
+We first build predictive models of maize yield distributions using a neural network at an insurer-relevant spatial scale. We then estimate changes to yield losses under different climate conditions with Monte Carlo simulation in order to estimate crop loss probability and severity. Finally, changes to yield estimate insurance claims rates.
 
 ## Definitions
 Before modeling these systems, we articulate mathematical definitions of domain-specific concepts and policy instruments. First, insurers pay out based on the magnitude of a yield loss across the aggregation of all of the fields in an insured unit. This loss ($l$) is defined as the difference between actual yield ($y_{actual}$) and a guarantee threshold set by a coverage level ($c$) typically described as a precentage of an expected yield ($y_{expected}$) [@rma_crop_2008].
@@ -138,7 +138,7 @@ Each Monte Carlo trial involves multiple sampling operations. First, we sample c
 Altogether, this approach simulates insured units individually per year. Having found these outcomes as a distribution per neighborhood, we can then evaluate these results probabilistically. As further described in supplemental, we determine significance both in this paper and our interactive tools via Bonferroni-corrected [@bonferroni_il_1935] Mann Whitney U [@mann_test_1947] per neighborhood.
 
 # Results
-We project climate change to roughly double loss probabilities ($p_{l}$) at mid-century: {{experimentalProbability2050}} under SSP245 versus {{counterfactualProbability2050}} with no additional warming. However, as explored in discussion, this projection emerges before unit structure optimization.
+We project climate change to roughly double loss probabilities ($p_{l}$) at mid-century: {{experimentalProbability2050}} under SSP245 versus {{counterfactualProbability2050}} with no additional warming. However, as explored in discussion, this projects before unit structure optimization.
 
 ## Sample size
 Our resulting dataset spans 1999 to 2016 during which we observe a median of 83k SCYM yield estimations at roughly field-scale per neighborhood. These outcomes are represented within neighborhood-level distributions per year.
