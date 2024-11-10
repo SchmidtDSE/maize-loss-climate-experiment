@@ -345,9 +345,7 @@ class ExtractSimStatsTemplateTask(luigi.Task):
         """Extract summary statistics for the simulations."""
 
         def get_in_scope(target):
-            historic_in_scope = export_tasks.is_record_in_scope(target, 0.25, historic=True)
-            future_in_scope = export_tasks.is_record_in_scope(target, 0.25, historic=False)
-            return historic_in_scope or future_in_scope
+            return export_tasks.is_record_in_scope(target, 0.25)
 
         with self.input().open() as f:
             records = csv.DictReader(f)
@@ -363,14 +361,14 @@ class ExtractSimStatsTemplateTask(luigi.Task):
             )
 
         output_record = {
-            'historicMean': format_percent(
-                reduced_records['historic']['mean']
+            'referenceMean2010': format_percent(
+                reduced_records['experimental2010']['mean']
             ),
-            'historicProbability': format_percent(
-                reduced_records['historic']['probability']
+            'referenceProbability2010': format_percent(
+                reduced_records['experimental2010']['probability']
             ),
-            'historicSeverity': format_severity(
-                reduced_records['historic']['severity']
+            'referenceSeverity2010': format_severity(
+                reduced_records['experimental2010']['severity']
             ),
             'counterfactualMean2030': format_percent(
                 reduced_records['counterfactual2030']['mean']
@@ -763,9 +761,9 @@ class CombineStatsTask(luigi.Task):
             'randomCount': posthoc_inputs['randomCount'],
             'randomPercent': posthoc_inputs['randomPercent'],
             'percentSignificant': significance_inputs['percentSignificant'],
-            'historicMean': sim_inputs['historicMean'],
-            'historicProbability': sim_inputs['historicProbability'],
-            'historicSeverity': sim_inputs['historicSeverity'],
+            'referenceMean2010': sim_inputs['referenceMean2010'],
+            'referenceProbability2010': sim_inputs['referenceProbability2010'],
+            'referenceSeverity2010': sim_inputs['referenceSeverity2010'],
             'counterfactualMean2030': sim_inputs['counterfactualMean2030'],
             'counterfactualProbability2030': sim_inputs['counterfactualProbability2030'],
             'counterfactualSeverity2030': sim_inputs['counterfactualSeverity2030'],

@@ -1119,6 +1119,90 @@ class ProjectHistoricTask(luigi.Task):
         ]].to_csv(self.output().path)
 
 
+class ProjectHistoricEarlyTask(luigi.Task):
+    """Task in which historic data are retroactively predicted for reference."""
+
+    def requires(self):
+        """Get the task whose outputs should be used as inputs to the neural network.
+
+        Returns:
+            NormalizeRefHistoricTrainingFrameTask
+        """
+        return {
+            'target': NormalizeRefHistoricEarlyTask()
+        }
+
+    def output(self):
+        """Determine where the retroactive predictions should be written.
+
+        Returns:
+            LocalTarget at which the predictions should be written.
+        """
+        return luigi.LocalTarget(const.get_file_location('historic_project_dist_early.csv'))
+
+    def run(self):
+        """Project into the historic dataset."""
+        target_frame = pandas.read_csv(self.input()['target'].path)
+
+        target_frame['joinYear'] = target_frame['year']
+        target_frame['simYear'] = 2000
+        target_frame['year'] = target_frame['simYear']
+
+        target_frame['predictedMean'] = target_frame['yieldMean']
+        target_frame['predictedStd'] = target_frame['yieldStd']
+
+        target_frame[[
+            'geohash',
+            'simYear',
+            'joinYear',
+            'predictedMean',
+            'predictedStd',
+            'yieldObservations'
+        ]].to_csv(self.output().path)
+
+
+class ProjectHistoricLateTask(luigi.Task):
+    """Task in which historic data are retroactively predicted for reference."""
+
+    def requires(self):
+        """Get the task whose outputs should be used as inputs to the neural network.
+
+        Returns:
+            NormalizeRefHistoricTrainingFrameTask
+        """
+        return {
+            'target': NormalizeRefHistoricLateTask()
+        }
+
+    def output(self):
+        """Determine where the retroactive predictions should be written.
+
+        Returns:
+            LocalTarget at which the predictions should be written.
+        """
+        return luigi.LocalTarget(const.get_file_location('historic_project_dist_late.csv'))
+
+    def run(self):
+        """Project into the historic dataset."""
+        target_frame = pandas.read_csv(self.input()['target'].path)
+
+        target_frame['joinYear'] = target_frame['year']
+        target_frame['simYear'] = 2010
+        target_frame['year'] = target_frame['simYear']
+
+        target_frame['predictedMean'] = target_frame['yieldMean']
+        target_frame['predictedStd'] = target_frame['yieldStd']
+
+        target_frame[[
+            'geohash',
+            'simYear',
+            'joinYear',
+            'predictedMean',
+            'predictedStd',
+            'yieldObservations'
+        ]].to_csv(self.output().path)
+
+
 class ProjectHistoricModelTask(ProjectTaskTemplate):
     """Retroactively project historic yield."""
 
@@ -1335,6 +1419,46 @@ class InterpretProjectHistoricTask(InterpretProjectTaskTemplate):
         return 'historic_project_dist_interpret.csv'
 
 
+class InterpretProjectEarlyHistoricTask(InterpretProjectTaskTemplate):
+    """Interpret retroactive historic projections with early years."""
+
+    def get_target_task(self):
+        """Get the task whose output should be reformatted.
+
+        Returns:
+            Luigi task.
+        """
+        return ProjectHistoricEarlyTask()
+
+    def get_filename(self):
+        """Get the filename at which the reformatted data should be written.
+
+        Returns:
+            String filename (but not full path).
+        """
+        return 'historic_project_dist_interpret_early.csv'
+
+
+class InterpretProjectLateHistoricTask(InterpretProjectTaskTemplate):
+    """Interpret retroactive historic projections with late years."""
+
+    def get_target_task(self):
+        """Get the task whose output should be reformatted.
+
+        Returns:
+            Luigi task.
+        """
+        return ProjectHistoricLateTask()
+
+    def get_filename(self):
+        """Get the filename at which the reformatted data should be written.
+
+        Returns:
+            String filename (but not full path).
+        """
+        return 'historic_project_dist_interpret_late.csv'
+
+
 class InterpretProject2030Task(InterpretProjectTaskTemplate):
     """Interpret 2030 projections."""
 
@@ -1489,6 +1613,42 @@ class MakeSimulationTasksHistoricTask(MakeSimulationTasksTemplate):
             Name of condition as string like 2050_SSP245.
         """
         return 'historic'
+
+
+class MakeSimulationTasks2010Task(MakeSimulationTasksTemplate):
+    """Make simulation tasks for 2010 prediction."""
+
+    def get_filename(self):
+        """Get the filename at which the task information should be written.
+
+        Returns:
+            Filename but not full path as string.
+        """
+        return '2010_sim_tasks.csv'
+
+    def get_baseline_task(self):
+        """Get the task whose output describes geohash-level yield baselines.
+
+        Returns:
+            Luigi task.
+        """
+        return InterpretProjectHistoricEarlyTask()
+
+    def get_projection_task(self):
+        """Get the task whose output describes geohash-level yield predictions.
+
+        Returns:
+            Luigi task.
+        """
+        return InterpretProjectHistoricLateTask()
+
+    def get_condition(self):
+        """Get the condition in which the predicted data were made.
+
+        Returns:
+            Name of condition as string like 2050_SSP245.
+        """
+        return '2010_Historic'
 
 
 class MakeSimulationTasks2030Task(MakeSimulationTasksTemplate):
@@ -1743,6 +1903,34 @@ class ExecuteSimulationTasksHistoricPredictedTask(ExecuteSimulationTasksTemplate
         return False  # This one is not predicted
 
 
+class ExecuteSimulationTasks2010PredictedTask(ExecuteSimulationTasksTemplate):
+    """Execute simulation for 2010 projection."""
+
+    def get_tasks_task(self):
+        """Get the simulation task information generation task.
+
+        Returns:
+            Luigi task.
+        """
+        return MakeSimulationTasks2010Task()
+
+    def get_filename(self):
+        """Get the filename at which the simulation outputs should be written.
+
+        Returns:
+            String filename (not path).
+        """
+        return '2010_sim.csv'
+
+    def get_deltas_task(self):
+        """Get the task whose output are the model residuals.
+
+        Returns:
+            Luigi task.
+        """
+        return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
+
+
 class ExecuteSimulationTasks2030PredictedTask(ExecuteSimulationTasksTemplate):
     """Execute simulation for 2030 projection."""
 
@@ -1967,6 +2155,7 @@ class CombineSimulationsTask(CombineSimulationsTaskTemplate):
         """
         return {
             'historic': ExecuteSimulationTasksHistoricPredictedTask(),
+            '2010': ExecuteSimulationTasks2010PredictedTask(),
             '2030': ExecuteSimulationTasks2030PredictedTask(),
             '2030_counterfactual': ExecuteSimulationTasks2030Counterfactual(),
             '2050': ExecuteSimulationTasks2050PredictedTask(),
