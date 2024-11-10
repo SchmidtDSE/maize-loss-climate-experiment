@@ -35,6 +35,18 @@ def format_percent(target):
     return '%.1f\\%%' % (target * 100)
 
 
+def format_rounded_percent(target):
+    """Format a number as a precent rounded to whole percentage.
+
+    Args:
+        target: Number to format.
+
+    Returns:
+        Formatted string.
+    """
+    return '%d\\%%' % round(target * 100)
+
+
 def format_severity(target):
     """Format a loss severity.
 
@@ -343,12 +355,13 @@ class ExtractSimStatsTemplateTask(luigi.Task):
 
     def run(self):
         """Extract summary statistics for the simulations."""
+
+        def get_in_scope(target):
+            return export_tasks.is_record_in_scope(target, 0.25)
+
         with self.input().open() as f:
             records = csv.DictReader(f)
-            records_allowed = filter(
-                lambda x: export_tasks.is_record_in_scope(x, 0.25),
-                records
-            )
+            records_allowed = filter(get_in_scope, records)
             simplified_records = map(
                 lambda x: self._simplify_record(x),
                 records_allowed
@@ -360,6 +373,15 @@ class ExtractSimStatsTemplateTask(luigi.Task):
             )
 
         output_record = {
+            'referenceMean2010': format_percent(
+                reduced_records['experimental2010']['mean']
+            ),
+            'referenceProbability2010': format_percent(
+                reduced_records['experimental2010']['probability']
+            ),
+            'referenceSeverity2010': format_severity(
+                reduced_records['experimental2010']['severity']
+            ),
             'counterfactualMean2030': format_percent(
                 reduced_records['counterfactual2030']['mean']
             ),
@@ -410,10 +432,12 @@ class ExtractSimStatsTemplateTask(luigi.Task):
         Returns:
             Dictionary after parsing.
         """
+        is_historic = 'historic' in record['series']
         is_counterfactual = '_counterfactual' in record['series']
-        year_series = int(record['series'].split('_')[0])
+        year_series = 2010 if is_historic else int(record['series'].split('_')[0])
 
         return {
+            'isHistoric': is_historic,
             'isCounterfactual': is_counterfactual,
             'year': year_series,
             'num': float(record['num']),
@@ -432,6 +456,9 @@ class ExtractSimStatsTemplateTask(luigi.Task):
             String indicating the series type (experimental, counterfactual) and year (like 2024)
             that the record is from or represents.
         """
+        if record['isHistoric']:
+            return 'historic'
+
         prefix = 'counterfactual' if record['isCounterfactual'] else 'experimental'
         year = record['year']
         return '%s%d' % (prefix, year)
@@ -461,6 +488,7 @@ class ExtractSimStatsTemplateTask(luigi.Task):
             return (a_val * a_num + b_val * b_num) / (a_num + b_num)
 
         return {
+            'isHistoric': a['isHistoric'],
             'isCounterfactual': a['isCounterfactual'],
             'year': a['year'],
             'num': a_num + b_num,
@@ -745,6 +773,9 @@ class CombineStatsTask(luigi.Task):
             'randomCount': posthoc_inputs['randomCount'],
             'randomPercent': posthoc_inputs['randomPercent'],
             'percentSignificant': significance_inputs['percentSignificant'],
+            'referenceMean2010': sim_inputs['referenceMean2010'],
+            'referenceProbability2010': sim_inputs['referenceProbability2010'],
+            'referenceSeverity2010': sim_inputs['referenceSeverity2010'],
             'counterfactualMean2030': sim_inputs['counterfactualMean2030'],
             'counterfactualProbability2030': sim_inputs['counterfactualProbability2030'],
             'counterfactualSeverity2030': sim_inputs['counterfactualSeverity2030'],

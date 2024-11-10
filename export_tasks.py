@@ -995,6 +995,7 @@ class CombinedTasksRecordTask(luigi.Task):
         """
         return {
             'historic': sim_tasks.MakeSimulationTasksHistoricTask(),
+            '2010 series': sim_tasks.MakeSimulationTasks2010Task(),
             '2030 series': sim_tasks.MakeSimulationTasks2030Task(),
             '2050 series': sim_tasks.MakeSimulationTasks2050Task()
         }
