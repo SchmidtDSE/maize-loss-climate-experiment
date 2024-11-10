@@ -214,16 +214,16 @@ Additionally, we highlight that we focus on systematic changes in growing condit
 Finally, as further described in supplemental, our model shows signs that it is data constrained. In particular, additional years of training data may improve performance. Our data pipeline should and can be re-run as future versions of CHC-CMIP6 and SCYM or similar are released.
 
 ### Other programs
-Outside of Yield Protection, future study could extend to the highly related Revenue Protection form of insurance. Indeed, the yield stresses that we describe in this model may also impact this other plan. On that note, we include historic yield as inputs into our neural network, allowing those data to "embed" adaptability measures [@hsiang_estimating_2017] such as grower practices where, for example, some practices may reduce loss events or variability [@renwick_long-term_2021]. That said, we highlight that later studies looking at revenue may require additional market information or data reporting on economic behaviors to serve a similar role.
+Outside of Yield Protection, future study could extend to the highly related Revenue Protection form of insurance. Indeed, the yield stresses that we describe in this model may also impact this other plan. On that note, we include historic yield as inputs into our neural network, allowing those data to "embed" adaptability measures [@hsiang_estimating_2017] such as grower practices where, for example, some practices may reduce loss events or variability [@renwick_long-term_2021]. That said, we highlight that later studies looking at revenue may require additional economic information to serve a similar role.
 
 ### Future benchmarking
 We offer a unique focus on broad geographic institutionally-relevant loss probability prediction at risk unit scale given remote sensed yield estimations. Lacking a compatible study for direct contrasting of performance measures, we invite further research on alternative regression and simulation approaches for similar modeling objectives. While not directly comparable to our results, we note that @lobell_statistical_2010 as well as @leng_predicting_2020 possibly offer precedent for this comparative study.
 
 ## Visualizations and software
-We offer visualization tools and data science pipelines to further explore this work.
+We offer visualization tools and pipelines to further explore this work.
 
 ### Web-based visualizations
-In order to explore these simulations, we offer interactive open source web-based visualizations built alongside our experiments. These both aid us in constructing our own conclusions and allow readers to consider possibilities and analysis beyond our own narrative. Our tools are further described in our supplemental materials. Regardless, this software runs within a web browser and is made publicly available at https://ag-adaptation-study.org. This includes the ability to explore alternative statistical treatments and regressor configurations as well as generate additional geographic visualizations through a series of small purpose-specific tools.
+In order to explore these simulations, we offer interactive open source web-based visualizations built alongside our experiments. These both aid us in constructing our own conclusions and allow readers to consider possibilities and analysis beyond our own narrative. Our tools are further described in our supplemental materials. Regardless, this software runs within a web browser and is made publicly available at https://ag-adaptation-study.org. This includes the ability to explore alternative statistical treatments and regressor configurations as well as generate additional geographic visualizations.
 
 ### Data pipeline
 In addition to visualizations, we also offer our work as an open source data science pipeline. This software may help aid future research into other crops such as soy, geographic areas such as other parts of the United States of America, other programs such as Revenue Protection, and extension of our results as underlying datasets are updated.
@@ -235,10 +235,9 @@ In addition to publishing our raw model outputs under a creative commons license
 
 Altogether, this study considers how this machine learning and interactive data science approach may understand existing food system policy structures in the context of climate projections. Towards that end, we release our software under permissive open source licenses and make interactive tools available publicly at https://ag-adaptation-study.org to further interrogate these results. These visualizations also allow readers to explore alternatives to key analysis parameters presented in this paper. This work may help inform agriculture policy response to continued climate change.
 
-# Data availability statement
-Our software and pipeline source code [@pottinger_data_2024] as well as our model training data and simulation outputs [@pottinger_data_2024-1] are available on Zenodo as open source / creative common licensed resources. A hosted version of our software is available publicly at https://ag-adaptation-study.org.
-
 # Acknowledgements
 Study funded by the Eric and Wendy Schmidt Center for Data Science and Environment at the University of California, Berkeley. We have no conflicts of interest to disclose. Using yield estimation data from @lobell_scalable_2015 and @deines_million_2021 with our thanks to David Lobell for permission. We also wish to thank Magali de Bruyn, Jiajie Kong, Kevin Koy, and Ciera Martinez for conversation regarding these results. Thanks to Color Brewer [@brewer_colorbrewer_2013] and Public Sans [@general_services_administration_public_2024].
+
+**Data availability statement**: Our software and pipeline source code [@pottinger_data_2024] as well as our model training data and simulation outputs [@pottinger_data_2024-1] are available on Zenodo as open source / creative common licensed resources. A hosted version of our software is available publicly at https://ag-adaptation-study.org.
 
 # Works Cited
