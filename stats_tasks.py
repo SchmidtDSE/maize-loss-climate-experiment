@@ -373,19 +373,19 @@ class ExtractSimStatsTemplateTask(luigi.Task):
             )
 
         output_record = {
-            'referenceMean2010': format_rounded_percent(
+            'referenceMean2010': format_percent(
                 reduced_records['experimental2010']['mean']
             ),
-            'referenceProbability2010': format_rounded_percent(
+            'referenceProbability2010': format_percent(
                 reduced_records['experimental2010']['probability']
             ),
             'referenceSeverity2010': format_severity(
                 reduced_records['experimental2010']['severity']
             ),
-            'counterfactualMean2030': format_rounded_percent(
+            'counterfactualMean2030': format_percent(
                 reduced_records['counterfactual2030']['mean']
             ),
-            'counterfactualProbability2030': format_rounded_percent(
+            'counterfactualProbability2030': format_percent(
                 reduced_records['counterfactual2030']['probability']
             ),
             'counterfactualSeverity2030': format_severity(
