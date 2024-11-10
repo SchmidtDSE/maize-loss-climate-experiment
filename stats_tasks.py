@@ -391,28 +391,28 @@ class ExtractSimStatsTemplateTask(luigi.Task):
             'counterfactualSeverity2030': format_severity(
                 reduced_records['counterfactual2030']['severity']
             ),
-            'experimentalMean2030': format_rounded_percent(
+            'experimentalMean2030': format_percent(
                 reduced_records['experimental2030']['mean']
             ),
-            'experimentalProbability2030': format_rounded_percent(
+            'experimentalProbability2030': format_percent(
                 reduced_records['experimental2030']['probability']
             ),
             'experimentalSeverity2030': format_severity(
                 reduced_records['experimental2030']['severity']
             ),
-            'counterfactualMean2050': format_rounded_percent(
+            'counterfactualMean2050': format_percent(
                 reduced_records['counterfactual2050']['mean']
             ),
-            'counterfactualProbability2050': format_rounded_percent(
+            'counterfactualProbability2050': format_percent(
                 reduced_records['counterfactual2050']['probability']
             ),
             'counterfactualSeverity2050': format_severity(
                 reduced_records['counterfactual2050']['severity']
             ),
-            'experimentalMean2050': format_rounded_percent(
+            'experimentalMean2050': format_percent(
                 reduced_records['experimental2050']['mean']
             ),
-            'experimentalProbability2050': format_rounded_percent(
+            'experimentalProbability2050': format_percent(
                 reduced_records['experimental2050']['probability']
             ),
             'experimentalSeverity2050': format_severity(
