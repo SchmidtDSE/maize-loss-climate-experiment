@@ -478,6 +478,7 @@ class ExtractSimStatsTemplateTask(luigi.Task):
             return (a_val * a_num + b_val * b_num) / (a_num + b_num)
 
         return {
+            'isHistoric': a['isHistoric'],
             'isCounterfactual': a['isCounterfactual'],
             'year': a['year'],
             'num': a_num + b_num,
