@@ -1491,7 +1491,7 @@ class InterpretProjectHistoricTask(InterpretProjectTaskTemplate):
         return 'historic_project_dist_interpret.csv'
 
 
-class InterpretProjectEarlyHistoricTask(InterpretProjectTaskTemplate):
+class InterpretProjectHistoricEarlyTask(InterpretProjectTaskTemplate):
     """Interpret retroactive historic projections with early years."""
 
     def get_target_task(self):
@@ -1511,7 +1511,7 @@ class InterpretProjectEarlyHistoricTask(InterpretProjectTaskTemplate):
         return 'historic_project_dist_interpret_early.csv'
 
 
-class InterpretProjectLateHistoricTask(InterpretProjectTaskTemplate):
+class InterpretProjectHistoricLateTask(InterpretProjectTaskTemplate):
     """Interpret retroactive historic projections with late years."""
 
     def get_target_task(self):
