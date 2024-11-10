@@ -345,8 +345,8 @@ class ExtractSimStatsTemplateTask(luigi.Task):
         """Extract summary statistics for the simulations."""
 
         def get_in_scope(target):
-            historic_in_scope = is_record_in_scope(target, 0.25, historic=True)
-            future_in_scope = is_record_in_scope(target, 0.25, historic=False)
+            historic_in_scope = export_tasks.is_record_in_scope(target, 0.25, historic=True)
+            future_in_scope = export_tasks.is_record_in_scope(target, 0.25, historic=False)
             return historic_in_scope or future_in_scope
 
         with self.input().open() as f:
