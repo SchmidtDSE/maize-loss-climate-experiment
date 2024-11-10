@@ -458,7 +458,7 @@ class ExtractSimStatsTemplateTask(luigi.Task):
         """
         if record['isHistoric']:
             return 'historic'
-        
+
         prefix = 'counterfactual' if record['isCounterfactual'] else 'experimental'
         year = record['year']
         return '%s%d' % (prefix, year)
