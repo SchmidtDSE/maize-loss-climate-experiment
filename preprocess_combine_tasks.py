@@ -46,6 +46,8 @@ class GeohashCollectionBuilder:
             year,
             yield_mean,
             yield_std,
+            yield_skew,
+            yield_kurtosis,
             yield_observations
         )
 
@@ -104,18 +106,22 @@ class GeohashCollectionBuilder:
 class TrainingInstanceBuilder:
     """Builder to generate model training a single year summary for a single geohash."""
 
-    def __init__(self, year, yield_mean, yield_std, yield_observations):
+    def __init__(self, year, yield_mean, yield_std, yield_skew, yield_kurtosis, yield_observations):
         """Create a new builder.
 
         Args:
             year: The year for which training instances are being generated.
             yield_mean: The average yield for the year.
             yield_std: The standard deviation of yield for the year.
+            yield_skew: Distribution skew measure.
+            yield_kurtosis: Distribution kurtosis measure.
             yield_observations: Sample size / observation count for yield.
         """
         self._year = year
         self._yield_mean = yield_mean
         self._yield_std = yield_std
+        self._yield_skew = yield_skew
+        self._yield_kurtosis = yield_kurtosis
         self._yield_observations = yield_observations
 
         self._climate_means = {}
@@ -173,6 +179,8 @@ class TrainingInstanceBuilder:
         output_dict['climateCounts'] = self._total_climate_counts
         output_dict['yieldMean'] = self._yield_mean
         output_dict['yieldStd'] = self._yield_std
+        output_dict['yieldSkew'] = self._yield_skew
+        output_dict['yieldKurtosis'] = self._yield_kurtosis
         output_dict['yieldObservations'] = self._yield_observations
 
         return output_dict
@@ -216,13 +224,15 @@ class CombineHistoricPreprocessTask(luigi.Task):
                 geohash = str(row['geohash'])
                 mean = float(row['mean'])
                 std = float(row['std'])
+                skew = float(row['skew'])
+                skew = float(row['kurtosis'])
                 count = float(row['count'])
 
                 if geohash not in geohash_builders:
                     geohash_builders[geohash] = GeohashCollectionBuilder(geohash)
 
                 geohash_builder = geohash_builders[geohash]
-                geohash_builder.add_year(year, mean, std, count)
+                geohash_builder.add_year(year, mean, std, skew, kurtosis, count)
 
         with self.input()['climate'].open('r') as f:
             rows = csv.DictReader(f)
@@ -313,7 +323,7 @@ class ReformatFuturePreprocessTask(luigi.Task):
                     geohash_builders[geohash] = GeohashCollectionBuilder(geohash)
 
                 geohash_builder = geohash_builders[geohash]
-                geohash_builder.add_year(year, -1, -1, -1)
+                geohash_builder.add_year(year, -1, -1, -1, -1, -1)
 
                 geohash_builder.add_climate_value(
                     year,

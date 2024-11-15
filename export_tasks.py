@@ -54,10 +54,16 @@ SWEEP_OUTPUT_COLS = [
     'allowCount',
     'trainMean',
     'trainStd',
+    'trainSkew',
+    'trainKurtosis',
     'validMean',
     'validStd',
+    'validSkew',
+    'validKurtosis',
     'testMean',
-    'testStd'
+    'testStd',
+    'testSkew',
+    'testKurtosis'
 ]
 
 HIST_OUTPUT_COLS = ['geohashSize', 'set', 'series', 'bin', 'val']
@@ -401,10 +407,16 @@ class SweepExportTask(luigi.Task):
             'allowCount': 1 if target['allowCount'].lower() == 'true' else 0,
             'trainMean': float(target['trainMean']),
             'trainStd': float(target['trainStd']),
+            'trainSkew': float(target['trainSkew']),
+            'trainKurtosis': float(target['trainKurtosis']),
             'validMean': float(target['validMean']),
             'validStd': float(target['validStd']),
+            'validSkew': float(target['validSkew']),
+            'validKurtosis': float(target['validKurtosis']),
             'testMean': float(target['testMean']),
-            'testStd': float(target['testStd'])
+            'testStd': float(target['testStd']),
+            'testSkew': float(target['testSkew']),
+            'testKurtosis': float(target['testKurtosis'])
         }
 
 

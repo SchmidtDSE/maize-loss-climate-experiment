@@ -197,8 +197,14 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 new_mean = (original_mean - baseline_mean) / baseline_mean
                 new_std = original_std / baseline_mean
 
+            # Mean and std need transformation
             row['yieldMean'] = new_mean
             row['yieldStd'] = new_std
+
+            # Per https://www.randomservices.org/random/expect/Skew.html skew and kurtosis are
+            # unchanged.
+            row['yieldSkew'] = get_finite_maybe(row['yieldSkew'])
+            row['yieldKurtosis'] = get_finite_maybe(row['yieldKurtosis'])
 
             return row
 

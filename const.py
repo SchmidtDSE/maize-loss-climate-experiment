@@ -576,6 +576,8 @@ TRAINING_FRAME_ATTRS = [
     'climateCounts',
     'yieldMean',
     'yieldStd',
+    'yieldSkew',
+    'yieldKurtosis',
     'yieldObservations'
 ]
 
@@ -599,7 +601,9 @@ TRAINING_INT_FIELDS = {
 
 YIELD_FIELDS = {
     'yieldMean',
-    'yieldStd'
+    'yieldStd',
+    'yieldSkew',
+    'yieldKurtosis'
 }
 
 NORM_YIELD_FIELDS = False
@@ -611,6 +615,8 @@ NON_DELTA_FIELDS = [
     'baselineYieldStd',
     'yieldMean',
     'yieldStd',
+    'yieldSkew',
+    'yieldKurtosis',
     'yieldObservations'
 ]
 

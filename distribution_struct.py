@@ -128,9 +128,6 @@ class Distribution:
         else:
             new_max = max([self_max, other_max])
 
-        def get_weighted_avg(a_val, a_weight, b_val, b_weight):
-            return (a_val * a_weight + b_val * b_weight) / (a_weight + b_weight)
-
         new_skew = get_weighted_avg(
             self.get_skew(),
             self.get_count(),

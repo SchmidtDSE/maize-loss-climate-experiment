@@ -33,6 +33,8 @@ class GeohashClimateSummary:
             condition: The condition in which this is observed like 2050_SSP245.
             mean: Average of the climate variable seen within the geohash for this year / month.
             std: Std of the climate variable seen within the geohash for this year / month.
+            skew: Measure of skew of the distribution.
+            kurtosis: Measure of kurtosis of the distribution.
             var_min: The minimum value of the variable observed within the geohash for this year /
                 month.
             var_max: The maximum value of the variable observed within the geohash for this year /
@@ -427,8 +429,8 @@ class GeohashYieldSummary:
             other.get_mean(),
             other.get_std(),
             other.get_count(),
-            skew=self.get_skew(),
-            kurtosis=self.get_kurtosis()
+            skew=other.get_skew(),
+            kurtosis=other.get_kurtosis()
         )
 
         new_dist = self_dist.combine(other_dist)
