@@ -63,8 +63,9 @@ SIM_PARTIAL_AVG = 0
 class Task:
     """Task defining a simulation to execute."""
 
-    def __init__(self, geohash, year, condition, original_mean, original_std, projected_mean,
-        projected_std, num_observations):
+    def __init__(self, geohash, year, condition, original_mean, original_std, original_skew,
+        original_kurtosis, projected_mean, projected_std, projected_skew, projected_kurtosis,
+        num_observations):
         """Create a new task record.
 
         Args:
@@ -76,10 +77,18 @@ class Task:
                 this geohash.
             original_std: The original standard deviation of yield deltas (in the counterfactual or
                 baseline) in this geohash.
+            original_skew: The original skew of yield deltas (in the counterfactual or baseline) in
+                this geohash.
+            original_skew: The original skew of yield deltas (in the counterfactual or baseline) in
+                this geohash.
             projected_mean: The experimental (neural network predicted) mean of yield deltas in this
                 geohash.
             projected_std: The experimental (neural network predicted) standard deviation of yield
                 deltas in this geohash.
+            projected_skew: The experimental (neural network predicted) skew of yield deltas in this
+                geohash.
+            projected_kurtosis: The experimental (neural network predicted) kurtosis of yield deltas
+                in this geohash.
             num_observations: The sample size or number of observations (pixels) in this geohash.
         """
         self._geohash = geohash
@@ -87,8 +96,12 @@ class Task:
         self._condition = condition
         self._original_mean = original_mean
         self._original_std = original_std
+        self._original_skew = original_skew
+        self._original_kurtosis = original_kurtosis
         self._projected_mean = projected_mean
         self._projected_std = projected_std
+        self._projected_skew = projected_skew
+        self._projected_kurtosis = projected_kurtosis
         self._num_observations = num_observations
 
     def get_geohash(self):
@@ -131,6 +144,23 @@ class Task:
             this geohash.
         """
         return self._original_std
+    
+    def get_original_skew(self):
+        """Get the original yield delta skew in the baseline or counterfactual.
+
+        Returns:
+            The original skew of yield deltas (in the counterfactual or baseline) in this geohash.
+        """
+        return self._original_skew
+
+    def get_original_kurtosis(self):
+        """Get the original yield delta kurtosis in the baseline or counterfactual.
+
+        Returns:
+            The original kurtosis of yield deltas (in the counterfactual or baseline) in this
+            geohash.
+        """
+        return self._original_std
 
     def get_projected_mean(self):
         """Get the yield delta mean in the experimental or predicted series.
@@ -148,6 +178,22 @@ class Task:
             geohash.
         """
         return self._projected_std
+    
+    def get_projected_skew(self):
+        """Get the yield delta skew in the experimental or predicted series.
+
+        Returns:
+            The experimental (neural network predicted) skew of yield deltas in this geohash.
+        """
+        return self._projected_skew
+
+    def get_projected_kurtosis(self):
+        """Get the yield delta kurtosis in the experimental or predicted series.
+
+        Returns:
+            The experimental (neural network predicted) kurtosis of yield deltas in this geohash.
+        """
+        return self._projected_kurtosis
 
     def get_num_observations(self):
         """Get the number of observations (pixels) for this simulation.
@@ -200,11 +246,17 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
     mean_deltas = deltas['mean']
     std_deltas = deltas['std']
+    skew_deltas = deltas['skew']
+    kurtosis_deltas = deltas['kurtosis']
 
     original_mean = task.get_original_mean()
     original_std = task.get_original_std()
+    original_skew = task.get_original_skew()
+    original_kurtosis = task.get_original_kurtosis()
     projected_mean = task.get_projected_mean()
     projected_std = task.get_projected_std()
+    projected_skew = task.get_projected_skew()
+    projected_kurtosis = task.get_projected_kurtosis()
     num_observations = task.get_num_observations() / const.RESOLUTION_SCALER
 
     if geohash_sim_size == 5:
@@ -234,15 +286,18 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
             if sample_model_residuals:
                 mean_delta = random.choice(mean_deltas) * -1
                 std_delta = random.choice(std_deltas) * -1
+                skew_delta = random.choice(skew_deltas) * -1
+                kurtosis_delta = random.choice(kurtosis_deltas) * -1
             else:
                 mean_delta = 0
                 std_delta = 0
 
             sim_mean = projected_mean + mean_delta
             sim_std = projected_std * std_mult + std_delta
+            sim_skew = projected_skew + skew_delta
+            sim_kurtosis = projected_kurtosis + kurtosis_delta
 
-            predicted_yield = random.gauss(mu=sim_mean, sigma=sim_std)
-            adapted_yield = random.gauss(mu=sim_mean + sim_std, sigma=sim_std)
+            # TODO: Continue here.
 
             predicted_yield_acc.add(predicted_yield)
             adapted_yield_acc.add(adapted_yield)

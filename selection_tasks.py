@@ -58,7 +58,14 @@ class SelectConfigurationTask(luigi.Task):
         def score_option(option):
             mean_z = option['validMean']
             std_z = option['validStd']
-            return mean_z * const.MEAN_WEIGHT + std_z * const.STD_WEIGHT
+            mean_z = option['validSkew']
+            std_z = option['validKurtosis']
+            return sum([
+                mean_z * const.MEAN_WEIGHT,
+                std_z * const.STD_WEIGHT,
+                skew_z * const.SKEW_WEIGHT,
+                kurtosis_z * const.KURTOSIS_WEIGHT
+            ])
 
         unconstrained_selection_row = min(rows, key=score_option)
 
@@ -163,8 +170,19 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
         combined_output = model.predict(input_frame[input_attrs])
         input_frame['predictedMean'] = combined_output[:, 0]
         input_frame['predictedStd'] = combined_output[:, 1]
-        input_frame['meanResidual'] = input_frame['predictedMean'] - input_frame['yieldMean']
-        input_frame['stdResidual'] = input_frame['predictedStd'] - input_frame['yieldStd']
+        input_frame['predictedSkew'] = combined_output[:, 2]
+        input_frame['predictedKurtosis'] = combined_output[:, 3]
+
+        def make_residual(key):
+            key_cap = key.capitalize()
+            predicted = input_frame['predicted%s' % key_cap]
+            actual = input_frame['yield%s' % key_cap]
+            input_frame['%sResidual' % key] = predicted - actual
+
+        make_residual('mean')
+        make_residual('std')
+        make_residual('skew')
+        make_residual('kurtosis')
 
         if self.output_test_only():
             test_frame = input_frame[input_frame['setAssign'] == 'test']
@@ -253,10 +271,16 @@ class PostHocTestRawDataTemporalResidualsTask(PostHocTestRawDataTemplateTask):
             'setAssign',
             'yieldMean',
             'yieldStd',
+            'yieldSkew',
+            'yieldKurtosis',
             'predictedMean',
             'predictedStd',
+            'predictedSkew',
+            'predictedKurtosis',
             'meanResidual',
-            'stdResidual'
+            'stdResidual',
+            'skewResidual',
+            'kurtosisResidual'
         ]
 
     def output_test_only(self):
@@ -302,10 +326,16 @@ class PostHocTestRawDataClimateCountTask(PostHocTestRawDataTemplateTask):
             'setAssign',
             'yieldMean',
             'yieldStd',
+            'yieldSkew',
+            'yieldKurtosis',
             'predictedMean',
             'predictedStd',
+            'predictedSkew',
+            'predictedKurtosis',
             'meanResidual',
             'stdResidual',
+            'skewResidual',
+            'kurtosisResidual',
             'yieldObservations'
         ]
 
@@ -355,10 +385,16 @@ class PostHocTestRawDataTemporalCountTask(PostHocTestRawDataTemplateTask):
             'setAssign',
             'yieldMean',
             'yieldStd',
+            'yieldSkew',
+            'yieldKurtosis',
             'predictedMean',
             'predictedStd',
+            'predictedSkew',
+            'predictedKurtosis',
             'meanResidual',
             'stdResidual',
+            'skewResidual',
+            'kurtosisResidual',
             'yieldObservations'
         ]
 
@@ -408,10 +444,16 @@ class PostHocTestRawDataRetrainCountTask(PostHocTestRawDataTemplateTask):
             'setAssign',
             'yieldMean',
             'yieldStd',
+            'yieldSkew',
+            'yieldKurtosis',
             'predictedMean',
             'predictedStd',
+            'predictedSkew',
+            'predictedKurtosis',
             'meanResidual',
             'stdResidual',
+            'skewResidual',
+            'kurtosisResidual',
             'yieldObservations'
         ]
 
@@ -456,10 +498,16 @@ class PostHocTestRawDataRandomCountTask(PostHocTestRawDataTemplateTask):
             'setAssign',
             'yieldMean',
             'yieldStd',
+            'yieldSkew',
+            'yieldKurtosis',
             'predictedMean',
             'predictedStd',
+            'predictedSkew',
+            'predictedKurtosis',
             'meanResidual',
             'stdResidual',
+            'skewResidual',
+            'kurtosisResidual',
             'yieldObservations'
         ]
 
@@ -517,10 +565,16 @@ class PostHocTestRawDataSpatialCountTask(PostHocTestRawDataTemplateTask):
             'setAssign',
             'yieldMean',
             'yieldStd',
+            'yieldSkew',
+            'yieldKurtosis',
             'predictedMean',
             'predictedStd',
+            'predictedSkew',
+            'predictedKurtosis',
             'meanResidual',
             'stdResidual',
+            'skewResidual',
+            'kurtosisResidual',
             'yieldObservations'
         ]
 

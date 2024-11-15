@@ -389,14 +389,24 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
             rows_with_z = map(lambda x: self._transform_z(x, distributions), rows_augmented)
             rows_with_num = map(lambda x: self._force_values(x), rows_with_z)
             rows_standardized = map(lambda x: self._standardize_fields(x), rows_with_num)
+            
             rows_with_mean = filter(
                 lambda x: x['yieldMean'] != const.INVALID_VALUE,
                 rows_standardized
             )
-            rows_complete = filter(
+            rows_with_std = filter(
                 lambda x: x['yieldStd'] != const.INVALID_VALUE,
                 rows_with_mean
             )
+            rows_with_skew = filter(
+                lambda x: x['yieldSkew'] != const.INVALID_VALUE,
+                rows_with_std
+            )
+            rows_with_kurtosis = filter(
+                lambda x: x['yieldKurtosis'] != const.INVALID_VALUE,
+                rows_with_skew
+            )
+            rows_complete = rows_with_kurtosis
 
             with self.output().open('w') as f_out:
                 writer = csv.DictWriter(f_out, fieldnames=const.TRAINING_FRAME_ATTRS)

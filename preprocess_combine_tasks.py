@@ -225,7 +225,7 @@ class CombineHistoricPreprocessTask(luigi.Task):
                 mean = float(row['mean'])
                 std = float(row['std'])
                 skew = float(row['skew'])
-                skew = float(row['kurtosis'])
+                kurtosis = float(row['kurtosis'])
                 count = float(row['count'])
 
                 if geohash not in geohash_builders:
