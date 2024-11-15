@@ -128,28 +128,15 @@ class Distribution:
         else:
             new_max = max([self_max, other_max])
 
-        new_skew = get_weighted_avg(
-            self.get_skew(),
-            self.get_count(),
-            other.get_skew(),
-            other.get_count()
-        )
-
-        new_kurtosis = get_weighted_avg(
-            self.get_kurtosis(),
-            self.get_count(),
-            other.get_kurtosis(),
-            other.get_count()
-        )
-
+        # Do not support mixing skew, kurtosis
         return Distribution(
             new_mean,
             new_std,
             new_count,
             new_min,
             new_max,
-            new_skew,
-            new_kurtosis
+            None,
+            None
         )
 
 
