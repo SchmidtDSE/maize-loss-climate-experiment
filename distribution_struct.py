@@ -9,6 +9,11 @@ License:
 
 import math
 
+import numpy
+import scipy.stats
+
+import distribution_util
+
 
 class Distribution:
     """Record describing a distribution of real numbers."""
@@ -128,15 +133,59 @@ class Distribution:
         else:
             new_max = max([self_max, other_max])
 
-        # Do not support mixing skew, kurtosis
+        no_skew_info = self.get_skew() is None and other.get_skew() is None
+        no_kurtosis_info = self.get_kurtosis() is None and other.get_kurtosis() is None
+        no_sampling = no_skew_info and no_kurtosis_info
+        partial_info = no_skew_info != no_kurtosis_info
+
+        if no_sampling:
+            new_skew = None
+            new_kurtosis = None
+        elif partial_info:
+            raise RuntimeError('Cant combine where skew or kurtosis specified but not both.')
+        else:
+            self_dist = find_beta_distribution(
+                self.get_mean(),
+                self.get_std(),
+                self.get_skew(),
+                self.get_kurtosis()
+            )
+
+            self_sim = scipy.stats.beta.rvs(
+                self_dist['a'],
+                self_dist['b'],
+                loc=self_dist['loc'],
+                scale=self_dist['scale'],
+                size=round(1000 * (self.get_count() / new_count))
+            )
+            
+            other_dist = find_beta_distribution(
+                self.get_mean(),
+                self.get_std(),
+                self.get_skew(),
+                self.get_kurtosis()
+            )
+
+            other_sim = scipy.stats.beta.rvs(
+                self_dist['a'],
+                self_dist['b'],
+                loc=self_dist['loc'],
+                scale=self_dist['scale'],
+                size=round(1000 * (other.get_count() / new_count))
+            )
+
+            combined = numpy.concatenate(self_sim, other_sim)
+            new_skew = scipy.stats.skew(combined)
+            new_kurtosis = scipy.stats.kurtosis(combined)
+        
         return Distribution(
             new_mean,
             new_std,
             new_count,
             new_min,
             new_max,
-            None,
-            None
+            new_skew,
+            new_kurtosis
         )
 
 
