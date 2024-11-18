@@ -406,7 +406,9 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
                 lambda x: x['yieldKurtosis'] != const.INVALID_VALUE,
                 rows_with_skew
             )
-            rows_complete = rows_with_kurtosis
+            rows_complete = list(rows_with_kurtosis)
+            
+            assert len(rows_complete) > 1
 
             with self.output().open('w') as f_out:
                 writer = csv.DictWriter(f_out, fieldnames=const.TRAINING_FRAME_ATTRS)

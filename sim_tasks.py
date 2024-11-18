@@ -79,7 +79,7 @@ class Task:
                 baseline) in this geohash.
             original_skew: The original skew of yield deltas (in the counterfactual or baseline) in
                 this geohash.
-            original_skew: The original skew of yield deltas (in the counterfactual or baseline) in
+            original_kurtosis: The original skew of yield deltas (in the counterfactual or baseline) in
                 this geohash.
             projected_mean: The experimental (neural network predicted) mean of yield deltas in this
                 geohash.
@@ -160,7 +160,7 @@ class Task:
             The original kurtosis of yield deltas (in the counterfactual or baseline) in this
             geohash.
         """
-        return self._original_std
+        return self._original_kurtosis
 
     def get_projected_mean(self):
         """Get the yield delta mean in the experimental or predicted series.
