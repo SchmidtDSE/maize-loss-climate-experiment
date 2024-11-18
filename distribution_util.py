@@ -36,4 +36,3 @@ def find_beta_distribution(mean, std, skew, kurtosis):
     )
 
     return dict(zip(['a', 'b', 'loc', 'scale'], optimized.x))
- 
