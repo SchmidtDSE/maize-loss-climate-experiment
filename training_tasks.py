@@ -131,7 +131,7 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
         if dropout > 0:
             model.add(keras.layers.Dropout(dropout))
 
-    model.add(keras.layers.Dense(2, activation='linear'))
+    model.add(keras.layers.Dense(4, activation='linear'))
 
     optimizer = keras.optimizers.AdamW(learning_rate=learning_rate)
     model.compile(optimizer=optimizer, loss='mae', metrics=['mae'])
