@@ -241,6 +241,8 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
             paired_parsed = map(lambda x: {
                 'mean': get_abs_diff(x[0][0], x[1][0]),
                 'std': get_abs_diff(x[0][1], x[1][1]),
+                'skew': get_abs_diff(x[0][2], x[1][2]),
+                'kurtosis': get_abs_diff(x[0][3], x[1][3]),
                 'weight': x[2]
             }, paired_flat)
             paired_parsed_realized = list(paired_parsed)
@@ -288,10 +290,16 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
             'allowCount': allow_count,
             'trainMean': train_errors['mean'],
             'trainStd': train_errors['std'],
+            'trainSkew': train_errors['skew'],
+            'trainKurtosis': train_errors['kurtosis'],
             'validMean': valid_errors['mean'],
             'validStd': valid_errors['std'],
+            'validSkew': valid_errors['skew'],
+            'validKurtosis': valid_errors['kurtosis'],
             'testMean': test_errors['mean'],
-            'testStd': test_errors['std']
+            'testStd': test_errors['std'],
+            'testSkew': test_errors['skew'],
+            'testKurtosis': test_errors['kurtosis']
         }
 
     if os.path.isfile(temp_file_path):
