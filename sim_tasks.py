@@ -263,8 +263,6 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
     original_mean = task.get_original_mean()
     original_std = task.get_original_std()
-    original_skew = task.get_original_skew()
-    original_kurtosis = task.get_original_kurtosis()
     projected_mean = task.get_projected_mean()
     projected_std = task.get_projected_std()
     projected_skew = task.get_projected_skew()
@@ -310,7 +308,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
             sim_kurtosis = projected_kurtosis + kurtosis_delta
 
             predicted_yield = draw_number(sim_mean, sim_std, sim_skew, sim_kurtosis)
-            adapated_yield = predicted_yield + sim_std
+            adapted_yield = predicted_yield + sim_std
 
             predicted_yield_acc.add(predicted_yield)
             adapted_yield_acc.add(adapted_yield)

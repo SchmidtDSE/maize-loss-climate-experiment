@@ -28,13 +28,16 @@ class GeohashCollectionBuilder:
         self._yield_stds = []
         self._years = {}
 
-    def add_year(self, year, yield_mean, yield_std, yield_observations):
+    def add_year(self, year, yield_mean, yield_std, yield_skew, yield_kurtosis,
+        yield_observations):
         """Start building a new summary for a new year.
 
         Args:
             year: The year for which a new summary should be started.
             yield_mean: The mean value for yield to use for this summary.
             yield_std: The standard deviation value for yield to use for this summary.
+            yield_skew: The skew of the distribution to use in this summary.
+            yield_kurtosis: The kurtosis of the distribution to use in this summary.
             yield_observations: The sample size / number of observations of yield for this year.
         """
         if year in self._years:

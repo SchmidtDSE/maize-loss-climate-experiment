@@ -144,7 +144,7 @@ class Distribution:
         elif partial_info:
             raise RuntimeError('Cant combine where skew or kurtosis specified but not both.')
         else:
-            self_dist = find_beta_distribution(
+            self_dist = distribution_util.find_beta_distribution(
                 self.get_mean(),
                 self.get_std(),
                 self.get_skew(),
@@ -159,7 +159,7 @@ class Distribution:
                 size=round(1000 * (self.get_count() / new_count))
             )
             
-            other_dist = find_beta_distribution(
+            other_dist = distribution_util.find_beta_distribution(
                 self.get_mean(),
                 self.get_std(),
                 self.get_skew(),

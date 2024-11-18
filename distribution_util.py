@@ -6,7 +6,11 @@ import scipy.stats
 def find_beta_distribution(mean, std, skew, kurtosis):
 
     def get_errors(params):
-        samples = scipy.stas.beta.rvs(a, b, loc=loc, scale=1000)
+        a = params[0]
+        b = params[1]
+        loc = params[2]
+        scale = params[3]
+        samples = scipy.stats.beta.rvs(a, b, loc=loc, scale=scale)
         
         candidate_mean = numpy.mean(samples)
         candidate_std = numpy.std(samples)

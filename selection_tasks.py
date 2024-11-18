@@ -58,8 +58,8 @@ class SelectConfigurationTask(luigi.Task):
         def score_option(option):
             mean_z = option['validMean']
             std_z = option['validStd']
-            mean_z = option['validSkew']
-            std_z = option['validKurtosis']
+            skew_z = option['validSkew']
+            kurtosis_z = option['validKurtosis']
             return sum([
                 mean_z * const.MEAN_WEIGHT,
                 std_z * const.STD_WEIGHT,
