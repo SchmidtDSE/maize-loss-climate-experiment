@@ -389,7 +389,7 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
             rows_with_z = map(lambda x: self._transform_z(x, distributions), rows_augmented)
             rows_with_num = map(lambda x: self._force_values(x), rows_with_z)
             rows_standardized = map(lambda x: self._standardize_fields(x), rows_with_num)
-            
+
             rows_with_mean = filter(
                 lambda x: x['yieldMean'] != const.INVALID_VALUE,
                 rows_standardized
@@ -407,7 +407,7 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
                 rows_with_skew
             )
             rows_complete = list(rows_with_kurtosis)
-            
+
             assert len(rows_complete) > 1
 
             with self.output().open('w') as f_out:

@@ -11,7 +11,7 @@ def find_beta_distribution(mean, std, skew, kurtosis):
         loc = params[2]
         scale = params[3]
         samples = scipy.stats.beta.rvs(a, b, loc=loc, scale=scale)
-        
+
         candidate_mean = numpy.mean(samples)
         candidate_std = numpy.std(samples)
         candidate_skew = scipy.stats.skew(samples)
@@ -34,5 +34,6 @@ def find_beta_distribution(mean, std, skew, kurtosis):
         bounds=bounds,
         method='L-BFGS-B'
     )
-    
+
     return dict(zip(['a', 'b', 'loc', 'scale'], optimized.x))
+ 

@@ -158,7 +158,7 @@ class Distribution:
                 scale=self_dist['scale'],
                 size=round(1000 * (self.get_count() / new_count))
             )
-            
+
             other_dist = distribution_util.find_beta_distribution(
                 self.get_mean(),
                 self.get_std(),
@@ -177,7 +177,7 @@ class Distribution:
             combined = numpy.concatenate(self_sim, other_sim)
             new_skew = scipy.stats.skew(combined)
             new_kurtosis = scipy.stats.kurtosis(combined)
-        
+
         return Distribution(
             new_mean,
             new_std,

@@ -79,8 +79,8 @@ class Task:
                 baseline) in this geohash.
             original_skew: The original skew of yield deltas (in the counterfactual or baseline) in
                 this geohash.
-            original_kurtosis: The original skew of yield deltas (in the counterfactual or baseline) in
-                this geohash.
+            original_kurtosis: The original skew of yield deltas (in the counterfactual or baseline)
+                in this geohash.
             projected_mean: The experimental (neural network predicted) mean of yield deltas in this
                 geohash.
             projected_std: The experimental (neural network predicted) standard deviation of yield
@@ -144,7 +144,7 @@ class Task:
             this geohash.
         """
         return self._original_std
-    
+
     def get_original_skew(self):
         """Get the original yield delta skew in the baseline or counterfactual.
 
@@ -178,7 +178,7 @@ class Task:
             geohash.
         """
         return self._projected_std
-    
+
     def get_projected_skew(self):
         """Get the yield delta skew in the experimental or predicted series.
 
@@ -243,7 +243,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
     import scipy.stats
     import toolz.itertoolz
 
-    def draw_number(mean, std, skew, kurtosis):    
+    def draw_number(mean, std, skew, kurtosis):
         distribution = distribution_util.find_beta_distribution(mean, std, skew, kurtosis)
 
         return scipy.stats.beta.rvs(
