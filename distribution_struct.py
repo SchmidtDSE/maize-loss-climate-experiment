@@ -167,10 +167,10 @@ class Distribution:
             )
 
             other_sim = scipy.stats.beta.rvs(
-                self_dist['a'],
-                self_dist['b'],
-                loc=self_dist['loc'],
-                scale=self_dist['scale'],
+                other_dist['a'],
+                other_dist['b'],
+                loc=other_dist['loc'],
+                scale=other_dist['scale'],
                 size=round(1000 * (other.get_count() / new_count))
             )
 
