@@ -608,7 +608,7 @@ YIELD_FIELDS = {
     'yieldKurtosis'
 }
 
-NORM_YIELD_FIELDS = False
+NORM_YIELD_FIELDS = True
 
 NON_DELTA_FIELDS = [
     'year',

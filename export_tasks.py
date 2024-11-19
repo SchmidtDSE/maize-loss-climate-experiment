@@ -91,8 +91,12 @@ COMBINED_TASK_FIELDS = [
     'condition',
     'originalYieldMean',
     'originalYieldStd',
+    'originalYieldSkew',
+    'originalYieldKurtosis',
     'projectedYieldMean',
     'projectedYieldStd',
+    'projectedYieldSkew',
+    'projectedYieldKurtosis',
     'numObservations'
 ]
 

@@ -56,7 +56,6 @@ NUM_ARGS = 4
 STD_MULT = [1.0]
 THRESHOLDS = [0.25, 0.15]
 GEOHASH_SIZE = [4, 5]
-SAMPLE_MODEL_RESIDUALS = True
 SIM_PARTIAL_AVG = 0
 
 
@@ -205,7 +204,7 @@ class Task:
 
 
 def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_baseline,
-    unit_sizes, std_thresholds, sample_model_residuals):
+    unit_sizes, std_thresholds):
     """Run a single geohash simulation.
 
     Run a single geohash simulation from within a self-contained function that can run in
@@ -227,8 +226,6 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
             more details.
         std_thresholds: The loss / claims threshold as standard deviations like 2.11 for 2.11
             standard deviations below average.
-        sample_model_residuals: Flag indicating if the model residuals should be sampled and offset
-            within the simulations.
 
     Returns:
         Dictionary with OUTPUT_FIELDS describing simulation results.
@@ -269,6 +266,8 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
     projected_kurtosis = task.get_projected_kurtosis()
     num_observations = task.get_num_observations() / const.RESOLUTION_SCALER
 
+    assert projected_std >= 0
+
     if geohash_sim_size == 5:
         num_observations = round(num_observations / 32)
         unit_size_multiplier = 1 / 32
@@ -293,19 +292,18 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
         for pixel_i in range(0, unit_size_scaled):
 
-            if sample_model_residuals:
-                mean_delta = random.choice(mean_deltas) * -1
-                std_delta = random.choice(std_deltas) * -1
-                skew_delta = random.choice(skew_deltas) * -1
-                kurtosis_delta = random.choice(kurtosis_deltas) * -1
-            else:
-                mean_delta = 0
-                std_delta = 0
+            mean_delta = random.choice(mean_deltas) * -1
+            std_delta = random.choice(std_deltas) * -1
+            skew_delta = random.choice(skew_deltas) * -1
+            kurtosis_delta = random.choice(kurtosis_deltas) * -1
 
             sim_mean = projected_mean + mean_delta
             sim_std = projected_std * std_mult + std_delta
             sim_skew = projected_skew + skew_delta
             sim_kurtosis = projected_kurtosis + kurtosis_delta
+
+            if sim_std <= 0:
+                sim_std = 0.0001
 
             predicted_yield = draw_number(sim_mean, sim_std, sim_skew, sim_kurtosis)
             adapted_yield = predicted_yield + sim_std
@@ -523,7 +521,7 @@ def parse_record_dict(record_raw):
 
 
 def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, offset_baseline,
-    unit_sizes, std_thresholds, sample_model_residuals):
+    unit_sizes, std_thresholds):
     """Run a set of simulations.
 
     Args:
@@ -542,8 +540,6 @@ def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, off
             more details.
         std_thresholds: The loss / claims threshold as standard deviations like 2.11 for 2.11
             standard deviations below average.
-        sample_model_residuals: Flag indicating if the model residuals should be sampled and offset
-            within the simulations.
 
     Returns:
         List of dictionaries with OUTPUT_FIELDS describing simulation results.
@@ -557,8 +553,7 @@ def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, off
             geohash_sim_size,
             offset_baseline,
             unit_sizes,
-            std_thresholds,
-            sample_model_residuals
+            std_thresholds
         ),
         tasks
     )
@@ -911,11 +906,6 @@ class InterpretProjectTaskTemplate(luigi.Task):
         Returns:
             Row after unnormalization.
         """
-        mean_dist = distributions['yieldMean']
-        std_dist = distributions['yieldStd']
-
-        original_predicted_mean = row['predictedMean']
-        original_predicted_std = row['predictedStd']
 
         def interpret(target, dist):
             if const.NORM_YIELD_FIELDS:
@@ -924,11 +914,17 @@ class InterpretProjectTaskTemplate(luigi.Task):
             else:
                 return target
 
-        interpreted_predicted_mean = interpret(original_predicted_mean, mean_dist)
-        interpreted_predicted_std = interpret(original_predicted_std, std_dist)
+        def update_field(field):
+            field_capitalized = field.capitalize()
+            dist = distributions['yield%s' % field_capitalized]
+            target = row['predicted%s' % field_capitalized]
+            interpreted = interpret(target, dist)
+            row['predicted%s' % field_capitalized] = interpreted
 
-        row['predictedMean'] = interpreted_predicted_mean
-        row['predictedStd'] = interpreted_predicted_std
+        update_field('mean')
+        update_field('std')
+        update_field('skew')
+        update_field('kurtosis')
 
         return row
 
@@ -958,12 +954,17 @@ class MakeSimulationTasksTemplate(luigi.Task):
 
     def run(self):
         """Build the simulation tasks."""
-        baseline_indexed = self._index_input('baseline')
-        projection_indexed = self._index_input('projection')
+        baseline_indexed = self._index_input('baseline', 0)
+        projection_indexed = self._index_input(
+            'projection',
+            self._get_offset_years()
+        )
 
         baseline_keys = set(baseline_indexed.keys())
         projection_keys = set(projection_indexed)
         keys = baseline_keys.intersection(projection_keys)
+
+        assert len(keys) > 0
 
         with self.input()['numObservations'].open('r') as f:
             rows = csv.DictReader(f)
@@ -1052,11 +1053,12 @@ class MakeSimulationTasksTemplate(luigi.Task):
         """
         raise NotImplementedError('Use implementor.')
 
-    def _index_input(self, name):
+    def _index_input(self, name, year_offset):
         """Index one of the datasets by geohash and year.
 
         Args:
             name: The name of the dataset to index. This is one of the inputs in requires.
+            year_offset: Offset to apply to join year.
 
         Returns:
             The dataset after indexing.
@@ -1068,7 +1070,8 @@ class MakeSimulationTasksTemplate(luigi.Task):
             rows = map(lambda x: self._parse_row(x), rows_raw)
 
             for row in rows:
-                key = '%s.%d' % (row['geohash'], row['joinYear'])
+                join_year = row['joinYear'] + year_offset
+                key = '%s.%d' % (row['geohash'], join_year)
                 indexed[key] = row
 
         return indexed
@@ -1092,6 +1095,14 @@ class MakeSimulationTasksTemplate(luigi.Task):
             'predictedKurtosis': float(row['predictedKurtosis']),
             'yieldObservations': int(row['yieldObservations'])
         }
+
+    def _get_offset_years(self):
+        """Get the number of years to offset the projection series.
+
+        Returns:
+            Number of years to offset.
+        """
+        return 0
 
 
 class CheckUnitSizes(luigi.Task):
@@ -1161,7 +1172,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
         )
 
         cluster = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=20, maximum=100)
+        cluster.adapt(minimum=20, maximum=500)
         client = cluster.get_client()
 
         with self.input()['deltas'].open('r') as f:
@@ -1200,8 +1211,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
                 x[3],
                 x[4],
                 unit_sizes,
-                std_thresholds,
-                self.get_sample_model_residuals()
+                std_thresholds
             ),
             tasks_with_variations
         )
@@ -1238,14 +1248,6 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
             Luigi task.
         """
         raise NotImplementedError('Use implementor.')
-
-    def get_sample_model_residuals(self):
-        """Determine if model residuals should be sampled and applied to simulation outputs.
-
-        Returns:
-            True if model residuals should be sampled and false otherwise.
-        """
-        return SAMPLE_MODEL_RESIDUALS
 
 
 class ProjectHistoricTask(luigi.Task):
@@ -1832,6 +1834,14 @@ class MakeSimulationTasks2010Task(MakeSimulationTasksTemplate):
             Name of condition as string like 2050_SSP245.
         """
         return '2010_Historic'
+
+    def _get_offset_years(self):
+        """Indicate that we are joining by offseting the join year by 10.
+
+        Returns:
+            Offset to apply to the InterpretProjectHistoricLateTask output.
+        """
+        return -10
 
 
 class MakeSimulationTasks2030Task(MakeSimulationTasksTemplate):
