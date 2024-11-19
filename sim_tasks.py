@@ -498,8 +498,12 @@ def parse_record_dict(record_raw):
     condition = str(record_raw['condition'])
     original_mean = float(record_raw['originalYieldMean'])
     original_std = float(record_raw['originalYieldStd'])
+    original_skew = float(record_raw['originalYieldSkew'])
+    original_kurtosis = float(record_raw['originalYieldKurtosis'])
     projected_mean = float(record_raw['projectedYieldMean'])
     projected_std = float(record_raw['projectedYieldStd'])
+    projected_skew = float(record_raw['projectedYieldSkew'])
+    projected_kurtosis = float(record_raw['projectedYieldKurtosis'])
     num_observations = int(record_raw['numObservations'])
 
     return Task(
@@ -508,8 +512,12 @@ def parse_record_dict(record_raw):
         condition,
         original_mean,
         original_std,
+        original_skew,
+        original_kurtosis,
         projected_mean,
         projected_std,
+        projected_skew,
+        projected_kurtosis,
         num_observations
     )
 
@@ -761,6 +769,8 @@ class ProjectTaskTemplate(luigi.Task):
         outputs = model.predict(inputs)
         target_frame['predictedMean'] = outputs[:, 0]
         target_frame['predictedStd'] = outputs[:, 1]
+        target_frame['predictedSkew'] = outputs[:, 2]
+        target_frame['predictedKurtosis'] = outputs[:, 3]
 
         target_frame[[
             'geohash',
@@ -768,6 +778,8 @@ class ProjectTaskTemplate(luigi.Task):
             'joinYear',
             'predictedMean',
             'predictedStd',
+            'predictedSkew',
+            'predictedKurtosis',
             'yieldObservations'
         ]].to_csv(self.output().path)
 
@@ -841,6 +853,8 @@ class InterpretProjectTaskTemplate(luigi.Task):
                 'joinYear',
                 'predictedMean',
                 'predictedStd',
+                'predictedSkew',
+                'predictedKurtosis',
                 'yieldObservations'
             ])
             writer.writeheader()
@@ -882,6 +896,8 @@ class InterpretProjectTaskTemplate(luigi.Task):
             'joinYear': int(target['joinYear']),
             'predictedMean': float(target['predictedMean']),
             'predictedStd': float(target['predictedStd']),
+            'predictedSkew': float(target['predictedSkew']),
+            'predictedKurtosis': float(target['predictedKurtosis']),
             'yieldObservations': int(target['yieldObservations'])
         }
 
@@ -974,8 +990,12 @@ class MakeSimulationTasksTemplate(luigi.Task):
                 'condition': self.get_condition(),
                 'originalYieldMean': baseline_record['predictedMean'],
                 'originalYieldStd': baseline_record['predictedStd'],
+                'originalYieldSkew': baseline_record['predictedSkew'],
+                'originalYieldKurtosis': baseline_record['predictedKurtosis'],
                 'projectedYieldMean': projection_record['predictedMean'],
                 'projectedYieldStd': projection_record['predictedStd'],
+                'projectedYieldSkew': projection_record['predictedSkew'],
+                'projectedYieldKurtosis': projection_record['predictedKurtosis'],
                 'numObservations': get_num_observations(geohash, join_year)
             }
 
@@ -989,8 +1009,12 @@ class MakeSimulationTasksTemplate(luigi.Task):
                 'condition',
                 'originalYieldMean',
                 'originalYieldStd',
+                'originalYieldSkew',
+                'originalYieldKurtosis',
                 'projectedYieldMean',
                 'projectedYieldStd',
+                'projectedYieldSkew',
+                'projectedYieldKurtosis',
                 'numObservations'
             ])
             writer.writeheader()
@@ -1064,6 +1088,8 @@ class MakeSimulationTasksTemplate(luigi.Task):
             'joinYear': int(row['joinYear']),
             'predictedMean': float(row['predictedMean']),
             'predictedStd': float(row['predictedStd']),
+            'predictedSkew': float(row['predictedSkew']),
+            'predictedKurtosis': float(row['predictedKurtosis']),
             'yieldObservations': int(row['yieldObservations'])
         }
 
@@ -1152,7 +1178,9 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
             unzipped = list(zip(*rows_mean_std_linear))
             deltas = {
                 'mean': unzipped[0],
-                'std': unzipped[1]
+                'std': unzipped[1],
+                'skew': unzipped[2],
+                'kurtosis': unzipped[3]
             }
 
         with self.input()['stdThresholds'].open('r') as f:
@@ -1246,6 +1274,8 @@ class ProjectHistoricTask(luigi.Task):
 
         target_frame['predictedMean'] = target_frame['yieldMean']
         target_frame['predictedStd'] = target_frame['yieldStd']
+        target_frame['predictedSkew'] = target_frame['yieldSkew']
+        target_frame['predictedKurtosis'] = target_frame['yieldKurtosis']
 
         target_frame[[
             'geohash',
@@ -1253,6 +1283,8 @@ class ProjectHistoricTask(luigi.Task):
             'joinYear',
             'predictedMean',
             'predictedStd',
+            'predictedSkew',
+            'predictedKurtosis',
             'yieldObservations'
         ]].to_csv(self.output().path)
 
@@ -1288,6 +1320,8 @@ class ProjectHistoricEarlyTask(luigi.Task):
 
         target_frame['predictedMean'] = target_frame['yieldMean']
         target_frame['predictedStd'] = target_frame['yieldStd']
+        target_frame['predictedSkew'] = target_frame['yieldSkew']
+        target_frame['predictedKurtosis'] = target_frame['yieldKurtosis']
 
         target_frame[[
             'geohash',
@@ -1295,6 +1329,8 @@ class ProjectHistoricEarlyTask(luigi.Task):
             'joinYear',
             'predictedMean',
             'predictedStd',
+            'predictedSkew',
+            'predictedKurtosis',
             'yieldObservations'
         ]].to_csv(self.output().path)
 
@@ -1330,6 +1366,8 @@ class ProjectHistoricLateTask(luigi.Task):
 
         target_frame['predictedMean'] = target_frame['yieldMean']
         target_frame['predictedStd'] = target_frame['yieldStd']
+        target_frame['predictedSkew'] = target_frame['yieldSkew']
+        target_frame['predictedKurtosis'] = target_frame['yieldKurtosis']
 
         target_frame[[
             'geohash',
@@ -1337,6 +1375,8 @@ class ProjectHistoricLateTask(luigi.Task):
             'joinYear',
             'predictedMean',
             'predictedStd',
+            'predictedSkew',
+            'predictedKurtosis',
             'yieldObservations'
         ]].to_csv(self.output().path)
 

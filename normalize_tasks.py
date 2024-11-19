@@ -320,7 +320,10 @@ class GetInputDistributionsTask(luigi.Task):
         )
 
         with self.output().open('w') as f:
-            writer = csv.DictWriter(f, fieldnames=['field', 'mean', 'std'])
+            writer = csv.DictWriter(
+                f,
+                fieldnames=['field', 'mean', 'std']
+            )
             writer.writeheader()
             writer.writerows(output_rows)
 

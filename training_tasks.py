@@ -50,10 +50,16 @@ OUTPUT_FIELDS = [
     'allowCount',
     'trainMean',
     'trainStd',
+    'trainSkew',
+    'trainKurtosis',
     'validMean',
     'validStd',
+    'validSkew',
+    'validKurtosis',
     'testMean',
-    'testStd'
+    'testStd',
+    'testSkew',
+    'testKurtosis'
 ]
 
 
@@ -249,19 +255,17 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
 
             weight_sum = sum(map(lambda x: x['weight'], paired_parsed_realized))
 
-            mean_mean_errors = sum(map(
-                lambda x: x['mean'] * x['weight'],
-                paired_parsed_realized
-            )) / weight_sum
-
-            mean_std_errors = sum(map(
-                lambda x: x['std'] * x['weight'],
-                paired_parsed_realized
-            )) / weight_sum
+            def get_mean(key):
+                return sum(map(
+                    lambda x: x[key] * x['weight'],
+                    paired_parsed_realized
+                )) / weight_sum
 
             return {
-                'mean': mean_mean_errors,
-                'std': mean_std_errors
+                'mean': get_mean('mean'),
+                'std': get_mean('std'),
+                'skew': get_mean('skew'),
+                'kurtosis': get_mean('kurtosis')
             }
 
         train_errors = get_maes(
