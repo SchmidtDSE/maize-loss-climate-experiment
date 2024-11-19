@@ -1168,11 +1168,16 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
             rows = csv.DictReader(f)
             test_rows = filter(lambda x: x['setAssign'] == 'test', rows)
             rows_mean_std_linear_str = map(
-                lambda x: (x['meanResidual'], x['stdResidual']),
+                lambda x: (
+                    x['meanResidual'],
+                    x['stdResidual'],
+                    x['skewResidual'],
+                    x['kurtosisResidual']
+                ),
                 test_rows
             )
             rows_mean_std_linear = map(
-                lambda x: (float(x[0]), float(x[1])),
+                lambda x: (float(x[0]), float(x[1]), float(x[2]), float(x[3])),
                 rows_mean_std_linear_str
             )
             unzipped = list(zip(*rows_mean_std_linear))

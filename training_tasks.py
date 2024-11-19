@@ -41,7 +41,7 @@ BLOCKED_ATTRS = set([
     'yieldObservations',
     'setAssign'
 ] + ([] if const.INCLUDE_YEAR_IN_MODEL else ['year']))
-OUTPUT_ATTRS = sorted(['yieldMean', 'yieldStd', 'yieldSkew', 'yieldKurtosis'])
+OUTPUT_ATTRS = ['yieldMean', 'yieldStd', 'yieldSkew', 'yieldKurtosis']
 OUTPUT_FIELDS = [
     'block',
     'layers',
