@@ -620,7 +620,7 @@ class NormalizeRefHistoricEarlyTask(luigi.Task):
         Returns:
             LocalTarget at which filtered data should be written.
         """
-        return luigi.LocalTarget(const.get_file_location('ref_historic_normalized.csv'))
+        return luigi.LocalTarget(const.get_file_location('ref_historic_normalized_early.csv'))
 
     def run(self):
         """Run the filter and field check."""
@@ -656,7 +656,7 @@ class NormalizeRefHistoricLateTask(luigi.Task):
         Returns:
             LocalTarget at which filtered data should be written.
         """
-        return luigi.LocalTarget(const.get_file_location('ref_historic_normalized.csv'))
+        return luigi.LocalTarget(const.get_file_location('ref_historic_normalized_late.csv'))
 
     def run(self):
         """Run the filter and field check."""
