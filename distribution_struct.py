@@ -128,22 +128,50 @@ class Distribution:
         else:
             new_max = max([self_max, other_max])
 
-        def get_weighted_avg(a_val, a_weight, b_val, b_weight):
-            return (a_val * a_weight + b_val * b_weight) / (a_weight + b_weight)
+        no_skew_info = self.get_skew() is None and other.get_skew() is None
+        no_kurtosis_info = self.get_kurtosis() is None and other.get_kurtosis() is None
+        no_sampling = no_skew_info and no_kurtosis_info
+        partial_info = no_skew_info != no_kurtosis_info
 
-        new_skew = get_weighted_avg(
-            self.get_skew(),
-            self.get_count(),
-            other.get_skew(),
-            other.get_count()
-        )
+        if no_sampling:
+            new_skew = None
+            new_kurtosis = None
+        elif partial_info:
+            raise RuntimeError('Cant combine where skew or kurtosis specified but not both.')
+        else:
+            self_dist = distribution_util.find_beta_distribution(
+                self.get_mean(),
+                self.get_std(),
+                self.get_skew(),
+                self.get_kurtosis()
+            )
 
-        new_kurtosis = get_weighted_avg(
-            self.get_kurtosis(),
-            self.get_count(),
-            other.get_kurtosis(),
-            other.get_count()
-        )
+            self_sim = scipy.stats.beta.rvs(
+                self_dist['a'],
+                self_dist['b'],
+                loc=self_dist['loc'],
+                scale=self_dist['scale'],
+                size=round(1000 * (self.get_count() / new_count))
+            )
+
+            other_dist = distribution_util.find_beta_distribution(
+                self.get_mean(),
+                self.get_std(),
+                self.get_skew(),
+                self.get_kurtosis()
+            )
+
+            other_sim = scipy.stats.beta.rvs(
+                other_dist['a'],
+                other_dist['b'],
+                loc=other_dist['loc'],
+                scale=other_dist['scale'],
+                size=round(1000 * (other.get_count() / new_count))
+            )
+
+            combined = numpy.concatenate(self_sim, other_sim)
+            new_skew = scipy.stats.skew(combined)
+            new_kurtosis = scipy.stats.kurtosis(combined)
 
         return Distribution(
             new_mean,
