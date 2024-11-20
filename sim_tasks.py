@@ -994,7 +994,7 @@ class MakeSimulationTasksTemplate(luigi.Task):
         )
 
         baseline_keys = set(baseline_indexed.keys())
-        projection_keys = set(projection_indexed)
+        projection_keys = set(projection_indexed.keys())
         keys = baseline_keys.intersection(projection_keys)
 
         assert len(keys) > 0
@@ -1104,6 +1104,7 @@ class MakeSimulationTasksTemplate(luigi.Task):
 
             for row in rows:
                 join_year = row['joinYear'] + year_offset
+                row['joinYear'] = join_year
                 key = '%s.%d' % (row['geohash'], join_year)
                 indexed[key] = row
 
