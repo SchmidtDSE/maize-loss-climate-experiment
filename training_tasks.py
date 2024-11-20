@@ -147,7 +147,7 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
 
 def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, filename,
     additional_block, allow_count, seed=12345, output_attrs=OUTPUT_ATTRS, epochs=const.EPOCHS,
-    blocked_attrs=BLOCKED_ATTRS):
+    blocked_attrs=BLOCKED_ATTRS, distributions=None):
     """Try building and training a model.
 
     Self-contained function to try building and training a model with imports such that it can be
@@ -261,12 +261,31 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
                     paired_parsed_realized
                 )) / weight_sum
 
-            return {
+            ret_dict = {
                 'mean': get_mean('mean'),
                 'std': get_mean('std'),
                 'skew': get_mean('skew'),
                 'kurtosis': get_mean('kurtosis')
             }
+
+            def jit_interpret_field(field):
+                if distributions is None:
+                    return
+                
+                field_capitalized = field.capitalize()
+                dist = distributions['yield%s' % field_capitalized]
+                mean = dist['mean']
+                std = dist['std']
+                original = ret_dict[field]
+                transformed = original * std + mean
+                ret_dict[field] = transformed
+            
+            jit_interpret_field('mean')
+            jit_interpret_field('std')
+            jit_interpret_field('skew')
+            jit_interpret_field('kurtosis')
+
+            return ret_dict
 
         train_errors = get_maes(
             data_splits['train']['inputs'],
@@ -381,7 +400,8 @@ class SweepTemplateTask(luigi.Task):
         """
         return {
             'upload': UploadHistoricTrainingFrame(),
-            'cluster': cluster_tasks.StartClusterTask()
+            'cluster': cluster_tasks.StartClusterTask(),
+            'dist': normalize_tasks.GetInputDistributionsTask()
         }
 
     def output(self):
@@ -394,6 +414,17 @@ class SweepTemplateTask(luigi.Task):
 
     def run(self):
         """Perform the model sweep."""
+        with self.input()['dist'].open('r') as f:
+            rows = csv.DictReader(f)
+
+            distributions = {}
+
+            for row in rows:
+                distributions[row['field']] = {
+                    'mean': float(row['mean']),
+                    'std': float(row['std'])
+                }
+
         num_layers = self.get_num_layers()
         l2_regs = self.get_l2_regs()
         dropouts = self.get_dropouts()
@@ -415,6 +446,8 @@ class SweepTemplateTask(luigi.Task):
         cluster = cluster_tasks.get_cluster()
         cluster.adapt(minimum=10, maximum=self.get_max_workers())
 
+        distributions_realized = distributions if const.JIT_UNNORM_YIELD else None
+
         client = cluster.get_client()
         outputs = client.map(
             lambda x: try_model(
@@ -426,7 +459,8 @@ class SweepTemplateTask(luigi.Task):
                 const.BUCKET_OR_DIR,
                 const.HISTORIC_TRAINING_FILENAME,
                 x[3],
-                x[4]
+                x[4],
+                distributions=distributions_realized
             ),
             combinations_realized
         )

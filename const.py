@@ -609,6 +609,7 @@ YIELD_FIELDS = {
 }
 
 NORM_YIELD_FIELDS = True
+JIT_UNNORM_YIELD = True
 
 NON_DELTA_FIELDS = [
     'year',
