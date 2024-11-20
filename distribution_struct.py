@@ -6,8 +6,9 @@ unlike data_struct, these are not task-specific.
 License:
     BSD
 """
-
 import math
+
+import distribution_util
 
 
 class Distribution:

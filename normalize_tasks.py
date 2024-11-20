@@ -144,7 +144,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
         """Require that the averages and the dataset to convert needs to be available.
 
         Returns:
-            The GetHistoricAveragesTask which porivdes averages and the target to convert.
+            The GetHistoricAveragesTask which provides averages and the target to convert.
         """
         return {
             'averages': GetHistoricAveragesTask(),
