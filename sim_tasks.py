@@ -778,7 +778,7 @@ class ProjectTaskTemplate(luigi.Task):
         def process_output(name, index):
             name_capitalized = name.capitalize()
             dist = distributions['yield%s' % name_capitalized]
-            raw_values = outputs[:, i]
+            raw_values = outputs[:, index]
 
             if const.JIT_UNNORM_YIELD:
                 transformed = raw_values * dist['std'] + dist['mean']
