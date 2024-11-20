@@ -933,7 +933,7 @@ class InterpretProjectTaskTemplate(luigi.Task):
         """
 
         def interpret(target, dist):
-            if const.NORM_YIELD_FIELDS and not const.JIT_UNNORM_YIELD:
+            if self._get_requires_interpretation():
                 reverse_z = target * dist['std'] + dist['mean']
                 return reverse_z
             else:
@@ -952,6 +952,14 @@ class InterpretProjectTaskTemplate(luigi.Task):
         update_field('kurtosis')
 
         return row
+
+    def _get_requires_interpretation(self):
+        """Determine if z score interpretation should be applied.
+
+        Returns:
+            True if z scores are being used as inputs and should be inverted or False otherwise.
+        """
+        return const.NORM_YIELD_FIELDS and not const.JIT_UNNORM_YIELD
 
 
 class MakeSimulationTasksTemplate(luigi.Task):
@@ -1628,6 +1636,17 @@ class InterpretProjectHistoricTask(InterpretProjectTaskTemplate):
         """
         return 'historic_project_dist_interpret.csv'
 
+    def _get_requires_interpretation(self):
+        """Indicate that, if there is JIT, it has to apply to historic norms.
+
+        Indicate that, if there is JIT, it has to apply to historic norms as the model will not run
+        on those inputs to apply the JIT z score transformation.
+
+        Returns:
+            True if JIT active and false otherwise.
+        """
+        return const.JIT_UNNORM_YIELD
+
 
 class InterpretProjectHistoricEarlyTask(InterpretProjectTaskTemplate):
     """Interpret retroactive historic projections with early years."""
@@ -1648,6 +1667,17 @@ class InterpretProjectHistoricEarlyTask(InterpretProjectTaskTemplate):
         """
         return 'historic_project_dist_interpret_early.csv'
 
+    def _get_requires_interpretation(self):
+        """Indicate that, if there is JIT, it has to apply to historic norms.
+
+        Indicate that, if there is JIT, it has to apply to historic norms as the model will not run
+        on those inputs to apply the JIT z score transformation.
+
+        Returns:
+            True if JIT active and false otherwise.
+        """
+        return const.JIT_UNNORM_YIELD
+
 
 class InterpretProjectHistoricLateTask(InterpretProjectTaskTemplate):
     """Interpret retroactive historic projections with late years."""
@@ -1667,6 +1697,17 @@ class InterpretProjectHistoricLateTask(InterpretProjectTaskTemplate):
             String filename (but not full path).
         """
         return 'historic_project_dist_interpret_late.csv'
+
+    def _get_requires_interpretation(self):
+        """Indicate that, if there is JIT, it has to apply to historic norms.
+
+        Indicate that, if there is JIT, it has to apply to historic norms as the model will not run
+        on those inputs to apply the JIT z score transformation.
+
+        Returns:
+            True if JIT active and false otherwise.
+        """
+        return const.JIT_UNNORM_YIELD
 
 
 class InterpretProject2030Task(InterpretProjectTaskTemplate):
