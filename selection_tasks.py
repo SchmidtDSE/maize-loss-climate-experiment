@@ -122,7 +122,8 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
         """
         return {
             'configuration': SelectConfigurationTask(),
-            'training': normalize_tasks.NormalizeHistoricTrainingFrameTask()
+            'training': normalize_tasks.NormalizeHistoricTrainingFrameTask(),
+            'dist': normalize_tasks.GetInputDistributionsTask()
         }
 
     def output(self):
@@ -135,6 +136,17 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
 
     def run(self):
         """Execute this post-hoc test."""
+        with self.input()['dist'].open('r') as f:
+            rows = csv.DictReader(f)
+
+            distributions = {}
+
+            for row in rows:
+                distributions[row['field']] = {
+                    'mean': float(row['mean']),
+                    'std': float(row['std'])
+                }
+
         with self.input()['configuration'].open('r') as f:
             configuration = json.load(f)['constrained']
 
@@ -168,10 +180,23 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
         )
 
         combined_output = model.predict(input_frame[input_attrs])
-        input_frame['predictedMean'] = combined_output[:, 0]
-        input_frame['predictedStd'] = combined_output[:, 1]
-        input_frame['predictedSkew'] = combined_output[:, 2]
-        input_frame['predictedKurtosis'] = combined_output[:, 3]
+
+        def process_output(name, index):
+            name_capitalized = name.capitalize()
+            dist = distributions['yield%s' % name_capitalized]
+            raw_values = combined_output[:, index]
+
+            if const.JIT_UNNORM_YIELD:
+                transformed = raw_values * dist['std'] + dist['mean']
+            else:
+                transformed = raw_values
+
+            input_frame['predicted%s' % name_capitalized] = transformed
+
+        process_output('mean', 0)
+        process_output('std', 1)
+        process_output('skew', 2)
+        process_output('kurtosis', 3)
 
         def make_residual(key):
             key_cap = key.capitalize()

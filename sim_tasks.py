@@ -731,7 +731,8 @@ class ProjectTaskTemplate(luigi.Task):
         return {
             'model': selection_tasks.TrainFullModel(),
             'target': self.get_target_task(),
-            'configuration': selection_tasks.SelectConfigurationTask()
+            'configuration': selection_tasks.SelectConfigurationTask(),
+            'dist': normalize_tasks.GetInputDistributionsTask()
         }
 
     def output(self):
@@ -749,6 +750,17 @@ class ProjectTaskTemplate(luigi.Task):
         with self.input()['configuration'].open('r') as f:
             configuration = json.load(f)['constrained']
 
+        with self.input()['dist'].open('r') as f:
+            rows = csv.DictReader(f)
+
+            distributions = {}
+
+            for row in rows:
+                distributions[row['field']] = {
+                    'mean': float(row['mean']),
+                    'std': float(row['std'])
+                }
+
         model = keras.models.load_model(self.input()['model'].path)
 
         additional_block = configuration['block']
@@ -762,10 +774,23 @@ class ProjectTaskTemplate(luigi.Task):
         inputs = target_frame[input_attrs]
 
         outputs = model.predict(inputs)
-        target_frame['predictedMean'] = outputs[:, 0]
-        target_frame['predictedStd'] = outputs[:, 1]
-        target_frame['predictedSkew'] = outputs[:, 2]
-        target_frame['predictedKurtosis'] = outputs[:, 3]
+
+        def process_output(name, index):
+            name_capitalized = name.capitalize()
+            dist = distributions['yield%s' % name_capitalized]
+            raw_values = outputs[:, index]
+
+            if const.JIT_UNNORM_YIELD:
+                transformed = raw_values * dist['std'] + dist['mean']
+            else:
+                transformed = raw_values
+
+            target_frame['predicted%s' % name_capitalized] = transformed
+
+        process_output('mean', 0)
+        process_output('std', 1)
+        process_output('skew', 2)
+        process_output('kurtosis', 3)
 
         target_frame[[
             'geohash',
@@ -908,7 +933,7 @@ class InterpretProjectTaskTemplate(luigi.Task):
         """
 
         def interpret(target, dist):
-            if const.NORM_YIELD_FIELDS:
+            if const.NORM_YIELD_FIELDS and not const.JIT_UNNORM_YIELD:
                 reverse_z = target * dist['std'] + dist['mean']
                 return reverse_z
             else:
