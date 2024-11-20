@@ -190,7 +190,7 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
                 transformed = raw_values * dist['std'] + dist['mean']
             else:
                 transformed = raw_values
-            
+
             input_frame['predicted%s' % name_capitalized] = transformed
 
         process_output('mean', 0)

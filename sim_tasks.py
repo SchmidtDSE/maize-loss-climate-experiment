@@ -749,7 +749,7 @@ class ProjectTaskTemplate(luigi.Task):
 
         with self.input()['configuration'].open('r') as f:
             configuration = json.load(f)['constrained']
-        
+
         with self.input()['dist'].open('r') as f:
             rows = csv.DictReader(f)
 
@@ -784,9 +784,9 @@ class ProjectTaskTemplate(luigi.Task):
                 transformed = raw_values * dist['std'] + dist['mean']
             else:
                 transformed = raw_values
-            
+
             target_frame['predicted%s' % name_capitalized] = transformed
-        
+
         process_output('mean', 0)
         process_output('std', 1)
         process_output('skew', 2)

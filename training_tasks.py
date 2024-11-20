@@ -271,7 +271,7 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
             def jit_interpret_field(field):
                 if distributions is None:
                     return
-                
+
                 field_capitalized = field.capitalize()
                 dist = distributions['yield%s' % field_capitalized]
                 mean = dist['mean']
@@ -279,7 +279,7 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
                 original = ret_dict[field]
                 transformed = original * std + mean
                 ret_dict[field] = transformed
-            
+
             jit_interpret_field('mean')
             jit_interpret_field('std')
             jit_interpret_field('skew')
