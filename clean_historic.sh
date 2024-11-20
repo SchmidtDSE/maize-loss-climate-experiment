@@ -1,0 +1,10 @@
+cd workspace
+rm historic_project_dist_early.csv
+rm historic_project_dist_late.csv
+rm 2010_sim_tasks.csv
+rm 2010_sim.csv
+rm sim_combined.csv
+rm sim_combined_hold_year.csv
+rm export_*.json
+rm stats_*.json
+rm break_*.txt
