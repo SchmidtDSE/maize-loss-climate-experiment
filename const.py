@@ -611,6 +611,9 @@ YIELD_FIELDS = {
 NORM_YIELD_FIELDS = True
 JIT_UNNORM_YIELD = True
 
+if JIT_UNNORM_YIELD and not NORM_YIELD_FIELDS:
+    raise RuntimeError('Cannot use JIT unnorm without norm yield fields.')
+
 NON_DELTA_FIELDS = [
     'year',
     'geohash',
