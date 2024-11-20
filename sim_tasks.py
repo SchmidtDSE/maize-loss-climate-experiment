@@ -768,7 +768,6 @@ class ProjectTaskTemplate(luigi.Task):
 
         target_frame['joinYear'] = target_frame['year']
         target_frame['simYear'] = target_frame['year'] - 2007 + self.get_base_year()
-        target_frame['year'] = target_frame['simYear']
 
         input_attrs = training_tasks.get_input_attrs(additional_block, allow_count)
         inputs = target_frame[input_attrs]
@@ -1310,8 +1309,7 @@ class ProjectHistoricTask(luigi.Task):
         target_frame = pandas.read_csv(self.input()['target'].path)
 
         target_frame['joinYear'] = target_frame['year']
-        target_frame['simYear'] = 2007
-        target_frame['year'] = target_frame['simYear']
+        target_frame['simYear'] = target_frame['year']
 
         target_frame['predictedMean'] = target_frame['yieldMean']
         target_frame['predictedStd'] = target_frame['yieldStd']
@@ -1357,7 +1355,6 @@ class ProjectHistoricEarlyTask(luigi.Task):
 
         target_frame['joinYear'] = target_frame['year']
         target_frame['simYear'] = target_frame['year']
-        target_frame['year'] = target_frame['simYear']
 
         target_frame['predictedMean'] = target_frame['yieldMean']
         target_frame['predictedStd'] = target_frame['yieldStd']
@@ -1402,8 +1399,7 @@ class ProjectHistoricLateTask(luigi.Task):
         target_frame = pandas.read_csv(self.input()['target'].path)
 
         target_frame['joinYear'] = target_frame['year']
-        target_frame['simYear'] = 2010
-        target_frame['year'] = target_frame['simYear']
+        target_frame['simYear'] = target_frame['year']
 
         target_frame['predictedMean'] = target_frame['yieldMean']
         target_frame['predictedStd'] = target_frame['yieldStd']
