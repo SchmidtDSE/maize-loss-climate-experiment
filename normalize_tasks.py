@@ -8,9 +8,11 @@ import math
 
 import luigi
 import numpy
+import pandas
 
 import const
 import distribution_struct
+import preprocess_yield_tasks
 import preprocess_combine_tasks
 
 
@@ -133,6 +135,26 @@ class GetHistoricAveragesTask(luigi.Task):
             writer.writerows(output_rows)
 
 
+class GetShapesTask(luigi.Task):
+    """Task which gets the yield shape parameterization per geohash."""
+
+    def requires(self):
+        """Indicate that yield information is needed."""
+        return preprocess_yield_tasks.PreprocessYieldGeotiffsTask()
+
+    def output(self):
+        """Indicate that the results should be written to a CSV file one row per geohash."""
+        return luigi.LocalTarget(const.get_file_location('geohash_shapes.csv'))
+
+    def run(self):
+        """Group together and get skew / kurtosis per geohash."""
+        source = pandas.read_csv(self.input().path)
+        grouped = source.groupby('geohash')
+        medians = grouped.median().reset_index()
+        medians_subset = medians[['geohash', 'skew', 'kurtosis']]
+        return medians_subset.to_csv(self.output().path)
+
+
 class GetAsDeltaTaskTemplate(luigi.Task):
     """Template for task which converts to yield deltas.
 
@@ -148,7 +170,9 @@ class GetAsDeltaTaskTemplate(luigi.Task):
         """
         return {
             'averages': GetHistoricAveragesTask(),
-            'target': self.get_target()
+            'target': self.get_target(),
+            'shapes': GetShapesTask(),
+            'cluster': cluster_tasks.StartClusterTask()
         }
 
     def output(self):
@@ -161,13 +185,24 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
     def run(self):
         """Convert from yields to yield deltas."""
+        with self.input()['shapes'].open() as f:
+            reader = csv.DictReader(f)
+            shapes_by_geohash = {}
+
+            for row in reader:
+                row['skew'] = float(row['skew'])
+                row['kurtosis'] = float(row['kurtosis'])
+                shapes_by_geohash[row['geohash']] = row
+
         with self.input()['averages'].open() as f:
             reader = csv.DictReader(f)
             average_tuples_str = map(lambda x: (x['key'], x['mean']), reader)
             average_tuples = map(lambda x: (x[0], float(x[1])), average_tuples_str)
             averages = dict(average_tuples)
 
-        def transform_row_regular(row):
+        def transform_row_regular(row, averages, get_finite_maybe):
+            import const
+            
             keys = row.keys()
             keys_delta_only = filter(lambda x: x not in const.NON_DELTA_FIELDS, keys)
             keys_no_count = filter(lambda x: 'count' not in x.lower(), keys_delta_only)
@@ -182,35 +217,110 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
             return row
 
-        def transform_row_response(row):
+        def transform_row_response(row, averages, shapes_by_geohash, get_finite_maybe):
+            import numpy
+            import scipy.stats
+
+            import distribution_util
+
             geohash = row['geohash']
 
-            key = '%s.baselineYieldMean' % geohash
-            original_mean = get_finite_maybe(row['yieldMean'])
-            original_std = get_finite_maybe(row['yieldStd'])
+            mean_key = '%s.baselineYieldMean' % geohash
+            std_key = '%s.baselineYieldStd' % geohash
 
-            if original_mean is None or original_std is None or key not in averages:
+            target_mean = get_finite_maybe(row['yieldMean'])
+            target_std = get_finite_maybe(row['yieldStd'])
+
+            values_not_given = target_mean is None or target_std is None
+            keys_not_given = mean_key not in averages or std_key not in averages
+            if values_not_given or keys_not_given:
                 new_mean = None
                 new_std = None
+                new_skew = None
+                new_kurtosis = None
             else:
-                baseline_mean = averages[key]
-                new_mean = (original_mean - baseline_mean) / baseline_mean
-                new_std = original_std / baseline_mean
+                baseline_mean = averages[mean_key]
+                baseline_std = averages[std_key]
+
+                shapes_by_geohash[geohash]
+                skew = shape_info['skew']
+                kurtosis = shape_info['kurtosis']
+
+                target_dist_param = distribution_util.find_beta_distribution(
+                    baseline_mean,
+                    baseline_std,
+                    skew,
+                    kurtosis
+                )
+                target_dist = scipy.stats.beta.rvs(
+                    target_dist_param['a'],
+                    target_dist_param['b'],
+                    loc=target_dist_param['loc'],
+                    scale=target_dist_param['scale'],
+                    size=2000
+                )
+
+                baseline_dist_param = distribution_util.find_beta_distribution(
+                    target_mean,
+                    target_std,
+                    skew,
+                    kurtosis
+                )
+                baseline_dist = scipy.stats.beta.rvs(
+                    baseline_dist_param['a'],
+                    baseline_dist_param['b'],
+                    loc=baseline_dist_param['loc'],
+                    scale=baseline_dist_param['scale'],
+                    size=2000
+                )
+
+                deltas = (target_dist - baseline_dist) / baseline_dist
+                new_mean = numpy.mean(deltas)
+                new_std = numpy.std(deltas)
+                new_skew = scipy.stats.skew(deltas)
+                new_kurtosis = scipy.stats.skew(kurtosis)
 
             row['yieldMean'] = new_mean
             row['yieldStd'] = new_std
+            row['skew'] = new_skew
+            row['kurtosis'] = new_kurtosis
 
             return row
 
         with self.input()['target'].open() as f_in:
-            rows = csv.DictReader(f_in)
-            rows_regular_transform = map(lambda x: transform_row_regular(x), rows)
-            rows_regular_response = map(lambda x: transform_row_response(x), rows_regular_transform)
+            rows = list(csv.DictReader(f_in))
 
-            with self.output().open('w') as f_out:
-                writer = csv.DictWriter(f_out, fieldnames=const.TRAINING_FRAME_ATTRS)
-                writer.writeheader()
-                writer.writerows(rows_regular_response)
+        cluster = cluster_tasks.get_cluster()
+        cluster.adapt(minimum=10, maximum=100)
+        client = cluster.get_client()
+
+        rows_regular_transform = client.map(
+            lambda x: transform_row_regular(x, averages, get_finite_maybe),
+            rows
+        )
+        rows_regular_response = client.map(
+            lambda x: transform_row_response(x, averages, shapes_by_geohash, get_finite_maybe),
+            rows_regular_transform
+        )
+        rows_regular_response_realized = client.gather(rows_regular_response)
+
+        def is_approx_normal(target):
+            if abs(target['skew']) > 2:
+                return False
+
+            if abs(target['kurtosis']) > 7:
+                return False
+
+            return True
+
+        approx_normal = filter(is_approx_normal, rows_regular_response_realized)
+        num_approx_normal = sum(map(lambda x: 1, approx_normal))
+        assert num_approx_normal / len(rows_regular_response_realized) >= 0.95
+
+        with self.output().open('w') as f_out:
+            writer = csv.DictWriter(f_out, fieldnames=const.TRAINING_FRAME_ATTRS)
+            writer.writeheader()
+            writer.writerows(rows_regular_response_realized)
 
     def get_target(self):
         """Get the task whose output should be converted to yield deltas.
