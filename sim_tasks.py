@@ -1356,7 +1356,7 @@ class ProjectHistoricEarlyTask(luigi.Task):
         target_frame = pandas.read_csv(self.input()['target'].path)
 
         target_frame['joinYear'] = target_frame['year']
-        target_frame['simYear'] = 2000
+        target_frame['simYear'] = target_frame['year']
         target_frame['year'] = target_frame['simYear']
 
         target_frame['predictedMean'] = target_frame['yieldMean']
