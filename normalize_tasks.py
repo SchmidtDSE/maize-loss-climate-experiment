@@ -294,15 +294,16 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 )
 
                 deltas = (target_dist - baseline_dist) / baseline_dist
+                deltas_ln = numpy.log(deltas)
                 new_mean = numpy.mean(deltas)
                 new_std = numpy.std(deltas)
-                new_skew = scipy.stats.skew(deltas)
-                new_kurtosis = scipy.stats.skew(kurtosis)
+                new_skew = scipy.stats.skew(deltas_ln)
+                new_kurtosis = scipy.stats.skew(deltas_ln)
 
             row['yieldMean'] = new_mean
             row['yieldStd'] = new_std
-            row['skew'] = new_skew
-            row['kurtosis'] = new_kurtosis
+            row['skewLn'] = new_skew
+            row['kurtosisLn'] = new_kurtosis
 
             return row
 
@@ -338,10 +339,10 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 )
 
                 def is_approx_normal(target):
-                    if abs(target['skew']) > 2:
+                    if abs(target['skewLn']) > 2:
                         return False
 
-                    if abs(target['kurtosis']) > 7:
+                    if abs(target['kurtosisLn']) > 7:
                         return False
 
                     return True
