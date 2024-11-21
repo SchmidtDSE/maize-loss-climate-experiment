@@ -8,6 +8,9 @@ License:
 """
 import math
 
+import numpy
+import scipy.stats
+
 import distribution_util
 
 

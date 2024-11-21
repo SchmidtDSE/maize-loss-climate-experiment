@@ -4,14 +4,11 @@ License:
     BSD
 """
 import csv
-import itertools
 import math
 
 import luigi
-import more_itertools
 import numpy
 import pandas
-import pathos.multiprocessing
 
 import const
 import cluster_tasks
