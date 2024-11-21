@@ -353,7 +353,11 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                     normal_count += 1 if is_approx_normal(row) else 0
                     writer.writerow(row)
 
-                assert normal_count / total_count >= 0.95
+                normality_rate = normal_count / total_count
+                if normality_rate < 0.95:
+                    raise RuntimeError(
+                        'Normality assumption rate: %f' % normality_rate
+                    )
 
     def get_target(self):
         """Get the task whose output should be converted to yield deltas.

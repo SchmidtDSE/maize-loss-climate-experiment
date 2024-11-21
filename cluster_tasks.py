@@ -9,8 +9,6 @@ License:
 
 import os
 
-import coiled
-import dask.distributed
 import luigi
 
 import const
@@ -35,6 +33,8 @@ class SimulatedDaskCluster:
         Returns:
             The cluster client.
         """
+        import dask.distributed
+
         if self._cluster is None:
             self._cluster = dask.distributed.Client()
 
@@ -72,6 +72,8 @@ def get_cluster():
     Returns:
         Cluster after requesting it start or SimulatedDaskCluster if using local.
     """
+    import coiled
+
     using_local = os.environ['USE_AWS'] == '0'
     if using_local:
         return simulated_cluster
