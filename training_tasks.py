@@ -11,6 +11,7 @@ import shutil
 
 import boto3
 import luigi
+import numpy
 
 import cluster_tasks
 import const
@@ -136,7 +137,26 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
     optimizer = keras.optimizers.AdamW(learning_rate=learning_rate)
     model.compile(optimizer=optimizer, loss='mae', metrics=['mae'])
 
-    return model
+    return LogModel(model) if const.MODEL_LOG else model
+
+
+class LogModel:
+
+    def __init__(self, model):
+        self._model = model
+
+    def fit(self, inputs, outputs, epochs=const.EPOCHS, verbose=None, sample_weight=None):
+        model.fit(
+            inputs,
+            numpy.log(outputs),
+            epochs=epochs,
+            verbose=verbose,
+            sample_weight=sample_weight
+        )
+
+    def predict(inputs):
+        outputs = self._model.predict(inputs)
+        return numpy.exp(outputs)
 
 
 def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, filename,
