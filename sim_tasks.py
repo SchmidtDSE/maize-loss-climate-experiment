@@ -551,7 +551,7 @@ class NormalizeRefHistoricEarlyTask(luigi.Task):
         Returns:
             LocalTarget at which filtered data should be written.
         """
-        return luigi.LocalTarget(const.get_file_location('ref_historic_normalized.csv'))
+        return luigi.LocalTarget(const.get_file_location('ref_historic_normalized_early.csv'))
 
     def run(self):
         """Run the filter and field check."""
@@ -587,7 +587,7 @@ class NormalizeRefHistoricLateTask(luigi.Task):
         Returns:
             LocalTarget at which filtered data should be written.
         """
-        return luigi.LocalTarget(const.get_file_location('ref_historic_normalized.csv'))
+        return luigi.LocalTarget(const.get_file_location('ref_historic_normalized_late.csv'))
 
     def run(self):
         """Run the filter and field check."""
@@ -1217,8 +1217,7 @@ class ProjectHistoricEarlyTask(luigi.Task):
         target_frame = pandas.read_csv(self.input()['target'].path)
 
         target_frame['joinYear'] = target_frame['year']
-        target_frame['simYear'] = 2000
-        target_frame['year'] = target_frame['simYear']
+        target_frame['simYear'] = target_frame['year']
 
         target_frame['predictedMean'] = target_frame['yieldMean']
         target_frame['predictedStd'] = target_frame['yieldStd']
@@ -1258,9 +1257,8 @@ class ProjectHistoricLateTask(luigi.Task):
         """Project into the historic dataset."""
         target_frame = pandas.read_csv(self.input()['target'].path)
 
-        target_frame['joinYear'] = target_frame['year']
-        target_frame['simYear'] = 2010
-        target_frame['year'] = target_frame['simYear']
+        target_frame['joinYear'] = target_frame['year'] - 10
+        target_frame['simYear'] = target_frame['year']
 
         target_frame['predictedMean'] = target_frame['yieldMean']
         target_frame['predictedStd'] = target_frame['yieldStd']
