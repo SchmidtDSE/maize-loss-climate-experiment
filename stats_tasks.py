@@ -111,7 +111,7 @@ class ExportModelInfoTask(luigi.Task):
         }
 
         with self.output().open('w') as f:
-            json.dump(output_record, f)
+            json.dump(output_record, f, indent=2, sort_keys=True)
 
 
 class ExportPosthocTestTask(luigi.Task):
@@ -182,7 +182,7 @@ class ExportPosthocTestTask(luigi.Task):
         }
 
         with self.output().open('w') as f:
-            json.dump(output_record, f)
+            json.dump(output_record, f, indent=2, sort_keys=True)
 
     def _summarize_post_hoc(self, name):
         """Summarize a single post-hoc test.
@@ -275,7 +275,7 @@ class DeterminePercentSignificantTemplateTask(luigi.Task):
         output_record = {'percentSignificant': format_percent(percent)}
 
         with self.output().open('w') as f:
-            json.dump(output_record, f)
+            json.dump(output_record, f, indent=2, sort_keys=True)
 
     def get_filename(self):
         """Get the filename in the workspace at which signifiance results should be written.
@@ -421,7 +421,7 @@ class ExtractSimStatsTemplateTask(luigi.Task):
         }
 
         with self.output().open('w') as f:
-            json.dump(output_record, f)
+            json.dump(output_record, f, indent=2, sort_keys=True)
 
     def _simplify_record(self, record):
         """Simplify / standardize an input record, parsing attributes as numbers where appropriate
@@ -568,7 +568,7 @@ class SummarizeEquivalentStdTask(luigi.Task):
                 source = json.load(f_in)
                 json.dump({
                     'equivalentStd': '%.2f' % source['0.25']
-                }, f_out)
+                }, f_out, indent=2, sort_keys=True)
 
 
 class FindDivergentAphAndClaimsRate(luigi.Task):
@@ -641,7 +641,12 @@ class FindDivergentAphAndClaimsRate(luigi.Task):
 
         # Output
         with self.output().open('w') as f:
-            json.dump({'dualIncreasePercent2050': format_percent(rate)}, f)
+            json.dump(
+                {'dualIncreasePercent2050': format_percent(rate)},
+                f,
+                indent=2,
+                sort_keys=True
+            )
 
     def _parse_record(self, target):
         """Parse a raw input record from the simulation results.
@@ -810,7 +815,7 @@ class CombineStatsTask(luigi.Task):
             add_hold_input('experimentalSeverity2050', 'experimentalSeverity2050HoldYr')
 
         with self.output().open('w') as f:
-            json.dump(output_record, f)
+            json.dump(output_record, f, indent=2, sort_keys=True)
 
     def _get_subfile(self, key):
         """Load one of the prerequisite statistical summary outputs.

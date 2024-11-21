@@ -4,13 +4,17 @@ License:
     BSD
 """
 import csv
+import itertools
 import math
 
 import luigi
+import more_itertools
 import numpy
 import pandas
+import pathos.multiprocessing
 
 import const
+import cluster_tasks
 import distribution_struct
 import preprocess_yield_tasks
 import preprocess_combine_tasks
@@ -189,10 +193,28 @@ class GetAsDeltaTaskTemplate(luigi.Task):
             reader = csv.DictReader(f)
             shapes_by_geohash = {}
 
+            count_no_shape = 0
+            count_total = 0
             for row in reader:
-                row['skew'] = float(row['skew'])
-                row['kurtosis'] = float(row['kurtosis'])
+                had_no_shape = False
+
+                if row['skew'] == '':
+                    row['skew'] = 0
+                    had_no_shape = True
+                else:
+                    row['skew'] = float(row['skew'])
+
+                if row['kurtosis'] == '':
+                    row['kurtosis'] = 0
+                    had_no_shape = True
+                else:
+                    row['kurtosis'] = float(row['kurtosis'])
+
+                count_no_shape += 1 if had_no_shape else 0
+                count_total += 1
                 shapes_by_geohash[row['geohash']] = row
+
+            assert count_no_shape / count_total < 0.05
 
         with self.input()['averages'].open() as f:
             reader = csv.DictReader(f)
@@ -202,7 +224,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
         def transform_row_regular(row, averages, get_finite_maybe):
             import const
-            
+
             keys = row.keys()
             keys_delta_only = filter(lambda x: x not in const.NON_DELTA_FIELDS, keys)
             keys_no_count = filter(lambda x: 'count' not in x.lower(), keys_delta_only)
@@ -242,7 +264,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 baseline_mean = averages[mean_key]
                 baseline_std = averages[std_key]
 
-                shapes_by_geohash[geohash]
+                shape_info = shapes_by_geohash[geohash]
                 skew = shape_info['skew']
                 kurtosis = shape_info['kurtosis']
 
@@ -288,39 +310,53 @@ class GetAsDeltaTaskTemplate(luigi.Task):
             return row
 
         with self.input()['target'].open() as f_in:
-            rows = list(csv.DictReader(f_in))
+            rows = csv.DictReader(f_in)
 
-        cluster = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=10, maximum=100)
-        client = cluster.get_client()
+            with self.output().open('w') as f_out:
+                writer = csv.DictWriter(
+                    f_out,
+                    fieldnames=const.TRAINING_FRAME_ATTRS,
+                    extrasaction='ignore'
+                )
+                writer.writeheader()
 
-        rows_regular_transform = client.map(
-            lambda x: transform_row_regular(x, averages, get_finite_maybe),
-            rows
-        )
-        rows_regular_response = client.map(
-            lambda x: transform_row_response(x, averages, shapes_by_geohash, get_finite_maybe),
-            rows_regular_transform
-        )
-        rows_regular_response_realized = client.gather(rows_regular_response)
+                # pool = pathos.multiprocessing.ProcessingPool(4)
 
-        def is_approx_normal(target):
-            if abs(target['skew']) > 2:
-                return False
+                rows_regular_transform = map(
+                    lambda x: transform_row_regular(
+                        x,
+                        averages,
+                        get_finite_maybe
+                    ),
+                    rows
+                )
+                rows_regular_response = map(
+                    lambda x: transform_row_response(
+                        x,
+                        averages,
+                        shapes_by_geohash,
+                        get_finite_maybe
+                    ),
+                    rows_regular_transform
+                )
 
-            if abs(target['kurtosis']) > 7:
-                return False
+                def is_approx_normal(target):
+                    if abs(target['skew']) > 2:
+                        return False
 
-            return True
+                    if abs(target['kurtosis']) > 7:
+                        return False
 
-        approx_normal = filter(is_approx_normal, rows_regular_response_realized)
-        num_approx_normal = sum(map(lambda x: 1, approx_normal))
-        assert num_approx_normal / len(rows_regular_response_realized) >= 0.95
+                    return True
 
-        with self.output().open('w') as f_out:
-            writer = csv.DictWriter(f_out, fieldnames=const.TRAINING_FRAME_ATTRS)
-            writer.writeheader()
-            writer.writerows(rows_regular_response_realized)
+                total_count = 0
+                normal_count = 0
+                for row in rows_regular_response:
+                    total_count += 1
+                    normal_count += 1 if is_approx_normal(row) else 0
+                    writer.writerow(row)
+
+                assert normal_count / total_count >= 0.95
 
     def get_target(self):
         """Get the task whose output should be converted to yield deltas.
