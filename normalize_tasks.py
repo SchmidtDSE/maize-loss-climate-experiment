@@ -4,9 +4,11 @@ License:
     BSD
 """
 import csv
+import itertools
 import math
 
 import luigi
+import more_itertools
 import numpy
 import pandas
 
@@ -122,7 +124,7 @@ def distributed_transform_row_response(task):
             target_dist_param['b'],
             loc=target_dist_param['loc'],
             scale=target_dist_param['scale'],
-            size=2000
+            size=5000
         )
 
         baseline_dist_param = distribution_util.find_beta_distribution(
@@ -136,7 +138,7 @@ def distributed_transform_row_response(task):
             baseline_dist_param['b'],
             loc=baseline_dist_param['loc'],
             scale=baseline_dist_param['scale'],
-            size=2000
+            size=5000
         )
 
         deltas = (target_dist - baseline_dist) / baseline_dist
@@ -253,141 +255,140 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
     def run(self):
         """Convert from yields to yield deltas."""
-
-        def make_tasks(client):
-            with self.input()['shapes'].open() as f:
-                reader = csv.DictReader(f)
-                shapes_by_geohash = {}
-
-                count_no_shape = 0
-                count_total = 0
-                for row in reader:
-                    had_no_shape = False
-
-                    if row['skew'] == '':
-                        row['skew'] = 0
-                        had_no_shape = True
-                    else:
-                        row['skew'] = float(row['skew'])
-
-                    if row['kurtosis'] == '':
-                        row['kurtosis'] = 0
-                        had_no_shape = True
-                    else:
-                        row['kurtosis'] = float(row['kurtosis'])
-
-                    count_no_shape += 1 if had_no_shape else 0
-                    count_total += 1
-                    shapes_by_geohash[row['geohash']] = row
-
-                assert count_no_shape / count_total < 0.05
-
-            with self.input()['averages'].open() as f:
-                reader = csv.DictReader(f)
-                average_tuples_str = map(lambda x: (x['key'], x['mean']), reader)
-                average_tuples = map(lambda x: (x[0], float(x[1])), average_tuples_str)
-                averages = dict(average_tuples)
-
-            def transform_row_regular(row, averages):
-                keys = row.keys()
-                keys_delta_only = filter(lambda x: x not in const.NON_DELTA_FIELDS, keys)
-                keys_no_count = filter(lambda x: 'count' not in x.lower(), keys_delta_only)
-
-                geohash = row['geohash']
-                for key in keys_no_count:
-                    average = averages['%s.%s' % (geohash, key)]
-                    original_value = get_finite_maybe(row[key])
-                    if original_value is not None:
-                        delta = original_value - average
-                        row[key] = delta
-
-                return row
-
-            def make_task(row, averages, shapes_by_geohash):
-                geohash = row['geohash']
-
-                mean_key = '%s.baselineYieldMean' % geohash
-                std_key = '%s.baselineYieldStd' % geohash
-
-                baseline_mean = averages[mean_key]
-                baseline_std = averages[std_key]
-
-                shape_info = shapes_by_geohash[geohash]
-
-                target_mean = get_finite_maybe(row['yieldMean'])
-                target_std = get_finite_maybe(row['yieldStd'])
-
-                return {
-                    'row': row,
-                    'baseline_mean': baseline_mean,
-                    'baseline_std': baseline_std,
-                    'shape_info': shape_info,
-                    'target_mean': target_mean,
-                    'target_std': target_std
-                }
-
-            with self.input()['target'].open() as f_in:
-                rows = csv.DictReader(f_in)
-
-                rows_regular_transform = map(
-                    lambda x: transform_row_regular(
-                        x,
-                        averages
-                    ),
-                    rows
-                )
-                rows_regular_response_tasks = map(
-                    lambda x: make_task(
-                        x,
-                        averages,
-                        shapes_by_geohash
-                    ),
-                    rows_regular_transform
-                )
-
-                futures = map(
-                    lambda x: client.submit(distributed_transform_row_response, (x,)),
-                    rows_regular_response_tasks
-                )
-
-                return list(futures)
-
         cluster = cluster_tasks.get_cluster()
         cluster.adapt(minimum=10, maximum=100)
         client = cluster.get_client()
 
-        futures = make_tasks(client)
-        rows_output = map(lambda x: x.result(), futures)
+        with self.input()['shapes'].open() as f:
+            reader = csv.DictReader(f)
+            shapes_by_geohash = {}
 
-        with self.output().open('w') as f_out:
-            writer = csv.DictWriter(
-                f_out,
-                fieldnames=const.TRAINING_FRAME_ATTRS,
-                extrasaction='ignore'
+            count_no_shape = 0
+            count_total = 0
+            for row in reader:
+                had_no_shape = False
+
+                if row['skew'] == '':
+                    row['skew'] = 0
+                    had_no_shape = True
+                else:
+                    row['skew'] = float(row['skew'])
+
+                if row['kurtosis'] == '':
+                    row['kurtosis'] = 0
+                    had_no_shape = True
+                else:
+                    row['kurtosis'] = float(row['kurtosis'])
+
+                count_no_shape += 1 if had_no_shape else 0
+                count_total += 1
+                shapes_by_geohash[row['geohash']] = row
+
+            assert count_no_shape / count_total < 0.05
+
+        with self.input()['averages'].open() as f:
+            reader = csv.DictReader(f)
+            average_tuples_str = map(lambda x: (x['key'], x['mean']), reader)
+            average_tuples = map(lambda x: (x[0], float(x[1])), average_tuples_str)
+            averages = dict(average_tuples)
+
+        def transform_row_regular(row, averages):
+            keys = row.keys()
+            keys_delta_only = filter(lambda x: x not in const.NON_DELTA_FIELDS, keys)
+            keys_no_count = filter(lambda x: 'count' not in x.lower(), keys_delta_only)
+
+            geohash = row['geohash']
+            for key in keys_no_count:
+                average = averages['%s.%s' % (geohash, key)]
+                original_value = get_finite_maybe(row[key])
+                if original_value is not None:
+                    delta = original_value - average
+                    row[key] = delta
+
+            return row
+
+        def make_task(row, averages, shapes_by_geohash):
+            geohash = row['geohash']
+
+            mean_key = '%s.baselineYieldMean' % geohash
+            std_key = '%s.baselineYieldStd' % geohash
+
+            baseline_mean = averages[mean_key]
+            baseline_std = averages[std_key]
+
+            shape_info = shapes_by_geohash[geohash]
+
+            target_mean = get_finite_maybe(row['yieldMean'])
+            target_std = get_finite_maybe(row['yieldStd'])
+
+            return {
+                'row': row,
+                'baseline_mean': baseline_mean,
+                'baseline_std': baseline_std,
+                'shape_info': shape_info,
+                'target_mean': target_mean,
+                'target_std': target_std
+            }
+
+        with self.input()['target'].open() as f_in:
+            rows = csv.DictReader(f_in)
+
+            rows_regular_transform = map(
+                lambda x: transform_row_regular(
+                    x,
+                    averages
+                ),
+                rows
             )
-            writer.writeheader()
 
-            def is_approx_normal(target):
-                if abs(target['skewLn']) > 2:
-                    return False
+            rows_regular_response_tasks = map(
+                lambda x: make_task(
+                    x,
+                    averages,
+                    shapes_by_geohash
+                ),
+                rows_regular_transform
+            )
 
-                if abs(target['kurtosisLn']) > 7:
-                    return False
+            futures = map(
+                lambda x: client.submit(distributed_transform_row_response, x),
+                rows_regular_response_tasks
+            )
 
-                return True
+            futures_chunked = more_itertools.chunked(futures, 100)
+            futures_flat_chunck = itertools.chain(*futures_chunked)
 
-            total_count = 0
-            normal_count = 0
-            for row in rows_output:
-                total_count += 1
-                normal_count += 1 if is_approx_normal(row) else 0
-                writer.writerow(row)
+            rows_output = map(lambda x: x.result(), futures_flat_chunck)
 
-            normality_rate = normal_count / total_count
-            if normality_rate < 0.95:
-                raise RuntimeError(
-                    'Normality assumption rate: %f' % normality_rate
+            with self.output().open('w') as f_out:
+                writer = csv.DictWriter(
+                    f_out,
+                    fieldnames=const.TRAINING_FRAME_ATTRS,
+                    extrasaction='ignore'
                 )
+                writer.writeheader()
+
+                def is_approx_normal(target):
+                    if abs(target['skewLn']) > 2:
+                        return False
+
+                    if abs(target['kurtosisLn']) > 7:
+                        return False
+
+                    return True
+
+                total_count = 0
+                normal_count = 0
+                for row in rows_output:
+                    total_count += 1
+                    normal_count += 1 if is_approx_normal(row) else 0
+                    writer.writerow(row)
+
+                normality_rate = normal_count / total_count
+                if normality_rate < 0.95:
+                    raise RuntimeError(
+                        'Normality assumption rate: %f' % normality_rate
+                    )
 
     def get_target(self):
         """Get the task whose output should be converted to yield deltas.
