@@ -154,8 +154,8 @@ class LogModel:
             sample_weight=sample_weight
         )
 
-    def predict(self, inputs):
-        outputs = self._model.predict(inputs)
+    def predict(self, inputs, verbose=None):
+        outputs = self._model.predict(inputs, verbose=verbose)
         return numpy.exp(outputs)
 
 

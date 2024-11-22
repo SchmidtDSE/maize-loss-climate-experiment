@@ -355,10 +355,8 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 rows_regular_response_tasks
             )
 
-            futures_chunked = more_itertools.chunked(futures, 100)
-            futures_flat_chunck = itertools.chain(*futures_chunked)
-
-            rows_output = map(lambda x: x.result(), futures_flat_chunck)
+            futures_chunked_unrealized = more_itertools.ichunked(futures, 200)
+            futures_chunked = map(lambda x: list(x), futures_chunked_unrealized)
 
             with self.output().open('w') as f_out:
                 writer = csv.DictWriter(
@@ -379,10 +377,11 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
                 total_count = 0
                 normal_count = 0
-                for row in rows_output:
-                    total_count += 1
-                    normal_count += 1 if is_approx_normal(row) else 0
-                    writer.writerow(row)
+                for chunk in futures_chunked:
+                    for row in map(lambda x: x.result(), chunk):
+                        total_count += 1
+                        normal_count += 1 if is_approx_normal(row) else 0
+                        writer.writerow(row)
 
                 normality_rate = normal_count / total_count
                 if normality_rate < 0.95:
