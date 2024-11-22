@@ -98,7 +98,7 @@ def distributed_transform_row_response(task):
     baseline_std = task['baseline_std']
     shape_info = task['shape_info']
     target_mean = task['target_mean']
-    target_baseline = task['target_baseline']
+    target_std = task['target_std']
 
     values_not_given = target_mean is None or target_std is None
     baseline_not_given = baseline_mean is None or baseline_std is None
@@ -152,7 +152,7 @@ def distributed_transform_row_response(task):
     row['kurtosisLn'] = new_kurtosis
 
     return row
-        
+
 
 class GetHistoricAveragesTask(luigi.Task):
     """Get the historic average yield at the geohash-level."""
@@ -254,7 +254,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
     def run(self):
         """Convert from yields to yield deltas."""
 
-        def make_tasks():
+        def make_tasks(client):
             with self.input()['shapes'].open() as f:
                 reader = csv.DictReader(f)
                 shapes_by_geohash = {}
@@ -323,7 +323,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                     'baseline_std': baseline_std,
                     'shape_info': shape_info,
                     'target_mean': target_mean,
-                    'target_baseline': target_baseline
+                    'target_std': target_std
                 }
 
             with self.input()['target'].open() as f_in:
@@ -337,25 +337,27 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                     rows
                 )
                 rows_regular_response_tasks = map(
-                    lambda x: transform_row_response(
+                    lambda x: make_task(
                         x,
                         averages,
                         shapes_by_geohash
                     ),
                     rows_regular_transform
                 )
-                tasks_realized = list(rows_regular_response_tasks)
 
-            return tasks_realized
+                futures = map(
+                    lambda x: client.submit(distributed_transform_row_response, (x,)),
+                    rows_regular_response_tasks
+                )
 
-        tasks = make_tasks()
-        
+                return list(futures)
+
         cluster = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=20, maximum=100)
+        cluster.adapt(minimum=10, maximum=100)
         client = cluster.get_client()
 
-        rows_output_future = client.map(distributed_transform_row_response, tasks)
-        rows_output = map(lambda x: x.result(), rows_output_future)
+        futures = make_tasks(client)
+        rows_output = map(lambda x: x.result(), futures)
 
         with self.output().open('w') as f_out:
             writer = csv.DictWriter(

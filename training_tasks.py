@@ -146,7 +146,7 @@ class LogModel:
         self._model = model
 
     def fit(self, inputs, outputs, epochs=const.EPOCHS, verbose=None, sample_weight=None):
-        model.fit(
+        self._model.fit(
             inputs,
             numpy.log(outputs),
             epochs=epochs,
@@ -154,7 +154,7 @@ class LogModel:
             sample_weight=sample_weight
         )
 
-    def predict(inputs):
+    def predict(self, inputs):
         outputs = self._model.predict(inputs)
         return numpy.exp(outputs)
 
