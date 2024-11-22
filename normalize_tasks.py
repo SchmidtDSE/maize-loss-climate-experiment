@@ -146,7 +146,7 @@ def distributed_transform_row_response(task):
         new_mean = numpy.mean(deltas)
         new_std = numpy.std(deltas)
         new_skew = scipy.stats.skew(deltas_ln)
-        new_kurtosis = scipy.stats.skew(deltas_ln)
+        new_kurtosis = scipy.stats.kurtosis(deltas_ln)
 
     row['yieldMean'] = new_mean
     row['yieldStd'] = new_std
