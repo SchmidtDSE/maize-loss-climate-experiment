@@ -7,6 +7,7 @@ import csv
 import math
 
 import luigi
+import more_itertools
 import numpy
 import pandas
 
@@ -85,6 +86,73 @@ def get_finite_maybe(target):
         return value
     else:
         return None
+
+
+def distributed_transform_row_response(task):
+    import numpy
+    import scipy.stats
+
+    import distribution_util
+
+    row = task['row']
+    baseline_mean = task['baseline_mean']
+    baseline_std = task['baseline_std']
+    shape_info = task['shape_info']
+    target_mean = task['target_mean']
+    target_std = task['target_std']
+
+    values_not_given = target_mean is None or target_std is None
+    baseline_not_given = baseline_mean is None or baseline_std is None
+    if values_not_given or baseline_not_given:
+        new_mean = None
+        new_std = None
+        new_skew = None
+        new_kurtosis = None
+    else:
+        skew = shape_info['skew']
+        kurtosis = shape_info['kurtosis']
+
+        target_dist_param = distribution_util.find_beta_distribution(
+            baseline_mean,
+            baseline_std,
+            skew,
+            kurtosis
+        )
+        target_dist = scipy.stats.beta.rvs(
+            target_dist_param['a'],
+            target_dist_param['b'],
+            loc=target_dist_param['loc'],
+            scale=target_dist_param['scale'],
+            size=5000
+        )
+
+        baseline_dist_param = distribution_util.find_beta_distribution(
+            target_mean,
+            target_std,
+            skew,
+            kurtosis
+        )
+        baseline_dist = scipy.stats.beta.rvs(
+            baseline_dist_param['a'],
+            baseline_dist_param['b'],
+            loc=baseline_dist_param['loc'],
+            scale=baseline_dist_param['scale'],
+            size=5000
+        )
+
+        deltas = (target_dist - baseline_dist) / baseline_dist
+        deltas_ln = numpy.arcsinh(deltas)
+        new_mean = numpy.mean(deltas)
+        new_std = numpy.std(deltas)
+        new_skew = scipy.stats.skew(deltas_ln)
+        new_kurtosis = scipy.stats.kurtosis(deltas_ln)
+
+    row['yieldMean'] = new_mean
+    row['yieldStd'] = new_std
+    row['skewLn'] = new_skew
+    row['kurtosisLn'] = new_kurtosis
+
+    return row
 
 
 class GetHistoricAveragesTask(luigi.Task):
@@ -186,6 +254,10 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
     def run(self):
         """Convert from yields to yield deltas."""
+        cluster = cluster_tasks.get_cluster()
+        cluster.adapt(minimum=10, maximum=100)
+        client = cluster.get_client()
+
         with self.input()['shapes'].open() as f:
             reader = csv.DictReader(f)
             shapes_by_geohash = {}
@@ -219,9 +291,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
             average_tuples = map(lambda x: (x[0], float(x[1])), average_tuples_str)
             averages = dict(average_tuples)
 
-        def transform_row_regular(row, averages, get_finite_maybe):
-            import const
-
+        def transform_row_regular(row, averages):
             keys = row.keys()
             keys_delta_only = filter(lambda x: x not in const.NON_DELTA_FIELDS, keys)
             keys_no_count = filter(lambda x: 'count' not in x.lower(), keys_delta_only)
@@ -236,78 +306,56 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
             return row
 
-        def transform_row_response(row, averages, shapes_by_geohash, get_finite_maybe):
-            import numpy
-            import scipy.stats
-
-            import distribution_util
-
+        def make_task(row, averages, shapes_by_geohash):
             geohash = row['geohash']
 
             mean_key = '%s.baselineYieldMean' % geohash
             std_key = '%s.baselineYieldStd' % geohash
 
+            baseline_mean = averages[mean_key]
+            baseline_std = averages[std_key]
+
+            shape_info = shapes_by_geohash[geohash]
+
             target_mean = get_finite_maybe(row['yieldMean'])
             target_std = get_finite_maybe(row['yieldStd'])
 
-            values_not_given = target_mean is None or target_std is None
-            keys_not_given = mean_key not in averages or std_key not in averages
-            if values_not_given or keys_not_given:
-                new_mean = None
-                new_std = None
-                new_skew = None
-                new_kurtosis = None
-            else:
-                baseline_mean = averages[mean_key]
-                baseline_std = averages[std_key]
-
-                shape_info = shapes_by_geohash[geohash]
-                skew = shape_info['skew']
-                kurtosis = shape_info['kurtosis']
-
-                target_dist_param = distribution_util.find_beta_distribution(
-                    baseline_mean,
-                    baseline_std,
-                    skew,
-                    kurtosis
-                )
-                target_dist = scipy.stats.beta.rvs(
-                    target_dist_param['a'],
-                    target_dist_param['b'],
-                    loc=target_dist_param['loc'],
-                    scale=target_dist_param['scale'],
-                    size=2000
-                )
-
-                baseline_dist_param = distribution_util.find_beta_distribution(
-                    target_mean,
-                    target_std,
-                    skew,
-                    kurtosis
-                )
-                baseline_dist = scipy.stats.beta.rvs(
-                    baseline_dist_param['a'],
-                    baseline_dist_param['b'],
-                    loc=baseline_dist_param['loc'],
-                    scale=baseline_dist_param['scale'],
-                    size=2000
-                )
-
-                deltas = (target_dist - baseline_dist) / baseline_dist
-                new_mean = numpy.mean(deltas)
-                new_std = numpy.std(deltas)
-                new_skew = scipy.stats.skew(deltas)
-                new_kurtosis = scipy.stats.skew(kurtosis)
-
-            row['yieldMean'] = new_mean
-            row['yieldStd'] = new_std
-            row['skew'] = new_skew
-            row['kurtosis'] = new_kurtosis
-
-            return row
+            return {
+                'row': row,
+                'baseline_mean': baseline_mean,
+                'baseline_std': baseline_std,
+                'shape_info': shape_info,
+                'target_mean': target_mean,
+                'target_std': target_std
+            }
 
         with self.input()['target'].open() as f_in:
             rows = csv.DictReader(f_in)
+
+            rows_regular_transform = map(
+                lambda x: transform_row_regular(
+                    x,
+                    averages
+                ),
+                rows
+            )
+
+            rows_regular_response_tasks = map(
+                lambda x: make_task(
+                    x,
+                    averages,
+                    shapes_by_geohash
+                ),
+                rows_regular_transform
+            )
+
+            futures = map(
+                lambda x: client.submit(distributed_transform_row_response, x),
+                rows_regular_response_tasks
+            )
+
+            futures_chunked_unrealized = more_itertools.ichunked(futures, 200)
+            futures_chunked = map(lambda x: list(x), futures_chunked_unrealized)
 
             with self.output().open('w') as f_out:
                 writer = csv.DictWriter(
@@ -317,43 +365,29 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 )
                 writer.writeheader()
 
-                # pool = pathos.multiprocessing.ProcessingPool(4)
-
-                rows_regular_transform = map(
-                    lambda x: transform_row_regular(
-                        x,
-                        averages,
-                        get_finite_maybe
-                    ),
-                    rows
-                )
-                rows_regular_response = map(
-                    lambda x: transform_row_response(
-                        x,
-                        averages,
-                        shapes_by_geohash,
-                        get_finite_maybe
-                    ),
-                    rows_regular_transform
-                )
-
                 def is_approx_normal(target):
-                    if abs(target['skew']) > 2:
+                    if abs(target['skewLn']) > 2:
                         return False
 
-                    if abs(target['kurtosis']) > 7:
+                    if abs(target['kurtosisLn']) > 7:
                         return False
 
                     return True
 
                 total_count = 0
                 normal_count = 0
-                for row in rows_regular_response:
-                    total_count += 1
-                    normal_count += 1 if is_approx_normal(row) else 0
-                    writer.writerow(row)
+                for chunk in futures_chunked:
+                    for row in map(lambda x: x.result(), chunk):
+                        total_count += 1
+                        normal_count += 1 if is_approx_normal(row) else 0
+                        writer.writerow(row)
 
                 normality_rate = normal_count / total_count
+
+                debug_loc = const.get_file_location(self.get_filename() + '-norm.txt')
+                with open(debug_loc, 'w') as f:
+                    f.write(str(normality_rate))
+
                 if normality_rate < 0.95:
                     raise RuntimeError(
                         'Normality assumption rate: %f' % normality_rate

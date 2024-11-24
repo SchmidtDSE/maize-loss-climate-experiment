@@ -9,6 +9,7 @@ imagecodecs==2024.1.1
 keras==3.1.1
 libgeohash==0.1.1
 luigi==3.5.0
+more-itertools==10.5.0
 numpy==1.26.4
 pandas==2.2.2
 pathos==0.3.2

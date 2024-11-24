@@ -11,6 +11,7 @@ import shutil
 
 import boto3
 import luigi
+import numpy
 
 import cluster_tasks
 import const
@@ -136,7 +137,29 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
     optimizer = keras.optimizers.AdamW(learning_rate=learning_rate)
     model.compile(optimizer=optimizer, loss='mae', metrics=['mae'])
 
-    return model
+    return LogModel(model) if const.MODEL_LOG else model
+
+
+class LogModel:
+
+    def __init__(self, model):
+        self._model = model
+
+    def fit(self, inputs, outputs, epochs=const.EPOCHS, verbose=None, sample_weight=None):
+        self._model.fit(
+            inputs,
+            numpy.arcsinh(outputs),
+            epochs=epochs,
+            verbose=verbose,
+            sample_weight=sample_weight
+        )
+
+    def predict(self, inputs, verbose=None):
+        outputs = self._model.predict(inputs, verbose=verbose)
+        return numpy.sinh(outputs)
+
+    def save(self, path):
+        self._model.save(path)
 
 
 def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, filename,
@@ -534,7 +557,7 @@ class SweepTask(SweepTemplateTask):
         Returns:
             The maximum number of workers to allow. Ignored if using local distribution.
         """
-        return 500
+        return 450
 
     def get_allow_counts(self):
         """Get options for allowing / not allowing sample count information to be used as an input.
@@ -595,7 +618,7 @@ class SweepExtendedTask(SweepTemplateTask):
         Returns:
             The maximum number of workers to allow. Ignored if using local distribution.
         """
-        return 500
+        return 450
 
     def get_allow_counts(self):
         """Get options for allowing / not allowing sample count information to be used as an input.

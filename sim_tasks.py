@@ -680,7 +680,11 @@ class ProjectTaskTemplate(luigi.Task):
         with self.input()['configuration'].open('r') as f:
             configuration = json.load(f)['constrained']
 
-        model = keras.models.load_model(self.input()['model'].path)
+        model_raw = keras.models.load_model(self.input()['model'].path)
+        if const.MODEL_LOG:
+            model = training_tasks.LogModel(model_raw)
+        else:
+            model = model_raw
 
         additional_block = configuration['block']
         allow_count = configuration['allowCount'].lower() == 'true'
