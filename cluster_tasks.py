@@ -99,7 +99,7 @@ def get_cluster():
                 "scipy~=1.12.0",
                 "shapely~=2.0.3",
                 "tensorflow~=2.16.1",
-                "toolz~=0.12.1
+                "toolz~=0.12.1"
             ]
             coiled.create_software_environment(
                 name="maize-env",
