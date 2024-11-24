@@ -4,7 +4,6 @@ License:
     BSD
 """
 import csv
-import itertools
 import math
 
 import luigi
