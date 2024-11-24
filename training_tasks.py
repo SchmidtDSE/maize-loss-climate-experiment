@@ -148,7 +148,7 @@ class LogModel:
     def fit(self, inputs, outputs, epochs=const.EPOCHS, verbose=None, sample_weight=None):
         self._model.fit(
             inputs,
-            numpy.log(outputs),
+            numpy.arcsinh(outputs),
             epochs=epochs,
             verbose=verbose,
             sample_weight=sample_weight
@@ -156,7 +156,10 @@ class LogModel:
 
     def predict(self, inputs, verbose=None):
         outputs = self._model.predict(inputs, verbose=verbose)
-        return numpy.exp(outputs)
+        return numpy.sinh(outputs)
+
+    def save(self, path):
+        self._model.save(path)
 
 
 def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, filename,

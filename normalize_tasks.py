@@ -142,7 +142,7 @@ def distributed_transform_row_response(task):
         )
 
         deltas = (target_dist - baseline_dist) / baseline_dist
-        deltas_ln = numpy.log(deltas)
+        deltas_ln = numpy.arcsinh(deltas)
         new_mean = numpy.mean(deltas)
         new_std = numpy.std(deltas)
         new_skew = scipy.stats.skew(deltas_ln)
