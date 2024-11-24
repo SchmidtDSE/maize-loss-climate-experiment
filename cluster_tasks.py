@@ -13,7 +13,7 @@ import luigi
 
 import const
 
-FORCE_ENV = False
+FORCE_ENV = True
 
 
 class SimulatedDaskCluster:
@@ -81,24 +81,25 @@ def get_cluster():
         if FORCE_ENV:
             pip = [
                 "bokeh!=3.0.*,>=2.4.2",
-                "boto3==1.34.65",
-                "coiled==1.28.0",
-                "dask==2024.3.1",
-                "fiona==1.10b1",
-                "geolib==1.0.7",
-                "geotiff==0.2.10",
-                "imagecodecs==2024.1.1",
-                "keras==3.1.1",
-                "libgeohash==0.1.1",
-                "luigi==3.5.0",
-                "numpy==1.26.4",
-                "pandas==2.2.2",
-                "pathos==0.3.2",
-                "requests==2.32.0",
-                "scipy==1.12.0",
-                "shapely==2.0.3",
-                "tensorflow==2.16.1",
-                "toolz==0.12.1"
+                "boto3~=1.34.65",
+                "coiled~=1.28.0",
+                "dask~=2024.3.1",
+                "fiona~=1.10.1",
+                "geolib~=1.0.7",
+                "geotiff~=0.2.10",
+                "imagecodecs~=2024.1.1",
+                "keras~=3.1.1",
+                "libgeohash~=0.1.1",
+                "luigi~=3.5.0",
+                "more-itertools~=10.5.0",
+                "numpy~=1.26.4",
+                "pandas~=2.2.2",
+                "pathos~=0.3.2",
+                "requests~=2.32.0",
+                "scipy~=1.12.0",
+                "shapely~=2.0.3",
+                "tensorflow~=2.16.1",
+                "toolz~=0.12.1
             ]
             coiled.create_software_environment(
                 name="maize-env",
