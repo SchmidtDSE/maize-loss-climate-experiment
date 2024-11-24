@@ -557,7 +557,7 @@ class SweepTask(SweepTemplateTask):
         Returns:
             The maximum number of workers to allow. Ignored if using local distribution.
         """
-        return 500
+        return 450
 
     def get_allow_counts(self):
         """Get options for allowing / not allowing sample count information to be used as an input.
@@ -618,7 +618,7 @@ class SweepExtendedTask(SweepTemplateTask):
         Returns:
             The maximum number of workers to allow. Ignored if using local distribution.
         """
-        return 500
+        return 450
 
     def get_allow_counts(self):
         """Get options for allowing / not allowing sample count information to be used as an input.

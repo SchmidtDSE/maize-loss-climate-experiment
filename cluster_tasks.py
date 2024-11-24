@@ -50,7 +50,7 @@ class SimulatedDaskCluster:
         if self._cluster is not None:
             self._cluster.close()
 
-    def adapt(self, minimum=10, maximum=500):
+    def adapt(self, minimum=10, maximum=450):
         """Indicate the minimum and maximum resources usable by this cluster.
 
         Indicate the minimum and maximum resources usable by this cluster, ignored as non-applicable
