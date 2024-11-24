@@ -383,6 +383,11 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                         writer.writerow(row)
 
                 normality_rate = normal_count / total_count
+                
+                debug_loc = const.get_file_location(self.get_filename() + '-norm.txt')
+                with open(debug_loc, 'w') as f:
+                    f.write(str(normality_rate))
+                
                 if normality_rate < 0.95:
                     raise RuntimeError(
                         'Normality assumption rate: %f' % normality_rate
