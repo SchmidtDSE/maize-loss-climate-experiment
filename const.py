@@ -627,7 +627,11 @@ NON_DELTA_FIELDS = [
     'baselineYieldStd',
     'yieldMean',
     'yieldStd',
-    'yieldObservations'
+    'yieldObservations',
+    'yieldA',
+    'yieldB',
+    'yieldLoc',
+    'yieldScale'
 ]
 
 TRAINING_STR_FIELDS = {'geohash'}

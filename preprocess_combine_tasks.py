@@ -9,6 +9,7 @@ import itertools
 import luigi
 
 import const
+import parse_util
 import preprocess_climate_tasks
 import preprocess_yield_tasks
 
@@ -432,13 +433,13 @@ class CombineHistoricPreprocessBetaTask(CombineHistoricPreprocessTemplateTask):
             for row in rows:
                 year = int(row['year'])
                 geohash = str(row['geohash'])
-                mean = float(row['mean'])
-                std = float(row['std'])
-                yield_a = float(row['a'])
-                yield_b = float(row['b'])
-                yield_loc = float(row['loc'])
-                yield_scale = float(row['scale'])
-                count = float(row['count'])
+                mean = parse_util.try_float(row['mean'])
+                std = parse_util.try_float(row['std'])
+                yield_a = parse_util.try_float(row['a'])
+                yield_b = parse_util.try_float(row['b'])
+                yield_loc = parse_util.try_float(row['loc'])
+                yield_scale = parse_util.try_float(row['scale'])
+                count = parse_util.try_float(row['count'])
 
                 if geohash not in geohash_builders:
                     geohash_builders[geohash] = GeohashCollectionBetaBuilder(geohash)

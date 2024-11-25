@@ -13,37 +13,8 @@ import scipy.stats
 
 import const
 import distribution_struct
+import parse_util
 import preprocess_combine_tasks
-
-
-def try_float(target):
-    """Try converting a string to a float and return None if parsing fails.
-
-    Args:
-        target: The string to parse.
-
-    Returns:
-        The number parsed.
-    """
-    try:
-        return float(target)
-    except ValueError:
-        return None
-
-
-def try_int(target):
-    """Try converting a string to an int and return None if parsing fails.
-
-    Args:
-        target: The string to parse.
-
-    Returns:
-        The number parsed.
-    """
-    try:
-        return int(target)
-    except ValueError:
-        return round(try_float(target))
 
 
 def parse_row(row):
@@ -59,9 +30,9 @@ def parse_row(row):
         if field in const.TRAINING_STR_FIELDS:
             row[field] = row[field]
         elif field in const.TRAINING_INT_FIELDS:
-            row[field] = try_int(row[field])
+            row[field] = parse_util.try_int(row[field])
         else:
-            row[field] = try_float(row[field])
+            row[field] = parse_util.try_float(row[field])
 
     return row
 
@@ -78,7 +49,7 @@ def get_finite_maybe(target):
     Returns:
         The number parsed.
     """
-    value = try_float(target)
+    value = parse_util.try_float(target)
 
     if value is not None and numpy.isfinite(value):
         return value
@@ -408,7 +379,7 @@ class GetInputDistributionsTask(luigi.Task):
 
             for row in input_records:
                 for field in fields_to_process:
-                    value = try_float(row[field])
+                    value = parse_util.try_float(row[field])
                     if value is not None and not math.isnan(value):
                         accumulators[field].add(value)
 
