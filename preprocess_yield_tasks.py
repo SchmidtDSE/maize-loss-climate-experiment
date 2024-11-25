@@ -287,7 +287,7 @@ class PreprocessYieldGeotiffsTemplateTask(luigi.Task):
         raise NotImplementedError('Use implementor.')
 
 
-class PreprocessYieldGeotiffsTask(luigi.Task):
+class PreprocessYieldGeotiffsTask(PreprocessYieldGeotiffsTemplateTask):
     """Task for preprocessing yield information by geohash."""
 
     def _get_use_beta(self):
@@ -300,7 +300,7 @@ class PreprocessYieldGeotiffsTask(luigi.Task):
         return const.GEOHASH_YIELD_COLS
 
 
-class PreprocessYieldGeotiffsBetaTask(luigi.Task):
+class PreprocessYieldGeotiffsBetaTask(PreprocessYieldGeotiffsTemplateTask):
     """Task for preprocessing yield information by geohash with beta distributions."""
 
     def _get_use_beta(self):
