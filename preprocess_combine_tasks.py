@@ -373,7 +373,7 @@ class CombineHistoricPreprocessTemplateTask(luigi.Task):
             writer = csv.DictWriter(f, fieldnames=self._get_output_attrs())
             writer.writeheader()
             writer.writerows(dicts)
-    
+
     def _get_output_attrs(self):
         return const.TRAINING_FRAME_ATTRS
 
