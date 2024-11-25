@@ -604,7 +604,7 @@ YIELD_FIELDS = {
 
 NORM_YIELD_FIELDS = False
 
-MODEL_LOG = True
+MODEL_TRANSFORM = True
 
 NON_DELTA_FIELDS = [
     'year',

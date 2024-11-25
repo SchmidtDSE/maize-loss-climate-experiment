@@ -137,10 +137,10 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
     optimizer = keras.optimizers.AdamW(learning_rate=learning_rate)
     model.compile(optimizer=optimizer, loss='mae', metrics=['mae'])
 
-    return LogModel(model) if const.MODEL_LOG else model
+    return TransformModel(model) if const.MODEL_TRANSFORM else model
 
 
-class LogModel:
+class TransformModel:
 
     def __init__(self, model):
         self._model = model

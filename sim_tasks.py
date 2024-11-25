@@ -681,8 +681,8 @@ class ProjectTaskTemplate(luigi.Task):
             configuration = json.load(f)['constrained']
 
         model_raw = keras.models.load_model(self.input()['model'].path)
-        if const.MODEL_LOG:
-            model = training_tasks.LogModel(model_raw)
+        if const.MODEL_TRANSFORM:
+            model = training_tasks.TransformModel(model_raw)
         else:
             model = model_raw
 
