@@ -288,7 +288,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
                 debug_loc = const.get_file_location(self.get_filename() + '-norm.txt')
                 with open(debug_loc, 'w') as f:
-                    f.write(str('Normal: %f. Complete: %f.' % (normality_rate, complete_rate))
+                    f.write('Normal: %f. Complete: %f.' % (normality_rate, complete_rate))
 
                 if complete_rate < 0.95:
                     raise RuntimeError(
