@@ -590,7 +590,9 @@ TRAINING_FRAME_BETA_ATTRS = TRAINING_FRAME_BASE_ATTRS + [
     'yieldA',
     'yieldB',
     'yieldLoc',
-    'yieldScale'
+    'yieldScale',
+    'yieldMean',
+    'yieldStd'
 ]
 
 INCLUDE_COUNT_IN_MODEL = False

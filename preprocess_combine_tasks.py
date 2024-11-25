@@ -38,6 +38,9 @@ class GeohashCollectionBuilderBase:
             yield_std: The standard deviation value for yield to use for this summary.
             yield_observations: The sample size / number of observations of yield for this year.
         """
+        if self._get_has_any_missing([yield_mean, yield_std, yield_observations]):
+            return
+
         if year in self._years:
             return
 
@@ -116,9 +119,18 @@ class GeohashCollectionBuilderBase:
         return year in self._years
 
     def _add_mean_std(self, mean, std, count):
+        if self._get_has_any_missing([mean, std, count]):
+            return
+        
         self._yield_means.append(mean)
         self._yield_stds.append(std)
         self._yield_counts.append(count)
+    
+    def _get_has_any_missing(required_fields):
+        missing_fields = filter(lambda x: x is None, required_fields)
+        num_missing_fields = sum(map(lambda x: 1, missing_fields))
+        has_missing_fields = num_missing_fields > 0
+        return has_missing_fields
 
 
 class GeohashCollectionBuilder(GeohashCollectionBuilderBase):
@@ -133,6 +145,9 @@ class GeohashCollectionBuilder(GeohashCollectionBuilderBase):
             yield_std: The standard deviation value for yield to use for this summary.
             yield_observations: The sample size / number of observations of yield for this year.
         """
+        if self._get_has_any_missing([yield_mean, yield_std, yield_observations]):
+            return
+
         if self._has_year(year):
             return
 
@@ -168,6 +183,19 @@ class GeohashCollectionBetaBuilder(GeohashCollectionBuilderBase):
             yield_loc: Center / location for the beta distribution.
             yield_scale: Scale for the beta distribution.
         """
+        required_fields = [
+            yield_mean,
+            yield_std,
+            yield_observations,
+            yield_a,
+            yield_b,
+            yield_loc,
+            yield_scale
+        ]
+
+        if self._get_has_any_missing(required_fields):
+            return
+
         if self._has_year(year):
             return
 
