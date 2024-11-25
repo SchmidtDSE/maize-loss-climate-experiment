@@ -77,6 +77,7 @@ class GeohashCollectionBuilderBase:
         inner_dicts = map(lambda x: x.to_dict(), self._years.values())
 
         total_count = sum(self._yield_counts)
+
         def get_weighted_average(target):
             paired = zip(target, self._yield_counts)
             product = map(lambda x: x[0] * x[1], paired)
@@ -109,7 +110,7 @@ class GeohashCollectionBuilderBase:
 
     def _add_builder(self, year, builder):
         self._years[year] = builder
-    
+
     def _has_year(self, year):
         return year in self._years
 
@@ -135,7 +136,7 @@ class GeohashCollectionBuilder(GeohashCollectionBuilderBase):
             return
 
         self._add_mean_std(yield_mean, yield_std, yield_observations)
-        
+
         builder = TrainingInstanceBuilder(
             year,
             yield_mean,
@@ -147,7 +148,7 @@ class GeohashCollectionBuilder(GeohashCollectionBuilderBase):
 
 class GeohashCollectionBetaBuilder(GeohashCollectionBuilderBase):
     """Builder to create yearly summaries for a geohash that include all variables.
-    
+
     Builder to create yearly summaries for a geohash that include all variables with a beta
     distribution.
     """
@@ -170,7 +171,7 @@ class GeohashCollectionBetaBuilder(GeohashCollectionBuilderBase):
             return
 
         self._add_mean_std(yield_mean, yield_std, yield_observations)
-        
+
         builder = TrainingInstanceBetaBuilder(
             year,
             yield_a,
@@ -241,7 +242,7 @@ class TrainingInstanceBuilderBase:
         self._finalize_output(output_dict)
 
         return output_dict
-    
+
     def _finalize_output(self, output_dict):
         raise NotImplementedError('Use implementor.')
 
@@ -375,10 +376,10 @@ class CombineHistoricPreprocessTemplateTask(luigi.Task):
     
     def _get_output_attrs(self):
         return const.TRAINING_FRAME_ATTRS
-    
+
     def _process_yields(self, geohash_builders):
         raise NotImplementedError('Use implementor.')
-    
+
     def _get_yield_task(self):
         raise NotImplementedError('Use implementor.')
 
@@ -388,10 +389,10 @@ class CombineHistoricPreprocessTemplateTask(luigi.Task):
 
 class CombineHistoricPreprocessTask(CombineHistoricPreprocessTemplateTask):
     """Combine geohash summaries (yield and climate) for a historic series."""
-    
+
     def _get_output_attrs(self):
         return const.TRAINING_FRAME_ATTRS
-    
+
     def _process_yields(self, geohash_builders):
         with self.input()['yield'].open('r') as f:
             rows = csv.DictReader(f)
@@ -410,7 +411,7 @@ class CombineHistoricPreprocessTask(CombineHistoricPreprocessTemplateTask):
                 geohash_builder.add_year(year, mean, std, count)
 
         return geohash_builders
-    
+
     def _get_yield_task(self):
         return preprocess_yield_tasks.PreprocessYieldGeotiffsTask()
 
@@ -420,10 +421,10 @@ class CombineHistoricPreprocessTask(CombineHistoricPreprocessTemplateTask):
 
 class CombineHistoricPreprocessBetaTask(CombineHistoricPreprocessTemplateTask):
     """Combine geohash summaries (yield and climate) for a historic series with beta dist."""
-    
+
     def _get_output_attrs(self):
         return const.TRAINING_FRAME_BETA_ATTRS
-    
+
     def _process_yields(self, geohash_builders):
         with self.input()['yield'].open('r') as f:
             rows = csv.DictReader(f)
@@ -455,7 +456,7 @@ class CombineHistoricPreprocessBetaTask(CombineHistoricPreprocessTemplateTask):
                 )
 
         return geohash_builders
-    
+
     def _get_yield_task(self):
         return preprocess_yield_tasks.PreprocessYieldGeotiffsBetaTask()
 
@@ -509,10 +510,10 @@ class ReformatFuturePreprocessTemplateTask(luigi.Task):
             writer = csv.DictWriter(f, fieldnames=self._get_output_attrs())
             writer.writeheader()
             writer.writerows(dicts)
-    
+
     def _get_output_attrs(self):
         raise NotImplementedError('Use implementor.')
-    
+
     def _get_geohash_builder(self, geohash, year):
         raise NotImplementedError('Use implementor.')
 
@@ -547,10 +548,10 @@ class ReformatFuturePreprocessTask(ReformatFuturePreprocessTemplateTask):
             LocalTarget at which the reformatted data should be written.
         """
         return luigi.LocalTarget(const.get_file_location('%s_frame.csv' % self.condition))
-    
+
     def _get_output_attrs(self):
         return const.TRAINING_FRAME_ATTRS
-    
+
     def _get_geohash_builder(self, geohash, year, geohash_builders):
         if geohash not in geohash_builders:
             geohash_builders[geohash] = GeohashCollectionBuilder(geohash)
@@ -591,10 +592,10 @@ class ReformatFuturePreprocessBetaTask(ReformatFuturePreprocessTemplateTask):
             LocalTarget at which the reformatted data should be written.
         """
         return luigi.LocalTarget(const.get_file_location('%s_frame_beta.csv' % self.condition))
-    
+
     def _get_output_attrs(self):
         return const.TRAINING_FRAME_BETA_ATTRS
-    
+
     def _get_geohash_builder(self, geohash, year, geohash_builders):
         if geohash not in geohash_builders:
             geohash_builders[geohash] = GeohashCollectionBetaBuilder(geohash)
@@ -603,4 +604,3 @@ class ReformatFuturePreprocessBetaTask(ReformatFuturePreprocessTemplateTask):
         geohash_builder.add_year(year, -1, -1, -1, -1, -1, -1, -1)
 
         return geohash_builder
-

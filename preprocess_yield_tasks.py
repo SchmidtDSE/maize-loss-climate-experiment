@@ -103,7 +103,7 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
         values = numpy.extract(raw_data > 0, raw_data)
 
         build_geohash_summary(year, geohash, values)
-    
+
     def build_geohash_summary_simple(year, geohash, values):
         count = values.shape[0]
         if count > 0:

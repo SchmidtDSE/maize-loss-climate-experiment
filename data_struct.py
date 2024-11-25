@@ -573,7 +573,7 @@ class GeohashYieldSummaryBetaDecorator:
             Beta distribution scale.
         """
         return self._yield_scale
-    
+
     def get_sample(self, count):
         """Sample this distribution.
 
