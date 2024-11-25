@@ -70,12 +70,9 @@ def transform_row_response(task, make_imports=False):
     values_none = map(lambda x: x is None, values_required)
     values_not_given = sum(map(lambda x: 1, values_none)) > 0
     baseline_not_given = baseline_mean is None or baseline_std is None
-    if values_not_given or baseline_not_given:
-        new_mean = None
-        new_std = None
-        new_skew = None
-        new_kurtosis = None
-    else:
+    complete = not (values_not_given or baseline_not_given)
+
+    if complete:
         target_dist = scipy.stats.beta.rvs(
             target_a,
             target_b,
@@ -90,11 +87,17 @@ def transform_row_response(task, make_imports=False):
         new_std = numpy.std(deltas)
         new_skew = scipy.stats.skew(deltas_ln)
         new_kurtosis = scipy.stats.kurtosis(deltas_ln)
+    else:
+        new_mean = None
+        new_std = None
+        new_skew = None
+        new_kurtosis = None
 
     row['yieldMean'] = new_mean
     row['yieldStd'] = new_std
     row['skewLn'] = new_skew
     row['kurtosisLn'] = new_kurtosis
+    row['complete'] = complete
 
     return row
 
@@ -268,19 +271,29 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                     return True
 
                 total_count = 0
+                complete_count = 0
                 normal_count = 0
                 for chunk in futures_chunked:
                     # If using distribution: for row in map(lambda x: x.result(), chunk):
                     for row in chunk:
                         total_count += 1
-                        normal_count += 1 if is_approx_normal(row) else 0
+                        complete_count += 1 if row['isComplete'] else 0
+                        normal_count += 1 if (row['isComplete'] and is_approx_normal(row)) else 0
                         writer.writerow(row)
 
-                normality_rate = normal_count / total_count
+                assert complete_count > 0
+
+                complete_rate = complete_count / total_count
+                normality_rate = normal_count / complete_count
 
                 debug_loc = const.get_file_location(self.get_filename() + '-norm.txt')
                 with open(debug_loc, 'w') as f:
-                    f.write(str(normality_rate))
+                    f.write(str('Normal: %f. Complete: %f.' % (normality_rate, complete_rate))
+
+                if complete_rate < 0.95:
+                    raise RuntimeError(
+                        'Complete rate: %f' % complete_rate
+                    )
 
                 if normality_rate < 0.95:
                     raise RuntimeError(
