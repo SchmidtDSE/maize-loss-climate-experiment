@@ -104,7 +104,7 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
 
         build_geohash_summary(year, geohash, values)
     
-    def build_geoash_summary_simple(year, geohash, values):
+    def build_geohash_summary_simple(year, geohash, values):
         count = values.shape[0]
         if count > 0:
             mean = numpy.mean(values)
@@ -126,8 +126,15 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
             kurtosis
         )
 
-    def build_geoash_summary_beta(year, geohash, values):
-        base = build_geoash_summary_simple(year, geohash, values)
+    def build_geohash_summary_beta(year, geohash, values):
+        base = build_geohash_summary_simple(year, geohash, values)
+
+        fit_params = scipy.stats.beta.fit(values)
+        yield_a = fit_params[0]
+        yield_b = fit_params[1]
+        yield_loc = fit_params[2]
+        yield_scale = fit_params[3]
+
         return data_struct.GeohashYieldSummaryBetaDecorator(
             base,
             yield_a,
@@ -136,7 +143,7 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
             yield_scale
         )
 
-    build_geohash_summary = build_geoash_summary_beta if use_beta else build_geoash_summary_simple
+    build_geohash_summary = build_geohash_summary_beta if use_beta else build_geohash_summary_simple
 
     return run(source_filename)
 

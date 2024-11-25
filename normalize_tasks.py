@@ -9,13 +9,10 @@ import math
 import luigi
 import more_itertools
 import numpy
-import pandas
-import pathos
 import scipy.stats
 
 import const
 import distribution_struct
-import preprocess_yield_tasks
 import preprocess_combine_tasks
 
 
@@ -89,24 +86,18 @@ def get_finite_maybe(target):
         return None
 
 
-def distributed_transform_row_response(task):
-    return transform_row_response(task, True)
-
-
 def transform_row_response(task, make_imports=False):
-    if make_imports:
-        import numpy
-        import scipy.stats
-
     row = task['row']
     baseline_mean = task['baseline_mean']
-    shape_info = task['shape_info']
+    baseline_std = task['baseline_std']
     target_a = task['target_a']
     target_b = task['target_b']
     target_loc = task['target_loc']
     target_scale = task['target_scale']
 
-    values_not_given = target_mean is None or target_std is None
+    values_required = [target_a, target_b, target_loc, target_scale]
+    values_none = map(lambda x: x is None, values_required)
+    values_not_given = sum(map(lambda x: 1, values_none)) > 0
     baseline_not_given = baseline_mean is None or baseline_std is None
     if values_not_given or baseline_not_given:
         new_mean = None
@@ -114,9 +105,6 @@ def transform_row_response(task, make_imports=False):
         new_skew = None
         new_kurtosis = None
     else:
-        skew = shape_info['skew']
-        kurtosis = shape_info['kurtosis']
-
         target_dist = scipy.stats.beta.rvs(
             target_a,
             target_b,

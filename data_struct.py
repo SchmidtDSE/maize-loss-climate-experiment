@@ -10,6 +10,7 @@ License:
 """
 import datetime
 
+import numpy
 import scipy.stats
 
 import distribution_struct
@@ -603,7 +604,7 @@ class GeohashYieldSummaryBetaDecorator:
         percent_other = other.get_count() / total_count
         self_sample = self.get_sample(1000 * percent_self)
         other_sample = other.get_sample(1000 * percent_other)
-        combined = np.concatenate([self_sample, other_sample])
+        combined = numpy.concatenate([self_sample, other_sample])
         fit_distribution = scipy.stats.beta.fit(combined)
 
         yield_a = fit_distribution[0]

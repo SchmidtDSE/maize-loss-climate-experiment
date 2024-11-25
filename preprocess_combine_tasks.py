@@ -114,8 +114,8 @@ class GeohashCollectionBuilderBase:
         return year in self._years
 
     def _add_mean_std(self, mean, std, count):
-        self._yield_means.append(yield_mean)
-        self._yield_stds.append(yield_std)
+        self._yield_means.append(mean)
+        self._yield_stds.append(std)
         self._yield_counts.append(count)
 
 
@@ -431,6 +431,8 @@ class CombineHistoricPreprocessBetaTask(CombineHistoricPreprocessTemplateTask):
             for row in rows:
                 year = int(row['year'])
                 geohash = str(row['geohash'])
+                mean = float(row['mean'])
+                std = float(row['std'])
                 yield_a = float(row['a'])
                 yield_b = float(row['b'])
                 yield_loc = float(row['loc'])
@@ -515,7 +517,7 @@ class ReformatFuturePreprocessTemplateTask(luigi.Task):
         raise NotImplementedError('Use implementor.')
 
 
-class ReformatFuturePreprocessTask(ReformatFuturePreprocessTask):
+class ReformatFuturePreprocessTask(ReformatFuturePreprocessTemplateTask):
     """Template for task creating a model-compatible frame in which future yields can be predicted.
 
     Create a model-compatible frame containing climate projections in a format in which future
@@ -559,7 +561,7 @@ class ReformatFuturePreprocessTask(ReformatFuturePreprocessTask):
         return geohash_builder
 
 
-class ReformatFuturePreprocessBetaTask(ReformatFuturePreprocessTask):
+class ReformatFuturePreprocessBetaTask(ReformatFuturePreprocessTemplateTask):
     """Template for task creating a model-compatible frame in which future yields can be predicted.
 
     Create a model-compatible frame containing climate projections in a format in which future
