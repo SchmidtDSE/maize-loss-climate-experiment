@@ -586,6 +586,13 @@ TRAINING_FRAME_BASE_ATTRS = [
 
 TRAINING_FRAME_ATTRS = TRAINING_FRAME_BASE_ATTRS + ['yieldMean', 'yieldStd']
 
+TRAINING_FRAME_BETA_ATTRS = TRAINING_FRAME_BASE_ATTRS + [
+    'yieldA',
+    'yieldA',
+    'yieldLoc',
+    'yieldScale'
+]
+
 INCLUDE_COUNT_IN_MODEL = False
 INCLUDE_YEAR_IN_MODEL = False
 
