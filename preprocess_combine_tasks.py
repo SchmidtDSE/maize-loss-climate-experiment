@@ -455,21 +455,20 @@ class CombineHistoricPreprocessBetaTask(CombineHistoricPreprocessTemplateTask):
                 missing_fields = filter(lambda x: x is None, required_fields)
                 num_missing_fields = sum(map(lambda x: 1, missing_fields))
 
-                if num_missing_fields == 0:
-                    if geohash not in geohash_builders:
-                        geohash_builders[geohash] = GeohashCollectionBetaBuilder(geohash)
+                if geohash not in geohash_builders:
+                    geohash_builders[geohash] = GeohashCollectionBetaBuilder(geohash)
 
-                    geohash_builder = geohash_builders[geohash]
-                    geohash_builder.add_year(
-                        year,
-                        mean,
-                        std,
-                        count,
-                        yield_a,
-                        yield_b,
-                        yield_loc,
-                        yield_scale
-                    )
+                geohash_builder = geohash_builders[geohash]
+                geohash_builder.add_year(
+                    year,
+                    mean,
+                    std,
+                    count,
+                    yield_a,
+                    yield_b,
+                    yield_loc,
+                    yield_scale
+                )
 
         return geohash_builders
 
