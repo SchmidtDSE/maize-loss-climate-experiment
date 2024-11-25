@@ -259,10 +259,10 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 writer.writeheader()
 
                 def is_approx_normal(target):
-                    if abs(target['skewLn']) > 2:
+                    if target['skewLn'] is None or abs(target['skewLn']) > 2:
                         return False
 
-                    if abs(target['kurtosisLn']) > 7:
+                    if target['kurtosisLn'] is None or abs(target['kurtosisLn']) > 7:
                         return False
 
                     return True

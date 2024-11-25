@@ -83,6 +83,9 @@ class GeohashCollectionBuilderBase:
         total_count = sum(self._yield_counts)
 
         def get_weighted_average(target):
+            if total_count == 0:
+                return None
+
             paired = zip(target, self._yield_counts)
             product = map(lambda x: x[0] * x[1], paired)
             product_sum = sum(product)
