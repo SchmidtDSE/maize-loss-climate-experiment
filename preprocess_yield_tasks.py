@@ -137,11 +137,17 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
             yield_loc = None
             yield_scale = None
         else:
-            fit_params = scipy.stats.beta.fit(values)
-            yield_a = fit_params[0]
-            yield_b = fit_params[1]
-            yield_loc = fit_params[2]
-            yield_scale = fit_params[3]
+            try:
+                fit_params = scipy.stats.beta.fit(values)
+                yield_a = fit_params[0]
+                yield_b = fit_params[1]
+                yield_loc = fit_params[2]
+                yield_scale = fit_params[3]
+            except scipy.stats._warnings_errors.FitError as e:
+                yield_a = None
+                yield_b = None
+                yield_loc = None
+                yield_scale = None
 
         return data_struct.GeohashYieldSummaryBetaDecorator(
             base,
