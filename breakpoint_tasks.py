@@ -117,10 +117,10 @@ class RunThroughPreprocessFutureTask(cluster_tasks.EndClusterTask):
         """
         return {
             'history': normalize_tasks.GetHistoricAsDeltaTask(),
-            '2030_SSP245': normalize_tasks.GetHistoricAsDeltaTask(
+            '2030_SSP245': normalize_tasks.GetFutureAsDeltaTask(
                 condition='2030_SSP245'
             ),
-            '2050_SSP245': normalize_tasks.GetHistoricAsDeltaTask(
+            '2050_SSP245': normalize_tasks.GetFutureAsDeltaTask(
                 condition='2050_SSP245'
             )
         }
