@@ -126,7 +126,7 @@ class GeohashCollectionBuilderBase:
         self._yield_stds.append(std)
         self._yield_counts.append(count)
     
-    def _get_has_any_missing(required_fields):
+    def _get_has_any_missing(self, required_fields):
         missing_fields = filter(lambda x: x is None, required_fields)
         num_missing_fields = sum(map(lambda x: 1, missing_fields))
         has_missing_fields = num_missing_fields > 0
