@@ -206,33 +206,6 @@ class GetAsDeltaTaskTemplate(luigi.Task):
     def run(self):
         """Convert from yields to yield deltas."""
 
-        with self.input()['shapes'].open() as f:
-            reader = csv.DictReader(f)
-            shapes_by_geohash = {}
-
-            count_no_shape = 0
-            count_total = 0
-            for row in reader:
-                had_no_shape = False
-
-                if row['skew'] == '':
-                    row['skew'] = 0
-                    had_no_shape = True
-                else:
-                    row['skew'] = float(row['skew'])
-
-                if row['kurtosis'] == '':
-                    row['kurtosis'] = 0
-                    had_no_shape = True
-                else:
-                    row['kurtosis'] = float(row['kurtosis'])
-
-                count_no_shape += 1 if had_no_shape else 0
-                count_total += 1
-                shapes_by_geohash[row['geohash']] = row
-
-            assert count_no_shape / count_total < 0.05
-
         with self.input()['averages'].open() as f:
             reader = csv.DictReader(f)
             average_tuples_str = map(lambda x: (x['key'], x['mean']), reader)
@@ -254,7 +227,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
             return row
 
-        def make_task(row, averages, shapes_by_geohash):
+        def make_task(row, averages):
             geohash = row['geohash']
 
             mean_key = '%s.baselineYieldMean' % geohash
@@ -262,8 +235,6 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
             baseline_mean = averages[mean_key]
             baseline_std = averages[std_key]
-
-            shape_info = shapes_by_geohash[geohash]
 
             target_mean = get_finite_maybe(row['yieldMean'])
             target_std = get_finite_maybe(row['yieldStd'])
@@ -276,7 +247,6 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 'row': row,
                 'baseline_mean': baseline_mean,
                 'baseline_std': baseline_std,
-                'shape_info': shape_info,
                 'target_mean': target_mean,
                 'target_std': target_std,
                 'target_a': target_a,
@@ -299,8 +269,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
             rows_regular_response_tasks = map(
                 lambda x: make_task(
                     x,
-                    averages,
-                    shapes_by_geohash
+                    averages
                 ),
                 rows_regular_transform
             )
