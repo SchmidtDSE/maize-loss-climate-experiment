@@ -10,9 +10,10 @@ import luigi
 import more_itertools
 import numpy
 import pandas
+import pathos
+import scipy.stats
 
 import const
-import cluster_tasks
 import distribution_struct
 import preprocess_yield_tasks
 import preprocess_combine_tasks
@@ -89,16 +90,21 @@ def get_finite_maybe(target):
 
 
 def distributed_transform_row_response(task):
-    import numpy
-    import scipy.stats
+    return transform_row_response(task, True)
 
-    import distribution_util
+
+def transform_row_response(task, make_imports=False):
+    if make_imports:
+        import numpy
+        import scipy.stats
 
     row = task['row']
     baseline_mean = task['baseline_mean']
     shape_info = task['shape_info']
-    target_mean = task['target_mean']
-    target_std = task['target_std']
+    target_a = task['target_a']
+    target_b = task['target_b']
+    target_loc = task['target_loc']
+    target_scale = task['target_scale']
 
     values_not_given = target_mean is None or target_std is None
     baseline_not_given = baseline_mean is None or baseline_std is None
@@ -111,17 +117,11 @@ def distributed_transform_row_response(task):
         skew = shape_info['skew']
         kurtosis = shape_info['kurtosis']
 
-        target_dist_param = distribution_util.find_beta_distribution(
-            baseline_mean,
-            baseline_std,
-            skew,
-            kurtosis
-        )
         target_dist = scipy.stats.beta.rvs(
-            target_dist_param['a'],
-            target_dist_param['b'],
-            loc=target_dist_param['loc'],
-            scale=target_dist_param['scale'],
+            target_a,
+            target_b,
+            loc=target_loc,
+            scale=target_scale,
             size=5000
         )
 
@@ -204,8 +204,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
         """
         return {
             'averages': GetHistoricAveragesTask(),
-            'target': self.get_target(),
-            'cluster': cluster_tasks.StartClusterTask()
+            'target': self.get_target()
         }
 
     def output(self):
@@ -218,9 +217,6 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
     def run(self):
         """Convert from yields to yield deltas."""
-        cluster = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=10, maximum=100)
-        client = cluster.get_client()
 
         with self.input()['shapes'].open() as f:
             reader = csv.DictReader(f)
@@ -283,6 +279,10 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
             target_mean = get_finite_maybe(row['yieldMean'])
             target_std = get_finite_maybe(row['yieldStd'])
+            target_a = get_finite_maybe(row['yieldA'])
+            target_b = get_finite_maybe(row['yieldB'])
+            target_loc = get_finite_maybe(row['yieldLoc'])
+            target_scale = get_finite_maybe(row['yieldScale'])
 
             return {
                 'row': row,
@@ -290,7 +290,11 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 'baseline_std': baseline_std,
                 'shape_info': shape_info,
                 'target_mean': target_mean,
-                'target_std': target_std
+                'target_std': target_std,
+                'target_a': target_a,
+                'target_b': target_b,
+                'target_loc': target_loc,
+                'target_scale': target_scale
             }
 
         with self.input()['target'].open() as f_in:
@@ -313,11 +317,8 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 rows_regular_transform
             )
 
-            futures = map(
-                lambda x: client.submit(distributed_transform_row_response, x),
-                rows_regular_response_tasks
-            )
-
+            # TODO: This could be made distributed if later desired.
+            futures = map(transform_row_response, rows_regular_response_tasks)
             futures_chunked_unrealized = more_itertools.ichunked(futures, 200)
             futures_chunked = map(lambda x: list(x), futures_chunked_unrealized)
 
@@ -341,7 +342,8 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 total_count = 0
                 normal_count = 0
                 for chunk in futures_chunked:
-                    for row in map(lambda x: x.result(), chunk):
+                    # If using distribution: for row in map(lambda x: x.result(), chunk):
+                    for row in chunk:
                         total_count += 1
                         normal_count += 1 if is_approx_normal(row) else 0
                         writer.writerow(row)
