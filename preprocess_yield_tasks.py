@@ -102,7 +102,7 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
         raw_data = geotiff.read_box(bounds)
         values = numpy.extract(raw_data > 0, raw_data)
 
-        build_geohash_summary(year, geohash, values)
+        return build_geohash_summary(year, geohash, values)
 
     def build_geohash_summary_simple(year, geohash, values):
         count = values.shape[0]
