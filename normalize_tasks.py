@@ -97,7 +97,7 @@ def transform_row_response(task, make_imports=False):
     row['yieldStd'] = new_std
     row['skewLn'] = new_skew
     row['kurtosisLn'] = new_kurtosis
-    row['complete'] = complete
+    row['isComplete'] = complete
 
     return row
 
