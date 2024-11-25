@@ -189,26 +189,6 @@ class GetHistoricAveragesTask(luigi.Task):
             writer.writerows(output_rows)
 
 
-class GetShapesTask(luigi.Task):
-    """Task which gets the yield shape parameterization per geohash."""
-
-    def requires(self):
-        """Indicate that yield information is needed."""
-        return preprocess_yield_tasks.PreprocessYieldGeotiffsTask()
-
-    def output(self):
-        """Indicate that the results should be written to a CSV file one row per geohash."""
-        return luigi.LocalTarget(const.get_file_location('geohash_shapes.csv'))
-
-    def run(self):
-        """Group together and get skew / kurtosis per geohash."""
-        source = pandas.read_csv(self.input().path)
-        grouped = source.groupby('geohash')
-        medians = grouped.median().reset_index()
-        medians_subset = medians[['geohash', 'skew', 'kurtosis']]
-        return medians_subset.to_csv(self.output().path)
-
-
 class GetAsDeltaTaskTemplate(luigi.Task):
     """Template for task which converts to yield deltas.
 
@@ -225,7 +205,6 @@ class GetAsDeltaTaskTemplate(luigi.Task):
         return {
             'averages': GetHistoricAveragesTask(),
             'target': self.get_target(),
-            'shapes': GetShapesTask(),
             'cluster': cluster_tasks.StartClusterTask()
         }
 
@@ -404,7 +383,7 @@ class GetHistoricAsDeltaTask(GetAsDeltaTaskTemplate):
         Returns:
             Luigi task.
         """
-        return preprocess_combine_tasks.CombineHistoricPreprocessTask()
+        return preprocess_combine_tasks.CombineHistoricPreprocessBetaTask()
 
     def get_filename(self):
         """Get the filename to which the results should be written.
@@ -426,7 +405,7 @@ class GetFutureAsDeltaTask(GetAsDeltaTaskTemplate):
         Returns:
             Luigi task.
         """
-        return preprocess_combine_tasks.ReformatFuturePreprocessTask(condition=self.condition)
+        return preprocess_combine_tasks.ReformatFuturePreprocessBetaTask(condition=self.condition)
 
     def get_filename(self):
         """Get the filename to which the results should be written.
