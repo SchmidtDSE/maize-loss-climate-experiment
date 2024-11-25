@@ -96,7 +96,6 @@ def distributed_transform_row_response(task):
 
     row = task['row']
     baseline_mean = task['baseline_mean']
-    baseline_std = task['baseline_std']
     shape_info = task['shape_info']
     target_mean = task['target_mean']
     target_std = task['target_std']
@@ -126,21 +125,7 @@ def distributed_transform_row_response(task):
             size=5000
         )
 
-        baseline_dist_param = distribution_util.find_beta_distribution(
-            target_mean,
-            target_std,
-            skew,
-            kurtosis
-        )
-        baseline_dist = scipy.stats.beta.rvs(
-            baseline_dist_param['a'],
-            baseline_dist_param['b'],
-            loc=baseline_dist_param['loc'],
-            scale=baseline_dist_param['scale'],
-            size=5000
-        )
-
-        deltas = (target_dist - baseline_dist) / baseline_dist
+        deltas = (target_dist - baseline_mean) / baseline_mean
         deltas_ln = numpy.arcsinh(deltas)
         new_mean = numpy.mean(deltas)
         new_std = numpy.std(deltas)
