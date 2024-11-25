@@ -143,7 +143,7 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
                 yield_b = fit_params[1]
                 yield_loc = fit_params[2]
                 yield_scale = fit_params[3]
-            except scipy.stats._warnings_errors.FitError as e:
+            except scipy.stats._warnings_errors.FitError:
                 yield_a = None
                 yield_b = None
                 yield_loc = None
