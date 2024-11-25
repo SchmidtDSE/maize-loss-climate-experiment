@@ -431,7 +431,7 @@ class CombineHistoricPreprocessBetaTask(CombineHistoricPreprocessTemplateTask):
             rows = csv.DictReader(f)
 
             for row in rows:
-                year = int(row['year'])
+                year = parse_util.try_int(row['year'])
                 geohash = str(row['geohash'])
                 mean = parse_util.try_float(row['mean'])
                 std = parse_util.try_float(row['std'])
@@ -441,20 +441,35 @@ class CombineHistoricPreprocessBetaTask(CombineHistoricPreprocessTemplateTask):
                 yield_scale = parse_util.try_float(row['scale'])
                 count = parse_util.try_float(row['count'])
 
-                if geohash not in geohash_builders:
-                    geohash_builders[geohash] = GeohashCollectionBetaBuilder(geohash)
-
-                geohash_builder = geohash_builders[geohash]
-                geohash_builder.add_year(
+                required_fields = [
                     year,
+                    geohash,
                     mean,
                     std,
-                    count,
                     yield_a,
                     yield_b,
                     yield_loc,
-                    yield_scale
-                )
+                    yield_scale,
+                    count
+                ]
+                missing_fields = filter(lambda x: x is None, required_fields)
+                num_missing_fields = sum(map(lambda x: 1, missing_fields))
+
+                if num_missing_fields == 0:
+                    if geohash not in geohash_builders:
+                        geohash_builders[geohash] = GeohashCollectionBetaBuilder(geohash)
+
+                    geohash_builder = geohash_builders[geohash]
+                    geohash_builder.add_year(
+                        year,
+                        mean,
+                        std,
+                        count,
+                        yield_a,
+                        yield_b,
+                        yield_loc,
+                        yield_scale
+                    )
 
         return geohash_builders
 
