@@ -74,6 +74,9 @@ def transform_row_response(task, make_imports=False, response_available=True):
     if make_imports:
         raise NotImplementedError('Reserved for future use.')
 
+    if task is None:
+        return None
+
     row = task['row']
     baseline_mean = task['baseline_mean']
     baseline_std = task['baseline_std']
@@ -211,7 +214,12 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
             geohash = row['geohash']
             for key in keys_no_count:
-                average = averages['%s.%s' % (geohash, key)]
+                average_key = '%s.%s' % (geohash, key)
+
+                if average_key not in averages:
+                    return None
+
+                average = averages[average_key]
                 original_value = get_finite_maybe(row[key])
                 if original_value is not None:
                     delta = original_value - average
@@ -220,6 +228,9 @@ class GetAsDeltaTaskTemplate(luigi.Task):
             return row
 
         def make_task(row, averages):
+            if row is None:
+                return None
+
             geohash = row['geohash']
 
             mean_key = '%s.baselineYieldMean' % geohash
@@ -296,15 +307,27 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                     return True
 
                 total_count = 0
+                invalid_count = 0
                 complete_count = 0
                 normal_count = 0
                 for chunk in futures_chunked:
                     # If using distribution: for row in map(lambda x: x.result(), chunk):
                     for row in chunk:
                         total_count += 1
-                        complete_count += 1 if row['isComplete'] else 0
-                        normal_count += 1 if (row['isComplete'] and is_approx_normal(row)) else 0
-                        writer.writerow(row)
+                        
+                        if row is None:
+                            invalid_count += 1
+                        else:
+                            is_complete = row['isComplete']
+                            complete_count += 1 if is_complete else 0
+                            normal_count += 1 if (is_complete and is_approx_normal(row)) else 0
+                            writer.writerow(row)
+
+                invalid_rate = invalid_count / total_count
+                if invalid_rate > 0.05:
+                        raise RuntimeError(
+                            'Invalid rate: %f' % invalid_rate
+                        )
 
                 if response_available:
                     assert complete_count > 0
