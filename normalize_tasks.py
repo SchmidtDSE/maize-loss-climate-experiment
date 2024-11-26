@@ -314,7 +314,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                     # If using distribution: for row in map(lambda x: x.result(), chunk):
                     for row in chunk:
                         total_count += 1
-                        
+
                         if row is None:
                             invalid_count += 1
                         else:
@@ -325,9 +325,9 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
                 invalid_rate = invalid_count / total_count
                 if invalid_rate > 0.05:
-                        raise RuntimeError(
-                            'Invalid rate: %f' % invalid_rate
-                        )
+                    raise RuntimeError(
+                        'Invalid rate: %f' % invalid_rate
+                    )
 
                 if response_available:
                     assert complete_count > 0
