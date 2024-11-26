@@ -88,7 +88,7 @@ class Distribution:
             Measure of the kurtosis (tail shape) for the distribution or None if not known.
         """
         return self._kurtosis
-    
+
     def get_is_approx_normal(self):
         """Determine if the distribution is approximately normal.
 
