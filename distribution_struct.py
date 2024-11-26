@@ -114,16 +114,18 @@ class Distribution:
         other_count = other.get_count()
 
         def get_weighted_average(self_val, other_val):
+            if self_val is None:
+                return other_val
+
+            if other_val is None:
+                return self_val
+
             self_weighted = self_val * self_count
             other_weighted = other_val * other_count
             pooled_weighted = self_weighted + other_weighted
             return pooled_weighted / (self_count + other_count)
 
         new_mean = get_weighted_average(self.get_mean(), other.get_mean())
-
-        self_mean_weight = self.get_mean() * self.get_count()
-        other_mean_weight = other.get_mean() * other.get_count()
-        new_mean = (self_mean_weight + other_mean_weight) / new_count
 
         def get_variance_piece(target):
             return (target.get_count() - 1) * (target.get_std() ** 2)
@@ -169,12 +171,12 @@ class Distribution:
                 else:
                     raise RuntimeError('Encountered multiple distribution shapes.')
 
-            new_skew = new_mean = get_weighted_average(
+            new_skew = get_weighted_average(
                 self.get_skew(),
                 other.get_skew()
             )
 
-            new_kurtosis = new_mean = get_weighted_average(
+            new_kurtosis = get_weighted_average(
                 self.get_kurtosis(),
                 other.get_kurtosis()
             )
