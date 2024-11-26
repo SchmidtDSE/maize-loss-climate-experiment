@@ -246,18 +246,20 @@ class GeohashClimateSummary:
             kurtosis=self.get_kurtosis()
         )
 
-    def combine(self, other):
+    def combine(self, other, allow_multiple_shapes=False):
         """Combine the samples of two geohash summaries.
 
         Args:
             other: The geohash with additional data on this summary's sample.
+            allow_multiple_shapes: Flag indicating if different or non-normal distribution shapes
+                can be combined.
 
         Returns:
             New summary after combining samples.
         """
         self_dist = self.get_distribution()
         other_dist = other.get_distribution()
-        new_dist = self_dist.combine(other_dist)
+        new_dist = self_dist.combine(other_dist, allow_multiple_shapes=allow_multiple_shapes)
 
         assert self.get_key() == other.get_key()
         return GeohashClimateSummary(
