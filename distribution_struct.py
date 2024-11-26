@@ -114,10 +114,12 @@ class Distribution:
         other_count = other.get_count()
 
         def get_weighted_average(self_val, other_val):
-            if self_val is None:
+            is_invalid = lambda x: x is None or (not math.isfinite(x))
+
+            if is_invalid(self_val):
                 return other_val
 
-            if other_val is None:
+            if is_invalid(other_val):
                 return self_val
 
             self_weighted = self_val * self_count
