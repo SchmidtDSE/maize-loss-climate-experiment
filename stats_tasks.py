@@ -373,15 +373,6 @@ class ExtractSimStatsTemplateTask(luigi.Task):
             )
 
         output_record = {
-            'referenceMean2010': format_percent(
-                reduced_records['experimental2010']['mean']
-            ),
-            'referenceProbability2010': format_percent(
-                reduced_records['experimental2010']['probability']
-            ),
-            'referenceSeverity2010': format_severity(
-                reduced_records['experimental2010']['severity']
-            ),
             'counterfactualMean2030': format_percent(
                 reduced_records['counterfactual2030']['mean']
             ),
@@ -419,6 +410,17 @@ class ExtractSimStatsTemplateTask(luigi.Task):
                 reduced_records['experimental2050']['severity']
             )
         }
+
+        if 'experimental2010' in reduced_records:
+            output_record['referenceMean2010'] = format_percent(
+                reduced_records['experimental2010']['mean']
+            )
+            output_record['referenceProbability2010'] = format_percent(
+                reduced_records['experimental2010']['probability']
+            )
+            output_record['referenceSeverity2010'] = format_severity(
+                reduced_records['experimental2010']['severity']
+            )
 
         with self.output().open('w') as f:
             json.dump(output_record, f, indent=2, sort_keys=True)
