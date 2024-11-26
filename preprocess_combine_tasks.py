@@ -206,6 +206,8 @@ class GeohashCollectionBetaBuilder(GeohashCollectionBuilderBase):
 
         builder = TrainingInstanceBetaBuilder(
             year,
+            yield_mean,
+            yield_std,
             yield_a,
             yield_b,
             yield_loc,
@@ -309,10 +311,13 @@ class TrainingInstanceBuilder(TrainingInstanceBuilderBase):
 class TrainingInstanceBetaBuilder(TrainingInstanceBuilderBase):
     """Builder to generate model training a single year summary for a single geohash."""
 
-    def __init__(self, year, yield_a, yield_b, yield_loc, yield_scale, yield_observations):
+    def __init__(self, year, yield_mean, yield_std, yield_a, yield_b, yield_loc, yield_scale,
+        yield_observations):
         """Create a new builder.
 
         Args:
+            yield_mean: The mean value of the yield.
+            yield_std: The standard deviation of the yield.
             year: The year for which training instances are being generated.
             yield_a: Parameter a for the beta distribution.
             yield_b: Parameter b for the beta distribution.
@@ -322,6 +327,8 @@ class TrainingInstanceBetaBuilder(TrainingInstanceBuilderBase):
         """
         super().__init__()
         self._year = year
+        self._yield_mean = yield_mean
+        self._yield_std = yield_std
         self._yield_a = yield_a
         self._yield_b = yield_b
         self._yield_loc = yield_loc
@@ -331,6 +338,8 @@ class TrainingInstanceBetaBuilder(TrainingInstanceBuilderBase):
     def _finalize_output(self, output_dict):
         output_dict['year'] = self._year
         output_dict['climateCounts'] = self._total_climate_counts
+        output_dict['yieldMean'] = self._yield_mean
+        output_dict['yieldStd'] = self._yield_std
         output_dict['yieldA'] = self._yield_a
         output_dict['yieldB'] = self._yield_b
         output_dict['yieldLoc'] = self._yield_loc
@@ -471,20 +480,6 @@ class CombineHistoricPreprocessBetaTask(CombineHistoricPreprocessTemplateTask):
                 yield_loc = parse_util.try_float(row['loc'])
                 yield_scale = parse_util.try_float(row['scale'])
                 count = parse_util.try_float(row['count'])
-
-                required_fields = [
-                    year,
-                    geohash,
-                    mean,
-                    std,
-                    yield_a,
-                    yield_b,
-                    yield_loc,
-                    yield_scale,
-                    count
-                ]
-                missing_fields = filter(lambda x: x is None, required_fields)
-                num_missing_fields = sum(map(lambda x: 1, missing_fields))
 
                 if geohash not in geohash_builders:
                     geohash_builders[geohash] = GeohashCollectionBetaBuilder(geohash)
