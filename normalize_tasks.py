@@ -523,23 +523,28 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
             rows_with_num = map(lambda x: self._force_values(x), rows_with_z)
             rows_standardized = map(lambda x: self._standardize_fields(x), rows_with_num)
 
-            if self._require_response():
-                rows_with_mean = filter(
-                    lambda x: x['yieldMean'] != const.INVALID_VALUE,
-                    rows_standardized
-                )
-                rows_complete = filter(
-                    lambda x: x['yieldStd'] != const.INVALID_VALUE,
-                    rows_with_mean
-                )
-                rows_to_write = rows_complete
-            else:
-                rows_to_write = rows_standardized
-
+            total_count = 0
+            num_invalid = 0
             with self.output().open('w') as f_out:
                 writer = csv.DictWriter(f_out, fieldnames=const.TRAINING_FRAME_ATTRS)
                 writer.writeheader()
-                writer.writerows(rows_to_write)
+
+                for row in rows_standardized:
+                    mean_invalid = row['yieldMean'] == const.INVALID_VALUE
+                    std_invalid = row['yieldStd'] == const.INVALID_VALUE
+                    is_invalid = mean_invalid or std_invalid
+
+                    total_count += 1
+
+                    if self._require_response():
+                        if is_invalid:
+                            num_invalid += 1
+                        else:
+                            writer.writerow(row)
+                    else:
+                        writer.writerow(row)
+
+                assert num_invalid / total_count < 0.05
 
     def get_target(self):
         """Get the task whose output should be normalized.
@@ -610,9 +615,11 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
 
             original_value = row[field]
 
-            all_zeros = original_value == 0 and mean == 0 and std == 0
+            no_original_value = original_value is None
+            no_std = std == 0
+            all_zeros = original_value == 0 and mean == 0 and no_std
 
-            if (original_value is None) or all_zeros:
+            if no_original_value or all_zeros or no_std:
                 row[field] = const.INVALID_VALUE
             else:
                 row[field] = (original_value - mean) / std
