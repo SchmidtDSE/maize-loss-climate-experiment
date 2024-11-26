@@ -11,8 +11,6 @@ import math
 import numpy
 import scipy.stats
 
-import distribution_util
-
 
 class Distribution:
     """Record describing a distribution of real numbers."""
@@ -93,6 +91,14 @@ class Distribution:
             Measure of the kurtosis (tail shape) for the distribution or None if not known.
         """
         return self._kurtosis
+    
+    def get_is_approx_normal(self):
+        """Determine if the distribution is approximately normal.
+
+        Returns:
+            True if approximately normal and False otherwise.
+        """
+        return abs(self.get_skew()) > 2 and abs(self.get_kurtosis()) < 7
 
     def combine(self, other):
         """Combine the samples from two different distributions.
@@ -104,6 +110,17 @@ class Distribution:
             Combined distributions.
         """
         new_count = self.get_count() + other.get_count()
+
+        self_count = self.get_count()
+        other_count = other.get_count()
+
+        def get_weighted_average(self_val, other_val):
+            self_weighted = self_val * self_count
+            other_weighted = other_val * other_count
+            pooled_weighted = self_weighted + other_weighted
+            return pooled_weighted / (self_count + other_count)
+
+        new_mean = get_weighted_average(self.get_mean(), other.get_mean())
 
         self_mean_weight = self.get_mean() * self.get_count()
         other_mean_weight = other.get_mean() * other.get_count()
@@ -143,39 +160,22 @@ class Distribution:
         elif partial_info:
             raise RuntimeError('Cant combine where skew or kurtosis specified but not both.')
         else:
-            self_dist = distribution_util.find_beta_distribution(
-                self.get_mean(),
-                self.get_std(),
+            self_approx_normal = self.get_is_approx_normal()
+            other_approx_normal = other.get_is_approx_normal()
+            both_normal = self_approx_normal and other_approx_normal
+
+            if not both_normal:
+                raise RuntimeError('Encountered multiple distribution shapes.')
+
+            new_skew = new_mean = get_weighted_average(
                 self.get_skew(),
-                self.get_kurtosis()
+                other.get_skew()
             )
 
-            self_sim = scipy.stats.beta.rvs(
-                self_dist['a'],
-                self_dist['b'],
-                loc=self_dist['loc'],
-                scale=self_dist['scale'],
-                size=round(1000 * (self.get_count() / new_count))
+            new_kurtosis = new_mean = get_weighted_average(
+                self.get_kurtosis(),
+                other.get_kurtosis()
             )
-
-            other_dist = distribution_util.find_beta_distribution(
-                self.get_mean(),
-                self.get_std(),
-                self.get_skew(),
-                self.get_kurtosis()
-            )
-
-            other_sim = scipy.stats.beta.rvs(
-                other_dist['a'],
-                other_dist['b'],
-                loc=other_dist['loc'],
-                scale=other_dist['scale'],
-                size=round(1000 * (other.get_count() / new_count))
-            )
-
-            combined = numpy.concatenate([self_sim, other_sim])
-            new_skew = scipy.stats.skew(combined)
-            new_kurtosis = scipy.stats.kurtosis(combined)
 
         return Distribution(
             new_mean,
