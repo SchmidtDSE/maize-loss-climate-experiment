@@ -88,7 +88,14 @@ GEOHASH_YIELD_COLS = [
     'kurtosis'
 ]
 
-TRAINING_FRAME_ATTRS = [
+GEOHASH_YIELD_BETA_COLS = GEOHASH_YIELD_COLS + [
+    'a',
+    'b',
+    'loc',
+    'scale'
+]
+
+TRAINING_FRAME_BASE_ATTRS = [
     'year',
     'geohash',
     'baselineYieldMean',
@@ -574,9 +581,18 @@ TRAINING_FRAME_ATTRS = [
     'wbgtmaxMax12',
     'wbgtmaxCount12',
     'climateCounts',
-    'yieldMean',
-    'yieldStd',
     'yieldObservations'
+]
+
+TRAINING_FRAME_ATTRS = TRAINING_FRAME_BASE_ATTRS + ['yieldMean', 'yieldStd']
+
+TRAINING_FRAME_BETA_ATTRS = TRAINING_FRAME_BASE_ATTRS + [
+    'yieldA',
+    'yieldB',
+    'yieldLoc',
+    'yieldScale',
+    'yieldMean',
+    'yieldStd'
 ]
 
 INCLUDE_COUNT_IN_MODEL = False
@@ -613,7 +629,11 @@ NON_DELTA_FIELDS = [
     'baselineYieldStd',
     'yieldMean',
     'yieldStd',
-    'yieldObservations'
+    'yieldObservations',
+    'yieldA',
+    'yieldB',
+    'yieldLoc',
+    'yieldScale'
 ]
 
 TRAINING_STR_FIELDS = {'geohash'}

@@ -12,6 +12,7 @@ import luigi
 import cluster_tasks
 import const
 import export_tasks
+import normalize_tasks
 import preprocess_climate_tasks
 import preprocess_combine_tasks
 import sim_tasks
@@ -115,10 +116,11 @@ class RunThroughPreprocessFutureTask(cluster_tasks.EndClusterTask):
             Tasks for 2030_SSP245 and 2050_SSP245.
         """
         return {
-            '2030_SSP245': preprocess_combine_tasks.ReformatFuturePreprocessTask(
+            'history': normalize_tasks.GetHistoricAsDeltaTask(),
+            '2030_SSP245': normalize_tasks.GetFutureAsDeltaTask(
                 condition='2030_SSP245'
             ),
-            '2050_SSP245': preprocess_combine_tasks.ReformatFuturePreprocessTask(
+            '2050_SSP245': normalize_tasks.GetFutureAsDeltaTask(
                 condition='2050_SSP245'
             )
         }

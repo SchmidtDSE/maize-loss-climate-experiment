@@ -9,43 +9,12 @@ import math
 import luigi
 import more_itertools
 import numpy
-import pandas
+import scipy.stats
 
 import const
-import cluster_tasks
 import distribution_struct
-import preprocess_yield_tasks
+import parse_util
 import preprocess_combine_tasks
-
-
-def try_float(target):
-    """Try converting a string to a float and return None if parsing fails.
-
-    Args:
-        target: The string to parse.
-
-    Returns:
-        The number parsed.
-    """
-    try:
-        return float(target)
-    except ValueError:
-        return None
-
-
-def try_int(target):
-    """Try converting a string to an int and return None if parsing fails.
-
-    Args:
-        target: The string to parse.
-
-    Returns:
-        The number parsed.
-    """
-    try:
-        return int(target)
-    except ValueError:
-        return round(try_float(target))
 
 
 def parse_row(row):
@@ -61,9 +30,9 @@ def parse_row(row):
         if field in const.TRAINING_STR_FIELDS:
             row[field] = row[field]
         elif field in const.TRAINING_INT_FIELDS:
-            row[field] = try_int(row[field])
+            row[field] = parse_util.try_int(row[field])
         else:
-            row[field] = try_float(row[field])
+            row[field] = parse_util.try_float(row[field])
 
     return row
 
@@ -80,7 +49,7 @@ def get_finite_maybe(target):
     Returns:
         The number parsed.
     """
-    value = try_float(target)
+    value = parse_util.try_float(target)
 
     if value is not None and numpy.isfinite(value):
         return value
@@ -88,40 +57,29 @@ def get_finite_maybe(target):
         return None
 
 
-def distributed_transform_row_response(task):
-    import numpy
-    import scipy.stats
-
-    import distribution_util
-
+def transform_row_response(task, make_imports=False, response_available=True):
     row = task['row']
     baseline_mean = task['baseline_mean']
-    shape_info = task['shape_info']
-    target_mean = task['target_mean']
-    target_std = task['target_std']
+    baseline_std = task['baseline_std']
+    target_a = task['target_a']
+    target_b = task['target_b']
+    target_loc = task['target_loc']
+    target_scale = task['target_scale']
 
-    values_not_given = target_mean is None or target_std is None
+    values_required = [target_a, target_b, target_loc, target_scale]
+    values_none = filter(lambda x: x is None, values_required)
+    num_values_none = sum(map(lambda x: 1, values_none))
+    values_not_given = num_values_none > 0
     baseline_not_given = baseline_mean is None or baseline_std is None
-    if values_not_given or baseline_not_given:
-        new_mean = None
-        new_std = None
-        new_skew = None
-        new_kurtosis = None
-    else:
-        skew = shape_info['skew']
-        kurtosis = shape_info['kurtosis']
 
-        target_dist_param = distribution_util.find_beta_distribution(
-            baseline_mean,
-            baseline_std,
-            skew,
-            kurtosis
-        )
+    complete = not (values_not_given or baseline_not_given)
+
+    if complete and response_available:
         target_dist = scipy.stats.beta.rvs(
-            target_dist_param['a'],
-            target_dist_param['b'],
-            loc=target_dist_param['loc'],
-            scale=target_dist_param['scale'],
+            target_a,
+            target_b,
+            loc=target_loc,
+            scale=target_scale,
             size=5000
         )
 
@@ -131,11 +89,17 @@ def distributed_transform_row_response(task):
         new_std = numpy.std(deltas)
         new_skew = scipy.stats.skew(deltas_ln)
         new_kurtosis = scipy.stats.kurtosis(deltas_ln)
+    else:
+        new_mean = None
+        new_std = None
+        new_skew = None
+        new_kurtosis = None
 
     row['yieldMean'] = new_mean
     row['yieldStd'] = new_std
     row['skewLn'] = new_skew
     row['kurtosisLn'] = new_kurtosis
+    row['isComplete'] = complete
 
     return row
 
@@ -189,26 +153,6 @@ class GetHistoricAveragesTask(luigi.Task):
             writer.writerows(output_rows)
 
 
-class GetShapesTask(luigi.Task):
-    """Task which gets the yield shape parameterization per geohash."""
-
-    def requires(self):
-        """Indicate that yield information is needed."""
-        return preprocess_yield_tasks.PreprocessYieldGeotiffsTask()
-
-    def output(self):
-        """Indicate that the results should be written to a CSV file one row per geohash."""
-        return luigi.LocalTarget(const.get_file_location('geohash_shapes.csv'))
-
-    def run(self):
-        """Group together and get skew / kurtosis per geohash."""
-        source = pandas.read_csv(self.input().path)
-        grouped = source.groupby('geohash')
-        medians = grouped.median().reset_index()
-        medians_subset = medians[['geohash', 'skew', 'kurtosis']]
-        return medians_subset.to_csv(self.output().path)
-
-
 class GetAsDeltaTaskTemplate(luigi.Task):
     """Template for task which converts to yield deltas.
 
@@ -224,9 +168,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
         """
         return {
             'averages': GetHistoricAveragesTask(),
-            'target': self.get_target(),
-            'shapes': GetShapesTask(),
-            'cluster': cluster_tasks.StartClusterTask()
+            'target': self.get_target()
         }
 
     def output(self):
@@ -239,36 +181,6 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
     def run(self):
         """Convert from yields to yield deltas."""
-        cluster = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=10, maximum=100)
-        client = cluster.get_client()
-
-        with self.input()['shapes'].open() as f:
-            reader = csv.DictReader(f)
-            shapes_by_geohash = {}
-
-            count_no_shape = 0
-            count_total = 0
-            for row in reader:
-                had_no_shape = False
-
-                if row['skew'] == '':
-                    row['skew'] = 0
-                    had_no_shape = True
-                else:
-                    row['skew'] = float(row['skew'])
-
-                if row['kurtosis'] == '':
-                    row['kurtosis'] = 0
-                    had_no_shape = True
-                else:
-                    row['kurtosis'] = float(row['kurtosis'])
-
-                count_no_shape += 1 if had_no_shape else 0
-                count_total += 1
-                shapes_by_geohash[row['geohash']] = row
-
-            assert count_no_shape / count_total < 0.05
 
         with self.input()['averages'].open() as f:
             reader = csv.DictReader(f)
@@ -291,7 +203,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
             return row
 
-        def make_task(row, averages, shapes_by_geohash):
+        def make_task(row, averages):
             geohash = row['geohash']
 
             mean_key = '%s.baselineYieldMean' % geohash
@@ -300,20 +212,26 @@ class GetAsDeltaTaskTemplate(luigi.Task):
             baseline_mean = averages[mean_key]
             baseline_std = averages[std_key]
 
-            shape_info = shapes_by_geohash[geohash]
-
             target_mean = get_finite_maybe(row['yieldMean'])
             target_std = get_finite_maybe(row['yieldStd'])
+            target_a = get_finite_maybe(row['yieldA'])
+            target_b = get_finite_maybe(row['yieldB'])
+            target_loc = get_finite_maybe(row['yieldLoc'])
+            target_scale = get_finite_maybe(row['yieldScale'])
 
             return {
                 'row': row,
                 'baseline_mean': baseline_mean,
                 'baseline_std': baseline_std,
-                'shape_info': shape_info,
                 'target_mean': target_mean,
-                'target_std': target_std
+                'target_std': target_std,
+                'target_a': target_a,
+                'target_b': target_b,
+                'target_loc': target_loc,
+                'target_scale': target_scale
             }
 
+        response_available = self._get_response_available()
         with self.input()['target'].open() as f_in:
             rows = csv.DictReader(f_in)
 
@@ -328,17 +246,16 @@ class GetAsDeltaTaskTemplate(luigi.Task):
             rows_regular_response_tasks = map(
                 lambda x: make_task(
                     x,
-                    averages,
-                    shapes_by_geohash
+                    averages
                 ),
                 rows_regular_transform
             )
 
+            # TODO: This could be made distributed if later desired.
             futures = map(
-                lambda x: client.submit(distributed_transform_row_response, x),
+                lambda x: transform_row_response(x, response_available=response_available),
                 rows_regular_response_tasks
             )
-
             futures_chunked_unrealized = more_itertools.ichunked(futures, 200)
             futures_chunked = map(lambda x: list(x), futures_chunked_unrealized)
 
@@ -351,32 +268,47 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 writer.writeheader()
 
                 def is_approx_normal(target):
-                    if abs(target['skewLn']) > 2:
+                    if not response_available:
+                        return True
+
+                    if target['skewLn'] is None or abs(target['skewLn']) > 2:
                         return False
 
-                    if abs(target['kurtosisLn']) > 7:
+                    if target['kurtosisLn'] is None or abs(target['kurtosisLn']) > 7:
                         return False
 
                     return True
 
                 total_count = 0
+                complete_count = 0
                 normal_count = 0
                 for chunk in futures_chunked:
-                    for row in map(lambda x: x.result(), chunk):
+                    # If using distribution: for row in map(lambda x: x.result(), chunk):
+                    for row in chunk:
                         total_count += 1
-                        normal_count += 1 if is_approx_normal(row) else 0
+                        complete_count += 1 if row['isComplete'] else 0
+                        normal_count += 1 if (row['isComplete'] and is_approx_normal(row)) else 0
                         writer.writerow(row)
 
-                normality_rate = normal_count / total_count
+                if response_available:
+                    assert complete_count > 0
 
-                debug_loc = const.get_file_location(self.get_filename() + '-norm.txt')
-                with open(debug_loc, 'w') as f:
-                    f.write(str(normality_rate))
+                    complete_rate = complete_count / total_count
+                    normality_rate = normal_count / complete_count
 
-                if normality_rate < 0.95:
-                    raise RuntimeError(
-                        'Normality assumption rate: %f' % normality_rate
-                    )
+                    debug_loc = const.get_file_location(self.get_filename() + '-norm.txt')
+                    with open(debug_loc, 'w') as f:
+                        f.write('Normal: %f. Complete: %f.' % (normality_rate, complete_rate))
+
+                    if complete_rate < 0.95:
+                        raise RuntimeError(
+                            'Complete rate: %f' % complete_rate
+                        )
+
+                    if normality_rate < 0.95:
+                        raise RuntimeError(
+                            'Normality assumption rate: %f' % normality_rate
+                        )
 
     def get_target(self):
         """Get the task whose output should be converted to yield deltas.
@@ -404,7 +336,7 @@ class GetHistoricAsDeltaTask(GetAsDeltaTaskTemplate):
         Returns:
             Luigi task.
         """
-        return preprocess_combine_tasks.CombineHistoricPreprocessTask()
+        return preprocess_combine_tasks.CombineHistoricPreprocessBetaTask()
 
     def get_filename(self):
         """Get the filename to which the results should be written.
@@ -413,6 +345,9 @@ class GetHistoricAsDeltaTask(GetAsDeltaTaskTemplate):
             Filename as string (not path).
         """
         return 'historic_deltas_transform.csv'
+
+    def _get_response_available(self):
+        return True
 
 
 class GetFutureAsDeltaTask(GetAsDeltaTaskTemplate):
@@ -426,7 +361,7 @@ class GetFutureAsDeltaTask(GetAsDeltaTaskTemplate):
         Returns:
             Luigi task.
         """
-        return preprocess_combine_tasks.ReformatFuturePreprocessTask(condition=self.condition)
+        return preprocess_combine_tasks.ReformatFuturePreprocessBetaTask(condition=self.condition)
 
     def get_filename(self):
         """Get the filename to which the results should be written.
@@ -435,6 +370,9 @@ class GetFutureAsDeltaTask(GetAsDeltaTaskTemplate):
             Filename as string (not path).
         """
         return '%s_deltas_transform.csv' % self.condition
+
+    def _get_response_available(self):
+        return False
 
 
 class GetInputDistributionsTask(luigi.Task):
@@ -470,7 +408,7 @@ class GetInputDistributionsTask(luigi.Task):
 
             for row in input_records:
                 for field in fields_to_process:
-                    value = try_float(row[field])
+                    value = parse_util.try_float(row[field])
                     if value is not None and not math.isnan(value):
                         accumulators[field].add(value)
 
@@ -549,19 +487,24 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
             rows_with_z = map(lambda x: self._transform_z(x, distributions), rows_augmented)
             rows_with_num = map(lambda x: self._force_values(x), rows_with_z)
             rows_standardized = map(lambda x: self._standardize_fields(x), rows_with_num)
-            rows_with_mean = filter(
-                lambda x: x['yieldMean'] != const.INVALID_VALUE,
-                rows_standardized
-            )
-            rows_complete = filter(
-                lambda x: x['yieldStd'] != const.INVALID_VALUE,
-                rows_with_mean
-            )
+
+            if self._require_response():
+                rows_with_mean = filter(
+                    lambda x: x['yieldMean'] != const.INVALID_VALUE,
+                    rows_standardized
+                )
+                rows_complete = filter(
+                    lambda x: x['yieldStd'] != const.INVALID_VALUE,
+                    rows_with_mean
+                )
+                rows_to_write = rows_complete
+            else:
+                rows_to_write = rows_standardized
 
             with self.output().open('w') as f_out:
                 writer = csv.DictWriter(f_out, fieldnames=const.TRAINING_FRAME_ATTRS)
                 writer.writeheader()
-                writer.writerows(rows_complete)
+                writer.writerows(rows_to_write)
 
     def get_target(self):
         """Get the task whose output should be normalized.
@@ -675,6 +618,9 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
         """
         return dict(map(lambda x: (x, row[x]), const.TRAINING_FRAME_ATTRS))
 
+    def _require_response(self):
+        raise NotImplementedError('Use implementor.')
+
 
 class NormalizeHistoricTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
     """Task to normalize historic actuals."""
@@ -694,6 +640,9 @@ class NormalizeHistoricTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
             historic_normalized.csv
         """
         return 'historic_normalized.csv'
+
+    def _require_response(self):
+        return True
 
 
 class NormalizeFutureTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
@@ -717,3 +666,6 @@ class NormalizeFutureTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
             String filename, not full path.
         """
         return '%s_normalized.csv' % self.condition
+
+    def _require_response(self):
+        return False
