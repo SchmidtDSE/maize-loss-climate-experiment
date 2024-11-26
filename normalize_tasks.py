@@ -654,6 +654,12 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
         return dict(map(lambda x: (x, row[x]), const.TRAINING_FRAME_ATTRS))
 
     def _require_response(self):
+        """Indicate if the response variable is required to be valid for this task.
+
+        Returns:
+            True if the response variable is required to be valid and avaialable and false if it not
+            enforced.
+        """
         raise NotImplementedError('Use implementor.')
 
 
@@ -677,6 +683,11 @@ class NormalizeHistoricTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
         return 'historic_normalized.csv'
 
     def _require_response(self):
+        """Indicate if the response variable is required to be valid for this task.
+
+        Returns:
+            True as the response variable value should be known for historic data.
+        """
         return True
 
 
@@ -703,4 +714,9 @@ class NormalizeFutureTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
         return '%s_normalized.csv' % self.condition
 
     def _require_response(self):
+        """Indicate if the response variable is required to be valid for this task.
+
+        Returns:
+            False as the future response variable is to be predicted.
+        """
         return False
