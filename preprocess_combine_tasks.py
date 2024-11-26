@@ -435,21 +435,36 @@ class CombineHistoricPreprocessTask(CombineHistoricPreprocessTemplateTask):
         return const.TRAINING_FRAME_ATTRS
 
     def _process_yields(self, geohash_builders):
+
+        num_invalid = 0
+        total_count = 0
         with self.input()['yield'].open('r') as f:
             rows = csv.DictReader(f)
 
             for row in rows:
-                year = int(row['year'])
+                year = parse_util.try_int(row['year'])
                 geohash = str(row['geohash'])
-                mean = float(row['mean'])
-                std = float(row['std'])
-                count = float(row['count'])
+                mean = parse_util.try_float(row['mean'])
+                std = parse_util.try_float(row['std'])
+                count = parse_util.try_float(row['count'])
+
+                required_fields = [year, geohash, mean, std, count]
+                missing_fields = filter(lambda x: x is None, required_fields)
+                num_missing_fields = sum(map(lambda x: 1, missing_fields))
+                has_missing = num_missing_fields > 0
 
                 if geohash not in geohash_builders:
                     geohash_builders[geohash] = GeohashCollectionBuilder(geohash)
 
-                geohash_builder = geohash_builders[geohash]
-                geohash_builder.add_year(year, mean, std, count)
+                if has_missing:
+                    num_invalid += 1
+                else:
+                    geohash_builder = geohash_builders[geohash]
+                    geohash_builder.add_year(year, mean, std, count)
+
+                total_count += 1
+
+            assert num_invalid / total_count < 0.05
 
         return geohash_builders
 
