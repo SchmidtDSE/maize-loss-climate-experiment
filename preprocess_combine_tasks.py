@@ -435,7 +435,6 @@ class CombineHistoricPreprocessTask(CombineHistoricPreprocessTemplateTask):
         return const.TRAINING_FRAME_ATTRS
 
     def _process_yields(self, geohash_builders):
-
         num_invalid = 0
         total_count = 0
         with self.input()['yield'].open('r') as f:

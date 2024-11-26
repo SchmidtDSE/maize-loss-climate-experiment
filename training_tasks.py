@@ -141,11 +141,33 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
 
 
 class TransformModel:
+    """Decorator which transforms to sinh for training and from sinh for prediction.
+
+    Model which transforms to arcsinh for training and from arcsinh for prediction, using an
+    alternative space to avoid large skew. This acts as a decorator around a keras model.
+    """
 
     def __init__(self, model):
+        """Create a new transform model decorator around a given keras model.
+
+        Args:
+            model: The model for which the response variable should be transformed into arcsinh
+            space during training and from arcsinh during prediction.
+        """
         self._model = model
 
     def fit(self, inputs, outputs, epochs=const.EPOCHS, verbose=None, sample_weight=None):
+        """Fit the model within this decorator.
+
+        Args:
+            inputs: The inputs on which the model should be trained. These are passed without
+                modification.
+            outputs: The outputs that the model should try to predict where these are projected into
+                arcsinh space before being passed to the model.
+            epochs: The number of epochs to use in training.
+            verbose: Verbosity settings or None to use a default.
+            sample_weight: The sample weights to apply to inputs during training.
+        """
         self._model.fit(
             inputs,
             numpy.arcsinh(outputs),
@@ -155,10 +177,25 @@ class TransformModel:
         )
 
     def predict(self, inputs, verbose=None):
+        """Predict using this decorator's transformation.
+
+        Args:
+            inputs: The inputs with which to make a future predictino.
+            verbose: Verbosity settings or None to use a default.
+
+        Returns:
+            The outputs of the neural network given these inputs after having projected out of
+            arcsinh space (the space in which the model makes predictions).
+        """
         outputs = self._model.predict(inputs, verbose=verbose)
         return numpy.sinh(outputs)
 
     def save(self, path):
+        """Save the inner keras model without decoration to disk.
+
+        Args:
+            path: The path at which the model should be written.
+        """
         self._model.save(path)
 
 
