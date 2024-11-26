@@ -487,19 +487,24 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
             rows_with_z = map(lambda x: self._transform_z(x, distributions), rows_augmented)
             rows_with_num = map(lambda x: self._force_values(x), rows_with_z)
             rows_standardized = map(lambda x: self._standardize_fields(x), rows_with_num)
-            rows_with_mean = filter(
-                lambda x: x['yieldMean'] != const.INVALID_VALUE,
-                rows_standardized
-            )
-            rows_complete = filter(
-                lambda x: x['yieldStd'] != const.INVALID_VALUE,
-                rows_with_mean
-            )
+
+            if self._require_response():
+                rows_with_mean = filter(
+                    lambda x: x['yieldMean'] != const.INVALID_VALUE,
+                    rows_standardized
+                )
+                rows_complete = filter(
+                    lambda x: x['yieldStd'] != const.INVALID_VALUE,
+                    rows_with_mean
+                )
+                rows_to_write = rows_complete
+            else:
+                rows_to_write = rows_standardized
 
             with self.output().open('w') as f_out:
                 writer = csv.DictWriter(f_out, fieldnames=const.TRAINING_FRAME_ATTRS)
                 writer.writeheader()
-                writer.writerows(rows_complete)
+                writer.writerows(rows_to_write)
 
     def get_target(self):
         """Get the task whose output should be normalized.
@@ -612,6 +617,9 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
             The row with only expected fields.
         """
         return dict(map(lambda x: (x, row[x]), const.TRAINING_FRAME_ATTRS))
+    
+    def _require_response(self):
+        raise NotImplementedError('Use implementor.')
 
 
 class NormalizeHistoricTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
@@ -632,6 +640,9 @@ class NormalizeHistoricTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
             historic_normalized.csv
         """
         return 'historic_normalized.csv'
+    
+    def _require_response(self):
+        return True
 
 
 class NormalizeFutureTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
@@ -655,3 +666,6 @@ class NormalizeFutureTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
             String filename, not full path.
         """
         return '%s_normalized.csv' % self.condition
+    
+    def _require_response(self):
+        return False
