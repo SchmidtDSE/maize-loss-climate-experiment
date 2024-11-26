@@ -320,7 +320,7 @@ class PreprocessClimateGeotiffTask(luigi.Task):
     def run(self):
         """Run request for a single collection of geotiffs."""
         cluster = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=10, maximum=450)
+        cluster.adapt(minimum=10, maximum=700)
         geohashes_set = self._get_geohashes()
         tasks = self._get_tasks()
 
