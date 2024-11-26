@@ -57,7 +57,7 @@ def get_finite_maybe(target):
         return None
 
 
-def transform_row_response(task, make_imports=False):
+def transform_row_response(task, make_imports=False, response_available=True):
     row = task['row']
     baseline_mean = task['baseline_mean']
     baseline_std = task['baseline_std']
@@ -74,7 +74,7 @@ def transform_row_response(task, make_imports=False):
 
     complete = not (values_not_given or baseline_not_given)
 
-    if complete:
+    if complete and response_available:
         target_dist = scipy.stats.beta.rvs(
             target_a,
             target_b,
@@ -231,6 +231,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 'target_scale': target_scale
             }
 
+        response_available = self._get_response_available()
         with self.input()['target'].open() as f_in:
             rows = csv.DictReader(f_in)
 
@@ -251,7 +252,10 @@ class GetAsDeltaTaskTemplate(luigi.Task):
             )
 
             # TODO: This could be made distributed if later desired.
-            futures = map(transform_row_response, rows_regular_response_tasks)
+            futures = map(
+                lambda x: transform_row_response(x, response_available=response_available),
+                rows_regular_response_tasks
+            )
             futures_chunked_unrealized = more_itertools.ichunked(futures, 200)
             futures_chunked = map(lambda x: list(x), futures_chunked_unrealized)
 
@@ -264,6 +268,9 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 writer.writeheader()
 
                 def is_approx_normal(target):
+                    if not response_available:
+                        return True
+
                     if target['skewLn'] is None or abs(target['skewLn']) > 2:
                         return False
 
@@ -283,24 +290,25 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                         normal_count += 1 if (row['isComplete'] and is_approx_normal(row)) else 0
                         writer.writerow(row)
 
-                assert complete_count > 0
+                if response_available:
+                    assert complete_count > 0
 
-                complete_rate = complete_count / total_count
-                normality_rate = normal_count / complete_count
+                    complete_rate = complete_count / total_count
+                    normality_rate = normal_count / complete_count
 
-                debug_loc = const.get_file_location(self.get_filename() + '-norm.txt')
-                with open(debug_loc, 'w') as f:
-                    f.write('Normal: %f. Complete: %f.' % (normality_rate, complete_rate))
+                    debug_loc = const.get_file_location(self.get_filename() + '-norm.txt')
+                    with open(debug_loc, 'w') as f:
+                        f.write('Normal: %f. Complete: %f.' % (normality_rate, complete_rate))
 
-                if complete_rate < 0.95:
-                    raise RuntimeError(
-                        'Complete rate: %f' % complete_rate
-                    )
+                    if complete_rate < 0.95:
+                        raise RuntimeError(
+                            'Complete rate: %f' % complete_rate
+                        )
 
-                if normality_rate < 0.95:
-                    raise RuntimeError(
-                        'Normality assumption rate: %f' % normality_rate
-                    )
+                    if normality_rate < 0.95:
+                        raise RuntimeError(
+                            'Normality assumption rate: %f' % normality_rate
+                        )
 
     def get_target(self):
         """Get the task whose output should be converted to yield deltas.
@@ -337,6 +345,9 @@ class GetHistoricAsDeltaTask(GetAsDeltaTaskTemplate):
             Filename as string (not path).
         """
         return 'historic_deltas_transform.csv'
+    
+    def _get_response_available(self):
+        return True
 
 
 class GetFutureAsDeltaTask(GetAsDeltaTaskTemplate):
@@ -359,6 +370,9 @@ class GetFutureAsDeltaTask(GetAsDeltaTaskTemplate):
             Filename as string (not path).
         """
         return '%s_deltas_transform.csv' % self.condition
+    
+    def _get_response_available(self):
+        return False
 
 
 class GetInputDistributionsTask(luigi.Task):
