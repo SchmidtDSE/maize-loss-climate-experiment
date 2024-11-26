@@ -197,7 +197,7 @@ def combine_summaries(first_record, second_record):
     Returns:
         Summary after sample pooling.
     """
-    return first_record.combine(second_record)
+    return first_record.combine(second_record, allow_multiple_shapes=True)
 
 
 def get_without_day(geohash_summary):

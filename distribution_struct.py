@@ -100,11 +100,13 @@ class Distribution:
         """
         return abs(self.get_skew()) > 2 and abs(self.get_kurtosis()) < 7
 
-    def combine(self, other):
+    def combine(self, other, allow_multiple_shapes=False):
         """Combine the samples from two different distributions.
 
         Args:
             other: The distribution to add to this one.
+            allow_multiple_shapes: Flag indicating if combining multiple shapes is OK. If False,
+                will raise an exception if either self or other are not approximately normal.
 
         Returns:
             Combined distributions.
@@ -165,7 +167,10 @@ class Distribution:
             both_normal = self_approx_normal and other_approx_normal
 
             if not both_normal:
-                raise RuntimeError('Encountered multiple distribution shapes.')
+                if allow_multiple_shapes:
+                    print('Encountered multiple distribution shapes.')
+                else:
+                    raise RuntimeError('Encountered multiple distribution shapes.')
 
             new_skew = new_mean = get_weighted_average(
                 self.get_skew(),
