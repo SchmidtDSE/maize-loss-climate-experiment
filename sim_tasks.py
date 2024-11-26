@@ -1920,7 +1920,10 @@ class MakeSimulationTasks2050CounterfactualTask(MakeSimulationTasksTemplate):
         Returns:
             Luigi task.
         """
-        return InterpretProject2030CounterfactualTask()
+        if const.INCLUDE_YEAR_IN_MODEL:
+            return InterpretProject2030CounterfactualTask()
+        else:
+            return InterpretProjectHistoricTask()
 
     def get_projection_task(self):
         """Get the task whose output describes geohash-level yield predictions.
