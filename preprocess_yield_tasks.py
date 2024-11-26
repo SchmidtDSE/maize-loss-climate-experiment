@@ -273,7 +273,7 @@ class PreprocessYieldGeotiffsTemplateTask(luigi.Task):
             List of geotiff filenames.
         """
         cluster = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=10, maximum=700)
+        cluster.adapt(minimum=10, maximum=100)
         client = cluster.get_client()
 
         access_key = os.environ.get('AWS_ACCESS_KEY', '')
