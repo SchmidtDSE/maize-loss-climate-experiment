@@ -70,9 +70,9 @@ FUTURE_CONDITIONS = [
     '2050_SSP245'
 ]
 
-FUTURE_REF_YEARS = [1999, 2001, 2003, 2005, 2007, 2009, 2011, 2013, 2015]
-
 YEARS = list(range(1999, 2016 + 1))
+
+FUTURE_REF_YEARS = YEARS
 
 YEAR_REGEX = re.compile('scymBiomass_beltStates_(\\d+)[^\\.]*\\.tif')
 
