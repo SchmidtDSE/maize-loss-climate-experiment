@@ -124,11 +124,11 @@ class GeohashCollectionBuilderBase:
     def _add_mean_std(self, mean, std, count):
         if self._get_has_any_missing([mean, std, count]):
             return
-        
+
         self._yield_means.append(mean)
         self._yield_stds.append(std)
         self._yield_counts.append(count)
-    
+
     def _get_has_any_missing(self, required_fields):
         missing_fields = filter(lambda x: x is None, required_fields)
         num_missing_fields = sum(map(lambda x: 1, missing_fields))

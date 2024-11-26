@@ -345,7 +345,7 @@ class GetHistoricAsDeltaTask(GetAsDeltaTaskTemplate):
             Filename as string (not path).
         """
         return 'historic_deltas_transform.csv'
-    
+
     def _get_response_available(self):
         return True
 
@@ -370,7 +370,7 @@ class GetFutureAsDeltaTask(GetAsDeltaTaskTemplate):
             Filename as string (not path).
         """
         return '%s_deltas_transform.csv' % self.condition
-    
+
     def _get_response_available(self):
         return False
 
@@ -617,7 +617,7 @@ class NormalizeTrainingFrameTemplateTask(luigi.Task):
             The row with only expected fields.
         """
         return dict(map(lambda x: (x, row[x]), const.TRAINING_FRAME_ATTRS))
-    
+
     def _require_response(self):
         raise NotImplementedError('Use implementor.')
 
@@ -640,7 +640,7 @@ class NormalizeHistoricTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
             historic_normalized.csv
         """
         return 'historic_normalized.csv'
-    
+
     def _require_response(self):
         return True
 
@@ -666,6 +666,6 @@ class NormalizeFutureTrainingFrameTask(NormalizeTrainingFrameTemplateTask):
             String filename, not full path.
         """
         return '%s_normalized.csv' % self.condition
-    
+
     def _require_response(self):
         return False
