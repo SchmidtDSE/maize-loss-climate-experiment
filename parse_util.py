@@ -1,3 +1,10 @@
+"""Utilities to parse messy data.
+
+License:
+    BSD
+"""
+
+
 def try_float(target):
     """Try converting a string to a float and return None if parsing fails.
 
