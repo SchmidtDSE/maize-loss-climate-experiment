@@ -70,6 +70,10 @@ def transform_row_response(task, make_imports=False):
     values_none = map(lambda x: x is None, values_required)
     values_not_given = sum(map(lambda x: 1, values_none)) > 0
     baseline_not_given = baseline_mean is None or baseline_std is None
+
+    if baseline_not_given:
+        print(baseline_mean, baseline_std)
+
     complete = not (values_not_given or baseline_not_given)
 
     if complete:
