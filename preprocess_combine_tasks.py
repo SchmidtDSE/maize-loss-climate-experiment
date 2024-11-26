@@ -489,11 +489,11 @@ class CombineHistoricPreprocessBetaTask(CombineHistoricPreprocessTemplateTask):
                     year,
                     mean,
                     std,
-                    count,
                     yield_a,
                     yield_b,
                     yield_loc,
-                    yield_scale
+                    yield_scale,
+                    count
                 )
 
         return geohash_builders
