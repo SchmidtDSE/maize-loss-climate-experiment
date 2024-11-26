@@ -67,11 +67,10 @@ def transform_row_response(task, make_imports=False):
     target_scale = task['target_scale']
 
     values_required = [target_a, target_b, target_loc, target_scale]
-    values_none = map(lambda x: x is None, values_required)
-    values_not_given = sum(map(lambda x: 1, values_none)) > 0
+    values_none = filter(lambda x: x is None, values_required)
+    num_values_none = sum(map(lambda x: 1, values_none))
+    values_not_given = num_values_none > 0
     baseline_not_given = baseline_mean is None or baseline_std is None
-
-    print(values_not_given)
 
     complete = not (values_not_given or baseline_not_given)
 
