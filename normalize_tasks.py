@@ -58,6 +58,22 @@ def get_finite_maybe(target):
 
 
 def transform_row_response(task, make_imports=False, response_available=True):
+    """Convert to yield deltas and ensure normal in transformed space.
+
+    Args:
+        task: The task from which the yield deltas should be created.
+        make_imports: Flag indicating if libraries should be imported (may be needed if this is
+            running under distribution). Defaults to False (no function-level imports).
+        response_available: Flag indicating if response variable values are already available for
+            this task. True if response variable values are known and false if they will be
+            predicted later
+
+    Returns:
+        Row representing the task after execution.
+    """
+    if make_imports:
+        raise NotImplementedError('Reserved for future use.')
+
     row = task['row']
     baseline_mean = task['baseline_mean']
     baseline_std = task['baseline_std']
@@ -326,6 +342,15 @@ class GetAsDeltaTaskTemplate(luigi.Task):
         """
         raise NotImplementedError('Must use implementor.')
 
+    def _get_response_available(self):
+        """Determine if the response variable values are already known for this task.
+
+        Returns:
+            True if response variable values are known and false if they are to be predictd or
+            inferred later.
+        """
+        raise NotImplementedError('Must use implementor.')
+
 
 class GetHistoricAsDeltaTask(GetAsDeltaTaskTemplate):
     """Convert historic data to yield deltas."""
@@ -347,6 +372,11 @@ class GetHistoricAsDeltaTask(GetAsDeltaTaskTemplate):
         return 'historic_deltas_transform.csv'
 
     def _get_response_available(self):
+        """Determine if the response variable values are already known for this task.
+
+        Returns:
+            True as historic response variable values are known.
+        """
         return True
 
 
@@ -372,6 +402,11 @@ class GetFutureAsDeltaTask(GetAsDeltaTaskTemplate):
         return '%s_deltas_transform.csv' % self.condition
 
     def _get_response_available(self):
+        """Determine if the response variable values are already known for this task.
+
+        Returns:
+            False as future response variables must be predicted.
+        """
         return False
 
 
