@@ -8,9 +8,6 @@ License:
 """
 import math
 
-import numpy
-import scipy.stats
-
 
 class Distribution:
     """Record describing a distribution of real numbers."""
