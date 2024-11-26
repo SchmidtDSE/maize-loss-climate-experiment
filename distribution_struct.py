@@ -173,7 +173,7 @@ class Distribution:
                 size=round(1000 * (other.get_count() / new_count))
             )
 
-            combined = numpy.concatenate(self_sim, other_sim)
+            combined = numpy.concatenate([self_sim, other_sim])
             new_skew = scipy.stats.skew(combined)
             new_kurtosis = scipy.stats.kurtosis(combined)
 
