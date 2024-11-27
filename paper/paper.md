@@ -144,7 +144,11 @@ We project climate change to roughly double loss probabilities ($p_{l}$) at mid-
 Our resulting dataset spans 1999 to 2016 during which we observe a median of 83k SCYM yield estimations at roughly field-scale per neighborhood. These outcomes are represented within neighborhood-level distributions per year.
 
 ## Neural network outcomes
-With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. We observe some outliers with very large precent changes but, using median absolute error (MdAE) to account for this skew, we see {{retrainMeanMdae}} MdAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMdae}} when predicting neighborhood standard deviation when evaluting using the fully hidden test set. We also evaluate regression performance through varied definitions of test sets in Table @tbl:posthocresults.
+With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included.
+
+![Histogram of error residuals for the train set (A), validation set (B), test set prior to retraining (C), and test set after retraining (D).](./img/residuals.png "Histogram of error residuals for the train set (A), validation set (B), test set prior to retraining (C), and test set after retraining (D)."){#fig:residuals}
+
+We observe some outliers as shown in Figure @fig:residuals and we report using median absolute error (MdAE) in response. We see {{retrainMeanMdae}} MdAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMdae}} when predicting neighborhood standard deviation when evaluting using the fully hidden test set. We also evaluate regression performance through varied definitions of test sets in Table @tbl:posthocresults.
 
 | **Task**              | **Test Mean Pred MdAE** | **Test Std Pred MdAE** | **% of Units in Test Set** |
 | --------------------- | ---------------------- | --------------------- | -------------------------- |
