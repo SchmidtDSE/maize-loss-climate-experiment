@@ -1076,7 +1076,7 @@ class ExportClaimsRatesTemplateTask(luigi.Task):
 
         return {
             'offsetBaseline': target['offsetBaseline'],
-            'year': determine_year(target['year']),
+            'year': determine_year(target),
             'condition': target['condition'],
             'threshold': float(target['threshold']),
             'thresholdStd': float(target['thresholdStd']),
