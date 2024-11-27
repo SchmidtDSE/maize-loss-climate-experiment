@@ -64,24 +64,26 @@ To further document how we structure our consideration of timeseries variables, 
 ## Crop rotations
 We treat practices as latent within our observed yield distributions. That in mind, a large share of growers will engage in at least simple crop rotations [@manski_diversified_2024] which is important for our simulations because it may change the locations in which maize is grown. We use SCYM to implicitly handle this complexity. These reported sample sizes impact the sampling behavior during Monte Carlo and, while this approach does not require explicit consideration of crop rotations, the set of geohashes present in results may vary from one year to the next in part due to this behavior. All that said, historic locations of growth and crop rotation behavior from the past are sampled in the future simulations.
 
-## Normality assumption
-In consideration of our normality assumption, we document that, in addition to 79% of neighborhoods exhibiting approximately normal yield deltas, 88% see approximate symmetry [@kim_statistical_2013]. Even so, future modeling could relax our normality assumption with additional data, potentially by avoiding the use of summary variables.
-
 ## Instance weight
 We document that we build our model with instance weighting. Specifically, we use the number (not value) of SCYM pixels in a neighborhood to weight each neighborhood. In other words, the weight is higher in neighborhoods with more maize growing acreage.
 
-## Limitations of sample size
-The drop in error observed from validation to test performance may be explained by the increased training set size. Indeed, evaluating test performance without retraining with train and validation together leads to an elevated test set error as indicated in Table @tbl:retrain.
+## Model error and residuals
+The drop in error observed from validation to test performance may be explained by the increased training set size. Indeed, evaluating test performance without retraining with train and validation together leads to an elevated test set error as indicated in Table @tbl:retrain. This may indicate that the model is specifically data constrained by the number of years available for training. Our open source data pipeline can and will be used to rerun analysis as input datasets are updated to include additional years in the future.
 
 | **Set**             | **MAE for Mean Prediction** | **MAE for Std Prediction** |
 | -------------------- | ----------------------- | ---------------------- |
 | Validation           | {{validationMeanMae}}   | {{validationStdMae}}   |
 | Test with retrain    | {{retrainMeanMae}}      | {{retrainStdMae}}      |
 | Test without retrain | {{testMeanMae}}         | {{testStdMae}}         |
+| Test with retrain    | {{retrainMeanMae}}      | {{retrainStdMae}}      |
 
 Table: Follow up experiment in which the test is evaluated without retraining. {#tbl:retrain}
 
-This may indicate that the model is specifically data constrained by the number of years available for training. Our open source data pipeline can and will be used to rerun analysis as input datasets are updated to include additional years in the future.
+Additionally, we observe that error stays below 25% for most instances. That said, closer investigation reveals that there is a small group of instances for which mean prediction specifically is more difficult as described in Figure . 
+
+![Histogram showing absolute value of residuals from the fully hidden test set capped to 100%.](./img_static/residuals.png "Histogram showing absolute value of residuals from the fully hidden test set capped to 100%."){ width=95% #fig:riskunit}
+
+All this in mind, the main text reports on median aboslute error which is much lower. Even so, the test set residuals are sampled during Monte Carlo to propogate uncertainty.
 
 # Detailed simulation results
 Though presented to one decimal place, we consider these results to suggest that claims rates will increase from 2 - 3% upwards to 5 - 6% in the SSP245 scenario.
