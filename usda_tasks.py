@@ -159,79 +159,6 @@ class SummarizeUsdaYearCountyTask(luigi.Task):
                 return reduced_rows
 
 
-class SummarizeYearlySimClaims(luigi.Task):
-    """Sumamrize the simulated claims per year."""
-
-    def requires(self):
-        """Indicate that the simulations for historic must be executed.
-
-        Returns:
-            sim_tasks.ExecuteSimulationTasks2030Counterfactual
-        """
-        return sim_tasks.ExecuteSimulationTasks2030Counterfactual()
-
-    def output(self):
-        """Indicate where the output should be written.
-
-        Returns:
-            Indicate the CSV where sim system-wide metrics should be written.
-        """
-        return luigi.LocalTarget(const.get_file_location('usda_post_sim_yearly_summary.csv'))
-
-    def run(self):
-        """Summarize simulated historic claims rates."""
-
-        def make_row(target):
-            return {
-                'year': int(target['year']),
-                'num': float(target['num']),
-                'predictedClaims': float(target['predictedClaims'])
-            }
-
-        def combine_rows(row_a, row_b):
-            assert row_a['year'] == row_b['year']
-
-            size_a = row_a['num']
-            size_b = row_b['num']
-            combined_size = size_a + size_b
-
-            weighted_a = size_a * row_a['predictedClaims']
-            weighted_b = size_b * row_b['predictedClaims']
-            new_claims = (weighted_a + weighted_b) / combined_size
-
-            return {
-                'year': row_a['year'],
-                'num': combined_size,
-                'predictedClaims': new_claims
-            }
-
-        with self.input().open('r') as f:
-            raw_rows = csv.DictReader(f)
-            with_baseline = filter(lambda x: x['offsetBaseline'] == 'always', raw_rows)
-            with_threshold = filter(
-                lambda x: abs(float(x['threshold']) - 0.25) < 0.00001,
-                with_baseline
-            )
-            with_std = filter(lambda x: abs(float(x['stdMult']) - 1) < 0.0001, with_threshold)
-            with_geohash = filter(
-                lambda x: abs(float(x['geohashSimSize']) - 4) < 0.0001,
-                with_std
-            )
-            rows = map(make_row, with_geohash)
-
-            reduced_rows_keyed = toolz.itertoolz.reduceby(
-                lambda x: x['year'],
-                combine_rows,
-                rows
-            )
-            reduced_rows = reduced_rows_keyed.values()
-
-            with self.output().open('w') as f:
-                writer = csv.DictWriter(f, fieldnames=['year', 'num', 'predictedClaims'])
-                writer.writeheader()
-                writer.writerows(reduced_rows)
-
-
 class SummarizeYearlyActualClaims(luigi.Task):
     """Summarize actual system-wide claims per year."""
 
@@ -284,6 +211,14 @@ class SummarizeYearlyActualClaims(luigi.Task):
                 'lossRatio': new_loss_ratio
             }
 
+        def complete_row(target):
+            return {
+                'year': target['year'],
+                'count': target['count'],
+                'claimsRate': target['indemnified'] / target['count'],
+                'lossRatio': target['lossRatio']
+            }
+
         with self.input().open('r') as f:
             raw_rows = csv.DictReader(f)
             rows = map(make_row, raw_rows)
@@ -294,77 +229,9 @@ class SummarizeYearlyActualClaims(luigi.Task):
                 rows
             )
             reduced_rows = reduced_rows_keyed.values()
+            reduced_rows_complete = map(complete_row, reduced_rows)
 
             with self.output().open('w') as f:
-                writer = csv.DictWriter(f, fieldnames=['year', 'count', 'indemnified', 'lossRatio'])
+                writer = csv.DictWriter(f, fieldnames=['year', 'count', 'claimsRate', 'lossRatio'])
                 writer.writeheader()
-                writer.writerows(reduced_rows)
-
-
-class CombineYearlySimActualClaims(luigi.Task):
-    """Combine simulated and actual claims into a single CSV file.
-
-    Combine simulated and actual claims into a single CSV file with one year per row where rows are
-    only reported where simulated and actual results are available.
-    """
-
-    def requires(self):
-        """Indicate that both the simulated and actual claims metrics are needed.
-
-        Returns:
-            SummarizeYearlySimClaims and SummarizeYearlyActualClaims.
-        """
-        return {
-            'sim': SummarizeYearlySimClaims(),
-            'actual': SummarizeYearlyActualClaims()
-        }
-
-    def output(self):
-        """Indicate where the CSV should be written with combined metrics.
-
-        Returns:
-            CSV target where combined simulated and actuals should be written.
-        """
-        return luigi.LocalTarget(const.get_file_location('usda_post_combined_yearly_summary.csv'))
-
-    def run(self):
-        """Create a combined CSV file."""
-        sim_keyed = self._get_indexed('sim')
-        actual_keyed = self._get_indexed('actual')
-
-        sim_keys = set(sim_keyed.keys())
-        actual_keys = set(actual_keyed.keys())
-        combined_keys = sim_keys.intersection(actual_keys)
-
-        def make_output_row(key):
-            sim_row = sim_keyed[key]
-            actual_row = actual_keyed[key]
-            return {
-                'year': sim_row['year'],
-                'actualCount': actual_row['count'],
-                'actualClaims': float(actual_row['indemnified']) / float(actual_row['count']),
-                'actualLossRatio': actual_row['lossRatio'],
-                'simCount': sim_row['num'],
-                'simClaims': sim_row['predictedClaims']
-            }
-
-        output_rows = map(make_output_row, combined_keys)
-
-        with self.output().open('w') as f:
-            writer = csv.DictWriter(f, fieldnames=FINAL_FIELDS)
-            writer.writeheader()
-            writer.writerows(output_rows)
-
-    def _get_indexed(self, file_key):
-        """Get the rows indexed by year.
-
-        Args:
-            file_key: Name of the input to process.
-
-        Returns:
-            Dictionary from year (as integer) to raw row.
-        """
-        with self.input()[file_key].open('r') as f:
-            records = csv.DictReader(f)
-            records_tuple = map(lambda x: (int(x['year']), x), records)
-            return dict(records_tuple)
+                writer.writerows(reduced_rows_complete)
