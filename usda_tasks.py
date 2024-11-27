@@ -208,10 +208,9 @@ class SummarizeYearlySimClaims(luigi.Task):
         with self.input().open('r') as f:
             raw_rows = csv.DictReader(f)
             with_baseline = filter(lambda x: x['offsetBaseline'] == 'always', raw_rows)
-            with_condition = filter(lambda x: x['condition'] == 'historic', with_baseline)
             with_threshold = filter(
                 lambda x: abs(float(x['threshold']) - 0.25) < 0.00001,
-                with_condition
+                with_baseline
             )
             with_std = filter(lambda x: abs(float(x['stdMult']) - 1) < 0.0001, with_threshold)
             with_geohash = filter(
