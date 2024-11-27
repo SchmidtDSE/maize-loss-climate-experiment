@@ -232,13 +232,13 @@ def make_scatter_values(records, climate_deltas, configuration):
     loss_records_validated = map(validate_record, loss_records)
 
     if configuration.get_risk_range() == 'Sample 1 Year':
-        year_records = filter(lambda x: x.get_year() in [2030, 2050], loss_records)
+        year_records = filter(lambda x: x.get_year() in [2030, 2050], loss_records_validated)
         count_multiplier = 1  # single year summarized
     else:
         year_records_nested = toolz.itertoolz.reduceby(
             lambda x: x.get_key(),
             lambda a, b: a.combine(b),
-            loss_records
+            loss_records_validated
         )
         year_records = year_records_nested.values()
         count_multiplier = 5  # 5 years summarized
