@@ -504,13 +504,13 @@ def parse_record(raw_record):
     )
 
     original_yield = YieldDistribution(
-        float(raw_record['counterfactualMean']),
+        try_float(raw_record['counterfactualMean']),
         0,
         num
     )
 
     predicted_yield = YieldDistribution(
-        float(raw_record['predictedMean']),
+        try_float(raw_record['predictedMean']),
         0,
         num
     )
