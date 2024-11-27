@@ -144,11 +144,7 @@ We project climate change to roughly double loss probabilities ($p_{l}$) at mid-
 Our resulting dataset spans 1999 to 2016 during which we observe a median of 83k SCYM yield estimations at roughly field-scale per neighborhood. These outcomes are represented within neighborhood-level distributions per year.
 
 ## Neural network outcomes
-With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included.
-
-![Histogram of error residuals for the train set (A), validation set (B), test set prior to retraining (C), and test set after retraining (D).](./img/residuals.png "Histogram of error residuals for the train set (A), validation set (B), test set prior to retraining (C), and test set after retraining (D)."){#fig:residuals}
-
-We observe some outliers as shown in Figure @fig:residuals and we report using median absolute error (MdAE) in response. We see {{retrainMeanMdae}} MdAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMdae}} when predicting neighborhood standard deviation when evaluting using the fully hidden test set. We also evaluate regression performance through varied definitions of test sets in Table @tbl:posthocresults.
+With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. This results in {{retrainMeanMae}} MAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMae}} when predicting neighborhood standard deviation when evaluting using the fully hidden test set. That said, crop insurance and our model treat yield deltas as a percentage change which may be subject to noise where, for example, small yield changes generate large percentage differences if the initial yield is small. Using median absolute error (MdAE) to account for this skew, our selected model sees {{retrainMeanMdae}} MdAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMdae}} when predicting neighborhood standard deviation when evaluting using the fully hidden test set.
 
 | **Task**              | **Test Mean Pred MdAE** | **Test Std Pred MdAE** | **% of Units in Test Set** |
 | --------------------- | ---------------------- | --------------------- | -------------------------- |
@@ -159,7 +155,7 @@ We observe some outliers as shown in Figure @fig:residuals and we report using m
 
 Table: Results of tests after model selection. {#tbl:posthocresults}
 
-Additional performance metrics are offered in supplemental and the interactive tools website allows for further examination of error for both the chosen model and other rejected candidates.
+We also evaluate regression performance through varied definitions of test sets in Table @tbl:posthocresults, showing similar results. Additional performance metrics are offered in supplemental and the interactive tools website allows for further examination of error for both the chosen model and other rejected candidates.
 
 ## Simulation outcomes
 After retraining on all available data using the selected configuration from our sweep, Monte Carlo simulates overall outcomes while tracking changes to average yields over time at the neighborhood level. Despite the conservative nature of the Bonferroni correction [@mcdonald_handbook_2014], {{percentSignificant}} of maize acreage in SSP245 falls within a neighborhood with significant changes to claim probability ($p < 0.05 / n$) at some point during the 2050 series simulations. That said, we observe that some of the remaining neighborhoods failing to meet that threshold have less land dedicated to maize within their area (smaller sample size in simulations).

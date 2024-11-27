@@ -83,7 +83,18 @@ Additionally, we observe that error stays below 25% for most instances. That sai
 
 ![Histogram showing absolute value of residuals from the fully hidden test set capped to 100%.](./img_static/residuals.png "Histogram showing absolute value of residuals from the fully hidden test set capped to 100%."){#fig:residuals}
 
-All this in mind, the main text reports on median aboslute error which is much lower. Even so, the test set residuals are sampled during Monte Carlo to propogate uncertainty.
+All this in mind, the main text reports on median aboslute error which is much lower. Even so, the test set residuals are sampled during Monte Carlo to propogate uncertainty. Finally, we report on mean absolute error for the post-hoc tasks in Table @tbl:posthocresults.
+
+| **Task**              | **Test Mean Pred MdAE** | **Test Std Pred MdAE** | **% of Units in Test Set** |
+| --------------------- | ---------------------- | --------------------- | -------------------------- |
+| Random   | {{randomMeanMae}}      | {{randomStdMae}}      | {{randomPercent}}          |
+| Temporal | {{temporalMeanMae}}    | {{temporalStdMae}}    | {{temporalPercent}}        |
+| Spatial  | {{spatialMeanMae}}     | {{spatialStdMae}}     | {{spatialPercent}}         |
+| Climatic | {{climateMeanMae}}     | {{climateStdMae}}     | {{climatePercent}}         |
+
+Table: Results of tests after model selection. {#tbl:posthocresults}
+
+This analysis complements the median absolute errors presented in main text.
 
 # Detailed simulation results
 Though presented to one decimal place, we consider these results to suggest that claims rates will increase from 2 - 3% upwards to 5 - 6% in the SSP245 scenario.
