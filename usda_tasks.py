@@ -15,7 +15,6 @@ import requests
 import toolz.itertoolz
 
 import const
-import sim_tasks
 
 ZIP_URL_TEMPLATE = 'https://www.rma.usda.gov/sites/default/files/information-tools/sobcov_%d.zip'
 FIELDS = [
