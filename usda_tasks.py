@@ -161,14 +161,26 @@ class SummarizeUsdaYearCountyTask(luigi.Task):
 
 
 class SummarizeYearlySimClaims(luigi.Task):
+    """Sumamrize the simulated claims per year."""
 
     def requires(self):
+        """Indicate that the simulations for historic must be executed.
+
+        Returns:
+            sim_tasks.ExecuteSimulationTasksHistoricPredictedTask
+        """
         return sim_tasks.ExecuteSimulationTasksHistoricPredictedTask()
 
     def output(self):
+        """Indicate where the output should be written.
+
+        Returns:
+            Indicate the CSV where sim system-wide metrics should be written.
+        """
         return luigi.LocalTarget(const.get_file_location('usda_post_sim_yearly_summary.csv'))
 
     def run(self):
+        """Summarize simulated historic claims rates."""
 
         def make_row(target):
             return {
@@ -220,14 +232,26 @@ class SummarizeYearlySimClaims(luigi.Task):
 
 
 class SummarizeYearlyActualClaims(luigi.Task):
+    """Summarize actual system-wide claims per year."""
 
     def requires(self):
+        """Indicate that data were needed from the USDA to execute this task.
+
+        Returns:
+            SummarizeUsdaYearCountyTask
+        """
         return SummarizeUsdaYearCountyTask()
 
     def output(self):
+        """Indicate where the actuals CSV file should be written.
+
+        Returns:
+            The CSV file where the yearly summary for actuals should be written.
+        """
         return luigi.LocalTarget(const.get_file_location('usda_post_actual_yearly_summary.csv'))
 
     def run(self):
+        """Summarize the system-wide yearly metrics from USDA actuals."""
 
         def make_row(target):
             return {
@@ -277,17 +301,33 @@ class SummarizeYearlyActualClaims(luigi.Task):
 
 
 class CombineYearlySimActualClaims(luigi.Task):
+    """Combine simulated and actual claims into a single CSV file.
+
+    Combine simulated and actual claims into a single CSV file with one year per row where rows are
+    only reported where simulated and actual results are available.
+    """
 
     def requires(self):
+        """Indicate that both the simulated and actual claims metrics are needed.
+
+        Returns:
+            SummarizeYearlySimClaims and SummarizeYearlyActualClaims.
+        """
         return {
             'sim': SummarizeYearlySimClaims(),
             'actual': SummarizeYearlyActualClaims()
         }
 
     def output(self):
+        """Indicate where the CSV should be written with combined metrics.
+
+        Returns:
+            CSV target where combined simulated and actuals should be written.
+        """
         return luigi.LocalTarget(const.get_file_location('usda_post_combined_yearly_summary.csv'))
 
     def run(self):
+        """Create a combined CSV file."""
         sim_keyed = self._get_keyed('sim')
         actual_keyed = self._get_keyed('actual')
 
@@ -315,6 +355,14 @@ class CombineYearlySimActualClaims(luigi.Task):
             writer.writerows(output_rows)
 
     def _get_indexed(self, file_key):
+        """Get the rows indexed by year.
+
+        Args:
+            file_key: Name of the input to process.
+
+        Returns:
+            Dictionary from year (as integer) to raw row.
+        """
         with self.input()[file_key] as f:
             records = csv.DictReader(f)
             records_tuple = map(lambda x: (int(x['year'], x)), records)
