@@ -68,20 +68,20 @@ We treat practices as latent within our observed yield distributions. That in mi
 We document that we build our model with instance weighting. Specifically, we use the number (not value) of SCYM pixels in a neighborhood to weight each neighborhood. In other words, the weight is higher in neighborhoods with more maize growing acreage.
 
 ## Model error and residuals
-The drop in error observed from validation to test performance may be explained by the increased training set size. Indeed, evaluating test performance without retraining with train and validation together leads to an elevated test set error as indicated in Table @tbl:retrain. This may indicate that the model is specifically data constrained by the number of years available for training. Our open source data pipeline can and will be used to rerun analysis as input datasets are updated to include additional years in the future.
+Table @tbl:retrain provides mean absolute error for the selected model from the sweep. A drop in error observed from validation to test performance may be explained by the increased training set size. This may indicate that the model is specifically data constrained by the number of years available for training. Our open source data pipeline can and will be used to rerun analysis as input datasets are updated to include additional years in the future.
 
 | **Set**             | **MAE for Mean Prediction** | **MAE for Std Prediction** |
 | -------------------- | ----------------------- | ---------------------- |
+| Train                | {{trainMeanMae}}        | {{trainStdMae}}   |
 | Validation           | {{validationMeanMae}}   | {{validationStdMae}}   |
 | Test with retrain    | {{retrainMeanMae}}      | {{retrainStdMae}}      |
 | Test without retrain | {{testMeanMae}}         | {{testStdMae}}         |
-| Test with retrain    | {{retrainMeanMae}}      | {{retrainStdMae}}      |
 
-Table: Follow up experiment in which the test is evaluated without retraining. {#tbl:retrain}
+Table: Residuals for the main training task with and without retraining. {#tbl:retrain}
 
-Additionally, we observe that error stays below 25% for most instances. That said, closer investigation reveals that there is a small group of instances for which mean prediction specifically is more difficult as described in Figure . 
+Additionally, we observe that error stays below 25% for most instances. That said, closer investigation reveals that there is a small group of instances for which mean prediction specifically is more difficult as described in Figure @fig:residuals.
 
-![Histogram showing absolute value of residuals from the fully hidden test set capped to 100%.](./img_static/residuals.png "Histogram showing absolute value of residuals from the fully hidden test set capped to 100%."){ width=95% #fig:riskunit}
+![Histogram showing absolute value of residuals from the fully hidden test set capped to 100%.](./img_static/residuals.png "Histogram showing absolute value of residuals from the fully hidden test set capped to 100%."){#fig:residuals}
 
 All this in mind, the main text reports on median aboslute error which is much lower. Even so, the test set residuals are sampled during Monte Carlo to propogate uncertainty.
 
