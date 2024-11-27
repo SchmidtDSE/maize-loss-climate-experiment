@@ -144,17 +144,7 @@ We project climate change to roughly double loss probabilities ($p_{l}$) at mid-
 Our resulting dataset spans 1999 to 2016 during which we observe a median of 83k SCYM yield estimations at roughly field-scale per neighborhood. These outcomes are represented within neighborhood-level distributions per year.
 
 ## Neural network outcomes
-With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. Table @tbl:sweep describes performance for the chosen configuration. As yield deltas are precent changes, there are some outliers so we report our results using median absolute error (MdAE) with supplemental providing additional metrics.
-
-| **Set**             | **MdAE for Mean Prediction** | **MdAE for Std Prediction** |
-| ------------------- | ----------------------- | ---------------------- |
-| Train               | {{trainMeanMdae}}       | {{trainStdMdae}}       |
-| Validation          | {{validationMeanMdae}}  | {{validationStdMdae}}  |
-| Test                | {{retrainMeanMdae}}     | {{retrainStdMdae}}     |
-
-Table: Results of chosen configuration during the "sweep" for model selection. {#tbl:sweep}
-
-After retraining with train and validation together, we see {{retrainMeanMdae}} MdAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMdae}} when predicting neighborhood standard deviation when evaluting using the fully hidden test set. Next, having chosen this set of hyper-parameters, we also evaluate regression performance through varied definitions of test sets.
+With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. We observe some outliers with very large precent changes but, using median absolute error (MdAE) to account for this skew, we see {{retrainMeanMdae}} MdAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMdae}} when predicting neighborhood standard deviation when evaluting using the fully hidden test set. We also evaluate regression performance through varied definitions of test sets in Table @tbl:posthocresults.
 
 | **Task**              | **Test Mean Pred MdAE** | **Test Std Pred MdAE** | **% of Units in Test Set** |
 | --------------------- | ---------------------- | --------------------- | -------------------------- |
