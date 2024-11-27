@@ -343,7 +343,7 @@ class CombineYearlySimActualClaims(luigi.Task):
             return {
                 'year': sim_row['year'],
                 'actualCount': actual_row['count'],
-                'actualClaims': float(actual_row['indemnified']) / actual_row(sim_row['count']),
+                'actualClaims': float(actual_row['indemnified']) / float(actual_row['count']),
                 'actualLossRatio': actual_row['lossRatio'],
                 'simCount': sim_row['unitSize'],
                 'simClaims': sim_row['predictedClaims']
