@@ -66,15 +66,18 @@ class SummarizeUsdaYearCountyTask(luigi.Task):
 
     def run(self):
         """Summarize the USDA dataset for corn."""
-        nested = client.map(lambda x: self._process_year(x), const.YEARS)
+        nested = map(lambda x: self._process_year(x), const.YEARS)
         flattened = itertools.chain(*nested)
 
         with self.output().open('w') as f:
-            writer = csv.DictWriter()
-            writer.writeheader(['year', 'county', 'program', 'count', 'indemnified', 'lossRatio'])
+            writer = csv.DictWriter(
+                f,
+                fieldnames=['year', 'county', 'program', 'count', 'indemnified', 'lossRatio']
+            )
+            writer.writeheader()
             writer.writerows(flattened)
     
-    def process_year(self, year):
+    def _process_year(self, year):
         """Summarize a year of summary of business records.
 
         Args:
@@ -133,17 +136,27 @@ class SummarizeUsdaYearCountyTask(luigi.Task):
                 reader = csv.reader(csv_text, delimiter='|')
 
                 rows = map(make_row, reader)
-                maize_rows = filter(lambda x: x['commodityName'] == 'Corn')
-                in_scope_rows = filter(lambda x: x['insuranceName'] in ['YP', 'RP'], maize_rows)
-                valid_rows = filter(lambda x: x['count'] > 0, in_scope_rows)
-                simplified_rows = map(simplify_row, valid_rows)
+                maize_rows = filter(
+                    lambda x: x['commodityName'].lower() in ['corn', 'sweet corn'],
+                    rows
+                )
+                in_scope_rows = filter(
+                    lambda x: x['insuranceName'].lower() in ['yp', 'rp', 'aph'],
+                    maize_rows
+                )
+                simplified_rows = map(simplify_row, in_scope_rows)
+                simplified_rows_valid = filter(lambda x: x['count'] > 0, simplified_rows)
 
                 reduced_rows_keyed = toolz.itertoolz.reduceby(
                     lambda x: x['county'] + '\t' + x['program'],
                     combine_rows,
-                    simplified_rows
+                    simplified_rows_valid
                 )
                 reduced_rows = reduced_rows_keyed.values()
+
+                if len(reduced_rows) == 0:
+                    raise RuntimeError('No records found on %s.' % url)
+
                 return reduced_rows
 
 
@@ -209,7 +222,7 @@ class SummarizeYearlySimClaims(luigi.Task):
 class SummarizeYearlyActualClaims(luigi.Task):
 
     def requires(self):
-        return sim_tasks.SummarizeUsdaYearCountyTask()
+        return SummarizeUsdaYearCountyTask()
 
     def output(self):
         return luigi.LocalTarget(const.get_file_location('usda_post_actual_yearly_summary.csv'))
