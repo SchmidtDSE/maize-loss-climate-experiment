@@ -218,11 +218,18 @@ def make_scatter_values(records, climate_deltas, configuration):
     Returns:
         List of ScatterPoints.
     """
+    def validate_record(target):
+        predicted_ok = target['predictedRisk'] is not None
+        counterfactual_ok = target['counterfactualRisk'] is not None
+        assert predicted_ok and counterfactual_ok
+        return target
+
     scenario = configuration.get_scenario()
     target_year = int(scenario[:4])
     target_loss = '25% loss' if configuration.get_loss() == '75% cov' else '15% loss'
     scenario_records = filter(lambda x: scenario.startswith(str(get_scenario_year(x))), records)
     loss_records = filter(lambda x: x.get_loss() == target_loss, scenario_records)
+    loss_records_validated = map(validate_record, loss_records)
 
     if configuration.get_risk_range() == 'Sample 1 Year':
         year_records = filter(lambda x: x.get_year() in [2030, 2050], loss_records)
