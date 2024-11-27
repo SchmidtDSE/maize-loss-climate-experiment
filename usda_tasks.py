@@ -367,5 +367,5 @@ class CombineYearlySimActualClaims(luigi.Task):
         """
         with self.input()[file_key].open('r') as f:
             records = csv.DictReader(f)
-            records_tuple = map(lambda x: (int(x['year'], x)), records)
+            records_tuple = map(lambda x: (int(x['year']), x), records)
             return dict(records_tuple)
