@@ -291,7 +291,7 @@ class MainPresenter:
         Returns:
             The y coordinate for the value in pixels.
         """
-        return value / 30 * (SUB_CHART_HEIGHT - 20)
+        return value / 20 * (SUB_CHART_HEIGHT - 20)
 
     def _combine_dicts(self, a, b):
         """Combine two dictionaries with numeric values.
@@ -676,7 +676,7 @@ class MainPresenter:
         self._sketch.set_text_align('right', 'center')
         self._sketch.set_text_font(const.FONT_SRC, 13)
 
-        for percent in range(0, 35, 5):
+        for percent in range(0, 25, 5):
             height = self._get_y(percent)
             self._sketch.draw_text(
                 5,
@@ -720,7 +720,7 @@ class MainPresenter:
         is_catastrophic = self._target_threshold == '75% cov'
         max_val = 20 if is_catastrophic else 25
 
-        y = SUB_CHART_HEIGHT - self._get_y(30)
+        y = SUB_CHART_HEIGHT - self._get_y(20)
         start_x = self._get_x(-100) - 5
         end_x = self._get_x(-25 if is_catastrophic else -15)
 
@@ -761,7 +761,7 @@ class MainPresenter:
         is_catastrophic = self._target_threshold == '75% cov'
         max_val = 20 if is_catastrophic else 25
 
-        y = self._get_y(30)
+        y = self._get_y(20)
         start_x = self._get_x(-100)
         end_x = self._get_x(-25 if is_catastrophic else -15)
 
