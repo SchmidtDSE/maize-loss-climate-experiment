@@ -16,7 +16,7 @@ import const
 import cluster_tasks
 
 
-def process_single(source_filename, access_key='', access_secret=''):
+def process_single(source_filename, access_key='', access_secret='', use_beta=False):
     """Summarize a single yield geotiff.
 
     Summarize a single yield geotiff within a self-contained function which can be run in
@@ -28,6 +28,7 @@ def process_single(source_filename, access_key='', access_secret=''):
             treat source_filename as local. Defaults to empty string ('').
         access_secret: The AWS access secret to use to access the geotiff if remote. If empty
             string, will treat source_filename as local. Defaults to empty string ('').
+        use_beta: Flag indicating if a beta distribution should be fit.
 
     Returns:
         GeohashYieldSummary
@@ -101,16 +102,20 @@ def process_single(source_filename, access_key='', access_secret=''):
         raw_data = geotiff.read_box(bounds)
         values = numpy.extract(raw_data > 0, raw_data)
 
+        return build_geohash_summary(year, geohash, values)
+
+    def build_geohash_summary_simple(year, geohash, values):
         count = values.shape[0]
-        if count > 0:
+        if count < 2:
+            mean = None
+            std = None
+            skew = None
+            kurtosis = None
+        else:
             mean = numpy.mean(values)
             std = numpy.std(values)
-        else:
-            mean = 0
-            std = 0
-
-        skew = scipy.stats.skew(values)
-        kurtosis = scipy.stats.kurtosis(values)
+            skew = scipy.stats.skew(values)
+            kurtosis = scipy.stats.kurtosis(values)
 
         return data_struct.GeohashYieldSummary(
             year,
@@ -121,6 +126,38 @@ def process_single(source_filename, access_key='', access_secret=''):
             skew,
             kurtosis
         )
+
+    def build_geohash_summary_beta(year, geohash, values):
+        base = build_geohash_summary_simple(year, geohash, values)
+
+        count = values.shape[0]
+        if count < 2:
+            yield_a = None
+            yield_b = None
+            yield_loc = None
+            yield_scale = None
+        else:
+            try:
+                fit_params = scipy.stats.beta.fit(values)
+                yield_a = fit_params[0]
+                yield_b = fit_params[1]
+                yield_loc = fit_params[2]
+                yield_scale = fit_params[3]
+            except scipy.stats._warnings_errors.FitError:
+                yield_a = None
+                yield_b = None
+                yield_loc = None
+                yield_scale = None
+
+        return data_struct.GeohashYieldSummaryBetaDecorator(
+            base,
+            yield_a,
+            yield_b,
+            yield_loc,
+            yield_scale
+        )
+
+    build_geohash_summary = build_geohash_summary_beta if use_beta else build_geohash_summary_simple
 
     return run(source_filename)
 
@@ -168,8 +205,8 @@ class GetYieldGeotiffsTask(luigi.Task):
         return file_util.get_bucket_files(bucket_name, access_key, access_secret)
 
 
-class PreprocessYieldGeotiffsTask(luigi.Task):
-    """Preprocess yield information by geohash."""
+class PreprocessYieldGeotiffsTemplateTask(luigi.Task):
+    """Template task for preprocessing yield information by geohash."""
 
     def requires(self):
         """Return list of tasks required to run yield preprocessing.
@@ -188,7 +225,7 @@ class PreprocessYieldGeotiffsTask(luigi.Task):
         Returns:
             LocalTarget where the preprocessed data should be written.
         """
-        return luigi.LocalTarget(const.get_file_location('yield.csv'))
+        return luigi.LocalTarget(const.get_file_location(self._get_filename()))
 
     def run(self):
         """Preprocess yield information."""
@@ -208,7 +245,7 @@ class PreprocessYieldGeotiffsTask(luigi.Task):
         with self.output().open('w') as output_file:
             writer = csv.DictWriter(
                 output_file,
-                fieldnames=const.GEOHASH_YIELD_COLS
+                fieldnames=self._get_output_cols()
             )
             writer.writeheader()
             writer.writerows(output_dicts)
@@ -236,18 +273,58 @@ class PreprocessYieldGeotiffsTask(luigi.Task):
             List of geotiff filenames.
         """
         cluster = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=10, maximum=50)
+        cluster.adapt(minimum=10, maximum=100)
         client = cluster.get_client()
 
         access_key = os.environ.get('AWS_ACCESS_KEY', '')
         access_secret = os.environ.get('AWS_ACCESS_SECRET', '')
 
         futures = client.map(
-            lambda x: process_single(x, access_key, access_secret),
+            lambda x: process_single(
+                x,
+                access_key=access_key,
+                access_secret=access_secret,
+                use_beta=self._get_use_beta()
+            ),
             tasks
         )
 
         return client.gather(futures)
+
+    def _get_use_beta(self):
+        raise NotImplementedError('Use implementor.')
+
+    def _get_filename(self):
+        raise NotImplementedError('Use implementor.')
+
+    def _get_output_cols(self):
+        raise NotImplementedError('Use implementor.')
+
+
+class PreprocessYieldGeotiffsTask(PreprocessYieldGeotiffsTemplateTask):
+    """Task for preprocessing yield information by geohash."""
+
+    def _get_use_beta(self):
+        return False
+
+    def _get_filename(self):
+        return 'yield.csv'
+
+    def _get_output_cols(self):
+        return const.GEOHASH_YIELD_COLS
+
+
+class PreprocessYieldGeotiffsBetaTask(PreprocessYieldGeotiffsTemplateTask):
+    """Task for preprocessing yield information by geohash with beta distributions."""
+
+    def _get_use_beta(self):
+        return True
+
+    def _get_filename(self):
+        return 'yield_beta.csv'
+
+    def _get_output_cols(self):
+        return const.GEOHASH_YIELD_BETA_COLS
 
 
 class GetTargetGeohashesTask(luigi.Task):

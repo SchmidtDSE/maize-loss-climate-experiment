@@ -551,7 +551,7 @@ class NormalizeRefHistoricEarlyTask(luigi.Task):
         Returns:
             LocalTarget at which filtered data should be written.
         """
-        return luigi.LocalTarget(const.get_file_location('ref_historic_normalized.csv'))
+        return luigi.LocalTarget(const.get_file_location('ref_historic_normalized_early.csv'))
 
     def run(self):
         """Run the filter and field check."""
@@ -587,7 +587,7 @@ class NormalizeRefHistoricLateTask(luigi.Task):
         Returns:
             LocalTarget at which filtered data should be written.
         """
-        return luigi.LocalTarget(const.get_file_location('ref_historic_normalized.csv'))
+        return luigi.LocalTarget(const.get_file_location('ref_historic_normalized_late.csv'))
 
     def run(self):
         """Run the filter and field check."""
@@ -680,14 +680,17 @@ class ProjectTaskTemplate(luigi.Task):
         with self.input()['configuration'].open('r') as f:
             configuration = json.load(f)['constrained']
 
-        model = keras.models.load_model(self.input()['model'].path)
+        model_raw = keras.models.load_model(self.input()['model'].path)
+        if const.MODEL_TRANSFORM:
+            model = training_tasks.TransformModel(model_raw)
+        else:
+            model = model_raw
 
         additional_block = configuration['block']
         allow_count = configuration['allowCount'].lower() == 'true'
 
         target_frame['joinYear'] = target_frame['year']
-        target_frame['simYear'] = target_frame['year'] - 2007 + self.get_base_year()
-        target_frame['year'] = target_frame['simYear']
+        target_frame['simYear'] = target_frame['year']
 
         input_attrs = training_tasks.get_input_attrs(additional_block, allow_count)
         inputs = target_frame[input_attrs]
@@ -1175,8 +1178,7 @@ class ProjectHistoricTask(luigi.Task):
         target_frame = pandas.read_csv(self.input()['target'].path)
 
         target_frame['joinYear'] = target_frame['year']
-        target_frame['simYear'] = 2007
-        target_frame['year'] = target_frame['simYear']
+        target_frame['simYear'] = target_frame['year']
 
         target_frame['predictedMean'] = target_frame['yieldMean']
         target_frame['predictedStd'] = target_frame['yieldStd']
@@ -1217,8 +1219,7 @@ class ProjectHistoricEarlyTask(luigi.Task):
         target_frame = pandas.read_csv(self.input()['target'].path)
 
         target_frame['joinYear'] = target_frame['year']
-        target_frame['simYear'] = 2000
-        target_frame['year'] = target_frame['simYear']
+        target_frame['simYear'] = target_frame['year']
 
         target_frame['predictedMean'] = target_frame['yieldMean']
         target_frame['predictedStd'] = target_frame['yieldStd']
@@ -1258,9 +1259,8 @@ class ProjectHistoricLateTask(luigi.Task):
         """Project into the historic dataset."""
         target_frame = pandas.read_csv(self.input()['target'].path)
 
-        target_frame['joinYear'] = target_frame['year']
-        target_frame['simYear'] = 2010
-        target_frame['year'] = target_frame['simYear']
+        target_frame['joinYear'] = target_frame['year'] - 10
+        target_frame['simYear'] = target_frame['year']
 
         target_frame['predictedMean'] = target_frame['yieldMean']
         target_frame['predictedStd'] = target_frame['yieldStd']
@@ -1920,7 +1920,10 @@ class MakeSimulationTasks2050CounterfactualTask(MakeSimulationTasksTemplate):
         Returns:
             Luigi task.
         """
-        return InterpretProject2030CounterfactualTask()
+        if const.INCLUDE_YEAR_IN_MODEL:
+            return InterpretProject2030CounterfactualTask()
+        else:
+            return InterpretProjectHistoricTask()
 
     def get_projection_task(self):
         """Get the task whose output describes geohash-level yield predictions.

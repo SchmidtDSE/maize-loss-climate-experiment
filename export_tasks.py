@@ -1065,37 +1065,16 @@ class ExportClaimsRatesTemplateTask(luigi.Task):
         Returns:
             The record after simplification and standardization.
         """
+        def determine_year(target):
+            if target <= 2016:
+                return 2010
+            elif target <= 2039:
+                return 2030
+            else:
+                return 2050
         return {
             'offsetBaseline': target['offsetBaseline'],
-            'year': {
-                1999: 2010,
-                2001: 2010,
-                2003: 2010,
-                2005: 2010,
-                2007: 2010,
-                2009: 2010,
-                2011: 2010,
-                2013: 2010,
-                2015: 2010,
-                2022: 2030,
-                2024: 2030,
-                2026: 2030,
-                2028: 2030,
-                2030: 2030,
-                2032: 2030,
-                2034: 2030,
-                2036: 2030,
-                2038: 2030,
-                2042: 2050,
-                2044: 2050,
-                2046: 2050,
-                2048: 2050,
-                2050: 2050,
-                2052: 2050,
-                2054: 2050,
-                2056: 2050,
-                2058: 2050
-            }[int(target['year'])],
+            'year': determine_year(int(target['year'])),
             'condition': target['condition'],
             'threshold': float(target['threshold']),
             'thresholdStd': float(target['thresholdStd']),

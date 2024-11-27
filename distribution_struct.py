@@ -6,7 +6,6 @@ unlike data_struct, these are not task-specific.
 License:
     BSD
 """
-
 import math
 
 
@@ -90,20 +89,45 @@ class Distribution:
         """
         return self._kurtosis
 
-    def combine(self, other):
+    def get_is_approx_normal(self):
+        """Determine if the distribution is approximately normal.
+
+        Returns:
+            True if approximately normal and False otherwise.
+        """
+        return abs(self.get_skew()) > 2 and abs(self.get_kurtosis()) < 7
+
+    def combine(self, other, allow_multiple_shapes=False):
         """Combine the samples from two different distributions.
 
         Args:
             other: The distribution to add to this one.
+            allow_multiple_shapes: Flag indicating if combining multiple shapes is OK. If False,
+                will raise an exception if either self or other are not approximately normal.
 
         Returns:
             Combined distributions.
         """
         new_count = self.get_count() + other.get_count()
 
-        self_mean_weight = self.get_mean() * self.get_count()
-        other_mean_weight = other.get_mean() * other.get_count()
-        new_mean = (self_mean_weight + other_mean_weight) / new_count
+        self_count = self.get_count()
+        other_count = other.get_count()
+
+        def get_weighted_average(self_val, other_val):
+            is_invalid = lambda x: x is None or (not math.isfinite(x))
+
+            if is_invalid(self_val):
+                return other_val
+
+            if is_invalid(other_val):
+                return self_val
+
+            self_weighted = self_val * self_count
+            other_weighted = other_val * other_count
+            pooled_weighted = self_weighted + other_weighted
+            return pooled_weighted / (self_count + other_count)
+
+        new_mean = get_weighted_average(self.get_mean(), other.get_mean())
 
         def get_variance_piece(target):
             return (target.get_count() - 1) * (target.get_std() ** 2)
@@ -128,22 +152,36 @@ class Distribution:
         else:
             new_max = max([self_max, other_max])
 
-        def get_weighted_avg(a_val, a_weight, b_val, b_weight):
-            return (a_val * a_weight + b_val * b_weight) / (a_weight + b_weight)
+        no_skew_info = self.get_skew() is None and other.get_skew() is None
+        no_kurtosis_info = self.get_kurtosis() is None and other.get_kurtosis() is None
+        no_sampling = no_skew_info and no_kurtosis_info
+        partial_info = no_skew_info != no_kurtosis_info
 
-        new_skew = get_weighted_avg(
-            self.get_skew(),
-            self.get_count(),
-            other.get_skew(),
-            other.get_count()
-        )
+        if no_sampling:
+            new_skew = None
+            new_kurtosis = None
+        elif partial_info:
+            raise RuntimeError('Cant combine where skew or kurtosis specified but not both.')
+        else:
+            self_approx_normal = self.get_is_approx_normal()
+            other_approx_normal = other.get_is_approx_normal()
+            both_normal = self_approx_normal and other_approx_normal
 
-        new_kurtosis = get_weighted_avg(
-            self.get_kurtosis(),
-            self.get_count(),
-            other.get_kurtosis(),
-            other.get_count()
-        )
+            if not both_normal:
+                if allow_multiple_shapes:
+                    print('Encountered multiple distribution shapes.')
+                else:
+                    raise RuntimeError('Encountered multiple distribution shapes.')
+
+            new_skew = get_weighted_average(
+                self.get_skew(),
+                other.get_skew()
+            )
+
+            new_kurtosis = get_weighted_average(
+                self.get_kurtosis(),
+                other.get_kurtosis()
+            )
 
         return Distribution(
             new_mean,

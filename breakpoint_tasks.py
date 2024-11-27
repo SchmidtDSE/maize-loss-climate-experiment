@@ -12,11 +12,13 @@ import luigi
 import cluster_tasks
 import const
 import export_tasks
+import normalize_tasks
 import preprocess_climate_tasks
 import preprocess_combine_tasks
 import sim_tasks
 import stats_tasks
 import training_tasks
+import usda_tasks
 
 
 class SampleClimatePreprocessTask(cluster_tasks.EndClusterTask):
@@ -115,10 +117,11 @@ class RunThroughPreprocessFutureTask(cluster_tasks.EndClusterTask):
             Tasks for 2030_SSP245 and 2050_SSP245.
         """
         return {
-            '2030_SSP245': preprocess_combine_tasks.ReformatFuturePreprocessTask(
+            'history': normalize_tasks.GetHistoricAsDeltaTask(),
+            '2030_SSP245': normalize_tasks.GetFutureAsDeltaTask(
                 condition='2030_SSP245'
             ),
-            '2050_SSP245': preprocess_combine_tasks.ReformatFuturePreprocessTask(
+            '2050_SSP245': normalize_tasks.GetFutureAsDeltaTask(
                 condition='2050_SSP245'
             )
         }
@@ -348,7 +351,11 @@ class ExecuteAllWithCluster(cluster_tasks.EndClusterTask):
         Returns:
             Multiple dependency.
         """
-        return [ExecuteSupplementalTasks(), training_tasks.SweepExtendedTask()]
+        return [
+            ExecuteSupplementalTasks(),
+            training_tasks.SweepExtendedTask(),
+            usda_tasks.SummarizeYearlyActualClaims()
+        ]
 
     def get_task_name(self):
         """Get a machine friendly name for this task.
