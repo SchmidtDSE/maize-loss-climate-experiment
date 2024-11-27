@@ -354,7 +354,7 @@ class ExecuteAllWithCluster(cluster_tasks.EndClusterTask):
         return [
             ExecuteSupplementalTasks(),
             training_tasks.SweepExtendedTask(),
-            usda_tasks.CombineYearlySimActualClaims()
+            usda_tasks.SummarizeYearlyActualClaims()
         ]
 
     def get_task_name(self):
