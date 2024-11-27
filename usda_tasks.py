@@ -62,7 +62,7 @@ class SummarizeUsdaYearCountyTask(luigi.Task):
         Returns:
             Location where the output CSV file should be written.
         """
-        return luigi.LocalTarget(const.get_file_location('usda_summary.csv'))
+        return luigi.LocalTarget(const.get_file_location('usda_post_summary.csv'))
 
     def run(self):
         """Summarize the USDA dataset for corn."""
@@ -158,7 +158,7 @@ class SummarizeYearlySimClaims(luigi.Task):
         return sim_tasks.ExecuteSimulationTasksHistoricPredictedTask()
 
     def output(self):
-        return luigi.LocalTarget(const.get_file_location('sim_yearly_summary.csv'))
+        return luigi.LocalTarget(const.get_file_location('usda_post_sim_yearly_summary.csv'))
 
     def run(self):
 
@@ -217,7 +217,7 @@ class SummarizeYearlyActualClaims(luigi.Task):
         return sim_tasks.SummarizeUsdaYearCountyTask()
 
     def output(self):
-        return luigi.LocalTarget(const.get_file_location('actual_yearly_summary.csv'))
+        return luigi.LocalTarget(const.get_file_location('usda_post_actual_yearly_summary.csv'))
 
     def run(self):
 
@@ -277,7 +277,7 @@ class CombineYearlyActualClaims(luigi.Task):
         }
 
     def output(self):
-        return luigi.LocalTarget(const.get_file_location('combined_yearly_summary.csv'))
+        return luigi.LocalTarget(const.get_file_location('usda_post_combined_yearly_summary.csv'))
 
     def run(self):
         sim_keyed = self._get_keyed('sim')
