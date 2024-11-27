@@ -330,8 +330,8 @@ class CombineYearlySimActualClaims(luigi.Task):
 
     def run(self):
         """Create a combined CSV file."""
-        sim_keyed = self._get_keyed('sim')
-        actual_keyed = self._get_keyed('actual')
+        sim_keyed = self._get_indexed('sim')
+        actual_keyed = self._get_indexed('actual')
 
         sim_keys = set(sim_keyed.keys())
         actual_keys = set(actual_keyed.keys())
