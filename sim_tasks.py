@@ -2154,7 +2154,7 @@ class ExecuteSimulationTasks2030Counterfactual(ExecuteSimulationTasksTemplate):
         Returns:
             Luigi task.
         """
-        return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
+        return None
 
 
 class ExecuteSimulationTasks2050Counterfactual(ExecuteSimulationTasksTemplate):
@@ -2182,7 +2182,7 @@ class ExecuteSimulationTasks2050Counterfactual(ExecuteSimulationTasksTemplate):
         Returns:
             Luigi task.
         """
-        return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
+        return None
 
 
 class CombineSimulationsTaskTemplate(luigi.Task):
