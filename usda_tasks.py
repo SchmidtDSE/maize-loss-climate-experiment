@@ -14,7 +14,6 @@ import luigi
 import requests
 import toolz.itertoolz
 
-import cluster_tasks
 import const
 import sim_tasks
 
