@@ -184,15 +184,15 @@ class SummarizeYearlySimClaims(luigi.Task):
         def make_row(target):
             return {
                 'year': int(target['year']),
-                'unitSize': int(target['unitSize']),
+                'num': int(target['num']),
                 'predictedClaims': float(target['predictedClaims'])
             }
 
         def combine_rows(row_a, row_b):
             assert row_a['year'] == row_b['year']
 
-            size_a = row_a['unitSize']
-            size_b = row_b['unitSize']
+            size_a = row_a['num']
+            size_b = row_b['num']
             combined_size = size_a + size_b
 
             weighted_a = size_a * row_a['predictedClaims']
@@ -201,7 +201,7 @@ class SummarizeYearlySimClaims(luigi.Task):
 
             return {
                 'year': row_a['year'],
-                'unitSize': combined_size,
+                'num': combined_size,
                 'predictedClaims': new_claims
             }
 
@@ -228,7 +228,7 @@ class SummarizeYearlySimClaims(luigi.Task):
             reduced_rows = reduced_rows_keyed.values()
 
             with self.output().open('w') as f:
-                writer = csv.DictWriter(f, fieldnames=['year', 'unitSize', 'predictedClaims'])
+                writer = csv.DictWriter(f, fieldnames=['year', 'num', 'predictedClaims'])
                 writer.writeheader()
                 writer.writerows(reduced_rows)
 
@@ -345,7 +345,7 @@ class CombineYearlySimActualClaims(luigi.Task):
                 'actualCount': actual_row['count'],
                 'actualClaims': float(actual_row['indemnified']) / float(actual_row['count']),
                 'actualLossRatio': actual_row['lossRatio'],
-                'simCount': sim_row['unitSize'],
+                'simCount': sim_row['num'],
                 'simClaims': sim_row['predictedClaims']
             }
 
