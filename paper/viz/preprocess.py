@@ -219,9 +219,7 @@ def make_scatter_values(records, climate_deltas, configuration):
         List of ScatterPoints.
     """
     def validate_record(target):
-        predicted_ok = target['predictedRisk'] is not None
-        counterfactual_ok = target['counterfactualRisk'] is not None
-        assert predicted_ok and counterfactual_ok
+        assert target.get_predicted_risk() is not None
         return target
 
     scenario = configuration.get_scenario()
