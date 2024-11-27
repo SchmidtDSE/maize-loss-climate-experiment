@@ -166,9 +166,9 @@ class SummarizeYearlySimClaims(luigi.Task):
         """Indicate that the simulations for historic must be executed.
 
         Returns:
-            sim_tasks.ExecuteSimulationTasksHistoricPredictedTask
+            sim_tasks.ExecuteSimulationTasks2030Counterfactual
         """
-        return sim_tasks.ExecuteSimulationTasksHistoricPredictedTask()
+        return sim_tasks.ExecuteSimulationTasks2030Counterfactual()
 
     def output(self):
         """Indicate where the output should be written.
@@ -183,7 +183,7 @@ class SummarizeYearlySimClaims(luigi.Task):
 
         def make_row(target):
             return {
-                'year': int(target['year']),
+                'year': int(target['year']) - 2030 + 2007,
                 'num': float(target['num']),
                 'predictedClaims': float(target['predictedClaims'])
             }
