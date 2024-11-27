@@ -168,7 +168,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
     Args:
         task: The task describing the simulation to execute.
         deltas: The model residuals as yield deltas to sample (should be a dictionary with mean and
-            std mapping to list of numbers).
+            std mapping to list of numbers). Pass None if deltas should not be taken.
         threshold: The loss / claims threshold as a precent like 0.15 for 15% below average.
         std_mult: The amount by which to muiltiply the standard deviation in simulation. A value of
             1 leaves things as is from the model outputs.
@@ -198,8 +198,12 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
     std_threshold = std_thresholds['%.2f' % threshold]
 
-    mean_deltas = deltas['mean']
-    std_deltas = deltas['std']
+    if deltas is None:
+        mean_deltas = [0]
+        std_deltas = [0]
+    else:
+        mean_deltas = deltas['mean']
+        std_deltas = deltas['std']
 
     original_mean = task.get_original_mean()
     original_std = task.get_original_std()
@@ -455,7 +459,7 @@ def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, off
     Args:
         tasks: The tasks describing the simulations to execute.
         deltas: The model residuals as yield deltas to sample (should be a dictionary with mean and
-            std mapping to list of numbers).
+            std mapping to list of numbers). Pass None if deltas should not be taken.
         threshold: The loss / claims threshold as a precent like 0.15 for 15% below average.
         std_mult: The amount by which to muiltiply the standard deviation in simulation. A value of
             1 leaves things as is from the model outputs.
@@ -1027,13 +1031,17 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
             StartClusterTask, CheckUnitSizes, DetermineEquivalentStdTask, task to generate
             simulation task information and task to generate model residuals.
         """
-        return {
+        required = {
             'tasks': self.get_tasks_task(),
-            'deltas': self.get_deltas_task(),
             'cluster': cluster_tasks.StartClusterTask(),
             'unitSizes': CheckUnitSizes(),
             'stdThresholds': DetermineEquivalentStdTask()
         }
+
+        if self.get_deltas_task() is not None:
+            required['deltas'] = self.get_deltas_task()
+
+        return required
 
     def output(self):
         """Get the location at which the simulation outputs should be written.
@@ -1075,22 +1083,25 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
         cluster.adapt(minimum=20, maximum=100)
         client = cluster.get_client()
 
-        with self.input()['deltas'].open('r') as f:
-            rows = csv.DictReader(f)
-            test_rows = filter(lambda x: x['setAssign'] == 'test', rows)
-            rows_mean_std_linear_str = map(
-                lambda x: (x['meanResidual'], x['stdResidual']),
-                test_rows
-            )
-            rows_mean_std_linear = map(
-                lambda x: (float(x[0]), float(x[1])),
-                rows_mean_std_linear_str
-            )
-            unzipped = list(zip(*rows_mean_std_linear))
-            deltas = {
-                'mean': unzipped[0],
-                'std': unzipped[1]
-            }
+        if 'deltas' in self.input():
+            with self.input()['deltas'].open('r') as f:
+                rows = csv.DictReader(f)
+                test_rows = filter(lambda x: x['setAssign'] == 'test', rows)
+                rows_mean_std_linear_str = map(
+                    lambda x: (x['meanResidual'], x['stdResidual']),
+                    test_rows
+                )
+                rows_mean_std_linear = map(
+                    lambda x: (float(x[0]), float(x[1])),
+                    rows_mean_std_linear_str
+                )
+                unzipped = list(zip(*rows_mean_std_linear))
+                deltas = {
+                    'mean': unzipped[0],
+                    'std': unzipped[1]
+                }
+        else:
+            deltas = None
 
         with self.input()['stdThresholds'].open('r') as f:
             std_thresholds = json.load(f)
@@ -1967,7 +1978,7 @@ class ExecuteSimulationTasksHistoricPredictedTask(ExecuteSimulationTasksTemplate
         Returns:
             Luigi task.
         """
-        return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
+        return None
 
     def get_sample_model_residuals(self):
         """Determine if model residuals should be sampled and applied to simulation outputs.
