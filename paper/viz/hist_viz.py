@@ -641,7 +641,7 @@ class MainPresenter:
         self._sketch.set_text_align('right', 'center')
         self._sketch.set_text_font(const.FONT_SRC, 13)
 
-        for percent in range(0, 35, 5):
+        for percent in range(0, 25, 5):
             height = self._get_y(percent)
             self._sketch.draw_text(
                 5,
@@ -687,7 +687,7 @@ class MainPresenter:
         self._sketch.set_text_align('left', 'center')
         self._sketch.draw_text(
             8,
-            SUB_CHART_HEIGHT - self._get_y(15),
+            SUB_CHART_HEIGHT - self._get_y(10),
             'of risk units'
         )
 
@@ -718,7 +718,7 @@ class MainPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 11)
 
         is_catastrophic = self._target_threshold == '75% cov'
-        max_val = 10 if is_catastrophic else 25
+        max_val = 20 if is_catastrophic else 25
 
         y = SUB_CHART_HEIGHT - self._get_y(30)
         start_x = self._get_x(-100) - 5
@@ -759,7 +759,7 @@ class MainPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 11)
 
         is_catastrophic = self._target_threshold == '75% cov'
-        max_val = 10 if is_catastrophic else 25
+        max_val = 20 if is_catastrophic else 25
 
         y = self._get_y(30)
         start_x = self._get_x(-100)

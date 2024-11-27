@@ -144,24 +144,24 @@ We project climate change to roughly double loss probabilities ($p_{l}$) at mid-
 Our resulting dataset spans 1999 to 2016 during which we observe a median of 83k SCYM yield estimations at roughly field-scale per neighborhood. These outcomes are represented within neighborhood-level distributions per year.
 
 ## Neural network outcomes
-With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. Table @tbl:sweep describes performance for the chosen configuration.
+With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. Table @tbl:sweep describes performance for the chosen configuration. As yield deltas are precent changes, there are some outliers so we report our results using median absolute error (MdAE) with supplemental providing additional metrics.
 
-| **Set**             | **MAE for Mean Prediction** | **MAE for Std Prediction** |
+| **Set**             | **MdAE for Mean Prediction** | **MdAE for Std Prediction** |
 | ------------------- | ----------------------- | ---------------------- |
-| Train               | {{trainMeanMae}}        | {{trainStdMae}}        |
-| Validation          | {{validationMeanMae}}   | {{validationStdMae}}   |
-| Test                | {{retrainMeanMae}}      | {{retrainStdMae}}      |
+| Train               | {{trainMeanMdae}}       | {{trainStdMdae}}       |
+| Validation          | {{validationMeanMdae}}  | {{validationStdMdae}}  |
+| Test                | {{retrainMeanMdae}}     | {{retrainStdMdae}}     |
 
 Table: Results of chosen configuration during the "sweep" for model selection. {#tbl:sweep}
 
-After retraining with train and validation together, we see {{retrainMeanMae}} MAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMae}} when predicting neighborhood standard deviation when evaluting using the fully hidden test set. Next, having chosen this set of hyper-parameters, we also evaluate regression performance through varied definitions of test sets.
+After retraining with train and validation together, we see {{retrainMeanMdae}} MdAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMdae}} when predicting neighborhood standard deviation when evaluting using the fully hidden test set. Next, having chosen this set of hyper-parameters, we also evaluate regression performance through varied definitions of test sets.
 
-| **Task**              | **Test Mean Pred MAE** | **Test Std Pred MAE** | **% of Units in Test Set** |
+| **Task**              | **Test Mean Pred MdAE** | **Test Std Pred MdAE** | **% of Units in Test Set** |
 | --------------------- | ---------------------- | --------------------- | -------------------------- |
-| Random   | {{randomMeanMae}}      | {{randomStdMae}}      | {{randomPercent}}          |
-| Temporal | {{temporalMeanMae}}    | {{temporalStdMae}}    | {{temporalPercent}}        |
-| Spatial  | {{spatialMeanMae}}     | {{spatialStdMae}}     | {{spatialPercent}}         |
-| Climatic | {{climateMeanMae}}     | {{climateStdMae}}     | {{climatePercent}}         |
+| Random   | {{randomMeanMdae}}      | {{randomStdMdae}}      | {{randomPercent}}          |
+| Temporal | {{temporalMeanMdae}}    | {{temporalStdMdae}}    | {{temporalPercent}}        |
+| Spatial  | {{spatialMeanMdae}}     | {{spatialStdMdae}}     | {{spatialPercent}}         |
+| Climatic | {{climateMeanMdae}}     | {{climateStdMdae}}     | {{climatePercent}}         |
 
 Table: Results of tests after model selection. {#tbl:posthocresults}
 
