@@ -75,7 +75,7 @@ class SummarizeUsdaYearCountyTask(luigi.Task):
             )
             writer.writeheader()
             writer.writerows(flattened)
-    
+
     def _process_year(self, year):
         """Summarize a year of summary of business records.
 
@@ -366,4 +366,3 @@ class CombineYearlySimActualClaims(luigi.Task):
             records = csv.DictReader(f)
             records_tuple = map(lambda x: (int(x['year'], x)), records)
             return dict(records_tuple)
-
