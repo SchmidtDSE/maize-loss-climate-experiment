@@ -184,7 +184,7 @@ class SummarizeYearlySimClaims(luigi.Task):
         def make_row(target):
             return {
                 'year': int(target['year']),
-                'num': int(target['num']),
+                'num': float(target['num']),
                 'predictedClaims': float(target['predictedClaims'])
             }
 
