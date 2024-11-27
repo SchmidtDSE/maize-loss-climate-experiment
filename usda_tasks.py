@@ -276,7 +276,7 @@ class SummarizeYearlyActualClaims(luigi.Task):
                 writer.writerows(reduced_rows)
 
 
-class CombineYearlyActualClaims(luigi.Task):
+class CombineYearlySimActualClaims(luigi.Task):
 
     def requires(self):
         return {

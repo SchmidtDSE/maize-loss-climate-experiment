@@ -18,6 +18,7 @@ import preprocess_combine_tasks
 import sim_tasks
 import stats_tasks
 import training_tasks
+import usda_tasks
 
 
 class SampleClimatePreprocessTask(cluster_tasks.EndClusterTask):
@@ -350,7 +351,11 @@ class ExecuteAllWithCluster(cluster_tasks.EndClusterTask):
         Returns:
             Multiple dependency.
         """
-        return [ExecuteSupplementalTasks(), training_tasks.SweepExtendedTask()]
+        return [
+            ExecuteSupplementalTasks(),
+            training_tasks.SweepExtendedTask(),
+            usda_tasks.CombineYearlySimActualClaims()
+        ]
 
     def get_task_name(self):
         """Get a machine friendly name for this task.
