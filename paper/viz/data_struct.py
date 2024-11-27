@@ -478,8 +478,14 @@ def parse_record(raw_record):
     Returns:
         Record after parsing with expected types.
     """
-    counterfactual_risk_rate = float(raw_record['counterfactualRisk'])
-    predicted_risk_rate = float(raw_record['predictedRisk'])
+    def try_float(target):
+        if target == '':
+            return None
+        else:
+            return float(target)
+
+    counterfactual_risk_rate = try_float(raw_record['counterfactualRisk'])
+    predicted_risk_rate = try_float(raw_record['predictedRisk'])
     adapted_risk_rate = predicted_risk_rate
     num = round(float(raw_record['num']))
 
@@ -498,13 +504,13 @@ def parse_record(raw_record):
     )
 
     original_yield = YieldDistribution(
-        float(raw_record['counterfactualMean']),
+        try_float(raw_record['counterfactualMean']),
         0,
         num
     )
 
     predicted_yield = YieldDistribution(
-        float(raw_record['predictedMean']),
+        try_float(raw_record['predictedMean']),
         0,
         num
     )

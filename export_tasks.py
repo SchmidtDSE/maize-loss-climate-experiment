@@ -1066,15 +1066,17 @@ class ExportClaimsRatesTemplateTask(luigi.Task):
             The record after simplification and standardization.
         """
         def determine_year(target):
-            if target <= 2016:
-                return 2010
-            elif target <= 2039:
-                return 2030
-            else:
-                return 2050
+            condition = target['condition']
+            return {
+                'historic': 2010,
+                '2010_Historic': 2010,
+                '2030_SSP245': 2030,
+                '2050_SSP245': 2050
+            }[condition]
+
         return {
             'offsetBaseline': target['offsetBaseline'],
-            'year': determine_year(int(target['year'])),
+            'year': determine_year(target),
             'condition': target['condition'],
             'threshold': float(target['threshold']),
             'thresholdStd': float(target['thresholdStd']),

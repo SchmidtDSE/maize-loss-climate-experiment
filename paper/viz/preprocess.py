@@ -218,20 +218,25 @@ def make_scatter_values(records, climate_deltas, configuration):
     Returns:
         List of ScatterPoints.
     """
+    def validate_record(target):
+        assert target.get_predicted_risk() is not None
+        return target
+
     scenario = configuration.get_scenario()
     target_year = int(scenario[:4])
     target_loss = '25% loss' if configuration.get_loss() == '75% cov' else '15% loss'
     scenario_records = filter(lambda x: scenario.startswith(str(get_scenario_year(x))), records)
     loss_records = filter(lambda x: x.get_loss() == target_loss, scenario_records)
+    loss_records_validated = map(validate_record, loss_records)
 
     if configuration.get_risk_range() == 'Sample 1 Year':
-        year_records = filter(lambda x: x.get_year() in [2030, 2050], loss_records)
+        year_records = filter(lambda x: x.get_year() in [2030, 2050], loss_records_validated)
         count_multiplier = 1  # single year summarized
     else:
         year_records_nested = toolz.itertoolz.reduceby(
             lambda x: x.get_key(),
             lambda a, b: a.combine(b),
-            loss_records
+            loss_records_validated
         )
         year_records = year_records_nested.values()
         count_multiplier = 5  # 5 years summarized
