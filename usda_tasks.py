@@ -66,12 +66,7 @@ class SummarizeUsdaYearCountyTask(luigi.Task):
 
     def run(self):
         """Summarize the USDA dataset for corn."""
-        cluster = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=10, maximum=20)
-        client = cluster.get_client()
-
-        future_nested = client.map(lambda x: self._process_year(x), const.YEARS)
-        nested = map(lambda x: x.result(), future_nested)
+        nested = client.map(lambda x: self._process_year(x), const.YEARS)
         flattened = itertools.chain(*nested)
 
         with self.output().open('w') as f:
