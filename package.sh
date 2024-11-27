@@ -16,7 +16,7 @@ cp workspace/export_sweep.csv package/data/sim_ag_all.csv
 cp workspace/export_summary.csv package/data/tool.csv
 cp workspace/export_claims.csv package/data/export_claims.csv
 cp workspace/export_climate.csv package/data/climate.csv
-cp workspace/post_hoc_temporal.csv package/data/residuals.csv
+cp workspace/post_hoc_temporal_with_count.csv package/data/residuals.csv
 
 rm -r package/build
 mkdir package/build
