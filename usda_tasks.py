@@ -97,7 +97,7 @@ class SummarizeUsdaYearCountyTask(luigi.Task):
         def simplify_row(raw_row):
             return {
                 'year': year,
-                'county': '%s, %s' (raw_row['countyName'], raw_row['stateAbbrevation']),
+                'county': '%s, %s' % (raw_row['countyName'], raw_row['stateAbbrevation']),
                 'count': int(raw_row['unitsPremiumCount']),
                 'indemnified': int(raw_row['unitsIndemnifiedCount']),
                 'lossRatio': float(raw_row['lossRatio']),
