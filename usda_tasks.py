@@ -213,8 +213,11 @@ class SummarizeYearlySimClaims(luigi.Task):
                 lambda x: abs(float(x['threshold']) - 0.25) < 0.00001,
                 with_condition
             )
-            with_std = filter(lambda x: abs(int(x['stdMult']) - 1) < 0.00001, with_threshold)
-            with_geohash = filter(lambda x: int(x['geohashSimSize']) == 4, with_std)
+            with_std = filter(lambda x: abs(float(x['stdMult']) - 1) < 0.0001, with_threshold)
+            with_geohash = filter(
+                lambda x: abs(float(x['geohashSimSize']) - 4) < 0.0001,
+                with_std
+            )
             rows = map(make_row, with_geohash)
 
             reduced_rows_keyed = toolz.itertoolz.reduceby(
