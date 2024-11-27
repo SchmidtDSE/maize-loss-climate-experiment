@@ -8,6 +8,7 @@ cp workspace/export_summary.csv package/outputs/export_summary.csv
 cp workspace/export_claims.csv package/outputs/export_claims.csv
 cp workspace/export_combined_tasks.csv package/outputs/export_combined_tasks.csv
 cp workspace/export_climate.csv package/outputs/export_climate.csv
+cp workspace/usda_post_actual_yearly_summary.csv package/outputs/usda_post_actual_yearly_summary.csv
 
 mkdir package/data
 cp workspace/export_hist.csv package/data/sim_hist.csv
