@@ -641,7 +641,8 @@ NON_DELTA_FIELDS = [
     'yieldA',
     'yieldB',
     'yieldLoc',
-    'yieldScale'
+    'yieldScale',
+    'sample'
 ]
 
 TRAINING_STR_FIELDS = {'geohash'}
