@@ -262,7 +262,7 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 'target_std': target_std
             }
 
-            if USE_BETA_DIST:
+            if const.USE_BETA_DIST:
                 ret_row['target_a'] = get_finite_maybe(row['yieldA'])
                 ret_row['target_b'] = get_finite_maybe(row['yieldB'])
                 ret_row['target_loc'] = get_finite_maybe(row['yieldLoc'])

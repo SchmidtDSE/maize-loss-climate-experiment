@@ -17,7 +17,7 @@ import cluster_tasks
 
 
 def process_single(source_filename, access_key='', access_secret='', use_beta=False,
-    use_summary=False):
+    use_sample=False):
     """Summarize a single yield geotiff.
 
     Summarize a single yield geotiff within a self-contained function which can be run in
@@ -30,7 +30,7 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
         access_secret: The AWS access secret to use to access the geotiff if remote. If empty
             string, will treat source_filename as local. Defaults to empty string ('').
         use_beta: Flag indicating if a beta distribution should be fit.
-        use_summary: Flag indicating if a sample should be taken instead of assuming dist shape.
+        use_sample: Flag indicating if a sample should be taken instead of assuming dist shape.
 
     Returns:
         GeohashYieldSummary
@@ -348,7 +348,7 @@ class PreprocessYieldGeotiffsBetaTask(PreprocessYieldGeotiffsTemplateTask):
         return const.GEOHASH_YIELD_BETA_COLS
 
 
-class PreprocessYieldGeotiffsBetaTask(PreprocessYieldGeotiffsTemplateTask):
+class PreprocessYieldGeotiffsDistTask(PreprocessYieldGeotiffsTemplateTask):
     """Task for preprocessing yield information by geohash with beta distributions."""
 
     def _get_use_beta(self):
