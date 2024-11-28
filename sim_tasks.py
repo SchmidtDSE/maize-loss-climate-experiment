@@ -1331,7 +1331,7 @@ class Project2030Task(ProjectTaskTemplate):
             Year after offsetting
         """
         effective_year = year - 2007 + 2030
-        return effective_year - 2016
+        return effective_year - 2007
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
@@ -1394,7 +1394,7 @@ class Project2030CounterfactualTask(ProjectTaskTemplate):
             Year after offsetting
         """
         effective_year = year - 2007 + 2030
-        return effective_year - 2016
+        return effective_year - 2007
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
@@ -1426,7 +1426,7 @@ class Project2050Task(ProjectTaskTemplate):
             Year after offsetting
         """
         effective_year = year - 2007 + 2050
-        return effective_year - 2039
+        return effective_year - 2030
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
@@ -1489,7 +1489,7 @@ class Project2050CounterfactualTask(ProjectTaskTemplate):
             Year after offsetting
         """
         effective_year = year - 2007 + 2050
-        return effective_year - 2039
+        return effective_year - 2030
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
