@@ -64,24 +64,33 @@ To further document how we structure our consideration of timeseries variables, 
 ## Crop rotations
 We treat practices as latent within our observed yield distributions. That in mind, a large share of growers will engage in at least simple crop rotations [@manski_diversified_2024] which is important for our simulations because it may change the locations in which maize is grown. We use SCYM to implicitly handle this complexity. These reported sample sizes impact the sampling behavior during Monte Carlo and, while this approach does not require explicit consideration of crop rotations, the set of geohashes present in results may vary from one year to the next in part due to this behavior. All that said, historic locations of growth and crop rotation behavior from the past are sampled in the future simulations.
 
-## Normality assumption
-In consideration of our normality assumption, we document that, in addition to 79% of neighborhoods exhibiting approximately normal yield deltas, 88% see approximate symmetry [@kim_statistical_2013]. Even so, future modeling could relax our normality assumption with additional data, potentially by avoiding the use of summary variables.
-
 ## Instance weight
 We document that we build our model with instance weighting. Specifically, we use the number (not value) of SCYM pixels in a neighborhood to weight each neighborhood. In other words, the weight is higher in neighborhoods with more maize growing acreage.
 
-## Limitations of sample size
-The drop in error observed from validation to test performance may be explained by the increased training set size. Indeed, evaluating test performance without retraining with train and validation together leads to an elevated test set error as indicated in Table @tbl:retrain.
+## Model error and residuals
+Table @tbl:retrain provides mean absolute error for the selected model from the sweep. A drop in error observed from validation to test performance may be explained by the increased training set size. This may indicate that the model is specifically data constrained by the number of years available for training. Our open source data pipeline can and will be used to rerun analysis as input datasets are updated to include additional years in the future.
 
 | **Set**             | **MAE for Mean Prediction** | **MAE for Std Prediction** |
 | -------------------- | ----------------------- | ---------------------- |
+| Train                | {{trainMeanMae}}        | {{trainStdMae}}   |
 | Validation           | {{validationMeanMae}}   | {{validationStdMae}}   |
 | Test with retrain    | {{retrainMeanMae}}      | {{retrainStdMae}}      |
 | Test without retrain | {{testMeanMae}}         | {{testStdMae}}         |
 
-Table: Follow up experiment in which the test is evaluated without retraining. {#tbl:retrain}
+Table: Residuals for the main training task with and without retraining. {#tbl:retrain}
 
-This may indicate that the model is specifically data constrained by the number of years available for training. Our open source data pipeline can and will be used to rerun analysis as input datasets are updated to include additional years in the future.
+The test set residuals are sampled during Monte Carlo to propogate uncertainty. That said, we observe that a relatively small sub-population of large percentage changes may skew results, causing the mean and median error to diverge as shown in post-hoc tasks in Table @tbl:posthocresults.
+
+| **Task**              | **Test Mean Pred MAE** | **Test Std Pred MAE** | **Test Mean Pred MdAE** | **Test Std Pred MdAE** |
+| --------------------- | ---------------------- | --------------------- | --------------------- | --------------------- |
+| Random   | {{randomMeanMae}}      | {{randomStdMae}}      | {{randomMeanMdae}}          | {{randomStdMdae}}          |
+| Temporal | {{temporalMeanMae}}    | {{temporalStdMae}}    | {{temporalMeanMdae}}        | {{temporalStdMdae}}        |
+| Spatial  | {{spatialMeanMae}}     | {{spatialStdMae}}     | {{spatialMeanMdae}}         | {{spatialStdMdae}}         |
+| Climatic | {{climateMeanMae}}     | {{climateStdMae}}     | {{climateMeanMdae}}         | {{climateStdMdae}}         |
+
+Table: Results of tests after model selection. {#tbl:posthocresults}
+
+Given this observation, we use median absolute errors in main text.
 
 # Detailed simulation results
 Though presented to one decimal place, we consider these results to suggest that claims rates will increase from 2 - 3% upwards to 5 - 6% in the SSP245 scenario.
