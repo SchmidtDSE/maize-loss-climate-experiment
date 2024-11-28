@@ -79,10 +79,10 @@ Table @tbl:retrain provides mean absolute error for the selected model from the 
 
 Table: Residuals for the main training task with and without retraining. {#tbl:retrain}
 
-Additionally, we observe that error stays below 25% for most instances and the test set residuals are sampled during Monte Carlo to propogate uncertainty. That said, we observe that a relatively small sub-population of large percentage changes may skew results, causing the mean and median error to diverge as shown in post-hoc tasks in Table @tbl:posthocresults.
+The test set residuals are sampled during Monte Carlo to propogate uncertainty. That said, we observe that a relatively small sub-population of large percentage changes may skew results, causing the mean and median error to diverge as shown in post-hoc tasks in Table @tbl:posthocresults.
 
 | **Task**              | **Test Mean Pred MAE** | **Test Std Pred MAE** | **Test Mean Pred MdAE** | **Test Std Pred MdAE** |
-| --------------------- | ---------------------- | --------------------- | -------------------------- |
+| --------------------- | ---------------------- | --------------------- | --------------------- | --------------------- |
 | Random   | {{randomMeanMae}}      | {{randomStdMae}}      | {{randomMeanMdae}}          | {{randomStdMdae}}          |
 | Temporal | {{temporalMeanMae}}    | {{temporalStdMae}}    | {{temporalMeanMdae}}        | {{temporalStdMdae}}        |
 | Spatial  | {{spatialMeanMae}}     | {{spatialStdMae}}     | {{spatialMeanMdae}}         | {{spatialStdMdae}}         |
