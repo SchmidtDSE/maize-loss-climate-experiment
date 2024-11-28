@@ -9,6 +9,7 @@ mv ./workspace/climate_2050_SSP245.csv ./clean_hold
 mv ./workspace/yield.csv ./clean_hold
 mv ./workspace/yield_beta.csv ./clean_hold
 mv ./workspace/unit_sizes_2023.csv ./clean_hold
+mv ./workspace/usda_post_summary.csv ./clean_hold
 
 # mv ./workspace/geohash_shapes.csv ./clean_hold
 # mv ./workspace/historic_averages.csv ./clean_hold

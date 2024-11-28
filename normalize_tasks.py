@@ -102,12 +102,13 @@ def transform_row_response(task, make_imports=False, response_available=True):
             size=5000
         )
 
-        deltas = (target_dist - baseline_mean) / baseline_mean
-        deltas_ln = numpy.arcsinh(deltas)
+        deltas_unbound = (target_dist - baseline_mean) / baseline_mean
+        deltas = numpy.clip(deltas_unbound, a_min=-1, a_max=None)
+        deltas_effective = numpy.arcsinh(deltas) if const.MODEL_TRANSFORM else deltas
         new_mean = numpy.mean(deltas)
         new_std = numpy.std(deltas)
-        new_skew = scipy.stats.skew(deltas_ln)
-        new_kurtosis = scipy.stats.kurtosis(deltas_ln)
+        new_skew = scipy.stats.skew(deltas_effective)
+        new_kurtosis = scipy.stats.kurtosis(deltas_effective)
     else:
         new_mean = None
         new_std = None
@@ -116,8 +117,8 @@ def transform_row_response(task, make_imports=False, response_available=True):
 
     row['yieldMean'] = new_mean
     row['yieldStd'] = new_std
-    row['skewLn'] = new_skew
-    row['kurtosisLn'] = new_kurtosis
+    row['skewEffective'] = new_skew
+    row['kurtosisEffective'] = new_kurtosis
     row['isComplete'] = complete
 
     return row
@@ -298,10 +299,10 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                     if not response_available:
                         return True
 
-                    if target['skewLn'] is None or abs(target['skewLn']) > 2:
+                    if target['skewEffective'] is None or abs(target['skewEffective']) > 2:
                         return False
 
-                    if target['kurtosisLn'] is None or abs(target['kurtosisLn']) > 7:
+                    if target['kurtosisEffective'] is None or abs(target['kurtosisEffective']) > 7:
                         return False
 
                     return True

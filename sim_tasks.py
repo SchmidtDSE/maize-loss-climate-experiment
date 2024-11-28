@@ -274,9 +274,10 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
             predicted_delta = predicted_yield_acc.get_mean()
             adapted_delta = adapted_yield_acc.get_mean()
 
-        baseline_deltas.append(original_mean)
-        predicted_deltas.append(predicted_delta)
-        adapted_deltas.append(adapted_delta)
+        ensure_valid_delta = lambda x: -1 if x < -1 else x
+        baseline_deltas.append(ensure_valid_delta(original_mean))
+        predicted_deltas.append(ensure_valid_delta(predicted_delta))
+        adapted_deltas.append(ensure_valid_delta(adapted_delta))
 
     def get_claims_rate(target, inner_threshold=threshold):
         neg_threshold = inner_threshold * -1
