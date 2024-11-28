@@ -553,10 +553,10 @@ class CombineHistoricPreprocessDistTask(CombineHistoricPreprocessTemplateTask):
                 sample_str = row['sample']
 
                 if sample_str == '':
+                    sample = []
+                else:
                     sample_strs = sample_str.split(' ')
                     sample = [float(x) for x in sample_strs]
-                else:
-                    sample = []
 
                 count = parse_util.try_float(row['count'])
 
