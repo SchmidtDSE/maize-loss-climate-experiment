@@ -692,6 +692,7 @@ class ProjectTaskTemplate(luigi.Task):
 
         target_frame['joinYear'] = target_frame['year']
         target_frame['simYear'] = target_frame['year']
+        target_frame['year'] = self._get_input_year(target_frame['year'])
 
         input_attrs = training_tasks.get_input_attrs(additional_block, allow_count)
         inputs = target_frame[input_attrs]
@@ -717,7 +718,7 @@ class ProjectTaskTemplate(luigi.Task):
         """
         raise NotImplementedError('Use implementor.')
 
-    def convert_year(self, year):
+    def _get_input_year(self, year):
         """Convert a year to a relative value.
 
         Args:
@@ -1290,7 +1291,7 @@ class ProjectHistoricModelTask(ProjectTaskTemplate):
         """
         return NormalizeRefHistoricTrainingFrameTask()
 
-    def convert_year(self, year):
+    def _get_input_year(self, year):
         """Convert a year to a relative value.
 
         Args:
@@ -1321,7 +1322,7 @@ class Project2030Task(ProjectTaskTemplate):
         """
         return normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2030_SSP245')
 
-    def convert_year(self, year):
+    def _get_input_year(self, year):
         """Convert a year to a relative value.
 
         Args:
@@ -1330,8 +1331,7 @@ class Project2030Task(ProjectTaskTemplate):
         Returns:
             Year after offsetting
         """
-        effective_year = year - 2007 + 2030
-        return effective_year - 2007
+        effective_year = year - 1998
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
@@ -1353,7 +1353,7 @@ class Project2030HoldYearTask(ProjectTaskTemplate):
         """
         return normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2030_SSP245')
 
-    def convert_year(self, year):
+    def _get_input_year(self, year):
         """Convert a year to a relative value.
 
         Args:
@@ -1384,7 +1384,7 @@ class Project2030CounterfactualTask(ProjectTaskTemplate):
         """
         return NormalizeRefHistoricTrainingFrameTask()
 
-    def convert_year(self, year):
+    def _get_input_year(self, year):
         """Convert a year to a relative value.
 
         Args:
@@ -1393,8 +1393,7 @@ class Project2030CounterfactualTask(ProjectTaskTemplate):
         Returns:
             Year after offsetting
         """
-        effective_year = year - 2007 + 2030
-        return effective_year - 2007
+        return year - 1998
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
@@ -1416,7 +1415,7 @@ class Project2050Task(ProjectTaskTemplate):
         """
         return normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2050_SSP245')
 
-    def convert_year(self, year):
+    def _get_input_year(self, year):
         """Convert a year to a relative value.
 
         Args:
@@ -1425,8 +1424,7 @@ class Project2050Task(ProjectTaskTemplate):
         Returns:
             Year after offsetting
         """
-        effective_year = year - 2007 + 2050
-        return effective_year - 2030
+        return year - 1998
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
@@ -1448,7 +1446,7 @@ class Project2050HoldYearTask(ProjectTaskTemplate):
         """
         return normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2050_SSP245')
 
-    def convert_year(self, year):
+    def _get_input_year(self, year):
         """Convert a year to a relative value.
 
         Args:
@@ -1479,7 +1477,7 @@ class Project2050CounterfactualTask(ProjectTaskTemplate):
         """
         return NormalizeRefHistoricTrainingFrameTask()
 
-    def convert_year(self, year):
+    def _get_input_year(self, year):
         """Convert a year to a relative value.
 
         Args:
@@ -1488,8 +1486,7 @@ class Project2050CounterfactualTask(ProjectTaskTemplate):
         Returns:
             Year after offsetting
         """
-        effective_year = year - 2007 + 2050
-        return effective_year - 2030
+        return year - 1998
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
