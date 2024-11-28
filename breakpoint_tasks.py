@@ -15,6 +15,7 @@ import export_tasks
 import normalize_tasks
 import preprocess_climate_tasks
 import preprocess_combine_tasks
+import preprocess_yield_tasks
 import sim_tasks
 import stats_tasks
 import training_tasks
@@ -75,6 +76,26 @@ class FullClimatePreprocessTask(cluster_tasks.EndClusterTask):
             Machine-friendly name.
         """
         return 'end_full_climate_preprocess'
+
+
+class YieldSampleTask(cluster_tasks.EndClusterTask):
+    """Task which completes through getting yield samples."""
+
+    def get_prereq(self):
+        """Get the tasks that need to be completed.
+
+        Returns:
+            Single task to be completed.
+        """
+        return preprocess_yield_tasks.PreprocessYieldGeotiffsDistTask()
+
+    def get_task_name(self):
+        """Get a machine friendly name for this task.
+
+        Returns:
+            Machine-friendly name.
+        """
+        return 'end_yield_sample'
 
 
 class RunThroughPreprocessTask(cluster_tasks.EndClusterTask):
