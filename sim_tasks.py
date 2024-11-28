@@ -692,7 +692,7 @@ class ProjectTaskTemplate(luigi.Task):
 
         target_frame['joinYear'] = target_frame['year']
         target_frame['simYear'] = target_frame['year']
-        target_frame['year'] = self._get_input_year(target_frame['year'])
+        target_frame['effectiveYear'] = self._get_input_year(target_frame['year'])
 
         input_attrs = training_tasks.get_input_attrs(additional_block, allow_count)
         inputs = target_frame[input_attrs]
