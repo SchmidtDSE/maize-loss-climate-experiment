@@ -551,8 +551,13 @@ class CombineHistoricPreprocessDistTask(CombineHistoricPreprocessTemplateTask):
                 mean = parse_util.try_float(row['mean'])
                 std = parse_util.try_float(row['std'])
                 sample_str = row['sample']
-                sample_strs = sample_str.split(' ')
-                sample = [float(x) for x in sample_strs]
+
+                if sample_str == '':
+                    sample_strs = sample_str.split(' ')
+                    sample = [float(x) for x in sample_strs]
+                else:
+                    sample = []
+
                 count = parse_util.try_float(row['count'])
 
                 if geohash not in geohash_builders:

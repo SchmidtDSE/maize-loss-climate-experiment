@@ -269,9 +269,12 @@ class GetAsDeltaTaskTemplate(luigi.Task):
                 ret_row['target_scale'] = get_finite_maybe(row['yieldScale'])
             else:
                 sample_str = row['sample']
-                sample_strs = sample_str.split(' ')
-                sample = [float(x) for x in sample_strs]
-                ret_row['sample'] = sample
+                if sample_str == '':
+                    ret_row['sample'] = []
+                else:
+                    sample_strs = sample_str.split(' ')
+                    sample = [float(x) for x in sample_strs]
+                    ret_row['sample'] = sample
 
             return ret_row
 
