@@ -171,7 +171,7 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
             yield_loc,
             yield_scale
         )
-    
+
     def build_geohash_summary_dist(base, values):
         values_flat = numpy.ravel(values)
         sample = numpy.random.choice(values_flat, size=1000)
