@@ -165,6 +165,37 @@ class GeohashCollectionBuilder(GeohashCollectionBuilderBase):
         self._add_builder(year, builder)
 
 
+class GeohashCollectionDistBuilder(GeohashCollectionBuilderBase):
+    """Builder to create yearly summaries for a geohash with sample that include all variables."""
+
+    def add_year(self, year, yield_mean, yield_std, sample, yield_observations):
+        """Start building a new summary for a new year.
+
+        Args:
+            year: The year for which a new summary should be started.
+            yield_mean: The mean value for yield to use for this summary.
+            yield_std: The standard deviation value for yield to use for this summary.
+            sample: Sample from the geohash.
+            yield_observations: The sample size / number of observations of yield for this year.
+        """
+        if self._get_has_any_missing([yield_mean, yield_std, sample, yield_observations]):
+            return
+
+        if self._has_year(year):
+            return
+
+        self._add_mean_std(yield_mean, yield_std, yield_observations)
+
+        builder = TrainingInstanceDistBuilder(
+            year,
+            yield_mean,
+            yield_std,
+            sample,
+            yield_observations
+        )
+        self._add_builder(year, builder)
+
+
 class GeohashCollectionBetaBuilder(GeohashCollectionBuilderBase):
     """Builder to create yearly summaries for a geohash that include all variables.
 
@@ -304,6 +335,36 @@ class TrainingInstanceBuilder(TrainingInstanceBuilderBase):
         output_dict['climateCounts'] = self._total_climate_counts
         output_dict['yieldMean'] = self._yield_mean
         output_dict['yieldStd'] = self._yield_std
+        output_dict['yieldObservations'] = self._yield_observations
+        return output_dict
+
+
+class TrainingInstanceDistBuilder(TrainingInstanceBuilderBase):
+    """Builder to generate model training a single year summary with sample for a single geohash."""
+
+    def __init__(self, year, yield_mean, yield_std, sample, yield_observations):
+        """Create a new builder.
+
+        Args:
+            year: The year for which training instances are being generated.
+            yield_mean: The average yield for the year.
+            yield_std: The standard deviation of yield for the year.
+            sample: The sample for the geohash.
+            yield_observations: Sample size / observation count for yield.
+        """
+        super().__init__()
+        self._year = year
+        self._yield_mean = yield_mean
+        self._yield_std = yield_std
+        self._sample = sample
+        self._yield_observations = yield_observations
+
+    def _finalize_output(self, output_dict):
+        output_dict['year'] = self._year
+        output_dict['climateCounts'] = self._total_climate_counts
+        output_dict['yieldMean'] = self._yield_mean
+        output_dict['yieldStd'] = self._yield_std
+        output_dict['sample'] = ' '.join(map(lambda x: str(x), self._sample))
         output_dict['yieldObservations'] = self._yield_observations
         return output_dict
 
@@ -474,6 +535,47 @@ class CombineHistoricPreprocessTask(CombineHistoricPreprocessTemplateTask):
         return 'training_frame.csv'
 
 
+class CombineHistoricPreprocessDistTask(CombineHistoricPreprocessTemplateTask):
+    """Combine geohash summaries (yield and climate) for a historic series with sample."""
+
+    def _get_output_attrs(self):
+        return const.TRAINING_FRAME_DIST_ATTRS
+
+    def _process_yields(self, geohash_builders):
+        with self.input()['yield'].open('r') as f:
+            rows = csv.DictReader(f)
+
+            for row in rows:
+                year = parse_util.try_int(row['year'])
+                geohash = str(row['geohash'])
+                mean = parse_util.try_float(row['mean'])
+                std = parse_util.try_float(row['std'])
+                sample_str = row['sample']
+                sample_strs = sample_str.split(' ')
+                sample = [float(x) for x in sample_strs]
+                count = parse_util.try_float(row['count'])
+
+                if geohash not in geohash_builders:
+                    geohash_builders[geohash] = GeohashCollectionDistBuilder(geohash)
+
+                geohash_builder = geohash_builders[geohash]
+                geohash_builder.add_year(
+                    year,
+                    mean,
+                    std,
+                    sample,
+                    count
+                )
+
+        return geohash_builders
+
+    def _get_yield_task(self):
+        return preprocess_yield_tasks.PreprocessYieldGeotiffsDistTask()
+
+    def _get_filename(self):
+        return 'training_frame_dist.csv'
+
+
 class CombineHistoricPreprocessBetaTask(CombineHistoricPreprocessTemplateTask):
     """Combine geohash summaries (yield and climate) for a historic series with beta dist."""
 
@@ -489,10 +591,12 @@ class CombineHistoricPreprocessBetaTask(CombineHistoricPreprocessTemplateTask):
                 geohash = str(row['geohash'])
                 mean = parse_util.try_float(row['mean'])
                 std = parse_util.try_float(row['std'])
+
                 yield_a = parse_util.try_float(row['a'])
                 yield_b = parse_util.try_float(row['b'])
                 yield_loc = parse_util.try_float(row['loc'])
                 yield_scale = parse_util.try_float(row['scale'])
+
                 count = parse_util.try_float(row['count'])
 
                 if geohash not in geohash_builders:
@@ -657,5 +761,49 @@ class ReformatFuturePreprocessBetaTask(ReformatFuturePreprocessTemplateTask):
 
         geohash_builder = geohash_builders[geohash]
         geohash_builder.add_year(year, -1, -1, -1, -1, -1, -1, -1)
+
+        return geohash_builder
+
+
+class ReformatFuturePreprocessDistTask(ReformatFuturePreprocessTemplateTask):
+    """Template for task creating a model-compatible frame in which future yields can be predicted.
+
+    Create a model-compatible frame containing climate projections in a format in which future
+    yields can be predicted using a sample.
+    """
+
+    condition = luigi.Parameter()
+
+    def requires(self):
+        """Indicate that climate data are required.
+
+        Returns:
+            PreprocessClimateGeotiffsTask
+        """
+        return {
+            'climate': preprocess_climate_tasks.PreprocessClimateGeotiffsTask(
+                dataset_name=self.condition,
+                conditions=[self.condition],
+                years=const.FUTURE_REF_YEARS
+            )
+        }
+
+    def output(self):
+        """Indicate the location at which the reformatted data frame should be written.
+
+        Returns:
+            LocalTarget at which the reformatted data should be written.
+        """
+        return luigi.LocalTarget(const.get_file_location('%s_frame_dist.csv' % self.condition))
+
+    def _get_output_attrs(self):
+        return const.TRAINING_FRAME_DIST_ATTRS
+
+    def _get_geohash_builder(self, geohash, year, geohash_builders):
+        if geohash not in geohash_builders:
+            geohash_builders[geohash] = GeohashCollectionDistBuilder(geohash)
+
+        geohash_builder = geohash_builders[geohash]
+        geohash_builder.add_year(year, -1, -1, [], -1)
 
         return geohash_builder

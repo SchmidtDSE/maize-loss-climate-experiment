@@ -95,6 +95,10 @@ GEOHASH_YIELD_BETA_COLS = GEOHASH_YIELD_COLS + [
     'scale'
 ]
 
+GEOHASH_YIELD_DIST_COLS = GEOHASH_YIELD_COLS + [
+    'sample'
+]
+
 TRAINING_FRAME_BASE_ATTRS = [
     'year',
     'geohash',
@@ -586,6 +590,8 @@ TRAINING_FRAME_BASE_ATTRS = [
 
 TRAINING_FRAME_ATTRS = TRAINING_FRAME_BASE_ATTRS + ['yieldMean', 'yieldStd']
 
+TRAINING_FRAME_DIST_ATTRS = TRAINING_FRAME_BASE_ATTRS + ['yieldMean', 'yieldStd', 'sample']
+
 TRAINING_FRAME_BETA_ATTRS = TRAINING_FRAME_BASE_ATTRS + [
     'yieldA',
     'yieldB',
@@ -621,6 +627,8 @@ YIELD_FIELDS = {
 NORM_YIELD_FIELDS = False
 
 MODEL_TRANSFORM = False
+
+USE_BETA_DIST = False
 
 NON_DELTA_FIELDS = [
     'year',

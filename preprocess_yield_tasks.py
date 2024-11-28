@@ -16,7 +16,8 @@ import const
 import cluster_tasks
 
 
-def process_single(source_filename, access_key='', access_secret='', use_beta=False):
+def process_single(source_filename, access_key='', access_secret='', use_beta=False,
+    use_summary=False):
     """Summarize a single yield geotiff.
 
     Summarize a single yield geotiff within a self-contained function which can be run in
@@ -29,6 +30,7 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
         access_secret: The AWS access secret to use to access the geotiff if remote. If empty
             string, will treat source_filename as local. Defaults to empty string ('').
         use_beta: Flag indicating if a beta distribution should be fit.
+        use_summary: Flag indicating if a sample should be taken instead of assuming dist shape.
 
     Returns:
         GeohashYieldSummary
@@ -44,6 +46,9 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
     import file_util
     import const
     import data_struct
+
+    if use_beta and use_sample:
+        raise RuntimeError('Cannot use use_beta and use_summary together.')
 
     def get_temporary_file(source_filename):
         return file_util.save_file_tmp(
@@ -102,7 +107,15 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
         raw_data = geotiff.read_box(bounds)
         values = numpy.extract(raw_data > 0, raw_data)
 
-        return build_geohash_summary(year, geohash, values)
+        summary = build_geohash_summary_simple(year, geohash, values)
+
+        if use_beta:
+            summary = build_geohash_summary_beta(summary, values)
+
+        if use_sample:
+            summary = build_geohash_summary_dist(summary, values)
+
+        return summary
 
     def build_geohash_summary_simple(year, geohash, values):
         count = values.shape[0]
@@ -127,9 +140,7 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
             kurtosis
         )
 
-    def build_geohash_summary_beta(year, geohash, values):
-        base = build_geohash_summary_simple(year, geohash, values)
-
+    def build_geohash_summary_beta(base, values):
         count = values.shape[0]
         if count < 2:
             yield_a = None
@@ -156,8 +167,11 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
             yield_loc,
             yield_scale
         )
-
-    build_geohash_summary = build_geohash_summary_beta if use_beta else build_geohash_summary_simple
+    
+    def build_geohash_summary_dist(base, values):
+        values_flat = numpy.ravel(values)
+        sample = numpy.random.choice(values_flat, size=1000)
+        return data_struct.GeohashYieldSummaryDistDecorator(base, sample)
 
     return run(source_filename)
 
@@ -284,7 +298,8 @@ class PreprocessYieldGeotiffsTemplateTask(luigi.Task):
                 x,
                 access_key=access_key,
                 access_secret=access_secret,
-                use_beta=self._get_use_beta()
+                use_beta=self._get_use_beta(),
+                use_sample=self._get_use_sample()
             ),
             tasks
         )
@@ -307,6 +322,9 @@ class PreprocessYieldGeotiffsTask(PreprocessYieldGeotiffsTemplateTask):
     def _get_use_beta(self):
         return False
 
+    def _get_use_sample(self):
+        return False
+
     def _get_filename(self):
         return 'yield.csv'
 
@@ -320,11 +338,30 @@ class PreprocessYieldGeotiffsBetaTask(PreprocessYieldGeotiffsTemplateTask):
     def _get_use_beta(self):
         return True
 
+    def _get_use_sample(self):
+        return False
+
     def _get_filename(self):
         return 'yield_beta.csv'
 
     def _get_output_cols(self):
         return const.GEOHASH_YIELD_BETA_COLS
+
+
+class PreprocessYieldGeotiffsBetaTask(PreprocessYieldGeotiffsTemplateTask):
+    """Task for preprocessing yield information by geohash with beta distributions."""
+
+    def _get_use_beta(self):
+        return False
+
+    def _get_use_sample(self):
+        return True
+
+    def _get_filename(self):
+        return 'yield_dist.csv'
+
+    def _get_output_cols(self):
+        return const.GEOHASH_YIELD_DIST_COLS
 
 
 class GetTargetGeohashesTask(luigi.Task):
