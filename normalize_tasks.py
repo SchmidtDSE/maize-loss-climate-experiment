@@ -102,7 +102,8 @@ def transform_row_response(task, make_imports=False, response_available=True):
             size=5000
         )
 
-        deltas = (target_dist - baseline_mean) / baseline_mean
+        deltas_unbound = (target_dist - baseline_mean) / baseline_mean
+        deltas = numpy.clip(deltas_unbound, a_min=-1, a_max=None)
         deltas_ln = numpy.arcsinh(deltas)
         new_mean = numpy.mean(deltas)
         new_std = numpy.std(deltas)
