@@ -80,27 +80,37 @@ def transform_row_response(task, make_imports=False, response_available=True):
     row = task['row']
     baseline_mean = task['baseline_mean']
     baseline_std = task['baseline_std']
-    target_a = task['target_a']
-    target_b = task['target_b']
-    target_loc = task['target_loc']
-    target_scale = task['target_scale']
 
-    values_required = [target_a, target_b, target_loc, target_scale]
-    values_none = filter(lambda x: x is None, values_required)
-    num_values_none = sum(map(lambda x: 1, values_none))
-    values_not_given = num_values_none > 0
+    if const.USE_BETA_DIST:
+        target_a = task['target_a']
+        target_b = task['target_b']
+        target_loc = task['target_loc']
+        target_scale = task['target_scale']
+
+        values_required = [target_a, target_b, target_loc, target_scale]
+        values_none = filter(lambda x: x is None, values_required)
+        num_values_none = sum(map(lambda x: 1, values_none))
+        values_not_given = num_values_none > 0
+    else:
+        sample = task['sample']
+        values_not_given = len(sample) == 0
+
     baseline_not_given = baseline_mean is None or baseline_std is None
 
     complete = not (values_not_given or baseline_not_given)
 
     if complete and response_available:
-        target_dist = scipy.stats.beta.rvs(
-            target_a,
-            target_b,
-            loc=target_loc,
-            scale=target_scale,
-            size=5000
-        )
+
+        if const.USE_BETA_DIST:
+            target_dist = scipy.stats.beta.rvs(
+                target_a,
+                target_b,
+                loc=target_loc,
+                scale=target_scale,
+                size=5000
+            )
+        else:
+            target_dist = numpy.array(sample)
 
         deltas_unbound = (target_dist - baseline_mean) / baseline_mean
         deltas = numpy.clip(deltas_unbound, a_min=-1, a_max=None)
@@ -242,22 +252,30 @@ class GetAsDeltaTaskTemplate(luigi.Task):
 
             target_mean = get_finite_maybe(row['yieldMean'])
             target_std = get_finite_maybe(row['yieldStd'])
-            target_a = get_finite_maybe(row['yieldA'])
-            target_b = get_finite_maybe(row['yieldB'])
-            target_loc = get_finite_maybe(row['yieldLoc'])
-            target_scale = get_finite_maybe(row['yieldScale'])
 
-            return {
+            ret_row = {
                 'row': row,
                 'baseline_mean': baseline_mean,
                 'baseline_std': baseline_std,
                 'target_mean': target_mean,
-                'target_std': target_std,
-                'target_a': target_a,
-                'target_b': target_b,
-                'target_loc': target_loc,
-                'target_scale': target_scale
+                'target_std': target_std
             }
+
+            if const.USE_BETA_DIST:
+                ret_row['target_a'] = get_finite_maybe(row['yieldA'])
+                ret_row['target_b'] = get_finite_maybe(row['yieldB'])
+                ret_row['target_loc'] = get_finite_maybe(row['yieldLoc'])
+                ret_row['target_scale'] = get_finite_maybe(row['yieldScale'])
+            else:
+                sample_str = row['sample']
+                if sample_str == '':
+                    ret_row['sample'] = []
+                else:
+                    sample_strs = sample_str.split(' ')
+                    sample = [float(x) for x in sample_strs]
+                    ret_row['sample'] = sample
+
+            return ret_row
 
         response_available = self._get_response_available()
         with self.input()['target'].open() as f_in:
@@ -385,7 +403,10 @@ class GetHistoricAsDeltaTask(GetAsDeltaTaskTemplate):
         Returns:
             Luigi task.
         """
-        return preprocess_combine_tasks.CombineHistoricPreprocessBetaTask()
+        if const.USE_BETA_DIST:
+            return preprocess_combine_tasks.CombineHistoricPreprocessBetaTask()
+        else:
+            return preprocess_combine_tasks.CombineHistoricPreprocessDistTask()
 
     def get_filename(self):
         """Get the filename to which the results should be written.
@@ -415,7 +436,14 @@ class GetFutureAsDeltaTask(GetAsDeltaTaskTemplate):
         Returns:
             Luigi task.
         """
-        return preprocess_combine_tasks.ReformatFuturePreprocessBetaTask(condition=self.condition)
+        if const.USE_BETA_DIST:
+            return preprocess_combine_tasks.ReformatFuturePreprocessBetaTask(
+                condition=self.condition
+            )
+        else:
+            return preprocess_combine_tasks.ReformatFuturePreprocessDistTask(
+                condition=self.condition
+            )
 
     def get_filename(self):
         """Get the filename to which the results should be written.

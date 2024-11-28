@@ -448,6 +448,139 @@ class GeohashYieldSummary:
         )
 
 
+class GeohashYieldSummaryDistDecorator:
+    """Summary of distribution of yields found within a geohash for a single year with sample."""
+
+    def __init__(self, inner, sample):
+        """Create a new summary.
+
+        Args:
+            inner: The GeohashYieldSummary to decorate.
+            sample: The sample for the distribution.
+        """
+        self._inner = inner
+        self._sample = sample
+
+    def get_year(self):
+        """Get the year represented by this summary.
+
+        Returns:
+            The year of this summary.
+        """
+        return self._inner.get_year()
+
+    def get_geohash(self):
+        """Get the geohash represented by this summary.
+
+        Returns:
+            The name of the geohash summarized.
+        """
+        return self._inner.get_geohash()
+
+    def get_mean(self):
+        """Get the mean of observed yields.
+
+        Returns:
+            Average yield in this sample.
+        """
+        return self._inner.get_mean()
+
+    def get_std(self):
+        """Get the standard deviation of observed yields.
+
+        Returns:
+            Standard deviation of the yield sample.
+        """
+        return self._inner.get_std()
+
+    def get_count(self):
+        """Get the number of observations or data points represented.
+
+        Returns:
+            The sample size which may be number of pixels or observations.
+        """
+        return self._inner.get_count()
+
+    def get_skew(self):
+        """Get a measure of skew for this distribution.
+
+        Returns:
+            How far off center (0) this distribution was as measured by scipy.stats.skew.
+        """
+        return self._inner.get_skew()
+
+    def get_kurtosis(self):
+        """Get a measure of tail thickness for this distribuiton.
+
+        Returns:
+            Tail shape as measured by scipy.stats.kurtosis.
+        """
+        return self._inner.get_kurtosis()
+
+    def get_key(self):
+        """Get a string uniquely representing this geohash / year combination.
+
+        Returns:
+            String combining this summary's geohash and year.
+        """
+        return self._inner.get_key()
+
+    def to_dict(self):
+        """Serialize this object to a primitives-only dictionary.
+
+        Returns:
+            Serialized version of this record.
+        """
+        base_dict = self._inner.to_dict()
+        base_dict['sample'] = ' '.join(map(lambda x: str(x), self._sample))
+        return base_dict
+
+    def get_sample_full(self):
+        """Get the sample for this distribution.
+
+        Returns:
+            Full sample
+        """
+        return self._sample
+
+    def get_sample(self, count):
+        """Sample this distribution.
+
+        Returns:
+            Numpy array of random samples.
+        """
+        return scipy.stats.rvs(
+            self._yield_a,
+            self._yield_b,
+            loc=self._yield_loc,
+            scale=self._yield_scale,
+            size=count
+        )
+
+    def combine(self, other):
+        """Combine samples between two samples on the same geohash / year combination.
+
+        Args:
+            other: The summary with which to combine.
+
+        Returns:
+            Summary after combining samples.
+        """
+        inner_combined = self._inner.combine(other)
+
+        total_count = self.get_count() + other.get_count()
+        percent_self = self.get_count() / total_count
+        percent_other = other.get_count() / total_count
+        self_sample = self.get_sample(1000 * percent_self)
+        other_sample = other.get_sample(1000 * percent_other)
+        new_sample = numpy.concatenate([self_sample, other_sample])
+
+        return GeohashYieldSummaryBetaDecorator(
+            inner_combined,
+            new_sample
+        )
+
+
 class GeohashYieldSummaryBetaDecorator:
     """Summary of distribution of yields found within a geohash for a single year."""
 
