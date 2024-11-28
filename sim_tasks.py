@@ -1448,11 +1448,14 @@ class Project2050HoldYearTask(ProjectTaskTemplate):
         """
         return normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2050_SSP245')
 
-    def get_base_year(self):
-        """Get the "center" year of the series to be predicted.
+    def convert_year(self, year):
+        """Convert a year to a relative value.
+
+        Args:
+            year: The year prior to offset.
 
         Returns:
-            Integer year like 2007, 2030, or 2050.
+            Year after offsetting
         """
         return 0
 
@@ -1476,11 +1479,14 @@ class Project2050CounterfactualTask(ProjectTaskTemplate):
         """
         return NormalizeRefHistoricTrainingFrameTask()
 
-    def get_base_year(self):
-        """Get the "center" year of the series to be predicted.
+    def convert_year(self, year):
+        """Convert a year to a relative value.
+
+        Args:
+            year: The year prior to offset.
 
         Returns:
-            Integer year like 2007, 2030, or 2050.
+            Year after offsetting
         """
         effective_year = year - 2007 + 2050
         return effective_year - 2039
