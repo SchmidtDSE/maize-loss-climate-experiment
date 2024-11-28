@@ -34,7 +34,6 @@ BLOCKS_EXTENDED = [
     'wbgtmax'
 ] + (['year'] if const.INCLUDE_YEAR_IN_MODEL else [])
 BLOCKED_ATTRS = set([
-    'year',
     'geohash',
     'geohashAgg',
     'yieldMean',
