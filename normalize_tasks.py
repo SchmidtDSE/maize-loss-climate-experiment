@@ -5,7 +5,6 @@ License:
 """
 import csv
 import math
-import random
 
 import luigi
 import more_itertools
