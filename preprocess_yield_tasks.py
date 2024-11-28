@@ -85,10 +85,11 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
         match = const.YEAR_REGEX.match(source_filename)
         year = int(match.group(1))
 
-        summaries = map(
+        summaries_or_none = map(
             lambda x: get_geohash_summary(x, year, target_geotiff),
             all_geohashes
         )
+        summaries = filter(lambda x: x is not None, summaries_or_none)
         summaries_valid = filter(lambda x: x.get_count() > 0, summaries)
         summaries_realized = list(summaries_valid)
 
@@ -107,6 +108,9 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
         raw_data = geotiff.read_box(bounds)
         values = numpy.extract(raw_data > 0, raw_data)
 
+        if values.shape[0] == 0:
+            return None
+
         summary = build_geohash_summary_simple(year, geohash, values)
 
         if use_beta:
@@ -119,7 +123,7 @@ def process_single(source_filename, access_key='', access_secret='', use_beta=Fa
 
     def build_geohash_summary_simple(year, geohash, values):
         count = values.shape[0]
-        if count < 2:
+        if count < 1:
             mean = None
             std = None
             skew = None
