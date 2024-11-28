@@ -439,7 +439,9 @@ class GetFutureAsDeltaTask(GetAsDeltaTaskTemplate):
                 condition=self.condition
             )
         else:
-            return preprocess_combine_tasks.ReformatFuturePreprocessDistTask()
+            return preprocess_combine_tasks.ReformatFuturePreprocessDistTask(
+                condition=self.condition
+            )
 
     def get_filename(self):
         """Get the filename to which the results should be written.
