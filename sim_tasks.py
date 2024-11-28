@@ -1331,7 +1331,7 @@ class Project2030Task(ProjectTaskTemplate):
         Returns:
             Year after offsetting
         """
-        effective_year = year - 1998
+        return year - 1998
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
