@@ -242,25 +242,29 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
             sim_mean = mean + mean_delta
             sim_std = std * std_mult + std_delta
 
-            return random.gauss(mu=sim_mean, sigma=sim_std)
+            return {
+                'predicted': random.gauss(mu=sim_mean, sigma=sim_std),
+                'adapted': random.gauss(mu=sim_mean + sim_std, sigma=sim_std)
+            }
 
         for pixel_i in range(0, unit_size_scaled):
-            predicted_yield = get_yield_delta_sample(
+            predicted_yields = get_yield_delta_sample(
                 projected_mean,
                 projected_std,
                 sample_model_residuals
             )
-            adapted_yield = predicted_yield + sim_std
-            predicted_yield_acc.add(predicted_yield)
-            adapted_yield_acc.add(adapted_yield)
+            predicted_yield_acc.add(predicted_yields['predicted'])
+            adapted_yield_acc.add(predicted_yields['adapted'])
 
         def execute_offset_baseline(value):
             def sample_individual():
-                return get_yield_delta_sample(
+                predicted_yields = get_yield_delta_sample(
                     original_mean,
                     original_std,
                     sample_model_residuals_baseline
                 )
+                return predicted_yields['predicted']
+
             aph_individual = [sample_individual() for x in range(0, 10)]
             aph_aggregate = statistics.mean(aph_individual)
             return value - aph_aggregate
