@@ -259,7 +259,7 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
 
         frame = pandas.read_csv(temp_file_path)
 
-        if INCLUDE_YEAR_IN_MODEL:
+        if const.INCLUDE_YEAR_IN_MODEL:
             frame['effectiveYear'] = frame['year'] - 2007
 
         frame['setAssign'] = frame['year'].apply(assign_year)
