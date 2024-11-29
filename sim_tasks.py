@@ -259,7 +259,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
             def sample_individual():
                 return get_yield_delta_sample(
                     original_mean,
-                    original_std
+                    original_std,
                     sample_model_residuals_baseline
                 )
             aph_individual = [sample_individual() for x in range(0, 10)]
