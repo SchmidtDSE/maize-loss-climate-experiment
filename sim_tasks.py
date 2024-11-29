@@ -2266,6 +2266,7 @@ class ExecuteSimulationTasks2030Counterfactual(ExecuteSimulationTasksTemplate):
         """
         return False  # Historic not predicted
 
+
 class ExecuteSimulationTasks2050Counterfactual(ExecuteSimulationTasksTemplate):
     """Execute simulation for 2050 projection without further warming."""
 
