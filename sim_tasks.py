@@ -8,7 +8,6 @@ import functools
 import itertools
 import json
 import random
-import statistics
 
 import keras
 import luigi
