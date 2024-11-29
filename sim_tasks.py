@@ -17,6 +17,7 @@ import toolz
 
 import cluster_tasks
 import const
+import distribution_struct
 import normalize_tasks
 import selection_tasks
 import training_tasks
@@ -232,6 +233,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
         for pixel_i in range(0, unit_size_scaled):
 
             if sample_model_residuals:
+                # TODO need to take average for baseline.
                 mean_delta = random.choice(mean_deltas) * -1
                 std_delta = random.choice(std_deltas) * -1
             else:
@@ -968,6 +970,69 @@ class MakeSimulationTasksTemplate(luigi.Task):
 
     def _index_input(self, name):
         """Index one of the datasets by geohash and year.
+
+        Args:
+            name: The name of the dataset to index. This is one of the inputs in requires.
+
+        Returns:
+            The dataset after indexing.
+        """
+        if name == 'baseline' and const.POOL_BASELINE:
+            return self._index_input_pooled(name)
+        else:
+            return self._index_input_no_pool(name)
+
+    def _index_input_pooled(self, name):
+        """Index one of the datasets by geohash and year without pooling.
+
+        Args:
+            name: The name of the dataset to index. This is one of the inputs in requires.
+
+        Returns:
+            The dataset after indexing.
+        """
+        indexed_distributions = {}
+        sim_by_join_years = {}
+
+        with self.input()[name].open('r') as f:
+            rows_raw = csv.DictReader(f)
+            rows = map(lambda x: self._parse_row(x), rows_raw)
+
+            for row in rows:
+                sim_by_join_years[row['joinYear']] = row['simYear']
+                key = row['geohash']
+                new_distribution = distribution_struct.Distribution(
+                    row['predictedMean'],
+                    row['predictedStd'],
+                    row['yieldObservations']
+                )
+
+                if key in indexed_distributions:
+                    prior_distribution = indexed_distributions[key]
+                    indexed_distributions[key] = prior_distribution.combine(new_distribution)
+                else:
+                    indexed_distributions[key] = new_distribution
+
+        indexed_individual = {}
+        for join_year in sim_by_join_years:
+            for geohash in indexed_distributions:
+                sim_year = sim_by_join_years[join_year]
+                distribution = indexed_distributions[geohash]
+
+                key = '%s.%d' % (geohash, join_year)
+                indexed_individual[key] = {
+                    'geohash': geohash,
+                    'simYear': sim_year,
+                    'joinYear': join_year,
+                    'predictedMean': distribution.get_mean(),
+                    'predictedStd': distribution.get_std(),
+                    'yieldObservations': distribution.get_count()
+                }
+
+        return indexed_individual
+
+    def _index_input_no_pool(self, name):
+        """Index one of the datasets by geohash and year without pooling.
 
         Args:
             name: The name of the dataset to index. This is one of the inputs in requires.
