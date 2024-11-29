@@ -630,6 +630,8 @@ MODEL_TRANSFORM = False
 
 USE_BETA_DIST = False
 
+POOL_BASELINE = True
+
 NON_DELTA_FIELDS = [
     'year',
     'geohash',

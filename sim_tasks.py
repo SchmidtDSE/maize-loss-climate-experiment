@@ -8,7 +8,6 @@ import functools
 import itertools
 import json
 import random
-import statistics
 
 import keras
 import luigi
@@ -17,6 +16,7 @@ import toolz
 
 import cluster_tasks
 import const
+import distribution_struct
 import normalize_tasks
 import selection_tasks
 import training_tasks
@@ -57,7 +57,6 @@ STD_MULT = [1.0]
 THRESHOLDS = [0.25, 0.15]
 GEOHASH_SIZE = [4, 5]
 SAMPLE_MODEL_RESIDUALS = True
-SIM_PARTIAL_AVG = 0
 
 
 class Task:
@@ -159,7 +158,7 @@ class Task:
 
 
 def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_baseline,
-    unit_sizes, std_thresholds, sample_model_residuals):
+    unit_sizes, std_thresholds, sample_model_residuals, sample_model_residuals_baseline):
     """Run a single geohash simulation.
 
     Run a single geohash simulation from within a self-contained function that can run in
@@ -183,6 +182,8 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
             standard deviations below average.
         sample_model_residuals: Flag indicating if the model residuals should be sampled and offset
             within the simulations.
+        sample_model_residuals_baseline: Flag indicating if model residuals should be sampled for
+            the baseline.
 
     Returns:
         Dictionary with OUTPUT_FIELDS describing simulation results.
@@ -190,6 +191,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
 
     import math
     import random
+    import statistics
 
     import distribution_struct
 
@@ -229,8 +231,7 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
         predicted_yield_acc = distribution_struct.WelfordAccumulator()
         adapted_yield_acc = distribution_struct.WelfordAccumulator()
 
-        for pixel_i in range(0, unit_size_scaled):
-
+        def get_yield_delta_sample(mean, std, sample_model_residuals):
             if sample_model_residuals:
                 mean_delta = random.choice(mean_deltas) * -1
                 std_delta = random.choice(std_deltas) * -1
@@ -238,38 +239,42 @@ def run_simulation(task, deltas, threshold, std_mult, geohash_sim_size, offset_b
                 mean_delta = 0
                 std_delta = 0
 
-            sim_mean = projected_mean + mean_delta
-            sim_std = projected_std * std_mult + std_delta
+            sim_mean = mean + mean_delta
+            sim_std = std * std_mult + std_delta
 
-            predicted_yield = random.gauss(mu=sim_mean, sigma=sim_std)
-            adapted_yield = random.gauss(mu=sim_mean + sim_std, sigma=sim_std)
+            return {
+                'predicted': random.gauss(mu=sim_mean, sigma=sim_std),
+                'adapted': random.gauss(mu=sim_mean + sim_std, sigma=sim_std)
+            }
 
-            predicted_yield_acc.add(predicted_yield)
-            adapted_yield_acc.add(adapted_yield)
+        for pixel_i in range(0, unit_size_scaled):
+            predicted_yields = get_yield_delta_sample(
+                projected_mean,
+                projected_std,
+                sample_model_residuals
+            )
+            predicted_yield_acc.add(predicted_yields['predicted'])
+            adapted_yield_acc.add(predicted_yields['adapted'])
 
-        def execute_offset_baseline(value, offset):
-            half_way = (value + offset) / 2
-            effective_offset = half_way * SIM_PARTIAL_AVG + offset * (1 - SIM_PARTIAL_AVG)
-            return value - effective_offset
+        def execute_offset_baseline(value):
+            def sample_individual():
+                predicted_yields = get_yield_delta_sample(
+                    original_mean,
+                    original_std,
+                    sample_model_residuals_baseline
+                )
+                return predicted_yields['predicted']
+
+            aph_individual = [sample_individual() for x in range(0, 10)]
+            aph_aggregate = statistics.mean(aph_individual)
+            return value - aph_aggregate
 
         if offset_baseline == 'always':
-            predicted_delta = execute_offset_baseline(
-                predicted_yield_acc.get_mean(),
-                original_mean
-            )
-            adapted_delta = execute_offset_baseline(
-                adapted_yield_acc.get_mean(),
-                original_mean
-            )
+            predicted_delta = execute_offset_baseline(predicted_yield_acc.get_mean())
+            adapted_delta = execute_offset_baseline(adapted_yield_acc.get_mean())
         elif offset_baseline == 'negative' and original_mean < 0:
-            predicted_delta = execute_offset_baseline(
-                predicted_yield_acc.get_mean(),
-                original_mean
-            )
-            adapted_delta = execute_offset_baseline(
-                adapted_yield_acc.get_mean(),
-                original_mean
-            )
+            predicted_delta = execute_offset_baseline(predicted_yield_acc.get_mean())
+            adapted_delta = execute_offset_baseline(adapted_yield_acc.get_mean())
         else:
             predicted_delta = predicted_yield_acc.get_mean()
             adapted_delta = adapted_yield_acc.get_mean()
@@ -450,7 +455,7 @@ def parse_record_dict(record_raw):
 
 
 def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, offset_baseline,
-    unit_sizes, std_thresholds, sample_model_residuals):
+    unit_sizes, std_thresholds, sample_model_residuals, sample_model_residuals_baseline):
     """Run a set of simulations.
 
     Args:
@@ -471,6 +476,8 @@ def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, off
             standard deviations below average.
         sample_model_residuals: Flag indicating if the model residuals should be sampled and offset
             within the simulations.
+        sample_model_residuals_baseline: Flag indicating if the baseline should also sample model
+            residuals.
 
     Returns:
         List of dictionaries with OUTPUT_FIELDS describing simulation results.
@@ -485,7 +492,8 @@ def run_simulation_set(tasks, deltas, threshold, std_mult, geohash_sim_size, off
             offset_baseline,
             unit_sizes,
             std_thresholds,
-            sample_model_residuals
+            sample_model_residuals,
+            sample_model_residuals_baseline
         ),
         tasks
     )
@@ -979,6 +987,69 @@ class MakeSimulationTasksTemplate(luigi.Task):
         Returns:
             The dataset after indexing.
         """
+        if name == 'baseline' and const.POOL_BASELINE:
+            return self._index_input_pooled(name)
+        else:
+            return self._index_input_no_pool(name)
+
+    def _index_input_pooled(self, name):
+        """Index one of the datasets by geohash and year without pooling.
+
+        Args:
+            name: The name of the dataset to index. This is one of the inputs in requires.
+
+        Returns:
+            The dataset after indexing.
+        """
+        indexed_distributions = {}
+        sim_by_join_years = {}
+
+        with self.input()[name].open('r') as f:
+            rows_raw = csv.DictReader(f)
+            rows = map(lambda x: self._parse_row(x), rows_raw)
+
+            for row in rows:
+                sim_by_join_years[row['joinYear']] = row['simYear']
+                key = row['geohash']
+                new_distribution = distribution_struct.Distribution(
+                    row['predictedMean'],
+                    row['predictedStd'],
+                    row['yieldObservations']
+                )
+
+                if key in indexed_distributions:
+                    prior_distribution = indexed_distributions[key]
+                    indexed_distributions[key] = prior_distribution.combine(new_distribution)
+                else:
+                    indexed_distributions[key] = new_distribution
+
+        indexed_individual = {}
+        for join_year in sim_by_join_years:
+            for geohash in indexed_distributions:
+                sim_year = sim_by_join_years[join_year]
+                distribution = indexed_distributions[geohash]
+
+                key = '%s.%d' % (geohash, join_year)
+                indexed_individual[key] = {
+                    'geohash': geohash,
+                    'simYear': sim_year,
+                    'joinYear': join_year,
+                    'predictedMean': distribution.get_mean(),
+                    'predictedStd': distribution.get_std(),
+                    'yieldObservations': distribution.get_count()
+                }
+
+        return indexed_individual
+
+    def _index_input_no_pool(self, name):
+        """Index one of the datasets by geohash and year without pooling.
+
+        Args:
+            name: The name of the dataset to index. This is one of the inputs in requires.
+
+        Returns:
+            The dataset after indexing.
+        """
         indexed = {}
 
         with self.input()[name].open('r') as f:
@@ -1110,7 +1181,8 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
                 x[4],
                 unit_sizes,
                 std_thresholds,
-                self.get_sample_model_residuals()
+                self.get_sample_model_residuals(),
+                self.get_sample_model_residuals_baseline()
             ),
             tasks_with_variations
         )
@@ -1150,6 +1222,14 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
 
     def get_sample_model_residuals(self):
         """Determine if model residuals should be sampled and applied to simulation outputs.
+
+        Returns:
+            True if model residuals should be sampled and false otherwise.
+        """
+        return SAMPLE_MODEL_RESIDUALS
+
+    def get_sample_model_residuals_baseline(self):
+        """Determine if model residuals should be sampled and applied to baseline.
 
         Returns:
             True if model residuals should be sampled and false otherwise.
@@ -2003,6 +2083,14 @@ class ExecuteSimulationTasksHistoricPredictedTask(ExecuteSimulationTasksTemplate
         """
         return False  # This one is not predicted
 
+    def get_sample_model_residuals_baseline(self):
+        """Determine if model residuals should be sampled and applied to baseline.
+
+        Returns:
+            True if model residuals should be sampled and false otherwise.
+        """
+        return False  # Historic not predicted
+
 
 class ExecuteSimulationTasks2010PredictedTask(ExecuteSimulationTasksTemplate):
     """Execute simulation for 2010 projection."""
@@ -2030,6 +2118,14 @@ class ExecuteSimulationTasks2010PredictedTask(ExecuteSimulationTasksTemplate):
             Luigi task.
         """
         return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
+
+    def get_sample_model_residuals_baseline(self):
+        """Determine if model residuals should be sampled and applied to baseline.
+
+        Returns:
+            True if model residuals should be sampled and false otherwise.
+        """
+        return False  # Historic not predicted
 
 
 class ExecuteSimulationTasks2030PredictedTask(ExecuteSimulationTasksTemplate):
@@ -2059,6 +2155,14 @@ class ExecuteSimulationTasks2030PredictedTask(ExecuteSimulationTasksTemplate):
         """
         return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
 
+    def get_sample_model_residuals_baseline(self):
+        """Determine if model residuals should be sampled and applied to baseline.
+
+        Returns:
+            True if model residuals should be sampled and false otherwise.
+        """
+        return False  # Historic not predicted
+
 
 class ExecuteSimulationTasks2030PredictedHoldYearTask(ExecuteSimulationTasksTemplate):
     """Execute simulation for 2030 projection without incrementing years."""
@@ -2086,6 +2190,14 @@ class ExecuteSimulationTasks2030PredictedHoldYearTask(ExecuteSimulationTasksTemp
             Luigi task.
         """
         return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
+
+    def get_sample_model_residuals_baseline(self):
+        """Determine if model residuals should be sampled and applied to baseline.
+
+        Returns:
+            True if model residuals should be sampled and false otherwise.
+        """
+        return False  # Historic not predicted
 
 
 class ExecuteSimulationTasks2050PredictedTask(ExecuteSimulationTasksTemplate):
@@ -2170,6 +2282,14 @@ class ExecuteSimulationTasks2030Counterfactual(ExecuteSimulationTasksTemplate):
             Luigi task.
         """
         return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
+
+    def get_sample_model_residuals_baseline(self):
+        """Determine if model residuals should be sampled and applied to baseline.
+
+        Returns:
+            True if model residuals should be sampled and false otherwise.
+        """
+        return False  # Historic not predicted
 
 
 class ExecuteSimulationTasks2050Counterfactual(ExecuteSimulationTasksTemplate):
