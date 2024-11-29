@@ -692,6 +692,7 @@ class ProjectTaskTemplate(luigi.Task):
 
         target_frame['joinYear'] = target_frame['year']
         target_frame['simYear'] = target_frame['year']
+        target_frame['effectiveYear'] = self._get_input_year(target_frame['year'])
 
         input_attrs = training_tasks.get_input_attrs(additional_block, allow_count)
         inputs = target_frame[input_attrs]
@@ -717,11 +718,14 @@ class ProjectTaskTemplate(luigi.Task):
         """
         raise NotImplementedError('Use implementor.')
 
-    def get_base_year(self):
-        """Get the "center" year of the series to be predicted.
+    def _get_input_year(self, year):
+        """Convert a year to a relative value.
+
+        Args:
+            year: The year prior to offset.
 
         Returns:
-            Integer year like 2007, 2030, or 2050.
+            Year after offsetting
         """
         raise NotImplementedError('Use implementor.')
 
@@ -1287,13 +1291,16 @@ class ProjectHistoricModelTask(ProjectTaskTemplate):
         """
         return NormalizeRefHistoricTrainingFrameTask()
 
-    def get_base_year(self):
-        """Get the "center" year of the series to be predicted.
+    def _get_input_year(self, year):
+        """Convert a year to a relative value.
+
+        Args:
+            year: The year prior to offset.
 
         Returns:
-            Integer year like 2007, 2030, or 2050.
+            Year after offsetting
         """
-        return 2007
+        return year - 2007
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
@@ -1315,13 +1322,16 @@ class Project2030Task(ProjectTaskTemplate):
         """
         return normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2030_SSP245')
 
-    def get_base_year(self):
-        """Get the "center" year of the series to be predicted.
+    def _get_input_year(self, year):
+        """Convert a year to a relative value.
+
+        Args:
+            year: The year prior to offset.
 
         Returns:
-            Integer year like 2007, 2030, or 2050.
+            Year after offsetting
         """
-        return 2030
+        return year - 1998
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
@@ -1343,13 +1353,16 @@ class Project2030HoldYearTask(ProjectTaskTemplate):
         """
         return normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2030_SSP245')
 
-    def get_base_year(self):
-        """Get the "center" year of the series to be predicted.
+    def _get_input_year(self, year):
+        """Convert a year to a relative value.
+
+        Args:
+            year: The year prior to offset.
 
         Returns:
-            Integer year like 2007, 2030, or 2050.
+            Year after offsetting
         """
-        return 2007
+        return 0
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
@@ -1371,13 +1384,16 @@ class Project2030CounterfactualTask(ProjectTaskTemplate):
         """
         return NormalizeRefHistoricTrainingFrameTask()
 
-    def get_base_year(self):
-        """Get the "center" year of the series to be predicted.
+    def _get_input_year(self, year):
+        """Convert a year to a relative value.
+
+        Args:
+            year: The year prior to offset.
 
         Returns:
-            Integer year like 2007, 2030, or 2050.
+            Year after offsetting
         """
-        return 2030
+        return year - 1998
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
@@ -1399,13 +1415,16 @@ class Project2050Task(ProjectTaskTemplate):
         """
         return normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2050_SSP245')
 
-    def get_base_year(self):
-        """Get the "center" year of the series to be predicted.
+    def _get_input_year(self, year):
+        """Convert a year to a relative value.
+
+        Args:
+            year: The year prior to offset.
 
         Returns:
-            Integer year like 2007, 2030, or 2050.
+            Year after offsetting
         """
-        return 2050
+        return year - 1998
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
@@ -1427,13 +1446,16 @@ class Project2050HoldYearTask(ProjectTaskTemplate):
         """
         return normalize_tasks.NormalizeFutureTrainingFrameTask(condition='2050_SSP245')
 
-    def get_base_year(self):
-        """Get the "center" year of the series to be predicted.
+    def _get_input_year(self, year):
+        """Convert a year to a relative value.
+
+        Args:
+            year: The year prior to offset.
 
         Returns:
-            Integer year like 2007, 2030, or 2050.
+            Year after offsetting
         """
-        return 2007
+        return 0
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
@@ -1455,13 +1477,16 @@ class Project2050CounterfactualTask(ProjectTaskTemplate):
         """
         return NormalizeRefHistoricTrainingFrameTask()
 
-    def get_base_year(self):
-        """Get the "center" year of the series to be predicted.
+    def _get_input_year(self, year):
+        """Convert a year to a relative value.
+
+        Args:
+            year: The year prior to offset.
 
         Returns:
-            Integer year like 2007, 2030, or 2050.
+            Year after offsetting
         """
-        return 2050
+        return year - 1998
 
     def get_filename(self):
         """Get the filename at which the projections should be written.

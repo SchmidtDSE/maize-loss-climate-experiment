@@ -149,6 +149,10 @@ class PostHocTestRawDataTemplateTask(luigi.Task):
         model = training_tasks.build_model(num_layers, num_inputs, l2_reg, dropout)
 
         train_data = input_frame[input_frame['setAssign'] == 'train']
+
+        if const.INCLUDE_YEAR_IN_MODEL:
+            train_data['effectiveYear'] = train_data['year'] - 2007
+
         train_inputs = train_data[input_attrs]
         train_outputs = train_data[training_tasks.OUTPUT_ATTRS]
 
@@ -574,6 +578,9 @@ class TrainFullModel(luigi.Task):
         input_attrs = training_tasks.get_input_attrs(additional_block, allow_count)
         num_inputs = len(input_attrs)
         model = training_tasks.build_model(num_layers, num_inputs, l2_reg, dropout)
+
+        if const.INCLUDE_YEAR_IN_MODEL:
+            input_frame['effectiveYear'] = input_frame['year'] - 2007
 
         train_inputs = input_frame[input_attrs]
         train_outputs = input_frame[training_tasks.OUTPUT_ATTRS]

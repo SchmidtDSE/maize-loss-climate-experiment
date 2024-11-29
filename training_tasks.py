@@ -32,7 +32,7 @@ BLOCKS_EXTENDED = [
     'svp',
     'vpd',
     'wbgtmax'
-] + (['year'] if const.INCLUDE_YEAR_IN_MODEL else [])
+] + (['effectiveYear'] if const.INCLUDE_YEAR_IN_MODEL else [])
 BLOCKED_ATTRS = set([
     'year',
     'geohash',
@@ -41,7 +41,7 @@ BLOCKED_ATTRS = set([
     'yieldStd',
     'yieldObservations',
     'setAssign'
-] + ([] if const.INCLUDE_YEAR_IN_MODEL else ['year']))
+] + ([] if const.INCLUDE_YEAR_IN_MODEL else ['effectiveYear']))
 OUTPUT_ATTRS = sorted(['yieldMean', 'yieldStd'])
 OUTPUT_FIELDS = [
     'block',
@@ -258,6 +258,10 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
                 return 'test' if year % 2 == 0 else 'valid'
 
         frame = pandas.read_csv(temp_file_path)
+
+        if const.INCLUDE_YEAR_IN_MODEL:
+            frame['effectiveYear'] = frame['year'] - 2007
+
         frame['setAssign'] = frame['year'].apply(assign_year)
         train = frame[frame['setAssign'] == 'train']
         valid = frame[frame['setAssign'] == 'valid']
