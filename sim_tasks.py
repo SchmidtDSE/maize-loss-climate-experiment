@@ -1174,7 +1174,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
                 x[4],
                 unit_sizes,
                 std_thresholds,
-                self.get_sample_model_residuals()
+                self.get_sample_model_residuals(),
                 self.get_sample_model_residuals_baseline()
             ),
             tasks_with_variations
