@@ -126,8 +126,8 @@ class Distribution:
             count = 2
             dist_min = min(combined)
             dist_max = max(combined)
-            skew = numpy.skew(combined) if requires_shape_info else None
-            kurtosis = numpy.kurtosis(combined) if requires_shape_info else None
+            skew = scipy.stats.skew(combined) if requires_shape_info else None
+            kurtosis = scipy.stats.kurtosis(combined) if requires_shape_info else None
 
             return Distribution(
                 mean,
