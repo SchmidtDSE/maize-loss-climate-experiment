@@ -108,6 +108,11 @@ class Distribution:
         Returns:
             Combined distributions.
         """
+        if self.get_count() == 0:
+            return other
+        elif other.get_count() == 0:
+            return self
+
         new_count = self.get_count() + other.get_count()
 
         self_count = self.get_count()
