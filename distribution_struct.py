@@ -7,6 +7,9 @@ License:
     BSD
 """
 import math
+import statistics
+
+import scipy.stats
 
 
 class Distribution:
@@ -108,6 +111,34 @@ class Distribution:
         Returns:
             Combined distributions.
         """
+        if self.get_count() == 0:
+            return other
+        elif other.get_count() == 0:
+            return self
+        elif self.get_count() == 1 and other.get_count() == 1:
+            skew_info = self.get_skew() is not None or other.get_skew() is not None
+            kurtosis_info = self.get_kurtosis() is not None or other.get_kurtosis() is not None
+            requires_shape_info = skew_info or kurtosis_info
+
+            combined = [self.get_mean(), other.get_mean()]
+            mean = statistics.mean(combined)
+            std = statistics.stdev(combined)
+            count = 2
+            dist_min = min(combined)
+            dist_max = max(combined)
+            skew = scipy.stats.skew(combined) if requires_shape_info else None
+            kurtosis = scipy.stats.kurtosis(combined) if requires_shape_info else None
+
+            return Distribution(
+                mean,
+                std,
+                count,
+                dist_min=dist_min,
+                dist_max=dist_max,
+                skew=skew,
+                kurtosis=kurtosis
+            )
+
         new_count = self.get_count() + other.get_count()
 
         self_count = self.get_count()
