@@ -1442,7 +1442,7 @@ class ProjectHistoricTask(luigi.Task):
         """
         return {
             'geohash': target['geohash'],
-            'simYear': int(target['simYear'])
+            'simYear': int(target['simYear']),
             'joinYear': int(target['joinYear']),
             'predictedMean': float(target['predictedMean']),
             'predictedStd': float(target['predictedStd']),
