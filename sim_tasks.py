@@ -1237,8 +1237,8 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
         return SAMPLE_MODEL_RESIDUALS
 
 
-class ProjectHistoricTask(luigi.Task):
-    """Task in which historic data are retroactively predicted for reference."""
+class NoopProjectHistoricTask(luigi.Task):
+    """Task in which historic data are retroactively predicted for reference without model."""
 
     def requires(self):
         """Get the task whose outputs should be used as inputs to the neural network.
@@ -1388,7 +1388,66 @@ class ProjectHistoricModelTask(ProjectTaskTemplate):
         Returns:
             Filename (not full path) as string.
         """
-        return 'historic_project_dist_model.csv'
+        return 'historic_project_with_model.csv'
+
+
+class ProjectHistoricTask(luigi.Task):
+    """Task in which historic data are retroactively predicted for reference."""
+
+    def requires(self):
+        """Get the task whose outputs should be used as inputs to the neural network.
+
+        Returns:
+            NormalizeRefHistoricTrainingFrameTask
+        """
+        if const.MODEL_PROJECT_HISTORIC:
+            return ProjectHistoricModelTask()
+        else:
+            return NoopProjectHistoricTask()
+
+    def output(self):
+        """Determine where the retroactive predictions should be written.
+
+        Returns:
+            LocalTarget at which the predictions should be written.
+        """
+        return luigi.LocalTarget(const.get_file_location('historic_project_dist_effective.csv'))
+
+    def run(self):
+        """Project into the historic dataset."""
+        with self.input().open('r') as f_in:
+            input_rows = csv.DictReader(f_in)
+            validated_rows = map(lambda x: self._parse_row(x), input_rows)
+
+            with self.output().open('w') as f_out:
+                writer = csv.DictWriter(f_out, fieldnames=[
+                    'geohash',
+                    'simYear',
+                    'joinYear',
+                    'predictedMean',
+                    'predictedStd',
+                    'yieldObservations'
+                ])
+                writer.writeheader()
+                writer.writerows(validated_rows)
+
+    def _parse_row(self, target):
+        """Parse and validate a single input row.
+
+        Args:
+            target: The row to validate as a dict.
+
+        Returns:
+            Row after interpretation.
+        """
+        return {
+            'geohash': target['geohash'],
+            'simYear': int(target['simYear'])
+            'joinYear': int(target['joinYear']),
+            'predictedMean': float(target['predictedMean']),
+            'predictedStd': float(target['predictedStd']),
+            'yieldObservations': float(target['yieldObservations'])
+        }
 
 
 class Project2030Task(ProjectTaskTemplate):
@@ -2081,7 +2140,7 @@ class ExecuteSimulationTasksHistoricPredictedTask(ExecuteSimulationTasksTemplate
         Returns:
             True if model residuals should be sampled and false otherwise.
         """
-        return False  # This one is not predicted
+        return SAMPLE_MODEL_RESIDUALS and const.MODEL_PROJECT_HISTORIC
 
     def get_sample_model_residuals_baseline(self):
         """Determine if model residuals should be sampled and applied to baseline.
@@ -2089,7 +2148,7 @@ class ExecuteSimulationTasksHistoricPredictedTask(ExecuteSimulationTasksTemplate
         Returns:
             True if model residuals should be sampled and false otherwise.
         """
-        return False  # Historic not predicted
+        return SAMPLE_MODEL_RESIDUALS and const.MODEL_PROJECT_HISTORIC
 
 
 class ExecuteSimulationTasks2010PredictedTask(ExecuteSimulationTasksTemplate):
@@ -2161,7 +2220,7 @@ class ExecuteSimulationTasks2030PredictedTask(ExecuteSimulationTasksTemplate):
         Returns:
             True if model residuals should be sampled and false otherwise.
         """
-        return False  # Historic not predicted
+        return SAMPLE_MODEL_RESIDUALS and const.MODEL_PROJECT_HISTORIC
 
 
 class ExecuteSimulationTasks2030PredictedHoldYearTask(ExecuteSimulationTasksTemplate):
@@ -2197,7 +2256,7 @@ class ExecuteSimulationTasks2030PredictedHoldYearTask(ExecuteSimulationTasksTemp
         Returns:
             True if model residuals should be sampled and false otherwise.
         """
-        return False  # Historic not predicted
+        return SAMPLE_MODEL_RESIDUALS and const.MODEL_PROJECT_HISTORIC
 
 
 class ExecuteSimulationTasks2050PredictedTask(ExecuteSimulationTasksTemplate):
@@ -2289,7 +2348,7 @@ class ExecuteSimulationTasks2030Counterfactual(ExecuteSimulationTasksTemplate):
         Returns:
             True if model residuals should be sampled and false otherwise.
         """
-        return False  # Historic not predicted
+        return SAMPLE_MODEL_RESIDUALS and const.MODEL_PROJECT_HISTORIC
 
 
 class ExecuteSimulationTasks2050Counterfactual(ExecuteSimulationTasksTemplate):
