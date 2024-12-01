@@ -832,7 +832,7 @@ class InterpretProjectTaskTemplate(luigi.Task):
             'joinYear': int(target['joinYear']),
             'predictedMean': float(target['predictedMean']),
             'predictedStd': float(target['predictedStd']),
-            'yieldObservations': int(target['yieldObservations'])
+            'yieldObservations': float(target['yieldObservations'])
         }
 
     def _update_row(self, row, distributions):
