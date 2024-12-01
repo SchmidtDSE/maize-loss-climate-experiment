@@ -1384,7 +1384,7 @@ class ProjectHistoricModelTask(ProjectTaskTemplate):
         Returns:
             Year after offsetting
         """
-        return year - 2007
+        return year - 1998
 
     def get_filename(self):
         """Get the filename at which the projections should be written.
