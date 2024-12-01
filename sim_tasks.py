@@ -902,9 +902,8 @@ class MakeSimulationTasksTemplate(luigi.Task):
         with self.input()['numObservations'].open('r') as f:
             rows = csv.DictReader(f)
             keyed = map(
-                lambda x: ('%s.%s' % (
-                    x['geohash'],
-                    x['year'],
+                lambda x: (
+                    '%s.%s' % (x['geohash'], x['year']),
                     round(float(x['yieldObservations']))
                 )),
                 rows
