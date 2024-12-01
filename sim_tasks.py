@@ -905,7 +905,7 @@ class MakeSimulationTasksTemplate(luigi.Task):
                 lambda x: (
                     '%s.%s' % (x['geohash'], x['year']),
                     round(float(x['yieldObservations']))
-                )),
+                ),
                 rows
             )
             observation_counts_indexed = dict(keyed)
