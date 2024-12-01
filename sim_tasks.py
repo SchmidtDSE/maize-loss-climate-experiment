@@ -652,7 +652,7 @@ class GetNumObservationsTask(luigi.Task):
         return {
             'geohash': target['geohash'],
             'year': int(target['year']),
-            'yieldObservations': int(target['yieldObservations'])
+            'yieldObservations': round(float(target['yieldObservations']))
         }
 
 
@@ -902,7 +902,11 @@ class MakeSimulationTasksTemplate(luigi.Task):
         with self.input()['numObservations'].open('r') as f:
             rows = csv.DictReader(f)
             keyed = map(
-                lambda x: ('%s.%s' % (x['geohash'], x['year']), int(x['yieldObservations'])),
+                lambda x: ('%s.%s' % (
+                    x['geohash'],
+                    x['year'],
+                    round(float(x['yieldObservations']))
+                )),
                 rows
             )
             observation_counts_indexed = dict(keyed)
@@ -2530,7 +2534,7 @@ class DetermineEquivalentStdTask(luigi.Task):
                 reader = csv.DictReader(f)
                 equivalencies = map(lambda x: {
                     'equivalent': self._get_equivalent_std(x, level),
-                    'num': int(x['yieldObservations'])
+                    'num': round(float(x['yieldObservations']))
                 }, reader)
 
                 equivalencies_valid = filter(
@@ -2602,7 +2606,7 @@ class DetermineEquivalentStdExtendedTask(luigi.Task):
                 reader = csv.DictReader(f)
                 equivalencies = map(lambda x: {
                     'equivalent': self._get_equivalent_std(x, level),
-                    'num': int(x['yieldObservations'])
+                    'num': round(float(x['yieldObservations']))
                 }, reader)
 
                 equivalencies_valid = filter(
