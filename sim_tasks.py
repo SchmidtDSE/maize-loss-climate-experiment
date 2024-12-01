@@ -832,7 +832,7 @@ class InterpretProjectTaskTemplate(luigi.Task):
             'joinYear': int(target['joinYear']),
             'predictedMean': float(target['predictedMean']),
             'predictedStd': float(target['predictedStd']),
-            'yieldObservations': float(target['yieldObservations'])
+            'yieldObservations': round(float(target['yieldObservations']))
         }
 
     def _update_row(self, row, distributions):
@@ -1077,7 +1077,7 @@ class MakeSimulationTasksTemplate(luigi.Task):
             'joinYear': int(row['joinYear']),
             'predictedMean': float(row['predictedMean']),
             'predictedStd': float(row['predictedStd']),
-            'yieldObservations': int(row['yieldObservations'])
+            'yieldObservations': round(float(row['yieldObservations']))
         }
 
 
