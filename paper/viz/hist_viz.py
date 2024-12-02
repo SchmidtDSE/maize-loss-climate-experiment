@@ -291,7 +291,7 @@ class MainPresenter:
         Returns:
             The y coordinate for the value in pixels.
         """
-        return value / 20 * (SUB_CHART_HEIGHT - 20)
+        return value / 15 * (SUB_CHART_HEIGHT - 20)
 
     def _combine_dicts(self, a, b):
         """Combine two dictionaries with numeric values.
@@ -465,7 +465,7 @@ class MainPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 11)
 
         is_catastrophic = self._target_threshold == '75% cov'
-        claim_threshold = -25 if is_catastrophic else -15
+        claim_threshold = -35 if is_catastrophic else -30
 
         for bucket, percent in self._get_body_fields(histogram):
             is_claim = bucket <= claim_threshold
@@ -641,7 +641,7 @@ class MainPresenter:
         self._sketch.set_text_align('right', 'center')
         self._sketch.set_text_font(const.FONT_SRC, 13)
 
-        for percent in range(0, 25, 5):
+        for percent in range(0, 20, 5):
             height = self._get_y(percent)
             self._sketch.draw_text(
                 5,
@@ -676,7 +676,7 @@ class MainPresenter:
         self._sketch.set_text_align('right', 'center')
         self._sketch.set_text_font(const.FONT_SRC, 13)
 
-        for percent in range(0, 25, 5):
+        for percent in range(0, 20, 5):
             height = self._get_y(percent)
             self._sketch.draw_text(
                 5,
@@ -718,7 +718,7 @@ class MainPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 11)
 
         is_catastrophic = self._target_threshold == '75% cov'
-        max_val = 20 if is_catastrophic else 25
+        max_val = 35 if is_catastrophic else 30
 
         y = SUB_CHART_HEIGHT - self._get_y(20)
         start_x = self._get_x(-100) - 5
@@ -759,7 +759,7 @@ class MainPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 11)
 
         is_catastrophic = self._target_threshold == '75% cov'
-        max_val = 20 if is_catastrophic else 25
+        max_val = 35 if is_catastrophic else 20
 
         y = self._get_y(20)
         start_x = self._get_x(-100)
