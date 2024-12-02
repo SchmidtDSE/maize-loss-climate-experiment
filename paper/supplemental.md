@@ -51,12 +51,10 @@ Though these data lack precise geographic specificity, the USDA indicates the co
 All this in mind, sampling the risk unit size at the county level likely represents over-confidence or overfitting to previous configurations. Even so, we observe that the system-wide risk unit size distribution remains relatively stable. This may suggest that, even as more local changes to risk unit structure may be more substantial between years, overall expectations for the size of risk units are less fluid. Therefore, we use that larger system-wide distribution to sample risk unit sizes within our Monte Carlo simulation instead of the county-level distributions. This also has the effect of propogating risk unit size uncertainty into results through the mechanics of Monte Carlo.
 
 ## Input vector
-For our presented results, we make two choices in structuring our input vector:
+We allow the model to use the count of growing condition estimations as a possible measure of uncertainty. This generally leads to better performance.
 
- - We allow the model to use the count of growing condition estimations as a possible measure of uncertainty. This generally leads to better performance.
- - We exclude the year being predicted which, in addition to seeing potential signs of overfit, may also assume more specificity in individual year conditions than potentially appropriate given the 2030 and 2050 series structure of CHC-CMIP6 [@williams_high_2024].
-
-For further details on these parameters including model sweep configuration, see our open source pipeline. 
+## Beta distribution
+Our open source pipeline can be run with a trivial configuraiton change where one may force neighborhood yield deltas to fit beta distributions. This has precedent in the literature [@nelson_influence_1990]. Even so, we observe that more than 99% of yield delta distributions exhibit approximate normality [@kim_statistical_2013]. While leaving the beta distributions in place regardless of this finding may offer further flexibility, using beta distributions in our neural networks results in similar median absolute errors but roughly double mean absolute errors. Further investigation finds that that a minority population of neighborhoods causes this swing. As prediction of that population shows stronger performance under a normality assumption for yield deltas, we prefer this approach in our main text. For consistency, all neighborhoods are predicted using a normal distribution assumption for yield deltas.
 
 ## Additional notes on included years and areas
 To further document how we structure our consideration of timeseries variables, we emphasize that we sample for nine individual years in the 2030 CHC-CMIP6 series and nine individual years in 2050 CHC-CMIP6 series. Importantly, projections in these series are not necessarily intended as specific predictions in specific years. We do not provide a year by year timeseries for this reason. Instead, our analysis produces distributions of anticipated outcomes at the 2030 and 2050 timeframes. Note that our choice to create these two series follows a similar structure to CHC-CMIP6.
@@ -90,7 +88,10 @@ The test set residuals are sampled during Monte Carlo to propogate uncertainty. 
 
 Table: Results of tests after model selection. {#tbl:posthocresults}
 
-Given this observation, we use median absolute errors in main text.
+Even so, the overall error remains acceptable.
+
+## Changing yield expectations
+Our simulations expect yield exepctations to change over time. In practice, we sample ten years of historic yields per neighborhood per year per tiral and we offset the yield deltas produced by the neural network accordingly. This allows for some accounting of uncertainty in yield baselines. In practice, this means that predictions for 2030 claims rate will sample 2010 (historic) and 2050 will sample 2030. To prevent discontiniuity in the data, the 2010 deltas are retroactively predicted with the random post-hoc task providing a reasonable approximation of error. Model error residuals are sampled in each case.
 
 # Detailed simulation results
 Though presented to one decimal place, we consider these results to suggest that claims rates will increase from 2 - 3% upwards to 5 - 6% in the SSP245 scenario.

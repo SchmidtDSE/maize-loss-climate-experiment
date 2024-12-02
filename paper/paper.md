@@ -4,7 +4,7 @@ title: "Climate-Driven Doubling of U.S. Maize Loss Probability: Interactive Simu
 header-includes: |
   \usepackage{float}
   \floatplacement{figure}{H}
-date: 2024-10-31
+date: 2024-12-02
 affiliations:
   - id: 1
     name: Eric and Wendy Schmidt Center for Data Science and Environment, University of California Berkeley, Berkeley 94720, CA, USA
@@ -63,7 +63,7 @@ Growers submit production histories for the covered crop ($y_{historic}$) and th
 
 $y_{expected} = \frac{y_{historic}[-d:]}{d}$
 
-Next, we define probability of experiencing a loss that may incur a Yield Protection claim ($p_{l}$).
+Next, we define probability of experiencing a loss that may incur a Yield Protection claim ($p_{l}$) as claims rate.
 
 $p_{l} = P(l > 0) = P(c * y_{expected} - y_{actual} > 0) = P(\frac{y_{actual} - y_{expected}}{y_{expected}} < c - 1) = P(y_{\Delta\%} < c - 1)$
 
@@ -74,26 +74,26 @@ $s = \frac{l}{y_{expected}} = \max(c - \frac{y_{actual}}{y_{expected}}, 0) = \ma
 Note that this paper presents results using the more common 75% coverage level ($c=0.75$) per Federal Crop Insurance Corporation guidelines [@fcic_crop_2023] though our interactive tools allow for further exploration.
 
 ## Data
-As Yield Protection operates at the level of a risk unit, modeling these formulations requires highly local yield and climate information. Therefore, we use SCYM [@lobell_scalable_2015] which provides remotely sensed yield estimations from 1999 to 2022 at 30m resolution across the US Corn Belt. SCYM benefits from substantial validation efforts [@deines_million_2021]. Meanwhile, we use climate data from CHC-CMIP6 [@williams_high_2024] which, at daily 0.05 degree or approximately 5km scale, offers both historic data on growing conditions from 1983 to 2016 as well as future projections with a 2030 and a 2050 series each containing multiple years. In choosing from its two available scenarios, we prefer the "intermediate" SSP245 within CHC-CMIP6 over SSP585 per the advice of @hausfather_emissions_2020. This offers the following climate variables for modeling: precipitation, temperature (min and max), relative humidity (average, peak), heat index, wet bulb temperature, vapor pressure deficit, and saturation vapor pressure. Note that we prefer SCYM over some more recent alternatives like @ma_qdann_2024 given its temporal overlap with CHC-CMIP6.
+As Yield Protection operates at the level of a risk unit, modeling these formulations requires highly local yield and climate information. Therefore, we use SCYM [@lobell_scalable_2015] which provides remotely sensed yield estimations from 1999 to 2022 at 30m resolution across the US Corn Belt. SCYM benefits from substantial validation efforts [@deines_million_2021]. Meanwhile, we use climate data from CHC-CMIP6 [@williams_high_2024] which, at daily 0.05 degree or approximately 5km scale, offers both historic data on growing conditions from 1983 to 2016 as well as future projections with a 2030 and a 2050 series each containing multiple years. In choosing from its two available scenarios, we prefer the "intermediate" SSP245 within CHC-CMIP6 over SSP585 per the advice of @hausfather_emissions_2020. This offers the following climate variables for modeling: precipitation, temperature (min and max), relative humidity (average, peak), heat index, wet bulb temperature, vapor pressure deficit, and saturation vapor pressure. Note that we prefer SCYM over recent alternatives [@ma_qdann_2024] given temporal overlap with CHC-CMIP6.
 
 ### Neighborhoods
 We align these variables to a common grid in order to create the discrete instances needed for model training and evaluation. More specifically, we create "neighborhoods" [@manski_diversified_2024] of geographically proximate fields paired with climate data through 4 character geohashing^[This algorithm creates a hierarchical set of grid cells where each point is assigned a unique string through a hashing algorithm. For example, the first 4 characters identifies a grid cell which contains all points with the same first 4 characters of their geohash. We evaluate alternative neighborhood sizes (number of geohash characters) in our interactive tools.] [@niemeyer_geohashorg_2008]. This defines small populations in a grid of cells roughly 28 by 20 kilometers for use within statistical tests [@haugen_geohash_2020]. We simulate units within each of these cells as described below.
 
 ### Yield deltas
-Having created these spatial groups, we model against SCYM-observed deviations from yield expectations ($y_{expected} - y_{actual}$) which can be used to calculate loss probability ($l$) and severity ($s$). This step converts from a distribution of absolute yield outcomes to a distribution of changes or "yield deltas" relative to the average production histories. This reflects the mechanics of Yield Protection policies.
+Having created these spatial groups, we model against SCYM-observed deviations from yield expectations ($\frac{y_{actual} - y_{expected}}{y_{expected}}$) which can be used to calculate loss probability ($l$) and severity ($s$). This step converts from a distribution of absolute yield outcomes to a distribution of changes or "yield deltas" relative to the average production histories. This reflects the mechanics of Yield Protection policies.
 
 ## Regression
 With these data in mind, we build predictive models for use in simulations of future yield loss outcomes.
 
 ### Response and input vector
-We predict mean and standard deviation of yield deltas per neighborhood per year ahead of Monte Carlo simulations. This use of summary statistics helps ensure appropriate dimensionality for the dataset size given approximate normalilty in most neighborhoods [@kim_statistical_2013]. To predict these two responses, we describe each of the 9 CHC-CMIP6 variables as min, max, mean, count, and standard deviation per month for the given year. Along with the historic absolute yield mean ($y_{\mu-historic}$) and standard deviation ($y_{\sigma-historic}$) seen in the neighborhood which capture some measures around baseline variability, these varibles constitute the model input vector. See supplemental for further information and interactive tools for further exploration.
+We predict yield delta distributions per year ahead of Monte Carlo simulations: either two parmameters (mean, std) for a normal distribution or four parameters [@scipy_beta_2024] for a beta distribution [@nelson_influence_1990] with distribution type chosen given observed skew and kurtosis [@kim_statistical_2013]. This use of summary statistics helps ensure appropriate dimensionality for the dataset size. To predict these responses, we describe each of the 9 CHC-CMIP6 variables as min, max, mean, count, and standard deviation per month for the given year. These varibles constitute the model input vector along with year, the historic absolute yield mean ($y_{\mu-historic}$), and standard deviation ($y_{\sigma-historic}$) seen in the neighborhood which capture some measures around baseline variability. See supplemental and interactive tools for further exploration.
 
 ### Neural network
-Our regressors ($f$) use neighborhood-level climate variables ($C$) and historic yield information to predict future neighborhood-level mean and standard deviation of yield changes ($y_{\Delta\%}$) per year [@kim_investigating_2024]. We preprocess these inputs using z score normalization.
+Our regressors ($f$) use neighborhood-level climate variables ($C$) and historic yield information to predict future yield changes ($y_{\Delta\%}$) per year [@kim_investigating_2024]. We preprocess these inputs using z score normalization.
 
 $f(C_z, y_{\mu-historic-z}, y_{\sigma-historic-z}) \hat= y_{\Delta\%}(x) = \frac{y_{actual} - y_{expected}}{y_{expected}} = \frac{y_{\Delta}}{y_{\mu-historic}}$
 
-Note that we use machine learning per the advice of @leng_predicting_2020 and @klompenburg_crop_2020. In addition to possibly better out-of-sample estimation relative to other similar approaches [@mwiti_random_2023], we specifically use feed forward artificial neural networks [@baheti_essential_2021] as they "natively" support multi-variable output to predict mean and standard deviation together in the same network as opposed to some other machine learning options which must predict them separately [@brownlee_deep_2020]. Of course, many different kinds of neural network structures and configurations could meet these criteria. Therefore, we grid sweep hyper-parameters [@joseph_grid_2018]. 
+Note that we use machine learning per the advice of @leng_predicting_2020 and @klompenburg_crop_2020. In addition to possibly better out-of-sample estimation relative to other similar approaches [@mwiti_random_2023], we specifically use feed forward artificial neural networks [@baheti_essential_2021] as they "natively" support multi-variable output to predict distribution parameters together in the same network as opposed to some other machine learning options which must predict them separately [@brownlee_deep_2020]. Of course, many different kinds of neural network structures and configurations could meet these criteria. Therefore, we grid sweep hyper-parameters [@joseph_grid_2018]. 
 
 | **Parameter**                | **Options**                  | **Description**                                                                                                                                                       | **Purpose**                                                                                                                          |
 | ----------------------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
@@ -132,7 +132,7 @@ After training machine learning models using historic data, predictions of futur
 ![Model pipeline overview diagram. Code released as open source.](./img/pipeline.png "Model pipeline overview diagram. Code released as open source."){ width=80% #fig:pipeline }
 
 ### Trials
-Each Monte Carlo trial involves multiple sampling operations. First, we sample climate variables and model error residuals to propagate uncertainty [@yanai_estimating_2010]. Next, we draw multiple times to approximate the size of a risk unit with its portfolio effects. Note that the size but not the specific location of insured units is publicly disclosed. Therefore, we draw the geographic size of each insured unit randomly from historic data [@rma_statecountycrop_2024] as part of Monte Carlo as further described in our supplemental materials.
+Each Monte Carlo trial involves multiple sampling operations. First, we sample climate variables and model error residuals to propagate uncertainty [@yanai_estimating_2010]. Next, we draw multiple times to approximate the size of a risk unit with its portfolio effects. Note that the size but not the specific location of insured units is publicly disclosed. Therefore, we draw the geographic size of each insured unit randomly from historic data [@rma_statecountycrop_2024] as part of Monte Carlo. Trials are further described in our supplemental materials.
 
 ### Statistical tests
 Altogether, this approach simulates insured units individually per year. Having found these outcomes as a distribution per neighborhood, we can then evaluate these results probabilistically. As further described in supplemental, we determine significance both in this paper and our interactive tools via Bonferroni-corrected [@bonferroni_il_1935] Mann Whitney U [@mann_test_1947] per neighborhood.
@@ -140,38 +140,50 @@ Altogether, this approach simulates insured units individually per year. Having 
 # Results
 We project climate change to roughly double loss probabilities ($p_{l}$) at mid-century.
 
-## Sample size
-Our resulting dataset spans 1999 to 2016 during which we observe a median of 83k SCYM yield estimations at roughly field-scale per neighborhood. These outcomes are represented within neighborhood-level distributions per year.
+## Aggregation outcomes
+Our resulting dataset spans 1999 to 2016 during which we observe a median of 83k SCYM yield estimations at roughly field-scale per neighborhood. These outcomes are represented within neighborhood-level distributions per year. Consistent with @nelson_influence_1990, around a quarter of SCYM yields are not normal but, after conversion to yield deltas, we observe that more than 99% exhibit approximate normality [@kim_statistical_2013] so the neural network predicts mean and std for a normal distribution of deltas.
 
 ## Neural network outcomes
-With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. Note that crop insurance and our model treat yield deltas as a percentage change which may be subject to noise where small yield changes generate large percentage differences given a small initial yield, allowing a small population to skew results. Therefore, using median absolute error (MdAE), our selected model sees {{retrainMeanMdae}} MdAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMdae}} when predicting neighborhood standard deviation when evaluting using the fully hidden test set.
+With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. We report mean absolute error (MAE) in yield delta points:
 
-| **Task**              | **Test Mean Pred MdAE** | **Test Std Pred MdAE** | **% of Units in Test Set** |
-| --------------------- | ---------------------- | --------------------- | -------------------------- |
-| Random   | {{randomMeanMdae}}      | {{randomStdMdae}}      | {{randomPercent}}          |
-| Temporal | {{temporalMeanMdae}}    | {{temporalStdMdae}}    | {{temporalPercent}}        |
-| Spatial  | {{spatialMeanMdae}}     | {{spatialStdMdae}}     | {{spatialPercent}}         |
-| Climatic | {{climateMeanMdae}}     | {{climateStdMdae}}     | {{climatePercent}}         |
+$|\frac{y_{actual} - y_{expected}}{y_{expected}}$ - y{Delta\%\_Predicted}|$
+
+Our selected model sees {{retrainMeanMae}} MAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMae}} when predicting neighborhood standard deviation when evaluting using the fully hidden test set.
+
+| **Set**             | **MAE for Mean Prediction** | **MAE for Std Prediction** |
+| -------------------- | ----------------------- | ---------------------- |
+| Train                | {{trainMeanMae}}        | {{trainStdMae}}   |
+| Validation           | {{validationMeanMae}}   | {{validationStdMae}}   |
+| Test with retrain    | {{retrainMeanMae}}      | {{retrainStdMae}}      |
 
 Table: Results of tests after model selection. {#tbl:posthocresults}
 
-We also evaluate regression performance through varied definitions of test sets in Table @tbl:posthocresults, showing similar results. Additional performance metrics are offered in supplemental and the interactive tools website allows for further examination of error for both the chosen model and other rejected candidates.
+We also evaluate regression performance through varied definitions of test sets in Table @tbl:posthocresults, showing similar results.
+
+| **Task**              | **Test Mean Pred MdAE** | **Test Std Pred MdAE** | **% of Units in Test Set** |
+| --------------------- | ---------------------- | --------------------- | -------------------------- |
+| Random   | {{randomMeanMae}}      | {{randomStdMae}}      | {{randomPercent}}          |
+| Temporal | {{temporalMeanMae}}    | {{temporalStdMae}}    | {{temporalPercent}}        |
+| Spatial  | {{spatialMeanMae}}     | {{spatialStdMae}}     | {{spatialPercent}}         |
+| Climatic | {{climateMeanMae}}     | {{climateStdMae}}     | {{climatePercent}}         |
+
+Additional performance metrics are offered in supplemental and the interactive tools website allows for further examination of error and rejected candidates.
 
 ## Simulation outcomes
 After retraining on all available data using the selected configuration from our sweep, Monte Carlo simulates overall outcomes while tracking changes to average yields over time at the neighborhood level while sampling test set model residuals to account for error. Despite the conservative nature of the Bonferroni correction [@mcdonald_handbook_2014], {{percentSignificant}} of maize acreage in SSP245 falls within a neighborhood with significant changes to claim probability ($p < 0.05 / n$) at some point during the 2050 series simulations. That said, we observe that some of the remaining neighborhoods failing to meet that threshold have less land dedicated to maize within their area (smaller sample size in simulations).
 
 ![Overview of Monte Carlo simulation results comparing SSP245 versus counterfactual for (A) loss probability, (B) loss severity, and (C) change in average yields. Counterfactual is a future without continued warming.](./img_static/sim.png "Overview of Monte Carlo simulation results comparing SSP245 versus counterfactual for (A) loss probability, (B) loss severity, and (C) change in average yields. Counterfactual is a future without continued warming."){#fig:simresults}
 
-Figure @fig:simresults reports that loss probability roughly doubles in both the 2030 and 2050 time frames considered for SSP245 whereas the no warming counterfactual sees relatively steady claims rates into the future. Climate change also reduces anticipated mean yield gains otherwise consistent with historic trends [@nielsen_historical_2023] though yields are still expected to increase by {{experimentalMean2050}} in SSP245.
+Though 2050 with further warming fares worse than 2030, Figure @fig:simresults reports that loss probability roughly doubles in both the 2030 and 2050 time frames considered for SSP245 whereas the no warming counterfactual sees relatively steady claims rates into the future. Climate change also reduces anticipated mean yield.
 
 # Discussion
 In addition to highlighting future work opportunities and further exploring our results, we observe a number of policy-relevant dynamics within our simulations.
 
-## Unit optimization
-Field-level yield data and the actual geographically specific risk unit structure are not currently public so we sample units randomly based on expected size. However, as further explored in supplemental, growers likely optimize their own unit structure when purchasing policies, likely causing us to under-estimate claims rates. Therefore, the relative change in claims rate within our simulations is more salient as unit structure optimization would be active in both. Similarly, we do not have the geographically specific data required to model trend adjustment [@plastina_trend-adjusted_2014] and yield exclusion options [@schnitkey_yield_2015]. However, as both likely raise $y_{expected}$, excluding these two factors likely leads to a supression of loss rates in our simulations, especially for SSP245. Altogether, we both underestimates the actual claims rate [@rma_statecountycrop_2024] but also likely underestimate relative increases in claims rate expected by climate change.
+## Relation to actuals
+A number of difficult to model factors likely lead us to underestimate the actual claims rate [@rma_statecountycrop_2024]. Field-level yield data and the actual geographically specific risk unit structure are not currently public so we sample units randomly based on expected size. However, as further explored in supplemental, growers likely optimize their own unit structure when purchasing policies to optimize financial upside. Similarly, we do not have the geographically specific data required to model trend adjustment [@plastina_trend-adjusted_2014] and yield exclusion options [@schnitkey_yield_2015]. However, as both likely raise $y_{expected}$, excluding these two factors likely leads to a supression of loss rates in our simulations. Finally, note that these adjustments change over time and 2014 in particular saw a number of statutory changes [@ers_farm_2014] that could cause this under-estimation to fluctuate across the historic record which itself is quite volitaile. For example, 2012 saw an astronomic 50% claims rate. Even so, despite these limitations, consider that we generally predict a 13% claims rate absent additional warming. Similarly, the median of the full historic series is 14%.
 
 ## Yield expectations
-Figure @fig:hist highlights possible challenges with using a simple average in crop insurance products: simulations anticipate that the claims rate increases under climate change (SSP245) even as the overall yield mean remains similar to or above the historic baseline.
+Figure @fig:hist highlights possible challenges with using a simple average in crop insurance products: simulations anticipate that the claims rate increases under climate change (SSP245) even as the yield means used to set yield expectations change over time within our simulations as further discussed in supplemental.
 
 ![Interactive tool screenshot showing 2050 outcomes distribution as changes from $y_{expected}$, showing deltas and claims rates with climate change on the top and without climate change on the bottom. In addition to showing increased claims rate, the circles along the horizontal axis also depict climate change reducing the expected increase in yields that would otherwise follow historic trends.](./img/hist.png "Interactive tool screenshot showing 2050 outcomes distribution. This graphic depicts changes from $y_{expected}$, showing deltas and claims rates with climate change on the top and without climate change on the bottom. In addition to showing increased claims rate, the circles along the horizontal axis also depict climate change reducing the expected increase in yields that would otherwise follow historic trends."){#fig:hist}
 
@@ -184,9 +196,6 @@ Plans where loss is calculated against averages of historic yields may fail to c
 
 ### Impacts to growers
 Some risk mitigating practices such as regenerative agriculture may not always improve mean yields or can even come at the cost of a slightly reduced average [@deines_recent_2023]. Even though these practices may help guard against an elevated probability of loss events [@renwick_long-term_2021], our results may indicate a mechanism for how average-based expectations could possibly disincentivize growers from climate change preparation in that our simulations do not necessarily see a decrease in average-based yield expectations defining coverage levels even as risk grows. That said, we acknowledge that crop insurance effects on grower behavior remains an area of active investigation [@connor_crop_2022; @wang_warming_2021; @chemeris_insurance_2022].
-
-## Claims rate bounce
-The claims rate is slightly higher in the 2030 series compared to the 2050 series for our SSP245 simulations. In addition to yield expectations changing at the neighborhood level, this may reflect that some changes like for maximum temperature within SSP245 [@williams_high_2024] are more extreme from the historic series to 2030 than for 2030 series to 2050. For example, using average daily maximum temperatures, the change from 2030 to 2050 is about one third (37%) lower than the change from historic to 2030. That said, this bounce in loss probability is quite small and the gap between the no futher warming counterfactual and predicted grows further apart from 2030 to 2050. Altogether, this does not detract from our central warning of a possible a sharp elevation in claims probability in the short to medium-term.
 
 ## Geographic bias
 Neighborhoods with significant results ($p < 0.05 / n$) may be more common in some areas as shown in Figure @fig:geo.
