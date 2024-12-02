@@ -568,9 +568,7 @@ class MainPresenter:
         for bucket in range(-100, 120, 20):
             base_str = '+%d%%' % bucket if bucket > 0 else '%d%%' % bucket
 
-            if bucket == -100:
-                label = '<' + base_str
-            elif bucket == 100:
+            if bucket == 100:
                 label = '>' + base_str
             else:
                 label = base_str
@@ -650,7 +648,7 @@ class MainPresenter:
             )
 
         self._sketch.push_transform()
-        self._sketch.translate(-35, self._get_y(16))
+        self._sketch.translate(-35, self._get_y(7))
         self._sketch.set_angle_mode('degrees')
         self._sketch.rotate(-90)
         self._sketch.set_text_align('center', 'center')
@@ -692,7 +690,7 @@ class MainPresenter:
         )
 
         self._sketch.push_transform()
-        self._sketch.translate(-35, SUB_CHART_HEIGHT - self._get_y(10))
+        self._sketch.translate(-35, SUB_CHART_HEIGHT - self._get_y(7))
         self._sketch.set_angle_mode('degrees')
         self._sketch.rotate(-90)
         self._sketch.set_text_align('center', 'center')
