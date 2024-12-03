@@ -189,7 +189,7 @@ Despite this similarity between predictions and the comparable recent actuals, a
 While these model limitations likely overall lead to a supression of loss rates in our simulations relative to actuals, note that these adjustments change over time and could cause further fluctations. For example, 2014 in particular saw a number of statutory changes [@ers_farm_2014]. Taken together, we anticipate that the future will likely see substantial annual variation similar to the recent past even as our results still capture overall long term trends.
 
 ## Yield expectations
-Figure @fig:hist highlights structural changes to yield we predict due to climate change.
+Figure @fig:hist highlights structural changes to yield deltas we predict due to climate change.
 
 ![Interactive tool screenshot showing 2050 outcomes distribution as changes from $y_{expected}$, showing deltas and claims rates with climate change on the top and without climate change on the bottom. ](./img/hist.png "Interactive tool screenshot showing 2050 outcomes distribution. This graphic depicts changes from $y_{expected}$, showing deltas and claims rates with climate change on the top and without climate change on the bottom."){#fig:hist}
 
