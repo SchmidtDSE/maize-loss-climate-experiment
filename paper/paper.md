@@ -208,7 +208,7 @@ Neighborhoods with significant results ($p < 0.05 / n$) may be more common in so
 
 In particular, we note some spatial patterns in precipitation and temperature changes that may intersect with these trends. Indeed, our model shows depressed yields in response to anticipated combined warmer and drier conditions similar to 2012 and its historically poor maize production [@ers_weather_2013]. Our predictions thus reflect empirical studies that document the negative impacts of heat stress and water deficits on maize yields [@sinsawat_effect_2004; @marouf_effects_2013]. In total, our outputs may reveal geographically and temporally specific outlines of anticipated impacts as described in our interactive tools.
 
-## Limitations and future work
+## Other limitations and future work
 We next highlight opportunities for future work.
 
 ### Future data
