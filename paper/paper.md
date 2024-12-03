@@ -182,7 +182,7 @@ In addition to highlighting future work opportunities and further exploring our 
 ## Recent actual claims rates
 We generally predict a 13% claims rate in 2030 and 2050 "counterfactual" simulations. These trials anticipate outcomes absent further climate change (future conditions similar to recent past). For comparison, the median of the full historic series reports an actual 14% actual claims rate despite substantial annual variability [@rma_statecountycrop_2024]. These historic data were generated amid growing conditions similar to those seen in the counterfactual trials.
 
-### Limitations
+### Under-estimation
 Despite this similarity between predictions and the comparable recent actuals, a number of difficult to model factors likely lead us to underestimate the actual claims rate in practice. Field-level yield data and the actual geographically specific risk unit structure are not currently public. Therefore, while we sample units randomly based on expected size, growers likely optimize their own unit structure when purchasing policies to optimize financial upside as further explored in supplemental. Similarly, we do not have the geographically specific data required to model trend adjustment [@plastina_trend-adjusted_2014] and yield exclusion options [@schnitkey_yield_2015].
 
 ### Statutory changes
