@@ -148,7 +148,7 @@ With bias towards performance in mean prediction, we select {{numLayers}} hidden
 
 $|\frac{y_{actual} - y_{expected}}{y_{expected}}$ - y_{Delta\%\_Predicted}|$
 
-Our selected model sees {{retrainMeanMae}} MAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMae}} when predicting neighborhood standard deviation when evaluting using the fully hidden test set. These metrics report on performance after retraining with train and validation together though additional performance metrics are offered in supplemental.
+As shown in Table @tbl:trainresults, our selected model sees {{retrainMeanMae}} MAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMae}} when predicting neighborhood standard deviation when evaluting using the fully hidden test set. Though our supplemental offers additional performance metrics, these metrics report on performance after retraining with train and validation together.
 
 | **Set**             | **MAE for Mean Prediction** | **MAE for Std Prediction** |
 | -------------------- | ----------------------- | ---------------------- |
@@ -156,7 +156,7 @@ Our selected model sees {{retrainMeanMae}} MAE when predicting neighborhood mean
 | Validation           | {{validationMeanMae}}   | {{validationStdMae}}   |
 | Test with retrain    | {{retrainMeanMae}}      | {{retrainStdMae}}      |
 
-Table: Results of tests after model selection. {#tbl:posthocresults}
+Table: Results of model training and selection. {#tbl:trainresults}
 
 We also evaluate regression performance through varied definitions of test sets in Table @tbl:posthocresults, showing similar results.
 
@@ -166,6 +166,8 @@ We also evaluate regression performance through varied definitions of test sets 
 | Temporal | {{temporalMeanMae}}    | {{temporalStdMae}}    | {{temporalPercent}}        |
 | Spatial  | {{spatialMeanMae}}     | {{spatialStdMae}}     | {{spatialPercent}}         |
 | Climatic | {{climateMeanMae}}     | {{climateStdMae}}     | {{climatePercent}}         |
+
+Table: Results of tests after model selection. {#tbl:posthocresults}
 
 The interactive tools website allows for further examination of error and rejected candidates.
 
