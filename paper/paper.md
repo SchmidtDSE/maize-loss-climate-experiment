@@ -144,11 +144,7 @@ We project climate change to roughly double loss probabilities ($p_{l}$) at mid-
 Our resulting dataset spans 1999 to 2016 during which we observe a median of 83k SCYM yield estimations at roughly field-scale per neighborhood. These outcomes are represented within neighborhood-level distributions per year. Consistent with @nelson_influence_1990, around a quarter of neighborhood distributions of SCYM yields are not normally distributed. However, we observe that more than 99% of yield delta distributions exhibit approximate normality [@kim_statistical_2013]. Therefore, though further explored in supplemental, the neural network predicts mean and std assuming a normal distribution of deltas instead of a beta distribution.
 
 ## Neural network outcomes
-With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. We report mean absolute error (MAE) in yield delta points:
-
-$|\frac{y_{actual} - y_{expected}}{y_{expected}}$ - y_{Delta\%\_Predicted}|$
-
-As shown in Table @tbl:trainresults, our selected model sees {{retrainMeanMae}} MAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMae}} when predicting neighborhood standard deviation when evaluting using the fully hidden test set. Though our supplemental offers additional performance metrics, these metrics report on performance after retraining with train and validation together.
+With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. We report mean absolute error (MAE) in yield delta points ($|\frac{y_{actual} - y_{expected}}{y_{expected}} - y_{Delta\% - Predicted}|$). Our selected model sees {{retrainMeanMae}} MAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMae}} when predicting neighborhood standard deviation when evaluting using the fully hidden test set. Though our supplemental offers additional performance metrics, Table @tbl:trainresults reports on performance after retraining with train and validation together.
 
 | **Set**             | **MAE for Mean Prediction** | **MAE for Std Prediction** |
 | -------------------- | ----------------------- | ---------------------- |
