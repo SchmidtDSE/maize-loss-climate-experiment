@@ -59,7 +59,7 @@ Before modeling these systems, we articulate mathematical definitions of domain-
 
 $l = max(c * y_{expected} - y_{actual}, 0)$
 
-Growers submit production histories for the covered crop ($y_{historic}$) and typically the average of the 10 ($d=10$) most recent years of yield in which the crop was grown [@rma_crop_2008]. This may span more than 10 calendar years due to, for example, crop rotations. This is further explored in our interactive tools.
+Growers submit production histories for the covered crop ($y_{historic}$) and typically the average of the 10 ($d=10$) most recent years of yield in which the crop was grown define expected ($y_{expected}$) yield [@rma_crop_2008]. This may span more than 10 calendar years due to, for example, crop rotations.
 
 $y_{expected} = \frac{y_{historic}[-d:]}{d}$
 
