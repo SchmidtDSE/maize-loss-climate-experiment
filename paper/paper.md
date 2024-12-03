@@ -89,7 +89,7 @@ With these data in mind, we build predictive models for use in simulations of fu
 We predict yield delta distributions per year ahead of Monte Carlo simulations. Specifically, we predict either two parmameters (mean, std) for a normal distribution or four parameters [@scipy_beta_2024] for a beta distribution [@nelson_influence_1990] with distribution type chosen by skew and kurtosis [@kim_statistical_2013]. This use of summary statistics helps ensure appropriate dimensionality for the dataset size [@alwosheel_dataset_2018]. To predict these responses, we describe each of the 9 CHC-CMIP6 variables as min, max, mean, count, and standard deviation per month for the given year. These varibles constitute the model input vector along with year, the historic absolute yield mean ($y_{\mu-historic}$), and standard deviation ($y_{\sigma-historic}$) seen in the neighborhood which capture some measures around baseline variability. See supplemental and interactive tools for further exploration.
 
 ### Neural network
-Our regressors ($f$) use neighborhood-level climate variables ($C$) and historic yield information to predict future yield changes ($y_{\Delta\%}$) per year [@kim_investigating_2024]. We preprocess these inputs using z score normalization.
+Our regressors ($f$) use neighborhood-level climate variables ($C$) and historic yield information to predict future yield changes ($y_{\Delta\%}$) per year. We preprocess these inputs using z score normalization [@kim_investigating_2024].
 
 $f(C_z, y_{\mu-historic-z}, y_{\sigma-historic-z}) \hat= y_{\Delta\%}(x) = \frac{y_{actual} - y_{expected}}{y_{expected}} = \frac{y_{\Delta}}{y_{\mu-historic}}$
 
