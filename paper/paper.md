@@ -179,15 +179,6 @@ Though 2050 with further warming fares worse than 2030, Figure @fig:simresults r
 # Discussion
 In addition to highlighting future work opportunities and further exploring our results, we observe a number of policy-relevant dynamics within our simulations.
 
-## Recent actual claims rates
-We generally predict a 13% claims rate in 2030 and 2050 "counterfactual" simulations. These trials anticipate outcomes absent further climate change (future conditions similar to recent past). For comparison, the annual median of the historic series encouragingly reports an actual 14% claims rate despite substantial annual variability [@rma_statecountycrop_2024]. These actuals emerged amid growing conditions similar to those seen in the counterfactual trials, making them valuable in contextualizing model behavior.
-
-### Under-estimation
-Despite this similarity between predictions and the comparable recent actuals, a number of difficult to model factors likely lead us to underestimate the actual claims rate in practice. First, field-level yield data and the actual geographically specific risk unit structure are not currently public. Therefore, while we sample units randomly based on expected size, growers likely optimize their own unit structure when purchasing policies to optimize financial upside as further explored in supplemental. Similarly, we do not have the geographically specific data required to model trend adjustment [@plastina_trend-adjusted_2014] and yield exclusion options [@schnitkey_yield_2015]. These both likely increase the actual claims rates by raising $y_{expected}$. That said, we acknowledge that trend adjustment and historically-consistent expected increases in yields outside our model likely negate each other.
-
-### Variation
-While these model limitations likely overall lead to a supression of loss rates in our simulations relative to actuals, note that these adjustments change over time and could cause further fluctations alongside growing condition variability. For example, 2014 in particular saw a number of statutory changes [@ers_farm_2014]. Taken together, we anticipate that the future will likely see substantial annual variation similar to the recent past even as our results still capture overall long term trends.
-
 ## Yield expectations
 Figure @fig:hist highlights structural changes to yield deltas we predict due to climate change.
 
@@ -200,6 +191,15 @@ Plans where loss is calculated against averages of historic yields may fail to c
 
 ### Impacts to growers
 Some risk mitigating practices such as regenerative agriculture may not always improve mean yields or can even come at the cost of a slightly reduced average [@deines_recent_2023]. Even though these practices may help guard against an elevated probability of loss events [@renwick_long-term_2021], our results may indicate a mechanism for how average-based expectations could possibly disincentivize growers from climate change preparation in that our simulations do not necessarily see a decrease in average-based yield expectations defining coverage levels even as risk grows. That said, we acknowledge that crop insurance effects on grower behavior remains an area of active investigation [@connor_crop_2022; @wang_warming_2021; @chemeris_insurance_2022].
+
+## Recent actual claims rates
+We generally predict a 13% claims rate in 2030 and 2050 "counterfactual" simulations. These trials anticipate outcomes absent further climate change (future conditions similar to recent past). For comparison, the annual median of the historic series encouragingly reports an actual 14% claims rate despite substantial annual variability [@rma_statecountycrop_2024]. These actuals emerged amid growing conditions similar to those seen in the counterfactual trials, making them valuable in contextualizing model behavior.
+
+### Under-estimation
+Despite this similarity between predictions and the comparable recent actuals, a number of difficult to model factors likely lead us to underestimate the actual claims rate in practice. First, field-level yield data and the actual geographically specific risk unit structure are not currently public. Therefore, while we sample units randomly based on expected size, growers likely optimize their own unit structure when purchasing policies to optimize financial upside as further explored in supplemental. Similarly, we do not have the geographically specific data required to model trend adjustment [@plastina_trend-adjusted_2014] and yield exclusion options [@schnitkey_yield_2015]. These both likely increase the actual claims rates by raising $y_{expected}$. That said, we acknowledge that trend adjustment and historically-consistent expected increases in yields outside our model likely negate each other.
+
+### Variation
+While these model limitations likely overall lead to a supression of loss rates in our simulations relative to actuals, note that these adjustments change over time and could cause further fluctations alongside growing condition variability. For example, 2014 in particular saw a number of statutory changes [@ers_farm_2014]. Taken together, we anticipate that the future will likely see substantial annual variation similar to the recent past even as our results still capture overall long term trends.
 
 ## Geographic bias
 Neighborhoods with significant results ($p < 0.05 / n$) may be more common in some areas as shown in Figure @fig:geo.
