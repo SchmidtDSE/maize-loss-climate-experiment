@@ -124,7 +124,7 @@ Having performed model selection, we further evaluate our chosen regressor throu
 
 Table: Overview of trials after model selection. {#tbl:posthoc}
 
-These post-hoc trials use only training and test sets as we fully retrain models using unchanging sweep-chosen hyper-parameters as described in Table @tbl:sweepparam. Note that some of these tests use "regions" which we define as all geohashes sharing the same first three characters. This two tier definition creates a grid of 109 x 156 km cells [@haugen_geohash_2020] each including all neighborhoods (4 character geohashes) found within that area.
+These post-hoc trials use only training and test sets as we fully retrain models using unchanging sweep-chosen hyper-parameters as described in Table @tbl:sweepparam. Note that some of these tests use "regions" which we define as all geohashes sharing the same first three characters, creating a grid of 109 x 156 km cells [@haugen_geohash_2020] each including all neighborhoods (4 character geohashes) found within.
 
 ## Simulation
 After training machine learning models using historic data, predictions of future distributions feed into Monte Carlo simulations [@metropolis_beginning_1987; @kwiatkowski_monte_2022] as described in Figure @fig:pipeline. This happens for 17 individual years sampled separately from both the 2030 and 2050 CHC-CMIP6 series [@williams_high_2024]. With trials consisting of sampling at the neighborhood scale, this approach allows us to consider a distribution of future outcomes for each neighborhood. These results then enable us to make statistical statements about systems-wide institution-relevant events such as claims rate ($p_{l}$). We specifically simulate loss probability prior to unit optimizations as explored in discussion.
@@ -169,7 +169,7 @@ We also evaluate regression performance through varied definitions of test sets 
 
 Table: Results of tests after model selection. {#tbl:posthocresults}
 
-The interactive tools website allows for further examination of error and rejected candidates.
+Our interactive tools allow for further examination of error and candidates.
 
 ## Simulation outcomes
 After retraining on all available data using the selected configuration from our sweep, Monte Carlo simulates overall outcomes while tracking changes to average yields over time at the neighborhood level and sampling test set model residuals to account for error. Despite the conservative nature of the Bonferroni correction [@mcdonald_handbook_2014], {{percentSignificant}} of maize acreage in SSP245 falls within a neighborhood with significant changes to claim probability ($p < 0.05 / n$) at some point during the 2050 series simulations. That said, we observe that some of the remaining neighborhoods failing to meet that threshold have less land dedicated to maize within their area (smaller sample size in simulations).
