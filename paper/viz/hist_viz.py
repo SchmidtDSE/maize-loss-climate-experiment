@@ -465,7 +465,7 @@ class MainPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 11)
 
         is_catastrophic = self._target_threshold == '75% cov'
-        claim_threshold = -35 if is_catastrophic else -30
+        claim_threshold = -25 if is_catastrophic else -15
 
         for bucket, percent in self._get_body_fields(histogram):
             is_claim = bucket <= claim_threshold
@@ -716,7 +716,7 @@ class MainPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 11)
 
         is_catastrophic = self._target_threshold == '75% cov'
-        max_val = 35 if is_catastrophic else 30
+        max_val = 25 if is_catastrophic else 15
 
         y = SUB_CHART_HEIGHT - self._get_y(20)
         start_x = self._get_x(-100) - 5
