@@ -174,7 +174,7 @@ After retraining on all available data using the selected configuration from our
 
 ![Overview of Monte Carlo simulation results comparing SSP245 versus counterfactual for (A) loss probability, (B) loss severity, and (C) change in average yields. Counterfactual is a future without continued warming.](./img_static/sim.png "Overview of Monte Carlo simulation results comparing SSP245 versus counterfactual for (A) loss probability, (B) loss severity, and (C) change in average yields. Counterfactual is a future without continued warming."){#fig:simresults}
 
-Though 2050 with further warming fares worse than 2030, Figure @fig:simresults reports that loss probability roughly doubles in both the 2030 and 2050 time frames considered for SSP245 whereas the no warming counterfactual sees relatively steady claims rates into the future. Climate change also reduces anticipated mean yield.
+Figure @fig:simresults shows that the probability of loss approximately doubles in both the 2030 and 2050 timeframes considered for SSP245. In contrast, the counterfactual with no warming experiences relatively stable claims rates throughout the future. Additionally, climate change reduces the expected average yield and, as 2050 witnesses further warming compared to 2030, later simulations see further elevated claims rates.
 
 # Discussion
 In addition to highlighting future work opportunities and further exploring our results, we observe a number of policy-relevant dynamics within our simulations.
