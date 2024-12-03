@@ -88,10 +88,10 @@ The test set residuals are sampled during Monte Carlo to propogate uncertainty. 
 
 Table: Results of tests after model selection. {#tbl:posthocresults}
 
-Even so, the overall error remains acceptable.
+Even so, the overall error remains acceptable. In general, increased model size is showing diminishing returns and we do not currently consider additional layers.
 
 ## Changing yield expectations
-Our simulations expect yield exepctations to change over time. In practice, we sample ten years of historic yields per neighborhood per year per tiral and we offset the yield deltas produced by the neural network accordingly. This allows for some accounting of uncertainty in yield baselines. In practice, this means that predictions for 2030 claims rate will sample 2010 (historic) and 2050 will sample 2030. To prevent discontiniuity in the data, the 2010 deltas are retroactively predicted with the random post-hoc task providing a reasonable approximation of error. Model error residuals are sampled in each case.
+Our simulations expect yield exepctations to change over time. In practice, we sample ten years of historic yields per neighborhood per year per tiral and we offset the yield deltas produced by the neural network accordingly. This allows for some accounting of uncertainty in yield baselines. In practice, this means that predictions for 2030 claims rate will sample 2010 (historic) and 2050 will sample 2030. To prevent discontiniuity in the data, the 2010 deltas are retroactively predicted with the random post-hoc task providing a reasonable approximation of error. Model error residuals are sampled in each case (less than 1% improvement from 5 to 6 layers).
 
 # Detailed simulation results
 Though presented to one decimal place, we consider these results to suggest that claims rates will increase from 2 - 3% upwards to 5 - 6% in the SSP245 scenario.
