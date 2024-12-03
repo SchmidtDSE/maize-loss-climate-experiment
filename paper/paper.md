@@ -127,11 +127,11 @@ Table: Overview of trials after model selection. {#tbl:posthoc}
 These post-hoc trials use only training and test sets as we fully retrain models using unchanging sweep-chosen hyper-parameters as described in Table @tbl:sweepparam. Note that some of these tests use "regions" which we define as all geohashes sharing the same first three characters, creating a grid of 109 x 156 km cells [@haugen_geohash_2020] each including all neighborhoods (4 character geohashes) found within.
 
 ## Simulation
-After training machine learning models using historic data, predictions of future distributions feed into Monte Carlo simulations [@metropolis_beginning_1987; @kwiatkowski_monte_2022] as described in Figure @fig:pipeline.
+After training machine learning models using historic data, predictions of future distributions feed into Monte Carlo simulations [@metropolis_beginning_1987; @kwiatkowski_monte_2022] as described in Figure @fig:pipeline. This operation happens for 17 individual years sampled separately from both the 2030 and 2050 CHC-CMIP6 series [@williams_high_2024].
 
 ![Model pipeline overview diagram. Code released as open source.](./img/pipeline.png "Model pipeline overview diagram. Code released as open source."){ width=80% #fig:pipeline }
 
-This operation happens for 17 individual years sampled separately from both the 2030 and 2050 CHC-CMIP6 series [@williams_high_2024]. With trials consisting of sampling at the neighborhood scale, this approach allows us to consider a distribution of future outcomes for each neighborhood. These results then enable us to make statistical statements about systems-wide institution-relevant events such as claims rate ($p_{l}$). We specifically simulate loss probability prior to unit optimizations as explored in discussion.
+With trials consisting of sampling at the neighborhood scale, this approach allows us to consider a distribution of future outcomes for each neighborhood. These results then enable us to make statistical statements about systems-wide institution-relevant events such as claims rate ($p_{l}$). We specifically simulate loss probability prior to unit optimizations as explored in discussion.
 
 ### Trials
 Each Monte Carlo trial involves multiple sampling operations. First, we sample climate variables and model error residuals to propagate uncertainty [@yanai_estimating_2010]. Next, we draw yield multiple times to approximate the size of a risk unit with its portfolio effects. Note that the size but not the specific location of insured units is publicly disclosed. Therefore, we draw the geographic size of each insured unit randomly from historic data [@rma_statecountycrop_2024] as part of Monte Carlo. Trials are further described in our supplemental materials.
