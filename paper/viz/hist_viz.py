@@ -718,7 +718,7 @@ class MainPresenter:
         is_catastrophic = self._target_threshold == '75% cov'
         max_val = 25 if is_catastrophic else 15
 
-        y = SUB_CHART_HEIGHT - self._get_y(20)
+        y = SUB_CHART_HEIGHT - self._get_y(15)
         start_x = self._get_x(-100) - 5
         end_x = self._get_x(-25 if is_catastrophic else -15)
 
@@ -759,7 +759,7 @@ class MainPresenter:
         is_catastrophic = self._target_threshold == '75% cov'
         max_val = 35 if is_catastrophic else 20
 
-        y = self._get_y(20)
+        y = self._get_y(15)
         start_x = self._get_x(-100)
         end_x = self._get_x(-25 if is_catastrophic else -15)
 
