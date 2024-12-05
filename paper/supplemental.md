@@ -4,7 +4,7 @@ title: "Supplementary Materials for Climate-Driven Doubling of U.S. Maize Loss P
 header-includes: |
   \usepackage{float}
   \floatplacement{figure}{H}
-date: 2024-10-31
+date: 2024-12-05
 affiliations:
   - id: 1
     name: Eric and Wendy Schmidt Center for Data Science and Environment, University of California Berkeley, Berkeley 94720, CA, USA
@@ -128,7 +128,7 @@ A large share of growers will engage in at least simple crop rotations [@manski_
 All this in mind, historic locations of growth and crop rotation behavior from the past are sampled in the future simulations. In addition to this spatial complexity, we highlight that crop rotations mean that the last 10 years of yield data for a crop may not correspond to the last 10 calendar years but, due to the "year series" approach in this model, this probably has limited effect on our multi-year claims rates estimations.
 
 # Detailed simulation results
-For reference, we provide furhter detailed simulaetd results in Table @tbl:simresults.
+For reference, we provide furhter detailed simulated results in Table @tbl:simresults.
 
 | **Scenario**   | **Series** | **Unit mean yield change** | **Unit loss probability**         | **Avg covered loss severity**  |
 | ---------------------------- | -------- | -------------------------- | --------------------------------- | ------------------------------ |
@@ -141,7 +141,13 @@ For reference, we provide furhter detailed simulaetd results in Table @tbl:simre
 
 Table: Details of Monte Carlo simulation results. Counterfactual is a future without continued warming in contrast to SSP245. {#tbl:simresults}
 
+These results are also made available in Zenodo [@pottinger_data_2024].
+
+## Series labels
 Note that the "2010 series" label is used internally in our model for consistency with 2030 and 2050 from CHC-CMIP6 though that "2010" language does not explicitly appear in their data model.
+
+## Confidence
+We re-execute simulations 100 times to understand variability for system-wide metrics in Table @tbl:simresults. The range of all standard deviations of each metric's distribution is under 0.1% and the range under 1%. These tight intervals likely reflect the high degree of aggregation represented in our system-wide metrics. However, lacking confidence measures from SCYM and CHC-CMIP6, this post-hoc experiment cannot account for input data uncertainty which is likely more substantial.
 
 # Interactive tools
 Finally, we further describe our interactive tools. In crafting these "explorable explanations" [@victor_explorable_2011] listed in Table @tbl:apps, we draw analogies to micro-apps  [@bridgwater_what_2015] or mini-games [@dellafave_designing_2014] in which the user encounters a series of small experiences that, each with distinct interaction and objectives, can only provide minimal instruction [@brown_100_2024]. As these very brief visualization experiences cannot take advantage of design techniques like Hayashida-style tutorials [@pottinger_pyafscgaporg_2023], they rely on simple "loops" [@brazie_designing_2024] for immediate "juxtaposition gratification" (JG) [@jm8_secret_2024], showing fast progression after minimal input.
