@@ -4,7 +4,7 @@ title: "Supplementary Materials for Climate-Driven Doubling of U.S. Maize Loss P
 header-includes: |
   \usepackage{float}
   \floatplacement{figure}{H}
-date: 2024-10-31
+date: 2024-12-05
 affiliations:
   - id: 1
     name: Eric and Wendy Schmidt Center for Data Science and Environment, University of California Berkeley, Berkeley 94720, CA, USA
