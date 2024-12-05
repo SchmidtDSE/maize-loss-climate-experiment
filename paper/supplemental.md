@@ -141,7 +141,13 @@ For reference, we provide furhter detailed simulaetd results in Table @tbl:simre
 
 Table: Details of Monte Carlo simulation results. Counterfactual is a future without continued warming in contrast to SSP245. {#tbl:simresults}
 
-Note that the "2010 series" label is used internally in our model for consistency with 2030 and 2050 from CHC-CMIP6 though that "2010" language does not explicitly appear in their data model. Re-running the simulation across 100 trials shows that, after aggregated across the full series (all 2030 series, all 2050 series, etc), the standard deviation of the resulting distribution is less than 1% across all metrics reported in Table @tbl:simresults.
+We also make our results available under Zenodo.
+
+## Labeling
+Note that the "2010 series" label is used internally in our model for consistency with 2030 and 2050 from CHC-CMIP6 though that "2010" language does not explicitly appear in their data model.
+
+## Simulation re-execution variability
+Re-running the simulation pipeline 100 times for all scenarios above shows that, after aggregated across the full series (all 2030 series, all 2050 series, etc), the standard deviation of the distribution for each resulting metrics is less than 0.5% across all metrics reported in Table @tbl:simresults. This convergence likely reflects the high degree of aggregation when calculating the system-wide outcomes.
 
 # Interactive tools
 Finally, we further describe our interactive tools. In crafting these "explorable explanations" [@victor_explorable_2011] listed in Table @tbl:apps, we draw analogies to micro-apps  [@bridgwater_what_2015] or mini-games [@dellafave_designing_2014] in which the user encounters a series of small experiences that, each with distinct interaction and objectives, can only provide minimal instruction [@brown_100_2024]. As these very brief visualization experiences cannot take advantage of design techniques like Hayashida-style tutorials [@pottinger_pyafscgaporg_2023], they rely on simple "loops" [@brazie_designing_2024] for immediate "juxtaposition gratification" (JG) [@jm8_secret_2024], showing fast progression after minimal input.
