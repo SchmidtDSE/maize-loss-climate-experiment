@@ -1144,7 +1144,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
         tasks_with_variations = self._get_tasks(input_records_grouped.values())
 
         cluster = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=20, maximum=self.get_max_workers())
+        cluster.adapt(minimum=10, maximum=self.get_max_workers())
         client = cluster.get_client()
 
         with self.input()['deltas'].open('r') as f:
