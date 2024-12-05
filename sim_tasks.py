@@ -1186,7 +1186,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
                 tasks_with_variations
             )
             outputs_realized = map(lambda x: x.result(), outputs_all)
-            output_sets_realized.append(outputs_realized)
+            output_sets_realized.append(list(outputs_realized))
 
         self._process_outputs(output_sets_realized)
 
