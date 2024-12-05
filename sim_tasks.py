@@ -1371,8 +1371,13 @@ class ExecuteRepeatSimulationTasksTemplate(ExecuteSimulationTasksTemplate):
         Args:
             output_sets_realized: Sets of the individual simulation outputs.
         """
+        assert len(output_sets_realized) == self.get_iterations()
+
         def simplify_and_combine(outputs_realized):
-            simplified = map(lambda x: self._simplify_record(x), outputs_realized)
+            simplified = map(
+                lambda x: self._simplify_record(x),
+                itertools.chain(*outputs_realized)
+            )
             return functools.reduce(lambda a, b: self._combine(a, b), simplified)
 
         def get_stats(key, summaries):
