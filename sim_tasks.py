@@ -1455,11 +1455,15 @@ class ExecuteRepeatSimulationTasksTemplate(ExecuteSimulationTasksTemplate):
                 'severity': get_weighted_avg(a['severity'], b['severity'], True)
             }
 
+        def simplify_and_reduce_locally(target):
+            import functools
+            simplified = map(simplify_record, target)
+            return functools.reduce(combine, simplified)
+
         outputs_distributed = dask.bag.from_sequence(outputs)
-        flattened = outputs_distributed.flatten()
-        simplified = flattened.map(simplify_record)
-        reduced = simplified.fold(combine)
-        return reduced
+        simplified_records = outputs_distributed.map(simplify_and_reduce_locally)
+        reduced_records = simplified_records.fold(combine)
+        return reduced_records
 
 
 class NoopProjectHistoricTask(luigi.Task):
