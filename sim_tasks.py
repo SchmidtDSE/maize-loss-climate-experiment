@@ -1277,7 +1277,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
             Number of times to repeat simulations.
         """
         return 1
-    
+
     def _preprocess_outputs(self, outputs):
         """Preprocess outputs ahead of considering all iterations.
 
