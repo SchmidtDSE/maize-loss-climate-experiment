@@ -1146,7 +1146,6 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
 
         cluster = cluster_tasks.get_cluster()
         cluster.adapt(minimum=10, maximum=self.get_max_workers())
-        client = cluster.get_client()
 
         with self.input()['deltas'].open('r') as f:
             rows = csv.DictReader(f)
