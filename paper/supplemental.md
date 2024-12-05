@@ -33,13 +33,13 @@ output:
     template: default.tex
 ---
 
-**Overview**: These supplementary materials complement "Climate-Driven Doubling of U.S. Maize Loss Probability: Interactive Simulation through Neural Network Monte Carlo" to further describe the work including statistical tests employed, the simulation of insured units, and the interactive tools available at https://ag-adaptation-study.pub.
+**Overview**: These supplementary materials complement "Climate-Driven Doubling of U.S. Maize Loss Probability: Interactive Simulation through Neural Network Monte Carlo" to further describe the work including statistical tests employed, simulation specfics, and the interactive tools available at https://ag-adaptation-study.pub.
 
 # Methods and data
 These materials start with further explanation of the methods and data employed.
 
 ## Statistical tests
-To determine significance of changes to loss probability at neighborhood-level, we use Mann Whitney U [@mann_test_1947] as variance is observed to differ between the two expected and counterfactual sets [@mcdonald_handbook_2014]. As our neural network attempts to predict the distribution of yield values, we note that the granularity of the response variable (SCYM yield) specifically may influence statistical power and we observe that SYCM [@lobell_scalable_2015] uses Daymet variables at 1 km resolution [@thornton_daymet_2014]. Therefore, due to potential correlation within those 1km cells, we assume 1km resolution for the purposes of statistical tests to avoid artificially increasing the number of "true" SCYM yield estimations per neighborhood. Finally, we recognize that we are engaging in one statistical test per neighborhood per series (2030, 2050). We control for this through Bonferroni-correction [@bonferroni_il_1935].
+To determine significance of changes to loss probability at neighborhood-level, we use Mann Whitney U [@mann_test_1947] as variance is observed to differ between the two expected and counterfactual sets [@mcdonald_handbook_2014]. Given that our neural network attempts to predict the distribution of yield deltas, we note that the granularity of the response variable specifically may influence statistical power and we observe that SYCM [@lobell_scalable_2015] uses Daymet variables at 1 km resolution [@thornton_daymet_2014]. Therefore, due to potential correlation within those 1km cells, we assume 1km resolution for the purposes of statistical tests to avoid artificially increasing the number of "true" SCYM yield estimations per neighborhood. Finally, we recognize that we are engaging in one statistical test per neighborhood per series (2030, 2050). We control for this through Bonferroni-correction [@bonferroni_il_1935].
 
 ## Insured risk unit data
 To further describe our treatment of insured risk units, consider that the USDA provides anonymized information about risk structure [@rma_statecountycrop_2024]. We provide a histogram of this distribution in Figure @fig:riskunit.
@@ -48,24 +48,47 @@ To further describe our treatment of insured risk units, consider that the USDA 
 
 Though these data lack precise geographic specificity, the USDA indicates the county in which these units are located. Even so, we notice year to year instability at the county level. This may reflect growers reconfiguring their risk structure to optimize rates as yield profiles change over time. Altogether, this may cause the geographic location of larger units to shift between years.
 
-All this in mind, sampling the risk unit size at the county level likely represents over-confidence or overfitting to previous configurations. Even so, we observe that the system-wide risk unit size distribution remains relatively stable. This may suggest that, even as more local changes to risk unit structure may be more substantial between years, overall expectations for the size of risk units are less fluid. Therefore, we use that larger system-wide distribution to sample risk unit sizes within our Monte Carlo simulation instead of the county-level distributions. This also has the effect of propogating risk unit size uncertainty into results through the mechanics of Monte Carlo.
+All this in mind, sampling the risk unit size at the county level likely represents over-confidence or overfitting to previous configurations. Instead, we observe that the system-wide risk unit size distribution remains relatively stable. This may suggest that, even as more local changes to risk unit structure may be more substantial between years, overall expectations for the size of risk units are less fluid. Therefore, we use that larger system-wide distribution to sample risk unit sizes within our Monte Carlo simulation instead of the county-level distributions. This also has the effect of propogating risk unit size uncertainty into results through the mechanics of Monte Carlo.
 
-## Input vector
-We allow the model to use the count of growing condition estimations as a possible measure of uncertainty. This generally leads to better performance. We also allow inclusion of the year. However, as can be executed in our open source pipeline, we find that including absolute year generally increases overfitting. Therefore, we use a relative measure (years since the start of the series within the simulations). This does seem to stop the model from predicting gradual yield increases. However, given yield trend adjustment [@plastina_trend-adjusted_2014], this exclusion likely does not impact relative changes to claims rates.
+## Yield distributions
+Our treatment of yield data considers two practical constraints:
 
-## Beta distribution
-Our open source pipeline can be run with a trivial configuraiton change where one may force neighborhood yield deltas to fit beta distributions. This has precedent in the literature [@nelson_influence_1990]. Even so, we observe that more than 99% of yield delta distributions exhibit approximate normality [@kim_statistical_2013]. While leaving the beta distributions in place regardless of this finding may offer further flexibility, using beta distributions in our neural networks results in similar median absolute errors but roughly double mean absolute errors. Further investigation finds that that a minority population of neighborhoods causes this swing. As prediction of that population shows stronger performance under a normality assumption for yield deltas, we prefer this approach in our main text. For consistency, all neighborhoods are predicted using a normal distribution assumption for yield deltas.
+ - Due to the size of the input dataset and engineering limitations, we cannot take all SCYM data per neighborhood into Monte Carlo.
+ - We must avoid dramatic expansions to the output vector size as this could cause the input dataset requirements to exceed feasibility [@alwosheel_dataset_2018].
 
-## Additional notes on included years and areas
-To further document how we structure our consideration of timeseries variables, we emphasize that we sample for nine individual years in the 2030 CHC-CMIP6 series and nine individual years in 2050 CHC-CMIP6 series. Importantly, projections in these series are not necessarily intended as specific predictions in specific years. We do not provide a year by year timeseries for this reason. Instead, our analysis produces distributions of anticipated outcomes at the 2030 and 2050 timeframes. Note that our choice to create these two series follows a similar structure to CHC-CMIP6. Finally, note that many growers engage in even simple crop rotations so the effective average crop yield for a field used to define yield expectations may span 10 crop years but possibly many more than 10 calendar years.
+These concerns in mind, we sample annual SCYM yields to generate yield delta distributions which allows us to wait until the later parts of our pipeline to make shape assumptions. This ensures "just in time" that our neural network can predict a smaller number of distribution shape parameters while maintaing underlying shape information for as long as possible.
 
-## Crop rotations
-We treat practices as latent within our observed yield distributions. That in mind, a large share of growers will engage in at least simple crop rotations [@manski_diversified_2024] which is important for our simulations because it may change the locations in which maize is grown. We use SCYM to implicitly handle this complexity. These reported sample sizes impact the sampling behavior during Monte Carlo and, while this approach does not require explicit consideration of crop rotations, the set of geohashes present in results may vary from one year to the next in part due to this behavior. All that said, historic locations of growth and crop rotation behavior from the past are sampled in the future simulations.
+### Yield delta distributions
+In generating the historic yield delta distributions ahead of training neural networks, we sample 1000 yield values per neighborhood per year to represent a growing season^[The resulting historic yield delta distributions are further sampled based on simulated risk unit size, either from historic actuals or neural network predicted distributions. Note that we also sample to represent historic averages as aggregation to $y_{expected}$ can be subject to "small samples" stochastic effects per risk unit.]. Altogether, this design avoids needing to make distributional assumptions about yield ahead of neural network operation while maintaining the original distributional shape.
 
-## Instance weight
+### Pipline flexibility
+Our neural network requires a distributional shape assumption to maintain a smaller output vector size. We decide the shape to predict based on observed skew and kurtosis of yield deltas. To that end, our open source pipeline can be run with beta or normal distribution assumptions. The former has precedent in the literature [@nelson_influence_1990].
+
+### Practical yield delta shape
+Despite pipeline flexibility, we observe that nearly all^[Around 97% - 99% of neighborhoods and maize growing acreage depending on yield sampling are approximately normal per @kim_statistical_2013.] yield delta distributions exhibit approximate normality in practice [@kim_statistical_2013]. Separately, using beta distributions in our neural networks results in similar median absolute errors but elevated mean absolute errors as shown in Table @tbl:betadist which highlights prediction of distribution location specifically. 
+
+| **Shape**            | **Mean Absolute Error** | **Median Absolute Error** |
+| -------------------- | ----------------------- | ------------------------- |
+| Normal               | {{retrainMeanMae}}      | {{retrainMeanMdae}}       |
+| Beta                 | 16.9%                   | 7.1%                      |
+
+Table: Test set performance after retraining for predicting distribution location (mean or center) for both a normal distribution and beta distribution assumption. {#tbl:betadist}
+
+Further investigation finds that that a minority population of neighborhoods causes this swing where small changes in beta distribution parameters can infrequently cause large error. Therefore, as prediction of that population shows stronger performance under a normality assumption for yield deltas, we prefer this approach in our main text.
+
+## Neural network configuration
+We offer additional information about the specific neural network configuration chosen.
+
+### Input vector
+We allow the model to use the count of growing condition estimations as a possible measure of uncertainty. This generally leads to better performance. We also allow inclusion of the year. However, as can be executed in our open source pipeline, we find that including absolute year generally increases overfitting. Therefore, we use a relative measure (years since the start of the series within the simulations).
+
+### Included years and areas
+To further document how we structure our consideration of timeseries variables, we emphasize that we sample for 17 individual years in the 2030 CHC-CMIP6 series and 17 individual years in 2050 CHC-CMIP6 series. Importantly, projections in these series are not necessarily intended as specific predictions in specific years. We do not provide a year by year timeseries for this reason. Instead, our analysis produces distributions of anticipated outcomes at the 2030 and 2050 timeframes. Note that our choice to create these two series follows a similar structure to CHC-CMIP6. Finally, note that many growers engage in even simple crop rotations so the effective average crop yield for a field used to define yield expectations may span 10 crop years but possibly more than 10 consecutive calendar years.
+
+### Instance weight
 We document that we build our model with instance weighting. Specifically, we use the number (not value) of SCYM pixels in a neighborhood to weight each neighborhood. In other words, the weight is higher in neighborhoods with more maize growing acreage.
 
-## Model error and residuals
+### Error and residuals
 Table @tbl:retrain provides mean absolute error for the selected model from the sweep. A drop in error observed from validation to test performance may be explained by the increased training set size. This may indicate that the model is specifically data constrained by the number of years available for training. Our open source data pipeline can and will be used to rerun analysis as input datasets are updated to include additional years in the future.
 
 | **Set**             | **MAE for Mean Prediction** | **MAE for Std Prediction** |
@@ -88,13 +111,24 @@ The test set residuals are sampled during Monte Carlo to propogate uncertainty. 
 
 Table: Results of tests after model selection. {#tbl:posthocresults}
 
-Even so, the overall error remains acceptable. In general, increased model size is showing diminishing returns and we do not currently consider additional layers.
+Even so, the overall error remains acceptable. In general, increased model size is showing diminishing returns and we do not currently consider additional layers (4 vs 5 neural network layers changes mean prediction MAE by less than one point).
 
-## Changing yield expectations
-Our simulations expect yield exepctations to change over time. In practice, we sample ten years of historic yields per neighborhood per year per tiral and we offset the yield deltas produced by the neural network accordingly. This allows for some accounting of uncertainty in yield baselines. In practice, this means that predictions for 2030 claims rate will sample 2010 (historic) and 2050 will sample 2030. To prevent discontiniuity in the data, the 2010 deltas are retroactively predicted with the random post-hoc task providing a reasonable approximation of error. Model error residuals are sampled in each case (less than 1% improvement from 5 to 6 layers).
+## Grower behaviors
+We further document some grower behaviors which may be difficult to capture within our curent modeling structure.
+
+### Historic yield averages
+Our simulations expect yield expectations to change over time. In practice, we sample ten years of historic yields per neighborhood per year per trial and we offset the yield deltas produced by the neural network accordingly. This allows for some accounting of uncertainty in yield baselines. In practice, this means that predictions for 2030 claims rate samples the 2010 (historic) series and 2050 samples the 2030 series. To prevent discontiniuity in the data, the 2010 deltas are retroactively predicted. Model error residuals are sampled in each case.
+
+### Yield history adjustments
+We once more highlight that, in practice, the values used to set yield expectations depend on trend adjustment [@plastina_trend-adjusted_2014] and yield exclusions [@schnitkey_yield_2015] which, due to insufficient data, are left for future work. Again, by increasing $y_{expected}$, these may lead to an artifical supression of our predicted claims rates.
+
+### Crop rotations
+A large share of growers will engage in at least simple crop rotations [@manski_diversified_2024] which is important for our simulations because it may change the locations in which maize is grown. We use SCYM to implicitly handle this complexity. These reported sample sizes impact the sampling behavior during Monte Carlo and, while this approach does not require explicit consideration of crop rotations, the set of geohashes present in results may vary from one year to the next in part due to this behavior.
+
+All this in mind, historic locations of growth and crop rotation behavior from the past are sampled in the future simulations. In addition to this spatial complexity, we highlight that crop rotations mean that the last 10 years of yield data for a crop may not correspond to the last 10 calendar years but, due to the "year series" approach in this model, this probably has limited effect on our multi-year claims rates estimations.
 
 # Detailed simulation results
-Though presented to one decimal place, we consider these results to suggest that claims rates will increase from 2 - 3% upwards to 5 - 6% in the SSP245 scenario.
+For reference, we provide furhter detailed simulaetd results in Table @tbl:simresults.
 
 | **Scenario**   | **Series** | **Unit mean yield change** | **Unit loss probability**         | **Avg covered loss severity**  |
 | ---------------------------- | -------- | -------------------------- | --------------------------------- | ------------------------------ |
@@ -107,10 +141,10 @@ Though presented to one decimal place, we consider these results to suggest that
 
 Table: Details of Monte Carlo simulation results. Counterfactual is a future without continued warming in contrast to SSP245. {#tbl:simresults}
 
-We document our detailed simulation results in Table @tbl:simresults. Note that the "2010 series" label is used internally in our model for consistency with 2030 and 2050 from CHC-CMIP6 but it essentailly uses 2007 to 2016.
+Note that the "2010 series" label is used internally in our model for consistency with 2030 and 2050 from CHC-CMIP6 though that "2010" language does not explicitly appear in their data model.
 
 # Interactive tools
-Next, we further describe our interactive tools. In crafting these "explorable explanations" [@victor_explorable_2011] in Table @tbl:apps, we draw analogies to micro-apps  [@bridgwater_what_2015] or mini-games [@dellafave_designing_2014] in which the user encounters a series of small experiences that, each with distinct interaction and objectives, can only provide minimal instruction [@brown_100_2024]. As these very brief visualization experiences cannot take advantage of design techniques like Hayashida-style tutorials [@pottinger_pyafscgaporg_2023], they rely on simple "loops" [@brazie_designing_2024] for immediate "juxtaposition gratification" (JG) [@jm8_secret_2024], showing fast progression after minimal input.
+Finally, we further describe our interactive tools. In crafting these "explorable explanations" [@victor_explorable_2011] listed in Table @tbl:apps, we draw analogies to micro-apps  [@bridgwater_what_2015] or mini-games [@dellafave_designing_2014] in which the user encounters a series of small experiences that, each with distinct interaction and objectives, can only provide minimal instruction [@brown_100_2024]. As these very brief visualization experiences cannot take advantage of design techniques like Hayashida-style tutorials [@pottinger_pyafscgaporg_2023], they rely on simple "loops" [@brazie_designing_2024] for immediate "juxtaposition gratification" (JG) [@jm8_secret_2024], showing fast progression after minimal input.
 
 
 | **Simulator**   | **Question**                                                                    | **Loop**                                                                                                                                                                   | **JG**                                            |
@@ -140,7 +174,7 @@ Table: Observations we made from our own tools in the "exploratory" graphic cont
 Altogether, these tools serve to support our exploration of our modeling such as different loss thresholds for other insurance products, finding relationships of outcomes to different climate variables, answering geographically specific questions beyond the scope of this study, and modification of machine learning parameters to understand performance.
 
 ## Workshops
-In addition to supporting our finding of our own conclusions, we release this software publicly at https://ag-adaptation-study.pub/. Possible use of these tools include workshop activity and we also reflect^[We collect information about the tool only and not generalizable knowledge about users or these patterns, falling under "quality assurance" activity. IRB questionnaire on file.] briefly on design changes made to our interactive tools for that purpose. These were implemented in response to our work's participation in a 9 person "real-world" workshop session encompassing scientists and engineers which was intended to improve these tools specifically through active co-exploration limited to these study results. Changes include:
+In addition to supporting our finding of our own conclusions, we release this software publicly at https://ag-adaptation-study.pub/. Possible use of these tools include workshop activity and we also reflect^[These were implemented in response to our work's participation in a 9 person "real-world" workshop session encompassing scientists and engineers which was intended to improve these tools specifically through active co-exploration limited to these study results. We collect information about the tool only and not generalizable knowledge about users or these patterns, falling under "quality assurance" activity. IRB questionnaire on file.] briefly on design changes made to our interactive tools for that purpose:
 
  - Facilitators elected to alternate between presentation and interaction similar to @pottinger_combining_2023. However, we added the rates simulator to further improve presentation of the rate setting process due to the complexities of crop insurance, dyanmics previously explained in static diagrams.
  - Facilitators suggest that our single loop [@brazie_designing_2024] designs perform better than our our lone two-loop design within the limited time of the workshop. Therefore, we now let facilitators hold the longer two loop neighborhood simulator till the end by default.
