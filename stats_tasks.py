@@ -708,7 +708,8 @@ class CombineStatsTask(luigi.Task):
             'significance': DeterminePercentSignificantTask(),
             'sim': ExtractSimStatsTask(),
             'std': SummarizeEquivalentStdTask(),
-            'dual': FindDivergentAphAndClaimsRate()
+            'dual': FindDivergentAphAndClaimsRate(),
+            'repeat': sim_tasks.CombineRepeatSimulationsTask()
         }
 
         if const.INCLUDE_YEAR_IN_MODEL:
@@ -736,6 +737,7 @@ class CombineStatsTask(luigi.Task):
 
         std_inputs = self._get_subfile('std')
         dual_inputs = self._get_subfile('dual')
+        repeat = self._get_subfile('repeat')
 
         output_record = {
             'numLayers': model_inputs['numLayers'],
@@ -796,7 +798,8 @@ class CombineStatsTask(luigi.Task):
             'experimentalProbability2050': sim_inputs['experimentalProbability2050'],
             'experimentalSeverity2050': sim_inputs['experimentalSeverity2050'],
             'equivalentStd': std_inputs['equivalentStd'],
-            'dualIncreasePercent2050': dual_inputs['dualIncreasePercent2050']
+            'dualIncreasePercent2050': dual_inputs['dualIncreasePercent2050'],
+            'repeat': repeat
         }
 
         def add_hold_input(source, destination):

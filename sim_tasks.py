@@ -8,6 +8,7 @@ import functools
 import itertools
 import json
 import random
+import statistics
 
 import keras
 import luigi
@@ -1140,18 +1141,10 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
             tasks
         )
 
-        tasks_with_variations = list(
-            itertools.product(
-                input_records_grouped.values(),
-                THRESHOLDS,
-                STD_MULT,
-                GEOHASH_SIZE,
-                ['always', 'never']
-            )
-        )
+        tasks_with_variations = self._get_tasks(input_records_grouped.values())
 
         cluster = cluster_tasks.get_cluster()
-        cluster.adapt(minimum=20, maximum=100)
+        cluster.adapt(minimum=20, maximum=self.get_max_workers())
         client = cluster.get_client()
 
         with self.input()['deltas'].open('r') as f:
@@ -1174,30 +1167,28 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
         with self.input()['stdThresholds'].open('r') as f:
             std_thresholds = json.load(f)
 
-        outputs_all = client.map(
-            lambda x: run_simulation_set(
-                x[0],
-                deltas,
-                x[1],
-                x[2],
-                x[3],
-                x[4],
-                unit_sizes,
-                std_thresholds,
-                self.get_sample_model_residuals(),
-                self.get_sample_model_residuals_baseline()
-            ),
-            tasks_with_variations
-        )
-        outputs_realized = map(lambda x: x.result(), outputs_all)
+        output_sets_realized = []
 
-        with self.output().open('w') as f:
-            writer = csv.DictWriter(f, fieldnames=OUTPUT_FIELDS)
-            writer.writeheader()
+        for i in range(0, self.get_iterations()):
+            outputs_all = client.map(
+                lambda x: run_simulation_set(
+                    x[0],
+                    deltas,
+                    x[1],
+                    x[2],
+                    x[3],
+                    x[4],
+                    unit_sizes,
+                    std_thresholds,
+                    self.get_sample_model_residuals(),
+                    self.get_sample_model_residuals_baseline()
+                ),
+                tasks_with_variations
+            )
+            outputs_realized = map(lambda x: x.result(), outputs_all)
+            output_sets_realized.append(outputs_realized)
 
-            for output_set in outputs_realized:
-                writer.writerows(output_set)
-                f.flush()
+        self._process_outputs(output_sets_realized)
 
     def get_tasks_task(self):
         """Get the simulation task information generation task.
@@ -1238,6 +1229,212 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
             True if model residuals should be sampled and false otherwise.
         """
         return SAMPLE_MODEL_RESIDUALS
+
+    def get_max_workers(self):
+        """Get the maximum number of workers for execution.
+
+        Returns:
+            Integer number of workers.
+        """
+        return 100
+
+    def get_thresholds(self):
+        """Get the thresholds to evaluate.
+
+        Returns:
+            List of thresholds like 0.25.
+        """
+        return THRESHOLDS
+
+    def get_std_multipliers(self):
+        """Get the standard deviation multpliers to try.
+
+        Returns:
+            List of standard deviation multipliers like 1.0
+        """
+        return STD_MULT
+
+    def get_geohash_sizes(self):
+        """Get the simulated geohash sizes to try.
+
+        Returns:
+            List of geohash sizes like 4.
+        """
+        return GEOHASH_SIZE
+
+    def get_offset_strategies(self):
+        """Get the offset strategies to try.
+
+        Returns:
+            List of string offset strategies like always.
+        """
+        return ['always', 'never']
+
+    def get_iterations(self):
+        """Get the number of times the simulations should be repeated.
+
+        Returns:
+            Number of times to repeat simulations.
+        """
+        return 1
+
+    def _process_outputs(self, output_sets_realized):
+        """Process and write outputs for the execution.
+
+        Args:
+            output_sets_realized: Sets of the individual simulation outputs.
+        """
+        assert len(output_sets_realized) == 1
+        outputs_realized = output_sets_realized[0]
+        with self.output().open('w') as f:
+            writer = csv.DictWriter(f, fieldnames=OUTPUT_FIELDS)
+            writer.writeheader()
+
+            for output_set in outputs_realized:
+                writer.writerows(output_set)
+                f.flush()
+
+    def _get_tasks(self, shuffles):
+        """Get task permutations given shuffles.
+
+        Args:
+            shuffles: Raw simulation tasks without variations.
+
+        Returns:
+            List of tasks with variations.
+        """
+        return list(
+            itertools.product(
+                shuffles,
+                self.get_thresholds(),
+                self.get_std_multipliers(),
+                self.get_geohash_sizes(),
+                self.get_offset_strategies()
+            )
+        )
+
+
+class ExecuteRepeatSimulationTasksTemplate(ExecuteSimulationTasksTemplate):
+    """Abstract base class for multi-iteration simulation."""
+
+    def get_max_workers(self):
+        """Get the maximum number of workers for execution.
+
+        Returns:
+            Integer number of workers.
+        """
+        return 450
+
+    def get_thresholds(self):
+        """Get the thresholds to evaluate.
+
+        Returns:
+            List of thresholds like 0.25.
+        """
+        return [0.25]
+
+    def get_std_multipliers(self):
+        """Get the standard deviation multpliers to try.
+
+        Returns:
+            List of standard deviation multipliers like 1.0
+        """
+        return [1.0]
+
+    def get_geohash_sizes(self):
+        """Get the simulated geohash sizes to try.
+
+        Returns:
+            List of geohash sizes like 4.
+        """
+        return [4]
+
+    def get_offset_strategies(self):
+        """Get the offset strategies to try.
+
+        Returns:
+            List of string offset strategies like always.
+        """
+        return ['always']
+
+    def get_iterations(self):
+        """Get the number of times the simulations should be repeated.
+
+        Returns:
+            Number of times to repeat simulations.
+        """
+        return 100
+
+    def _process_outputs(self, output_sets_realized):
+        """Process and write outputs for the execution.
+
+        Args:
+            output_sets_realized: Sets of the individual simulation outputs.
+        """
+        def simplify_and_combine(outputs_realized):
+            simplified = map(lambda x: self._simplify_record(x), outputs_realized)
+            return itertools.reduce(lambda a, b: self._combine(a, b), simplified)
+
+        def get_stats(key, summaries):
+            values = [x[key] for x in summaries]
+            return {
+                'mean': statistics.mean(values),
+                'std': statistics.stdev(values)
+            }
+
+        summaries = [simplify_and_combine(x) for x in output_sets_realized]
+        means = get_stats('mean', summaries)
+        probabilities = get_stats('probability', summaries)
+        severities = get_stats('severity', summaries)
+        output = {'mean': means, 'probability': probabilities, 'severity': severities}
+
+        with self.output().open('w') as f:
+            json.dump(output, f)
+
+    def _simplify_record(self, record):
+        """Convert to a simplified record.
+
+        Args:
+            target: Full record to convert.
+
+        Returns:
+            Simplified record.
+        """
+        return {
+            'num': float(record['num']),
+            'mean': float(record['predictedChange']),
+            'probability': float(record['predictedClaims']),
+            'severity': float(record['predictedLoss'])
+        }
+
+    def _combine(self, a, b):
+        """Combine two simplified records.
+
+        Args:
+            a: First simplified record to combine.
+            b: Second simplified record to combine.
+
+        Returns:
+            Combined simplified record.
+        """
+        a_num = float(a['num'])
+        b_num = float(b['num'])
+
+        def get_weighted_avg(a_val, b_val, ignore_zero):
+            if ignore_zero:
+                if a_val == 0:
+                    return b_val
+                elif b_val == 0:
+                    return a_val
+
+            return (a_val * a_num + b_val * b_num) / (a_num + b_num)
+
+        return {
+            'num': a_num + b_num,
+            'mean': get_weighted_avg(a['mean'], b['mean'], False),
+            'probability': get_weighted_avg(a['probability'], b['probability'], False),
+            'severity': get_weighted_avg(a['severity'], b['severity'], True)
+        }
 
 
 class NoopProjectHistoricTask(luigi.Task):
@@ -2649,3 +2846,185 @@ class DetermineEquivalentStdExtendedTask(luigi.Task):
             return level / predicted_std
         else:
             return None
+
+
+class ExecuteRepeatSimulationTasks2030PredictedTask(ExecuteRepeatSimulationTasksTemplate):
+    """Execute multi-iteration simulation for 2030 projection."""
+
+    def get_tasks_task(self):
+        """Get the simulation task information generation task.
+
+        Returns:
+            Luigi task.
+        """
+        return MakeSimulationTasks2030Task()
+
+    def get_filename(self):
+        """Get the filename at which the simulation outputs should be written.
+
+        Returns:
+            String filename (not path).
+        """
+        return '2030_sim_repeat.json'
+
+    def get_deltas_task(self):
+        """Get the task whose output are the model residuals.
+
+        Returns:
+            Luigi task.
+        """
+        return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
+
+    def get_sample_model_residuals_baseline(self):
+        """Determine if model residuals should be sampled and applied to baseline.
+
+        Returns:
+            True if model residuals should be sampled and false otherwise.
+        """
+        return SAMPLE_MODEL_RESIDUALS and const.MODEL_PROJECT_HISTORIC
+
+
+class ExecuteRepeatSimulationTasks2030Counterfactual(ExecuteRepeatSimulationTasksTemplate):
+    """Execute multi-iteration simulation for 2030 projection without further warming."""
+
+    def get_tasks_task(self):
+        """Get the simulation task information generation task.
+
+        Returns:
+            Luigi task.
+        """
+        return MakeSimulationTasks2030CounterfactualTask()
+
+    def get_filename(self):
+        """Get the filename at which the simulation outputs should be written.
+
+        Returns:
+            String filename (not path).
+        """
+        return '2030_sim_repeat_counterfactual.json'
+
+    def get_deltas_task(self):
+        """Get the task whose output are the model residuals.
+
+        Returns:
+            Luigi task.
+        """
+        return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
+
+    def get_sample_model_residuals_baseline(self):
+        """Determine if model residuals should be sampled and applied to baseline.
+
+        Returns:
+            True if model residuals should be sampled and false otherwise.
+        """
+        return SAMPLE_MODEL_RESIDUALS and const.MODEL_PROJECT_HISTORIC
+
+
+class ExecuteRepeatSimulationTasks2050PredictedTask(ExecuteRepeatSimulationTasksTemplate):
+    """Execute multi-iteration simulation for 2050 projection."""
+
+    def get_tasks_task(self):
+        """Get the simulation task information generation task.
+
+        Returns:
+            Luigi task.
+        """
+        return MakeSimulationTasks2050Task()
+
+    def get_filename(self):
+        """Get the filename at which the simulation outputs should be written.
+
+        Returns:
+            String filename (not path).
+        """
+        return '2050_sim_repeat.json'
+
+    def get_deltas_task(self):
+        """Get the task whose output are the model residuals.
+
+        Returns:
+            Luigi task.
+        """
+        return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
+
+    def get_sample_model_residuals_baseline(self):
+        """Determine if model residuals should be sampled and applied to baseline.
+
+        Returns:
+            True if model residuals should be sampled and false otherwise.
+        """
+        return SAMPLE_MODEL_RESIDUALS and const.MODEL_PROJECT_HISTORIC
+
+
+class ExecuteRepeatSimulationTasks2050Counterfactual(ExecuteRepeatSimulationTasksTemplate):
+    """Execute multi-iteration simulation for 2050 projection without further warming."""
+
+    def get_tasks_task(self):
+        """Get the simulation task information generation task.
+
+        Returns:
+            Luigi task.
+        """
+        return MakeSimulationTasks2050CounterfactualTask()
+
+    def get_filename(self):
+        """Get the filename at which the simulation outputs should be written.
+
+        Returns:
+            String filename (not path).
+        """
+        return '2050_sim_repeat_counterfactual.json'
+
+    def get_deltas_task(self):
+        """Get the task whose output are the model residuals.
+
+        Returns:
+            Luigi task.
+        """
+        return selection_tasks.PostHocTestRawDataTemporalResidualsTask()
+
+    def get_sample_model_residuals_baseline(self):
+        """Determine if model residuals should be sampled and applied to baseline.
+
+        Returns:
+            True if model residuals should be sampled and false otherwise.
+        """
+        return SAMPLE_MODEL_RESIDUALS and const.MODEL_PROJECT_HISTORIC
+
+
+class CombineRepeatSimulationsTask(luigi.Task):
+
+    def requires(self):
+        return {
+            "counterfactual2030": ExecuteRepeatSimulationTasks2030Counterfactual(),
+            "experimental2030": ExecuteRepeatSimulationTasks2030PredictedTask(),
+            "counterfactual2050": ExecuteRepeatSimulationTasks2050Counterfactual(),
+            "experimental2050": ExecuteRepeatSimulationTasks2050PredictedTask()
+        }
+
+    def output(self):
+        return luigi.LocalTarget(const.get_file_location('sim_combined_repeat.json'))
+
+    def run(self):
+        def open_input(target):
+            with self.input()[target].open('r') as f:
+                return json.load(f)
+
+        counterfactual_2030 = open_input('counterfactual2030')
+        experimental_2030 = open_input('experimental2030')
+        counterfactual_2050 = open_input('counterfactual2050')
+        experimental_2050 = open_input('experimental2050')
+
+        output = {
+            2030: {
+                'experimental': experimental_2030,
+                'counterfactual': counterfactual_2030,
+            },
+            2050: {
+                'experimental': experimental_2050,
+                'counterfactual': counterfactual_2050,
+            }
+        }
+
+        with self.output().open('w') as f:
+            json.dump(output, f)
