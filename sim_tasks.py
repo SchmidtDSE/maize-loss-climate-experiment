@@ -1170,8 +1170,9 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
 
         output_sets_realized = []
 
+        tasks_distributed = dask.bag.from_sequence(tasks_with_variations)
         for i in range(0, self.get_iterations()):
-            outputs_all = client.map(
+            outputs_all = tasks_distributed.map(
                 lambda x: run_simulation_set(
                     x[0],
                     deltas,
@@ -1183,8 +1184,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
                     std_thresholds,
                     self.get_sample_model_residuals(),
                     self.get_sample_model_residuals_baseline()
-                ),
-                tasks_with_variations
+                )
             )
             output_sets_realized.append(self._preprocess_outputs(outputs_all))
 
@@ -1287,7 +1287,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
         Returns:
             Collection or iterable of outputs.
         """
-        return map(lambda x: x.result(), outputs)
+        return outputs.compute()
 
     def _process_outputs(self, output_sets_realized):
         """Process and write outputs for the execution.
