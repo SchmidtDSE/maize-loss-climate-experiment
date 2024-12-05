@@ -1389,7 +1389,8 @@ class ExecuteRepeatSimulationTasksTemplate(ExecuteSimulationTasksTemplate):
             values = [x[key] for x in summaries]
             return {
                 'mean': statistics.mean(values),
-                'std': statistics.stdev(values)
+                'std': statistics.stdev(values),
+                'range': max(values) - min(values)
             }
 
         means = get_stats('mean', output_sets_realized)
