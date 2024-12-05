@@ -10,6 +10,7 @@ import json
 import random
 import statistics
 
+import dask.bag
 import keras
 import luigi
 import pandas
@@ -1185,8 +1186,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
                 ),
                 tasks_with_variations
             )
-            outputs_realized = map(lambda x: x.result(), outputs_all)
-            output_sets_realized.append(self._preprocess_outputs(outputs_realized))
+            output_sets_realized.append(self._preprocess_outputs(outputs_all))
 
         self._process_outputs(output_sets_realized)
 
@@ -1287,7 +1287,7 @@ class ExecuteSimulationTasksTemplate(luigi.Task):
         Returns:
             Collection or iterable of outputs.
         """
-        return outputs
+        return map(lambda x: x.result(), outputs)
 
     def _process_outputs(self, output_sets_realized):
         """Process and write outputs for the execution.
@@ -1399,51 +1399,6 @@ class ExecuteRepeatSimulationTasksTemplate(ExecuteSimulationTasksTemplate):
         with self.output().open('w') as f:
             json.dump(output, f)
 
-    def _simplify_record(self, record):
-        """Convert to a simplified record.
-
-        Args:
-            target: Full record to convert.
-
-        Returns:
-            Simplified record.
-        """
-        return {
-            'num': float(record['num']),
-            'mean': float(record['predictedChange']),
-            'probability': float(record['predictedClaims']),
-            'severity': float(record['predictedLoss'])
-        }
-
-    def _combine(self, a, b):
-        """Combine two simplified records.
-
-        Args:
-            a: First simplified record to combine.
-            b: Second simplified record to combine.
-
-        Returns:
-            Combined simplified record.
-        """
-        a_num = float(a['num'])
-        b_num = float(b['num'])
-
-        def get_weighted_avg(a_val, b_val, ignore_zero):
-            if ignore_zero:
-                if a_val == 0:
-                    return b_val
-                elif b_val == 0:
-                    return a_val
-
-            return (a_val * a_num + b_val * b_num) / (a_num + b_num)
-
-        return {
-            'num': a_num + b_num,
-            'mean': get_weighted_avg(a['mean'], b['mean'], False),
-            'probability': get_weighted_avg(a['probability'], b['probability'], False),
-            'severity': get_weighted_avg(a['severity'], b['severity'], True)
-        }
-
     def _preprocess_outputs(self, outputs):
         """Preprocess outputs ahead of considering all iterations.
 
@@ -1453,11 +1408,57 @@ class ExecuteRepeatSimulationTasksTemplate(ExecuteSimulationTasksTemplate):
         Returns:
             Collection or iterable of outputs.
         """
-        simplified = map(
-            lambda x: self._simplify_record(x),
-            itertools.chain(*outputs)
-        )
-        return functools.reduce(lambda a, b: self._combine(a, b), simplified)
+
+        def simplify_record(record):
+            """Convert to a simplified record.
+
+            Args:
+                target: Full record to convert.
+
+            Returns:
+                Simplified record.
+            """
+            return {
+                'num': float(record['num']),
+                'mean': float(record['predictedChange']),
+                'probability': float(record['predictedClaims']),
+                'severity': float(record['predictedLoss'])
+            }
+
+        def combine(a, b):
+            """Combine two simplified records.
+
+            Args:
+                a: First simplified record to combine.
+                b: Second simplified record to combine.
+
+            Returns:
+                Combined simplified record.
+            """
+            a_num = float(a['num'])
+            b_num = float(b['num'])
+
+            def get_weighted_avg(a_val, b_val, ignore_zero):
+                if ignore_zero:
+                    if a_val == 0:
+                        return b_val
+                    elif b_val == 0:
+                        return a_val
+
+                return (a_val * a_num + b_val * b_num) / (a_num + b_num)
+
+            return {
+                'num': a_num + b_num,
+                'mean': get_weighted_avg(a['mean'], b['mean'], False),
+                'probability': get_weighted_avg(a['probability'], b['probability'], False),
+                'severity': get_weighted_avg(a['severity'], b['severity'], True)
+            }
+
+        outputs_distributed = dask.bag.from_sequence(outputs)
+        flattened = outputs_distributed.flatten()
+        simplified = flattened.map(simplify_record)
+        reduced = simplified.fold(combine)
+        return reduced.compute()
 
 
 class NoopProjectHistoricTask(luigi.Task):
