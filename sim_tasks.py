@@ -1460,8 +1460,7 @@ class ExecuteRepeatSimulationTasksTemplate(ExecuteSimulationTasksTemplate):
             simplified = map(simplify_record, target)
             return functools.reduce(combine, simplified)
 
-        outputs_distributed = dask.bag.from_sequence(outputs)
-        simplified_records = outputs_distributed.map(simplify_and_reduce_locally)
+        simplified_records = outputs.map(simplify_and_reduce_locally)
         reduced_records = simplified_records.fold(combine)
         return reduced_records
 
