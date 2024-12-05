@@ -1376,12 +1376,13 @@ class ExecuteRepeatSimulationTasksTemplate(ExecuteSimulationTasksTemplate):
         """
         return 100
 
-    def _process_outputs(self, output_sets_realized):
+    def _process_outputs(self, output_sets):
         """Process and write outputs for the execution.
 
         Args:
-            output_sets_realized: Sets of the individual simulation outputs.
+            output_sets: Sets of the individual simulation outputs.
         """
+        output_sets_realized = [x.compute() for x in output_sets]
         assert len(output_sets_realized) == self.get_iterations()
 
         def get_stats(key, summaries):
@@ -1458,7 +1459,7 @@ class ExecuteRepeatSimulationTasksTemplate(ExecuteSimulationTasksTemplate):
         flattened = outputs_distributed.flatten()
         simplified = flattened.map(simplify_record)
         reduced = simplified.fold(combine)
-        return reduced.compute()
+        return reduced
 
 
 class NoopProjectHistoricTask(luigi.Task):
