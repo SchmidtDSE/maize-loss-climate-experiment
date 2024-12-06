@@ -48,7 +48,7 @@ To further describe our treatment of insured risk units, consider that the USDA 
 
 Though these data lack precise geographic specificity, the USDA indicates the county in which these units are located. Even so, we notice year to year instability at the county level. This may reflect growers reconfiguring their risk structure to optimize rates as yield profiles change over time. Altogether, this may cause the geographic location of larger units to shift between years.
 
-All this in mind, sampling the risk unit size at the county level likely represents over-confidence or overfitting to previous configurations. Instead, we observe that the system-wide risk unit size distribution remains relatively stable. This may suggest that, even as more local changes to risk unit structure may be more substantial between years, overall expectations for the size of risk units are less fluid. Therefore, we use that larger system-wide distribution to sample risk unit sizes within our Monte Carlo simulation instead of the county-level distributions. This also has the effect of propogating risk unit size uncertainty into results through the mechanics of Monte Carlo.
+All this in mind, sampling the risk unit size at the county level likely represents over-confidence or overfitting to previous configurations. Instead, we observe that the system-wide risk unit size distribution remains relatively stable. This may suggest that, even as more local changes to risk unit structure may be more substantial between years, overall expectations for the size of risk units are less fluid. Therefore, we use that larger system-wide distribution to sample risk unit sizes within our Monte Carlo simulation instead of the county-level distributions. This also has the effect of propogating risk unit size uncertainty into results through the mechanics of Monte Carlo. Finally, we observe that there may be geographic bias in coverage levels (including some areas which allow for higher coverage) but, lacking public data, we leave this for future work even as we allow for investigation of different coverage levels in our interactive tools.
 
 ## Yield distributions
 Our treatment of yield data considers two practical constraints:
@@ -126,6 +126,9 @@ We once more highlight that, in practice, the values used to set yield expectati
 A large share of growers will engage in at least simple crop rotations [@manski_diversified_2024] which is important for our simulations because it may change the locations in which maize is grown. We use SCYM to implicitly handle this complexity. These reported sample sizes impact the sampling behavior during Monte Carlo and, while this approach does not require explicit consideration of crop rotations, the set of geohashes present in results may vary from one year to the next in part due to this behavior.
 
 All this in mind, historic locations of growth and crop rotation behavior from the past are sampled in the future simulations. In addition to this spatial complexity, we highlight that crop rotations mean that the last 10 years of yield data for a crop may not correspond to the last 10 calendar years but, due to the "year series" approach in this model, this probably has limited effect on our multi-year claims rates estimations.
+
+### Yield improvements
+Historically-consistent expected increases in yields outside our model likely partially negate trend adjustment. In other words, $y_{expected}$ under trend adjustment accounts for changes and may offset claims rates reductions that otherwise would be caused by yield improvements if trend adjustment was not available.
 
 # Detailed simulation results
 For reference, we provide furhter detailed simulated results in Table @tbl:simresults.
