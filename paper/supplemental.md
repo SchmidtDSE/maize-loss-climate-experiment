@@ -127,6 +127,9 @@ A large share of growers will engage in at least simple crop rotations [@manski_
 
 All this in mind, historic locations of growth and crop rotation behavior from the past are sampled in the future simulations. In addition to this spatial complexity, we highlight that crop rotations mean that the last 10 years of yield data for a crop may not correspond to the last 10 calendar years but, due to the "year series" approach in this model, this probably has limited effect on our multi-year claims rates estimations.
 
+### Yield improvements
+Historically-consistent expected increases in yields outside our model likely partially negate trend adjustment. In other words, $y_{expected}$ under trend adjustment accounts for changes and may offset claims rates reductions that otherwise would be caused by yield improvements if trend adjustment was not available.
+
 # Detailed simulation results
 For reference, we provide furhter detailed simulated results in Table @tbl:simresults.
 
