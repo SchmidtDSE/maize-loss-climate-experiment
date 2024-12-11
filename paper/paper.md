@@ -51,7 +51,7 @@ Modeling possible changes in frequency and severity of crop loss events that tri
 Despite these prior contributions, important programs and policies often include highly localized variables such an individual farm's last ten years of yield for a specific crop [@rma_crop_2008]. Therefore, to inform policy, research must include more granular models than has been done previously [@leng_predicting_2020] and, in addition to predicting yield [@lobell_scalable_2015; @jagermeyr_climate_2021; @ma_qdann_2024], needs to simulate insurance instrument mechanics. Of particular interest, we fill a gap in climate-aware simulations of the loss probability and severity within a a "risk" or "insured" unit which refers to a set of agricultural fields that are insured together [@fcic_common_2020].
 
 ## Contribution
-We address this need for institutionally-relevant granular future loss prediction through neural network Monte Carlo. We provide these projections at the policy-relevant risk unit scale, probabilistically forecasting institution-relevant outcome metrics under climate change. We focus on the important U.S. Corn Belt, a 9 state region within the United States essential to the nation's maize crop [@green_where_2018]. Within this agriculturally important area, we simulate the Multiple Peril Crop Insurance Program, "the oldest ... form of federal crop insurance" [@chite_agricultural_2006] and the most common for maize [@rma_statecountycrop_2024]. We specifically model changes to risk under the Yield Protection plan. Furthermore, by contrasting results to a "counterfactual" which does not include further climate warming, we quantitatively highlight the insurer-relevant effects of climate change in near (2030) and medium-term (2050) timeframes [@williams_high_2024].
+We address this need for institutionally-relevant granular future loss prediction through neural network Monte Carlo. We provide these projections at the policy-relevant risk unit scale, probabilistically forecasting institution-relevant outcome metrics under climate change. We focus on the important U.S. Corn Belt, a 9 state region within the United States essential to the nation's maize crop [@green_where_2018]. Within this agriculturally important area, we simulate the Multiple Peril Crop Insurance Program and specifically model changes to risk under the Yield Protection plan. Furthermore, by contrasting results to a "counterfactual" which does not include further climate warming, we quantitatively highlight the insurer-relevant effects of climate change in near (2030) and medium-term (2050) timeframes [@williams_high_2024].
 
 # Methods
 We first build predictive models of maize yield distributions using a neural network at an insurer-relevant spatial scale before simulating changes to yield losses under different climate conditions with Monte Carlo. From these results, we calculate the probability and severity of indemnity claims.
@@ -59,33 +59,23 @@ We first build predictive models of maize yield distributions using a neural net
 ## Definitions
 Before modeling these systems, we articulate mathematical definitions of domain-specific concepts and policy instruments. First, insurers pay out based on the magnitude of a yield loss across the aggregation of all of the fields in an insured unit. This loss ($l$) is defined as the difference between actual yield ($y_{actual}$) and a guarantee threshold set by a coverage level ($c$) typically described as a percentage of an expected yield ($y_{expected}$) [@rma_crop_2008].
 
-$$\begin{equation}
-l = max(c * y_{expected} - y_{actual}, 0) \label{eq:loss} \\
-\text{Definition of loss.}
-\end{equation}$$
+$$l = max(c * y_{expected} - y_{actual}, 0)$$ {#eq:loss}
 
 Note that $y_{expected}$ is typically the average of the 10 most recent years of yield for the insured crop [@rma_crop_2008].
 
-$$\begin{equation}
-y_{expected} = \frac{y_{historic}[-d:]}{d} \label{eq:expected} \\
-\text{Definition of expected yield.}
-\end{equation}$$
+$$y_{expected} = \frac{y_{historic}[-d:]}{d} \label{eq:expected}$$ {#eq:expected}
 
 Next, we define probability of experiencing a loss that may incur a Yield Protection claim ($p_{l}$) as claims rate.
 
-$$\begin{equation}
-p_{l} = P(l > 0) = P(c * y_{expected} - y_{actual} > 0)
-p_{l} = P(\frac{y_{actual} - y_{expected}}{y_{expected}} < c - 1)
-p_{l} = P(y_{\Delta\%} < c - 1) \label{eq:probabilityloss} \\
-\text{Definition of probability of loss which may incur a claim.}
-\end{equation}$$
+$$p_{l} = P(l > 0) = P(c * y_{expected} - y_{actual} > 0)$$ {#eq:ploss1}
+$$p_{l} = P(\frac{y_{actual} - y_{expected}}{y_{expected}} < c - 1)$$ {#eq:ploss2}
+$$p_{l} = P(y_{\Delta\%} < c - 1) \label{eq:probabilityloss}$$ {#eq:ploss3}
 
 Generally, the severity ($s$) of a loss when it occurs defines the size of the claim.
 
-$$\begin{equation}
-s = \frac{l}{y_{expected}} = \max(c - \frac{y_{actual}}{y_{expected}}, 0) = \max(-1 * y_{\Delta\%} - (1 - c), 0) \label{eq:severity} \\
-\text{Definition of loss severity.}
-\end{equation}$$
+$$s = \frac{l}{y_{expected}}$$ {#eq:severity1}
+$$s = \max(c - \frac{y_{actual}}{y_{expected}}, 0)$$ {#eq:severity2}
+$$s = \max(-1 * y_{\Delta\%} - (1 - c), 0)$$ {#eq:severity3}
 
 Finally, we present results using the more common 75% coverage level ($c=0.75$) per Federal Crop Insurance Corporation guidelines [@fcic_crop_2023] but our interactive tools explore other coverage levels.
 
@@ -96,10 +86,10 @@ As Yield Protection operates at the level of a risk unit, modeling these formula
 We align these variables to a common grid in order to create the discrete instances needed for model training and evaluation. More specifically, we create "neighborhoods" [@manski_diversified_2024] of geographically proximate fields paired with climate data through 4 character geohashing^[This algorithm creates a hierarchical set of grid cells where each point is assigned a unique string through a hashing algorithm. For example, the first 4 characters identifies a grid cell which contains all points with the same first 4 characters of their geohash. We evaluate alternative neighborhood sizes (number of geohash characters) in our interactive tools.] [@niemeyer_geohashorg_2008]. We simulate units within each of these 28 by 20 kilometers cells by sampling SCYM piexles within each neighborhood to approximate risk unit size.
 
 ### Yield deltas
-Having created these spatial groups, we model against SCYM-observed deviations from yield expectations ($\frac{y_{actual} - y_{expected}}{y_{expected}}$) which can be used to calculate loss probability ($l$) and severity ($s$). This step converts from a distribution of absolute yield outcomes to a distribution of changes or "yield deltas" relative to the average production histories. This reflects the mechanics of Yield Protection policies.
+Having created these spatial groups, we model against SCYM-observed deviations from yield expectations ($\frac{y_{actual} - y_{expected}}{y_{expected}}$) which can be used to calculate loss probability ($l$) and severity ($s$). Reflecting the mechanics of Yield Protection policies, this step converts to a distribution of changes or "yield deltas" relative to the average production histories.
 
 ## Regression
-With these data in mind, we build predictive models for use in simulations of future yield loss outcomes.
+We next build predictive models for yield deltas to use in simulations of future loss outcomes.
 
 ### Response and input vector
 We predict yield delta distributions per year ahead of Monte Carlo simulations. Specifically, we predict either two parmameters (mean, std) for a normal distribution or four parameters [@scipy_beta_2024] for a beta distribution [@nelson_influence_1990] with distribution type chosen by skew and kurtosis [@kim_statistical_2013]. This use of summary statistics helps ensure appropriate dimensionality for the dataset size [@alwosheel_dataset_2018]. To predict these responses, we describe each of the 9 CHC-CMIP6 variables as min, max, mean, count, and standard deviation per month for the given year. These varibles constitute the model input vector along with year, the historic absolute yield mean ($y_{\mu-historic}$), and standard deviation ($y_{\sigma-historic}$) seen in the neighborhood which capture some measures around baseline variability. See supplemental and interactive tools for further exploration.
