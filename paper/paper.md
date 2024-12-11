@@ -63,13 +63,13 @@ $$l = max(c * y_{expected} - y_{actual}, 0)$$ {#eq:loss}
 
 Note that $y_{expected}$ is typically the average of the 10 most recent years of yield for the insured crop [@rma_crop_2008].
 
-$$y_{expected} = \frac{y_{historic}[-d:]}{d} \label{eq:expected}$$ {#eq:expected}
+$$y_{expected} = \frac{y_{historic}[-d:]}{d}$$ {#eq:expected}
 
 Next, we define probability of experiencing a loss that may incur a Yield Protection claim ($p_{l}$) as claims rate.
 
 $$p_{l} = P(l > 0) = P(c * y_{expected} - y_{actual} > 0)$$ {#eq:ploss1}
 $$p_{l} = P(\frac{y_{actual} - y_{expected}}{y_{expected}} < c - 1)$$ {#eq:ploss2}
-$$p_{l} = P(y_{\Delta\%} < c - 1) \label{eq:probabilityloss}$$ {#eq:ploss3}
+$$p_{l} = P(y_{\Delta\%} < c - 1)$$ {#eq:ploss3}
 
 Generally, the severity ($s$) of a loss when it occurs defines the size of the claim.
 
@@ -92,7 +92,7 @@ Having created these spatial groups, we model against SCYM-observed deviations f
 We next build predictive models for yield deltas to use in simulations of future loss outcomes.
 
 ### Response and input vector
-We predict yield delta distributions per year ahead of Monte Carlo simulations. Specifically, we predict either two parmameters (mean, std) for a normal distribution or four parameters [@scipy_beta_2024] for a beta distribution [@nelson_influence_1990] with distribution type chosen by skew and kurtosis [@kim_statistical_2013]. This use of summary statistics helps ensure appropriate dimensionality for the dataset size [@alwosheel_dataset_2018]. To predict these responses, we describe each of the 9 CHC-CMIP6 variables as min, max, mean, count, and standard deviation per month for the given year. These varibles constitute the model input vector along with year, the historic absolute yield mean ($y_{\mu-historic}$), and standard deviation ($y_{\sigma-historic}$) seen in the neighborhood which capture some measures around baseline variability. See supplemental and interactive tools for further exploration.
+We predict yield delta distributions per year ahead of Monte Carlo simulations. Prior work suggests that yields follow a beta distribution [@nelson_influence_1990] but the expected shape of yield deltas is unknown. Therefore, we predict parameters^[2 parameters for normal (mean, std) and 4 for beta (center, scale, a, b).] for either a normal distribution or beta distribution [@scipy_beta_2024] depending on skew and kurtosis [@kim_statistical_2013]. This use of summary statistics helps ensure appropriate dimensionality for the dataset size [@alwosheel_dataset_2018]. To predict these responses, we describe each of the 9 CHC-CMIP6 variables as daily min, max, mean, and standard deviation per month for the given year. These varibles constitute the model input vector along with year, the historic absolute yield mean ($y_{\mu-historic}$), and standard deviation ($y_{\sigma-historic}$) seen in the neighborhood for baseline variability. See supplemental and interactive tools [@pottinger_data_2024] for further exploration.
 
 ### Neural network
 Our regressors ($f$) use neighborhood-level climate variables ($C$) and historic yield information to predict future yield changes ($y_{\Delta\%}$) per year. We preprocess these inputs using z score normalization [@kim_investigating_2024].
