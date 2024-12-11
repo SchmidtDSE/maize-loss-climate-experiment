@@ -58,32 +58,30 @@ We first build predictive models of maize yield distributions using a neural net
 Before modeling these systems, we articulate mathematical definitions of domain-specific concepts and policy instruments. First, insurers pay out based on the magnitude of a yield loss across the aggregation of all of the fields in an insured unit. This loss ($l$) is defined as the difference between actual yield ($y_{actual}$) and a guarantee threshold set by a coverage level ($c$) typically described as a percentage of an expected yield ($y_{expected}$) [@rma_crop_2008].
 
 $$\begin{equation}
-l = max(c * y_{expected} - y_{actual}, 0) \\
-\label{eq:loss} \\
+l = max(c * y_{expected} - y_{actual}, 0) \label{eq:loss} \\
 \text{Definition of loss.}
 \end{equation}$$
 
-Growers submit production histories for the covered crop ($y_{historic}$) and the average of the 10 most recent years of yield ($d=10$) are generally used to define expectations [@rma_crop_2008]. This is further explored in our interactive tools.
+Note that $y_{expected}$ is typically the average of the 10 most recent years of yield for the insured crop [@rma_crop_2008].
 
 $$\begin{equation}
-y_{expected} = \frac{y_{historic}[-d:]}{d} \\
-\label{eq:expected} \\
+y_{expected} = \frac{y_{historic}[-d:]}{d} \label{eq:expected} \\
 \text{Definition of expected yield.}
 \end{equation}$$
 
 Next, we define probability of experiencing a loss that may incur a Yield Protection claim ($p_{l}$).
 
 $$\begin{equation}
-p_{l} = P(l > 0) = P(c * y_{expected} - y_{actual} > 0) = P(\frac{y_{actual} - y_{expected}}{y_{expected}} < c - 1) = P(y_{\Delta\%} < c - 1) \\
-\label{eq:probabilityloss} \\
+p_{l} = P(l > 0) = P(c * y_{expected} - y_{actual} > 0)
+p_{l} = P(\frac{y_{actual} - y_{expected}}{y_{expected}} < c - 1)
+p_{l} = P(y_{\Delta\%} < c - 1) \label{eq:probabilityloss} \\
 \text{Definition of probability of loss which may incur a claim.}
 \end{equation}$$
 
 Generally, the severity ($s$) of a loss when it occurs defines the size of the claim.
 
 $$\begin{equation}
-s = \frac{l}{y_{expected}} = \max(c - \frac{y_{actual}}{y_{expected}}, 0) = \max(-1 * y_{\Delta\%} - (1 - c), 0) \\
-\label{eq:severity} \\
+s = \frac{l}{y_{expected}} = \max(c - \frac{y_{actual}}{y_{expected}}, 0) = \max(-1 * y_{\Delta\%} - (1 - c), 0) \label{eq:severity} \\
 \text{Definition of loss severity.}
 \end{equation}$$
 
