@@ -85,7 +85,7 @@ s = \frac{l}{y_{expected}} = \max(c - \frac{y_{actual}}{y_{expected}}, 0) = \max
 \text{Definition of loss severity.}
 \end{equation}$$
 
-Note that this paper presents results using the more common 75% coverage level ($c=0.75$) per Federal Crop Insurance Corporation guidelines [@fcic_crop_2023] though our interactive tools allow for exploration of other coverage levels.
+Finally, we present results using the more common 75% coverage level ($c=0.75$) per Federal Crop Insurance Corporation guidelines [@fcic_crop_2023] but our interactive tools explore other coverage levels.
 
 ## Data
 As Yield Protection operates at the level of a risk unit, modeling these formulations requires highly local yield and climate information. Therefore, we use SCYM [@lobell_scalable_2015] which provides remotely sensed yield estimations from 1999 to 2022 at 30m resolution across the US Corn Belt. SCYM benefits from substantial validation efforts [@deines_million_2021]. Meanwhile, we use climate data from CHC-CMIP6 [@williams_high_2024] which, at daily 0.05 degree or approximately 5km scale, offers both historic data on growing conditions from 1983 to 2016 as well as future projections with a 2030 and a 2050 series each containing multiple years. In choosing from its two available scenarios, we prefer the "intermediate" SSP245 within CHC-CMIP6 over SSP585 per the advice of @hausfather_emissions_2020. This offers the following climate variables for modeling: precipitation, temperature (min and max), relative humidity (average, peak), heat index, wet bulb temperature, vapor pressure deficit, and saturation vapor pressure. Note that we prefer SCYM over recent alternatives [@ma_qdann_2024] given temporal overlap with CHC-CMIP6.
