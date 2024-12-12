@@ -4,7 +4,7 @@ title: "Supplementary Materials for Climate-Driven Doubling of U.S. Maize Loss P
 header-includes: |
   \usepackage{float}
   \floatplacement{figure}{H}
-date: 2024-12-05
+date: 2024-12-12
 affiliations:
   - id: 1
     name: Eric and Wendy Schmidt Center for Data Science and Environment, University of California Berkeley, Berkeley 94720, CA, USA
@@ -151,6 +151,31 @@ Note that the "2010 series" label is used internally in our model for consistenc
 
 ## Confidence
 We re-execute simulations 100 times to understand variability for system-wide metrics in Table @tbl:simresults. The range of all standard deviations of each metric's distribution is under 0.1% and the range under 1%. These tight intervals likely reflect the high degree of aggregation represented in our system-wide metrics. However, lacking confidence measures from SCYM and CHC-CMIP6, this post-hoc experiment cannot account for input data uncertainty which is likely more substantial.
+
+# Expanded definitions
+We further expand our mathematical definitions from the main text here. First, covered loss is defined as dropping below a maximum loss but it can be further described as a percentage within some contexts where a bounded loss may be helpful. Note that loss refers to loss below the coverage level.
+
+$$l = max(c * y_{expected} - y_{actual}, 0)$$ {#eq:loss1}
+$$l_{\%} = max(\frac{y_{expected} - y_{actual}}{y_{expected}} - c, 0)$$ {#eq:loss2}
+
+Furthermore, note that $y_{expected}$ is technically defined as the last ten years of yield for a crop but this may not be calendar years due to factors like crop rotations or due to farms with insufficient yield history.
+
+$$y_{expected} = \frac{y_{historic}[-d:]}{d}$$ {#eq:expected1}
+$$y_{expected} = \frac{y_{historic}[-min(10, |y_{historic}|):]}{min(10, |y_{historic}|)}$$ {#eq:expected2}
+
+Next, the probability of experiencing a loss that may incur a Yield Protection claim ($p_{l}$) may be defined a few different ways depending on data available at the potin in the pipeline.
+
+$$p_{l} = P(l > 0) = P(c * y_{expected} - y_{actual} > 0)$$ {#eq:ploss1}
+$$p_{l} = P(\frac{y_{actual} - y_{expected}}{y_{expected}} < c - 1)$$ {#eq:ploss2}
+$$p_{l} = P(y_{\Delta\%} < c - 1)$$ {#eq:ploss3}
+
+Finally, the severity ($s$) of a loss may also take multiple forms.
+
+$$s = \frac{l}{y_{expected}}$$ {#eq:severity1}
+$$s = \max(c - \frac{y_{actual}}{y_{expected}}, 0)$$ {#eq:severity2}
+$$s = \max(-1 * y_{\Delta\%} - (1 - c), 0)$$ {#eq:severity3}
+
+Our ineractive tools further explain these formulations and how they fit together to define preimums and claims.
 
 # Interactive tools
 Finally, we further describe our interactive tools. In crafting these "explorable explanations" [@victor_explorable_2011] listed in Table @tbl:apps, we draw analogies to micro-apps  [@bridgwater_what_2015] or mini-games [@dellafave_designing_2014] in which the user encounters a series of small experiences that, each with distinct interaction and objectives, can only provide minimal instruction [@brown_100_2024]. As these very brief visualization experiences cannot take advantage of design techniques like Hayashida-style tutorials [@pottinger_pyafscgaporg_2023], they rely on simple "loops" [@brazie_designing_2024] for immediate "juxtaposition gratification" (JG) [@jm8_secret_2024], showing fast progression after minimal input.
