@@ -8,11 +8,11 @@ python3 fill_template.py ./supplemental.md ./outputs/stats.json ./supplemental_f
 
 pandoc -o paper_filled.pdf --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos --filter pandoc-eqnos --template=default.tex paper_filled.md
 pandoc -o paper_filled.tex --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos --filter pandoc-eqnos --template=default.tex paper_filled.md
-pandoc -o paper_filled.docx --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos --filter pandoc-eqnos paper_filled.md
+pandoc -o paper_filled.docx --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos paper_filled.md
 
 pandoc -o supplemental.pdf --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos --filter pandoc-eqnos --template=default.tex supplemental_filled.md
 pandoc -o supplemental.tex --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos --filter pandoc-eqnos --template=default.tex supplemental_filled.md
-pandoc -o supplemental.docx --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos --filter pandoc-eqnos supplemental_filled.md
+pandoc -o supplemental.docx --citeproc --number-sections --filter pandoc-tablenos --filter pandoc-fignos supplemental_filled.md
 
 rm -r arxiv
 mkdir arxiv
