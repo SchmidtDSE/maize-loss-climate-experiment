@@ -152,6 +152,9 @@ Note that the "2010 series" label is used internally in our model for consistenc
 ## Confidence
 We re-execute simulations 100 times to understand variability for system-wide metrics in Table @tbl:simresults. The range of all standard deviations of each metric's distribution is under 0.1% and the range under 1%. These tight intervals likely reflect the high degree of aggregation represented in our system-wide metrics. However, lacking confidence measures from SCYM and CHC-CMIP6, this post-hoc experiment cannot account for input data uncertainty which is likely more substantial.
 
+## Dual yield and risk increases
+Generally around 3% of neighborhoods and 2% of counties see increased average yields and increased claims rates. However, the yield delta skew grows in the SSP245 scenario, particularly between 2030 and 2050. This is reflected visually in our interactive tools when considering the 2030 and 2050 series. Regardless, we see that 13% of neighborhoods and 10% of counties see both elevated average yields and claims rates together during the 2050 series. Note that, to avoid noise, we consider increases in average yield and increases in claims rates of less than 2% as unchanged.
+
 # Expanded definitions
 We further expand our mathematical definitions from the main text here. First, covered loss is defined as dropping below a maximum loss but it can be further described as a percentage within some contexts where a bounded loss may be helpful. Note that loss refers to loss below the coverage level.
 
@@ -175,7 +178,7 @@ $$s = \frac{l}{y_{expected}}$$ {#eq:severity1}
 $$s = \max(c - \frac{y_{actual}}{y_{expected}}, 0)$$ {#eq:severity2}
 $$s = \max(-1 * y_{\Delta\%} - (1 - c), 0)$$ {#eq:severity3}
 
-Our ineractive tools further explain these formulations and how they fit together to define preimums and claims.
+Our interactive tools further explain these formulations and how they fit together to define preimums and claims.
 
 # Interactive tools
 Finally, we further describe our interactive tools. In crafting these "explorable explanations" [@victor_explorable_2011] listed in Table @tbl:apps, we draw analogies to micro-apps  [@bridgwater_what_2015] or mini-games [@dellafave_designing_2014] in which the user encounters a series of small experiences that, each with distinct interaction and objectives, can only provide minimal instruction [@brown_100_2024]. As these very brief visualization experiences cannot take advantage of design techniques like Hayashida-style tutorials [@pottinger_pyafscgaporg_2023], they rely on simple "loops" [@brazie_designing_2024] for immediate "juxtaposition gratification" (JG) [@jm8_secret_2024], showing fast progression after minimal input.
