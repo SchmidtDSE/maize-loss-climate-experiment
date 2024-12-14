@@ -162,9 +162,9 @@ Without yield exclusion, a year with claims for a risk unit would generally decr
 | 2030             | SSP245           | 1.5%                  | 1.5%               |
 | 2050             | SSP245           | 12.7%                 | 9.8%               |
 
-Table: Frequency with which average yield and probability of claim both increase. Counterfactual refers to simulations assuming that recent growing conditions persist into the future. In other words, the counterfactual assumes no further warming. To avoid noise, we consider increases in average yield and increases in claims rates of less than 2% as unchanged. {#tbl:dualincrease}
+Table: Frequency with which average yield and probability of claim both increase. Counterfactual refers to simulations assuming that recent growing conditions persist into the future. In other words, the counterfactual assumes no further warming. {#tbl:dualincrease}
 
-All that in mind, as further described in Table @tbl:dualincrease, we see that 13% of neighborhoods and 10% of counties see both incrased average yields and increased claims rates together when calculated across the SSP245 2050 series.
+All that in mind, we see that 13% of neighborhoods and 10% of counties see both incrased average yields and increased claims rates together when calculated across the SSP245 2050 series. Note that we use geohash center to determine county [@fcc_api_2024] and, to avoid noise, we consider increases in average yield and increases in claims rates of less than 2% as unchanged so not included in Table @tbl:dualincrease. However, the gap persists between 2050 SSP245 and 2050 counterfactual frequencies even if this 2% noise filter is removed.
 
 # Expanded definitions
 We further expand our mathematical definitions from the main text here. First, covered loss is defined as dropping below a maximum loss but it can be further described as a percentage within some contexts where a bounded loss may be helpful. Note that loss refers to loss below the coverage level.
