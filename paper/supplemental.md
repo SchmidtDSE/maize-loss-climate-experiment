@@ -155,7 +155,7 @@ We re-execute simulations 100 times to understand variability for system-wide me
 ## Dual yield and risk increases
 Without yield exclusion, a year with claims for a risk unit would generally decrease the subsequent $y_{expected}$ for that risk unit. Therefore, one may expect generally few neighborhoods and counties to see both increased average yields and increased probability of claims when both are calculated over a multi-year period. However, yield expectations ($y_{expected}$) are set by actual yields from potentially many years ago. In this "out of sample" situation, changing distribution shapes could cause previous years to be bad indicators of future performance. Indeed, the skew for the _multi-year distributions_ of yield deltas (as opposed to any single set of annual yield deltas) grows over SSP245 as reflected visually in our interactive tools: 2030 looks more like a normal distribution than 2050.
 
-| **Series**       | **Conditoin**    | **Neighborhood**      | **Counties**       |
+| **Series**       | **Condition**    | **Neighborhoods**     | **Counties**       |
 | ---------------- | ---------------- | --------------------- | ------------------ |
 | 2030             | Counterfactual   | 3.6%                  | 2.0%               |
 | 2050             | Counterfactual   | 3.7%                  | 1.9%               |
