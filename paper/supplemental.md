@@ -4,7 +4,7 @@ title: "Supplementary Materials for Climate-Driven Doubling of U.S. Maize Loss P
 header-includes: |
   \usepackage{float}
   \floatplacement{figure}{H}
-date: 2024-12-12
+date: 2024-12-13
 affiliations:
   - id: 1
     name: Eric and Wendy Schmidt Center for Data Science and Environment, University of California Berkeley, Berkeley 94720, CA, USA
@@ -152,6 +152,20 @@ Note that the "2010 series" label is used internally in our model for consistenc
 ## Confidence
 We re-execute simulations 100 times to understand variability for system-wide metrics in Table @tbl:simresults. The range of all standard deviations of each metric's distribution is under 0.1% and the range under 1%. These tight intervals likely reflect the high degree of aggregation represented in our system-wide metrics. However, lacking confidence measures from SCYM and CHC-CMIP6, this post-hoc experiment cannot account for input data uncertainty which is likely more substantial.
 
+## Dual yield and risk increases
+Without yield exclusion, a year with claims for a risk unit would generally decrease the subsequent $y_{expected}$ for that risk unit. Therefore, one may expect generally few neighborhoods and counties to see both increased average yields and increased probability of claims when both are calculated over a multi-year period. However, yield expectations ($y_{expected}$) are set by actual yields from potentially many years ago. That in mind, the skew for the _multi-year distributions_ of yield deltas (as opposed to any single set of annual yield deltas) grows over SSP245 as reflected visually in our interactive tools: 2030 looks more like a normal distribution than 2050. This likely reflects increased year to year volatility.
+
+| **Series**       | **Condition**    | **Neighborhoods**     | **Counties**       |
+| ---------------- | ---------------- | --------------------- | ------------------ |
+| 2030             | Counterfactual   | 3.6%                  | 2.0%               |
+| 2050             | Counterfactual   | 3.7%                  | 1.9%               |
+| 2030             | SSP245           | 1.5%                  | 1.5%               |
+| 2050             | SSP245           | 12.7%                 | 9.8%               |
+
+Table: Frequency with which average yield and probability of claim both increase. Counterfactual refers to simulations assuming that recent growing conditions persist into the future. In other words, the counterfactual assumes no further warming. {#tbl:dualincrease}
+
+All that in mind, we see that 13% of neighborhoods and 10% of counties see both increased average yields and increased claims rates together when calculated across the entire SSP245 2050 series. Note that we use geohash center to determine county [@fcc_api_2024]. Also, to avoid noise, we consider increases in average yield and increases in claims rates of less than 2% as essentially unchanged for this specific post-hoc experiment so are not included towards the percentages in Table @tbl:dualincrease. However, the gap persists between 2050 SSP245 and 2050 counterfactual frequencies even if this 2% noise filter is removed.
+
 # Expanded definitions
 We further expand our mathematical definitions from the main text here. First, covered loss is defined as dropping below a maximum loss but it can be further described as a percentage within some contexts where a bounded loss may be helpful. Note that loss refers to loss below the coverage level.
 
@@ -175,7 +189,7 @@ $$s = \frac{l}{y_{expected}}$$ {#eq:severity1}
 $$s = \max(c - \frac{y_{actual}}{y_{expected}}, 0)$$ {#eq:severity2}
 $$s = \max(-1 * y_{\Delta\%} - (1 - c), 0)$$ {#eq:severity3}
 
-Our ineractive tools further explain these formulations and how they fit together to define preimums and claims.
+Our interactive tools further explain these formulations and how they fit together to define preimums and claims.
 
 # Interactive tools
 Finally, we further describe our interactive tools. In crafting these "explorable explanations" [@victor_explorable_2011] listed in Table @tbl:apps, we draw analogies to micro-apps  [@bridgwater_what_2015] or mini-games [@dellafave_designing_2014] in which the user encounters a series of small experiences that, each with distinct interaction and objectives, can only provide minimal instruction [@brown_100_2024]. As these very brief visualization experiences cannot take advantage of design techniques like Hayashida-style tutorials [@pottinger_pyafscgaporg_2023], they rely on simple "loops" [@brazie_designing_2024] for immediate "juxtaposition gratification" (JG) [@jm8_secret_2024], showing fast progression after minimal input.
