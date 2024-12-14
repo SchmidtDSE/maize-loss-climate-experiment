@@ -153,7 +153,18 @@ Note that the "2010 series" label is used internally in our model for consistenc
 We re-execute simulations 100 times to understand variability for system-wide metrics in Table @tbl:simresults. The range of all standard deviations of each metric's distribution is under 0.1% and the range under 1%. These tight intervals likely reflect the high degree of aggregation represented in our system-wide metrics. However, lacking confidence measures from SCYM and CHC-CMIP6, this post-hoc experiment cannot account for input data uncertainty which is likely more substantial.
 
 ## Dual yield and risk increases
-Generally around 3% of neighborhoods and 2% of counties see increased average yields and increased claims rates. However, the yield delta skew grows in the SSP245 scenario, particularly between 2030 and 2050. This is reflected visually in our interactive tools when considering the 2030 and 2050 series. Regardless, we see that 13% of neighborhoods and 10% of counties see both elevated average yields and claims rates together during the 2050 series. Note that, to avoid noise, we consider increases in average yield and increases in claims rates of less than 2% as unchanged.
+Without yield exclusion, a year with claims for a risk unit would generally decrease the average yield for that risk unit. Therefore, one may expect generally few neighborhoods and counties to see both increased average yields and increased probability of claims when both are calculated over a multi-year period. However, yield expectations ($y_{expected}$) are set by actual yields from potentially many years ago and changing distribution shapes could cause previous years to be bad indicators of future performance. Indeed, yield delta distribution skew grows over SSP245 as reflected visually in our interactive tools: 2030 looks more like a normal distribution than 2050.
+
+| **Series**       | **Conditoin**    | **Neighborhood**      | **Counties**       |
+| ---------------- | ---------------- | --------------------- | ------------------ |
+| 2030             | Counterfactual   | 3.6%                  | 2.0%               |
+| 2050             | Counterfactual   | 3.7%                  | 1.9%               |
+| 2030             | SSP245           | 1.5%                  | 1.5%               |
+| 2050             | SSP245           | 12.7%                 | 9.8%               |
+
+Table: Frequency with which average yield and probability of claim both increase. Counterfactual refers to simulations assuming that recent growing conditions persist into the future. In other words, the counterfactual assumes no further warming. To avoid noise, we consider increases in average yield and increases in claims rates of less than 2% as unchanged. {#tbl:dualincrease}
+
+All that in mind, as further described in Table @tbl:dualincrease, we see that 13% of neighborhoods and 10% of counties see both incrased average yields and increased claims rates together when calculated across the SSP245 2050 series.
 
 # Expanded definitions
 We further expand our mathematical definitions from the main text here. First, covered loss is defined as dropping below a maximum loss but it can be further described as a percentage within some contexts where a bounded loss may be helpful. Note that loss refers to loss below the coverage level.
