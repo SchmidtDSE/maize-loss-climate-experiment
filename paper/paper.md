@@ -161,7 +161,7 @@ With bias towards performance in mean prediction, we select {{numLayers}} hidden
 
 Table: Results of model training and selection. {#tbl:trainresults}
 
-Table @tbl:posthocresults also evaluates regression performance in varied test sets.
+In addition to Table @tbl:posthocresults whivh evaluates regression performance in varied test sets, our interactive tools [@pottinger_data_2024] and supplemental materials offer additional performance metrics.
 
 | **Task**              | **Test Mean Pred MdAE** | **Test Std Pred MdAE** | **% of Units in Test Set** |
 | --------------------- | ---------------------- | --------------------- | -------------------------- |
@@ -171,8 +171,6 @@ Table @tbl:posthocresults also evaluates regression performance in varied test s
 | Climatic | {{climateMeanMae}}     | {{climateStdMae}}     | {{climatePercent}}         |
 
 Table: Results of tests after model selection. Tasks have a different number of risk units within their test set based on task definition. {#tbl:posthocresults}
-
-Our interactive tools [@pottinger_data_2024] allow for further examination of error and our supplemental offers additional performance metrics.
 
 ## Simulation outcomes
 After retraining on all available data using the selected configuration from our sweep, Monte Carlo simulates risk unit yield deltas from which we derive overall system metrics like claims rate. To capture insurance mechanics, these trials track changes to average yields over time at the neighborhood and approximated risk unit level. Additionally, we also sample test set model residuals to account for error. Despite the conservative nature of the Bonferroni correction [@mcdonald_handbook_2014], {{percentSignificant}} of maize acreage in SSP245 falls within a neighborhood with significant changes to claim probability ($p < 0.05 / n$) at some point during the 2050 series simulations.
