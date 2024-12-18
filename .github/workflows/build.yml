@@ -163,6 +163,12 @@ jobs:
           name: arxiv
           path: arxiv.zip
           if-no-files-found: error
+      - name: Upload arxiv complete
+        uses: actions/upload-artifact@v4
+        with:
+          name: arxiv_complete
+          path: arxiv_complete.zip
+          if-no-files-found: error
   buildDeploy:
     environment: build
     runs-on: ubuntu-latest

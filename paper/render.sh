@@ -25,6 +25,8 @@ cd arxiv
 zip arxiv.zip *.*
 cd ..
 
+zip -r arxiv_complete.zip arxiv
+
 mkdir paper_rendered
 cp arxiv/arxiv.zip paper_rendered/arxiv.zip
 cp arxiv/arxiv.zip arxiv.zip
