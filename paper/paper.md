@@ -183,7 +183,7 @@ The claims rate elevates in the 2030 series and doubles in the 2050 timeframe wh
 We observe a number of policy-relevant dynamics when simulating insurance instrument mechanics under climate change.
 
 ## Yield expectations
-Figure @fig:hist reveals possible challenges with using a simple average in crop insurance products. Current instruments expect $y_{expected}$ to capture changes to risk but simulations anticipate that higher yield volatility skews yield delta distributions such that simulated risk units see higher claims rates despite changes to their yield average.
+Figure @fig:hist reveals possible challenges with using a simple average in crop insurance products. While current instruments use $y_{expected}$ to capture changes to risk, our simulations anticipate higher yield volatility to skew yield delta distributions such that simulated risk units see higher claims rates despite a changing $y_{expected}$.
 
 ![Interactive tool screenshot showing 2050 outcomes distribution as changes from $y_{expected}$, plotting deltas and claims rates with climate change on the top and without further climate change (counterfactual) on bottom.](./img/hist.png "Interactive tool screenshot showing 2050 outcomes distribution as changes from $y_{expected}$, plotting deltas and claims rates with climate change on the top and without further climate change (counterfactual) on bottom."){#fig:hist}
 
