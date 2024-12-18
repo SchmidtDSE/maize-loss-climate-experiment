@@ -155,8 +155,10 @@ jobs:
         run: pip install pandoc-eqnos --user
       - name: Build paper
         run: cd paper; bash render.sh
-      - name: Move export
+      - name: Move export arxiv
         run: mv paper/arxiv.zip arxiv.zip
+      - name: Move export arxiv_complete
+        run: mv paper/arxiv_complete.zip arxiv_complete.zip 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
