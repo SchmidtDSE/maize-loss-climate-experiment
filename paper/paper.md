@@ -151,7 +151,7 @@ We project climate change to roughly double loss probabilities ($p_{l}$) at mid-
 The dataset spanning 1999 to 2016 includes a median of 83k SCYM yield estimations per neighborhood. These field-level estimations are represented within annual neighborhood-level yield distributions. While yield itself is often not normally distributed, nearly all yield _delta_ distributions exhibit approximate normality [@kim_statistical_2013]. Therefore, we report model outputs assuming a normal distribution of yield deltas. However, our supplemental materials provide further statistics and alternative beta distribution results.
 
 ## Neural network outcomes
-With bias towards performance in mean prediction, we select {{numLayers}} hidden layers ({{layersDescription}}) using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. Table @tbl:trainresults reports mean absolute error (MAE) in yield delta percentage points ($|\frac{y_{actual} - y_{expected}}{y_{expected}} - y_{\Delta\% - Predicted}|$). Our selected model sees {{retrainMeanMae}} MAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMae}} when predicting neighborhood standard deviation in our fully hidden test set after retraining with train and validation together.
+With bias towards performance in mean prediction, we select {{numLayers}} hidden layers using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. As described in supplemental, additional layers show diminishing returns. Table @tbl:trainresults reports mean absolute error (MAE) in yield delta percentage points ($|\frac{y_{actual} - y_{expected}}{y_{expected}} - y_{\Delta\% - Predicted}|$). Our selected model sees {{retrainMeanMae}} MAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMae}} when predicting neighborhood standard deviation in our fully hidden test set after retraining with train and validation together.
 
 | **Set**             | **MAE for Mean Prediction** | **MAE for Std Prediction** |
 | -------------------- | ----------------------- | ---------------------- |
@@ -161,7 +161,7 @@ With bias towards performance in mean prediction, we select {{numLayers}} hidden
 
 Table: Results of model training and selection. {#tbl:trainresults}
 
-In addition to Table @tbl:posthocresults whivh evaluates regression performance in varied test sets, our interactive tools [@pottinger_data_2024] and supplemental materials offer additional performance metrics.
+In addition to Table @tbl:posthocresults which evaluates regression performance in varied test sets, our interactive tools [@pottinger_data_2024] and supplemental materials offer additional performance metrics.
 
 | **Task**              | **Test Mean Pred MdAE** | **Test Std Pred MdAE** | **% of Units in Test Set** |
 | --------------------- | ---------------------- | --------------------- | -------------------------- |
