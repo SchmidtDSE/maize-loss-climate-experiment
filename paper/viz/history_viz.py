@@ -520,7 +520,7 @@ class HistoryChartPresenter:
         std = statistics.stdev(self._values)
 
         if self._use_std:
-            threshold = -2.1
+            threshold = -1.5
             format_str = '%s%.1f std'
             get_delta = lambda x: (x - average) / std
         else:
@@ -597,7 +597,7 @@ class HistoryChartPresenter:
 
         if self._use_std:
             std = statistics.stdev(self._values)
-            with_loss = filter(lambda x: (x - average) / std < -2.1, self._values)
+            with_loss = filter(lambda x: (x - average) / std < -1.5, self._values)
         else:
             with_loss = filter(lambda x: (x - average) / average < -0.25, self._values)
 
@@ -734,7 +734,7 @@ class SummaryPresenter:
         self._sketch.draw_text(4, self._height - 16, '0%')
 
         self._sketch.set_text_align('right', 'top')
-        self._sketch.draw_text(self._width - 4, self._height - 16, '10%')
+        self._sketch.draw_text(self._width - 4, self._height - 16, '30%')
 
         # Draw top bar
         historic_claims = self._data_facade.get_claims(2010, 'historic', self._using_std) * 100
@@ -755,7 +755,7 @@ class SummaryPresenter:
         self._sketch.draw_text(2, 64, 'Future: %.1f%% (<-%.2f%s)' % future_str_vals)
 
         self._sketch.set_rect_mode('corner')
-        get_width = lambda x: x / 10 * (self._width - 8)
+        get_width = lambda x: x / 30 * (self._width - 8)
         self._sketch.draw_rect(4, 41, get_width(historic_claims), 3)
         self._sketch.draw_rect(4, 65, get_width(future_claims), 3)
 

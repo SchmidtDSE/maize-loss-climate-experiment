@@ -38,7 +38,7 @@ A summary of the pipeline is created in `stats.json`. See local package below fo
 ### Interactive tools
 Written in [Sketchingpy](https://sketchingpy.org/), the tools can be executed locally on your computer, in a static context for building the paper, or through a web browser. First, one needs to get data from the pipeline or download prior results:
 
- - **Download prior results**: Retrieve the [latest results](https://ag-adaptation-study.pub/archive/data.zip) and move them into the viz directory (`paper/viz/data`). Simply use wget when in the `paper/viz directory` as so: `wget https://ag-adaptation-study.pub/archive/data.zip; unzip data.zip`.
+ - **Download prior results**: Retrieve the [latest results](https://ag-adaptation-study.pub/archive/data.zip) and move them into the viz directory (`paper/viz/data`). Simply use wget to gather model outputs when in the `paper/viz directory` as so: `wget https://ag-adaptation-study.pub/archive/data.zip; unzip data.zip`. If using prior sweep results, download full sweep information like so: `cd data; wget http://ag-adaptation-study.pub/data/sweep_ag_all.csv; cd ..`.
  - **Use your own results**: Update the output data per instructions regarding local package below.
 
 There are two options for executing the tools:
