@@ -15,7 +15,7 @@ These are described in detail below.
 <br>
 
 ## Usage
-The easiest way to engage with these results is through the web-based interactive explorable explanation which is housed for the public at [ag-adaptation-study.pub](https://ag-adaptation-study.pub/). The paper preprint can also be found at. We also publish our [raw pipeline output](https://ag-adaptation-study.pub/archive/output.zip). Otherwise, see local setup.
+The easiest way to engage with these results is through the web-based interactive explorable explanation which is housed for the public at [ag-adaptation-study.pub](https://ag-adaptation-study.pub/). The paper preprint can also be found at https://arxiv.org/abs/2408.02217. We also publish our [raw pipeline output](https://ag-adaptation-study.pub/archive/output.zip). Otherwise, see local setup.
 
 <br>
 
@@ -33,7 +33,7 @@ You can then execute either by:
  - **Run directly**: First, install the Python requirements (`pip install -r requirements.txt`) optionally within a [virtual environment](https://python-guide-es.readthedocs.io/es/guide-es/dev/virtualenvs.html). Then, simply execute `bash run.sh` to execute the pipeline from start to finish. See also `breakpoint_tasks.py` for [Luigi](https://luigi.readthedocs.io/en/stable/) targets for running subsets of the pipeline.
  - **Run through Docker**: Simply execute `bash run_docker.sh` to execute the pipeline from start to finish. See also `breakpoint_tasks.py` for [Luigi](https://luigi.readthedocs.io/en/stable/) targets for running subsets of the pipeline and update `run.sh` which is executed within the container. Note that this will operate on the `workspace` directory.
 
-A summary of the pipeline is created in `stats.json`. See local package below for use in other repository components such as the interactive tools or paper rendering.
+A summary of the pipeline is created in `stats.json`. See local package below for use in other repository components such as the interactive tools or paper rendering. **Users may optionally skip some expensive steps by placing the files from https://zenodo.org/records/14533227 into the `workspace` directory.**
 
 ### Interactive tools
 Written in [Sketchingpy](https://sketchingpy.org/), the tools can be executed locally on your computer, in a static context for building the paper, or through a web browser. First, one needs to get data from the pipeline or download prior results:
