@@ -734,7 +734,7 @@ class SummaryPresenter:
         self._sketch.draw_text(4, self._height - 16, '0%')
 
         self._sketch.set_text_align('right', 'top')
-        self._sketch.draw_text(self._width - 4, self._height - 16, '10%')
+        self._sketch.draw_text(self._width - 4, self._height - 16, '30%')
 
         # Draw top bar
         historic_claims = self._data_facade.get_claims(2010, 'historic', self._using_std) * 100
@@ -755,7 +755,7 @@ class SummaryPresenter:
         self._sketch.draw_text(2, 64, 'Future: %.1f%% (<-%.2f%s)' % future_str_vals)
 
         self._sketch.set_rect_mode('corner')
-        get_width = lambda x: x / 40 * (self._width - 8)
+        get_width = lambda x: x / 30 * (self._width - 8)
         self._sketch.draw_rect(4, 41, get_width(historic_claims), 3)
         self._sketch.draw_rect(4, 65, get_width(future_claims), 3)
 
