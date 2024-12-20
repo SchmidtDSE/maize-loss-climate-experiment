@@ -479,7 +479,7 @@ class RatesChartPresenter:
             )
 
             for percent in range(15, 55, 5):
-                percent_str = '-%.2f std' % (percent * 2.11 / 25)
+                percent_str = '-%.2f std' % (percent * 1.5 / 25)
                 self._sketch.draw_text(self._get_x(percent), self._height - 28, percent_str)
 
         self._sketch.pop_style()
