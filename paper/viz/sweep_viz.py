@@ -544,14 +544,14 @@ class ConfigPresenter:
 
     def _run_sweep(self):
         """Run a sweep in which all filters are included and a preferred config selected."""
-        self._layers_buttons.set_value('4 layers')
-        self._l2_buttons.set_value('0.10')
-        self._drop_buttons.set_value('0.01')
+        self._layers_buttons.set_value('6 layers')
+        self._l2_buttons.set_value('0.05')
+        self._drop_buttons.set_value('0.05')
         self._data_buttons.set_value('All Data')
         self._filter_config = FilterConfig(
-            4,
-            0.1,
-            0.01,
+            6,
+            0.05,
+            0.05,
             'all attrs'
         )
         self._on_run_sweep()

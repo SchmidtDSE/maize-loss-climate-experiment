@@ -654,7 +654,7 @@ class MainPresenter:
         self._sketch.set_text_align('center', 'center')
 
         if self._comparison == 'vs historic':
-            self._sketch.draw_text(0, 0, 'Historic Values (Approx 2007)')
+            self._sketch.draw_text(0, 0, 'Predicted 2010 Series')
         else:
             self._sketch.draw_text(0, 0, 'Climate Change Stops')
 
@@ -716,7 +716,7 @@ class MainPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 11)
 
         is_catastrophic = self._target_threshold == '75% cov'
-        max_val = 30 if is_catastrophic else 35
+        max_val = 35 if is_catastrophic else 40
 
         y = SUB_CHART_HEIGHT - self._get_y(15)
         start_x = self._get_x(-100) - 5
@@ -757,7 +757,7 @@ class MainPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 11)
 
         is_catastrophic = self._target_threshold == '75% cov'
-        max_val = 30 if is_catastrophic else 35
+        max_val = 35 if is_catastrophic else 40
 
         y = self._get_y(15)
         start_x = self._get_x(-100)
