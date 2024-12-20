@@ -704,9 +704,7 @@ class HistExportTask(luigi.Task):
         """
         return [
             HistExportSubTask(geohash_size=4, historic=False),
-            HistExportSubTask(geohash_size=4, historic=True),
-            HistExportSubTask(geohash_size=5, historic=False),
-            HistExportSubTask(geohash_size=5, historic=True)
+            HistExportSubTask(geohash_size=5, historic=False)
         ]
 
     def output(self):
