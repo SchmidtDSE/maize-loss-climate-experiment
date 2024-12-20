@@ -331,7 +331,7 @@ def is_record_in_scope(target, threshold, geohash_sim_size=4, historic=False):
         if str(target['series']) != '2010':
             return False
     else:
-        if str{target['series']) == '2010':
+        if str(target['series']) == '2010':
             return False
 
     if abs(float(target['unitSize'])) <= 1.0001:
