@@ -48,9 +48,6 @@ There are two options for executing the tools:
 
 Note that the visualizations are also invoked through `paper/viz/render_images.sh` for the paper.
 
-### Other data
-Note that an archive of [UDSA Risk Management Agency (RMA) Summary of Business (SOB) data](https://www.rma.usda.gov/tools-reports/summary-of-business) is also provided at our [usda_rma_sob.zip](https://ag-adaptation-study.pub/data/usda_rma_sob.zip). In addition to original format, all SOB datasets are given in Avro format where possible with standardized formatting / encoding. A subset of these data are considered within our paper as supporting evidence. See the README within the data archive for further details.
-
 ### Paper
 Due to the complexities of the software install, the only officially supported way to build the paper is through the Docker image. First update the data:
 
@@ -81,6 +78,30 @@ To deploy changes to production, CI / CD will automatically release to ag-adapta
 
 ## Development standards
 Where possible, please follow the [Python Google Style Guide](https://google.github.io/styleguide/pyguide.html) unless an override is provided in `setup.cfg`. Docstrings and type hints are required for all top-level or public members but not currently enforced for private members. [JSDoc](https://jsdoc.app/) is required for top level members. Docstring / JSDoc not required for "utility" code.
+
+<br>
+
+## Data
+We make publicly available both inputs and outputs to our modeling. Due to size, some of these are archived at [ag-adaptation-study.pub](https://ag-adaptation-study.pub) while others are deposited into [Zenodo](https://zenodo.org/doi/10.5281/zenodo.13356980).
+
+### CHC-CMIP6
+Our derivative dataset from CHC-CMIP6 is available at [climate.csv](https://ag-adaptation-study.pub/data/climate.csv) and our [Zenodo](https://zenodo.org/doi/10.5281/zenodo.13356980). These are aggregated and preprocessed as used within our modeling.
+
+### USDA RMA SOB
+Note that an archive of [UDSA Risk Management Agency (RMA) Summary of Business (SOB) data](https://www.rma.usda.gov/tools-reports/summary-of-business) is also provided at our [usda_rma_sob.zip](https://ag-adaptation-study.pub/data/usda_rma_sob.zip). As a relatively large supplemental dataset, this is not currently in Zenodo. In addition to original format, all SOB datasets are given in Avro format where possible with standardized formatting / encoding. A subset of these data are considered within our paper as supporting evidence. See the README within the data archive for further details.
+
+### Yield estimations (SCYM)
+Our derivative SCYM yield estimations at neighborhood-level are avialable at [Zenodo](https://zenodo.org/doi/10.5281/zenodo.13356980).
+
+### Model outputs
+The following model outputs are made available both through our website:
+
+ - [export_claims.csv](https://ag-adaptation-study.pub/data/export_claims.csv]): Information about the claims rate under different conditions.
+ - [sim_hist.csv](https://ag-adaptation-study.pub/data/sim_hist.csv): Information about simulation-wide yield distributions under different conditions.
+ - [sweep_ag_all.csv](https://ag-adaptation-study.pub/data/sweep_ag_all.csv): Information about sweep outcomes and model performance.
+ - [tool.csv](https://ag-adaptation-study.pub/data/tool.csv): Geographically specific information about simulation outcomes at the 4 character geohash level.
+
+As smaller payloads, these are also included in our [Zenodo](https://zenodo.org/doi/10.5281/zenodo.13356980).
 
 <br>
 
