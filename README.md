@@ -48,6 +48,9 @@ There are two options for executing the tools:
 
 Note that the visualizations are also invoked through `paper/viz/render_images.sh` for the paper.
 
+### Other data
+Note that an archive of [UDSA Risk Management Agency (RMA) Summary of Business (SOB) data](https://www.rma.usda.gov/tools-reports/summary-of-business) is also provided at our [usda_rma_sob.zip](https://ag-adaptation-study.pub/data/usda_rma_sob.zip). In addition to original format, all SOB datasets are given in Avro format where possible with standardized formatting / encoding. A subset of these data are considered within our paper as supporting evidence. See the README within the data archive for further details.
+
 ### Paper
 Due to the complexities of the software install, the only officially supported way to build the paper is through the Docker image. First update the data:
 
