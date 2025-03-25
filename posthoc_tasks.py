@@ -17,7 +17,7 @@ import normalize_tasks
 import training_tasks
 
 INPUT_ATTRS = training_tasks.get_input_attrs('all attrs', True)
-MAX_SAMPLE = 200
+MAX_SAMPLE = 50
 
 
 def assign_year(year):
@@ -75,7 +75,7 @@ class ResampleIndividualizeTask(luigi.Task):
         """
         with self.input().open() as f_in:
             rows = csv.DictReader(f_in)
-            rows_allowed = filter(lambda x: int(x[const.SAMPLE_WEIGHT_ATTR]) >= 5, rows)
+            rows_allowed = filter(lambda x: int(x[const.SAMPLE_WEIGHT_ATTR]) >= SAMPLE_RATE, rows)
             transformed_rows = map(lambda x: self._transform_row(x), rows_allowed)
             allowed_rows = filter(lambda x: x['setAssign'] == self.target, transformed_rows)
             expanded_rows_nested = map(lambda x: self._expand_rows(x), allowed_rows)
@@ -114,10 +114,9 @@ class ResampleIndividualizeTask(luigi.Task):
             map: Iterator of dictionaries containing individual samples with values
                 drawn from Gaussian distribution.
         """
-        num_samples = min([int(target[const.SAMPLE_WEIGHT_ATTR]), MAX_SAMPLE])
         mean = float(target['yieldMean'])
         std = float(target['yieldStd'])
-        samples_indexed = range(0, num_samples)
+        samples_indexed = range(0, SAMPLE_RATE)
 
         def make_sample(index):
             value = random.gauss(mu=mean, sigma=std)
@@ -151,7 +150,7 @@ class BuildGaussianProcessModel(luigi.Task):
         Returns:
             LocalTarget: Target for pickle file containing trained model.
         """
-        path = const.get_file_location('gaussian_process_%s.pickle' % self.kernel)
+        path = const.get_file_location('gaussian_process_%s.json' % self.kernel)
         return luigi.LocalTarget(path)
 
     def run(self):
@@ -170,7 +169,7 @@ class BuildGaussianProcessModel(luigi.Task):
                     'output': float(row['yieldValue'])
                 }
 
-            # Prepare X and y
+            # Prepare inputs and outputs
             parsed_rows = [parse_row(x) for x in training_rows]
             inputs = [x['inputs'] for x in parsed_rows]
             outputs = [x['output'] for x in parsed_rows]
@@ -181,9 +180,7 @@ class BuildGaussianProcessModel(luigi.Task):
             )
             model.fit(inputs, outputs)
 
-            # Save model
-            with self.output().open('wb') as f_out:
-                pickle.dump(model, f_out)
+            # Evaluate 
 
     def _get_kernel(self, name):
         """
