@@ -1,4 +1,4 @@
-"""Optional tasks for model comparison and contextualization.
+"""Optional tasks for gaussian process.
 
 License:
     BSD
@@ -39,6 +39,24 @@ def assign_year(year):
         return 'test' if year % 2 == 0 else 'valid'
 
 
+def transform_row(target):
+    """Transform a single row by assigning set category and effective year.
+
+    Args:
+        target (dict): Dictionary containing row data including year.
+
+    Returns:
+        dict: Transformed row with added setAssign and optional effectiveYear.
+    """
+    year = int(target['year'])
+
+    if const.INCLUDE_YEAR_IN_MODEL:
+        target['effectiveYear'] = year - 2007
+
+    target['setAssign'] = assign_year(year)
+    return target
+
+
 class ResampleIndividualizeTask(luigi.Task):
     """Task that resamples and individualizes training data.
     
@@ -75,7 +93,7 @@ class ResampleIndividualizeTask(luigi.Task):
         """
         with self.input().open() as f_in:
             rows = csv.DictReader(f_in)
-            transformed_rows = map(lambda x: self._transform_row(x), rows)
+            transformed_rows = map(transform_row, rows)
             allowed_rows = filter(lambda x: x['setAssign'] == self.target, transformed_rows)
             expanded_rows_nested = map(lambda x: self._expand_rows(x), allowed_rows)
             expanded_rows = itertools.chain(*expanded_rows_nested)
@@ -85,23 +103,6 @@ class ResampleIndividualizeTask(luigi.Task):
                 writer = csv.DictWriter(f_out, fieldnames=output_attrs, extrasaction='ignore')
                 writer.writeheader()
                 writer.writerows(expanded_rows)
-
-    def _transform_row(self, target):
-        """Transform a single row by assigning set category and effective year.
-
-        Args:
-            target (dict): Dictionary containing row data including year.
-
-        Returns:
-            dict: Transformed row with added setAssign and optional effectiveYear.
-        """
-        year = int(target['year'])
-    
-        if const.INCLUDE_YEAR_IN_MODEL:
-            target['effectiveYear'] = year - 2007
-    
-        target['setAssign'] = assign_year(year)
-        return target
 
     def _expand_rows(self, target):
         """Expand a single row into multiple samples using Gaussian sampling.
@@ -135,6 +136,7 @@ class BuildGaussianProcessModel(luigi.Task):
     """
     
     kernel = luigi.Parameter()
+    target = luigi.Parameter()
 
     def requires(self):
         """Specify dependency on normalized individual instance historic training data.
@@ -153,7 +155,8 @@ class BuildGaussianProcessModel(luigi.Task):
         Returns:
             LocalTarget: Target for pickle file containing trained model.
         """
-        path = const.get_file_location('gaussian_process_%s.json' % self.kernel)
+        filename = 'gaussian_process_%s_eval_%s.csv' % (self.kernel, self.target)
+        path = const.get_file_location()
         return luigi.LocalTarget(path)
 
     def run(self):
@@ -162,7 +165,7 @@ class BuildGaussianProcessModel(luigi.Task):
         Reads normalized data, filters for training set rows, and fits a 
         Gaussian Process model with the specified kernel.
         """
-        with self.input().open() as f_in:
+        with self.input()['train'].open() as f_in:
             rows = csv.DictReader(f_in)
             training_rows = filter(lambda x: x['setAssign'] == 'train', rows)
 
@@ -177,13 +180,57 @@ class BuildGaussianProcessModel(luigi.Task):
             inputs = [x['inputs'] for x in parsed_rows]
             outputs = [x['output'] for x in parsed_rows]
 
-            # Train model
-            model = sklearn.gaussian_process.GaussianProcessRegressor(
-                kernel=self._get_kernel(self.kernel)
-            )
-            model.fit(inputs, outputs)
+        # Train model
+        model = sklearn.gaussian_process.GaussianProcessRegressor(
+            kernel=self._get_kernel(self.kernel),
+            copy_X_train=False
+        )
+        model.fit(inputs, outputs)
 
-            # Evaluate 
+        def parse_test_row(target):
+            return {
+                'year': int(row['year']),
+                'setAssign': row['setAssign'],
+                'inputs': [float(row[attr]) for attr in INPUT_ATTRS],
+                'output': {
+                    'mean': float(row['yieldMean']),
+                    'std': float(row['yieldStd'])
+                }
+            }
+
+        def evaluate_test_row(target):
+            result = model.predict(target['inputs'], return_std=True)
+            return {
+                'year': target['year'],
+                'setAssign': target['setAssign'],
+                'predictedMean': result[0],
+                'actualMean': target['output']['mean'],
+                'predictedStd': result[1],
+                'actualStd': target['output']['std']
+            }
+
+        # Evaluate on test
+        with self.input()['summary'].open() as f_in:
+            all_rows = csv.DictReader(f_in)
+            all_transformed_rows = map(transform_row, all_rows)
+            test_rows = filter(
+                lambda x: x['setAssign'] == self.target,
+                all_transformed_rows
+            )
+            parsed_rows = map(parse_test_row, test_rows)
+            eval_rows = map(evaluate_test_row, parsed_rows)
+
+            with self.output().open('w') as f_out:
+                writer = csv.DictWriter(f_out, fieldnames=[
+                    'year',
+                    'setAssign',
+                    'predictedMean',
+                    'actualMean',
+                    'predictedStd',
+                    'actualStd'
+                ])
+                writer.writeheader()
+                writer.writerows(eval_rows)
 
     def _get_kernel(self, name):
         """
