@@ -17,7 +17,7 @@ import normalize_tasks
 import training_tasks
 
 INPUT_ATTRS = training_tasks.get_input_attrs('all attrs', True)
-SAMPLE_RATE = 20
+SAMPLE_RATE = 100000
 
 
 def assign_year(year):
@@ -116,7 +116,8 @@ class ResampleIndividualizeTask(luigi.Task):
         """
         mean = float(target['yieldMean'])
         std = float(target['yieldStd'])
-        num_samples = min([int(target[const.SAMPLE_WEIGHT_ATTR]), SAMPLE_RATE])
+        sample_weight = target[const.SAMPLE_WEIGHT_ATTR]
+        num_samples = round(random.rand_int(0, sample_weight) / SAMPLE_RATE)
         samples_indexed = range(0, num_samples)
 
         def make_sample(index):
