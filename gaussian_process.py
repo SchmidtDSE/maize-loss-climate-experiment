@@ -202,7 +202,7 @@ class BuildGaussianProcessModel(luigi.Task):
             }
 
         def evaluate_test_row(target):
-            result = model.predict(target['inputs'], return_std=True)
+            result = model.predict([target['inputs']], return_std=True)
             return {
                 'year': target['year'],
                 'setAssign': target['setAssign'],
