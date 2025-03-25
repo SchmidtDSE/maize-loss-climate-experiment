@@ -3,14 +3,14 @@
 License:
     BSD
 """
-import pickle
-import sklearn.gaussian_process
-
 import csv
 import itertools
+import math
+import pickle
 import random
 
 import luigi
+import sklearn.gaussian_process
 
 import const
 import normalize_tasks
@@ -117,7 +117,10 @@ class ResampleIndividualizeTask(luigi.Task):
         mean = float(target['yieldMean'])
         std = float(target['yieldStd'])
         sample_weight = int(target[const.SAMPLE_WEIGHT_ATTR])
-        num_samples = round(random.randint(0, sample_weight) / SAMPLE_RATE)
+        num_samples_to_try = sum(map(
+            1 if random.random() < 1 / SAMPLE_RATE else 0,
+            range(0, sample_weight)
+        ))
         samples_indexed = range(0, num_samples)
 
         def make_sample(index):
