@@ -117,10 +117,8 @@ class ResampleIndividualizeTask(luigi.Task):
         mean = float(target['yieldMean'])
         std = float(target['yieldStd'])
         sample_weight = int(target[const.SAMPLE_WEIGHT_ATTR])
-        num_samples = sum(map(
-            lambda x: 1 if random.random() < 1 / SAMPLE_RATE else 0,
-            range(0, sample_weight)
-        ))
+        random_array = numpy.random.random(sample_weight)
+        num_samples = numpy.sum(random_array < 1 / SAMPLE_RATE)
         samples_indexed = range(0, num_samples)
 
         def make_sample(index):
