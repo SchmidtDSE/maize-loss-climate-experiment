@@ -117,7 +117,7 @@ class ResampleIndividualizeTask(luigi.Task):
         mean = float(target['yieldMean'])
         std = float(target['yieldStd'])
         sample_weight = int(target[const.SAMPLE_WEIGHT_ATTR])
-        num_samples_to_try = sum(map(
+        num_samples = sum(map(
             lambda x: 1 if random.random() < 1 / SAMPLE_RATE else 0,
             range(0, sample_weight)
         ))
