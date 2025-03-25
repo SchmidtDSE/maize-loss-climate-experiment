@@ -77,7 +77,7 @@ class ResampleIndividualizeTask(luigi.Task):
             expanded_rows_nested = map(lambda x: self._expand_rows(x), transformed_rows)
             expanded_rows = itertools.chain(*expanded_rows_nested)
 
-            output_attrs = INPUT_ATTRS + ['setAssign', 'value']
+            output_attrs = INPUT_ATTRS + ['setAssign', 'value', 'geohash', 'year']
             with self.output().open('w') as f_out:
                 writer = csv.DictWriter(f_out, fieldnames=output_attrs)
                 writer.writeheader()
