@@ -17,7 +17,7 @@ import normalize_tasks
 import training_tasks
 
 INPUT_ATTRS = training_tasks.get_input_attrs('all attrs', True)
-SAMPLE_RATE = 200
+SAMPLE_RATE = 300
 
 
 def assign_year(year):
@@ -72,15 +72,15 @@ class ResampleIndividualizeTask(luigi.Task):
         """
         with self.input().open() as f_in:
             rows = csv.DictReader(f_in)
-            min_sample = SAMPLE_RATE * 5
+            min_sample = SAMPLE_RATE * 3
             allowed_rows = filter(lambda x: float(x[const.SAMPLE_WEIGHT_ATTR]) > min_sample, rows)
             transformed_rows = map(lambda x: self._transform_row(x), allowed_rows)
             expanded_rows_nested = map(lambda x: self._expand_rows(x), transformed_rows)
             expanded_rows = itertools.chain(*expanded_rows_nested)
 
-            output_attrs = INPUT_ATTRS + ['setAssign', 'value', 'geohash', 'year']
+            output_attrs = INPUT_ATTRS + ['setAssign', 'yieldValue', 'geohash', 'year']
             with self.output().open('w') as f_out:
-                writer = csv.DictWriter(f_out, fieldnames=output_attrs)
+                writer = csv.DictWriter(f_out, fieldnames=output_attrs, extrasaction='ignore')
                 writer.writeheader()
                 writer.writerows(expanded_rows)
 
