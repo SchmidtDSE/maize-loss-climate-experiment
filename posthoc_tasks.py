@@ -75,8 +75,7 @@ class ResampleIndividualizeTask(luigi.Task):
         """
         with self.input().open() as f_in:
             rows = csv.DictReader(f_in)
-            rows_allowed = filter(lambda x: int(x[const.SAMPLE_WEIGHT_ATTR]) >= SAMPLE_RATE, rows)
-            transformed_rows = map(lambda x: self._transform_row(x), rows_allowed)
+            transformed_rows = map(lambda x: self._transform_row(x), rows)
             allowed_rows = filter(lambda x: x['setAssign'] == self.target, transformed_rows)
             expanded_rows_nested = map(lambda x: self._expand_rows(x), allowed_rows)
             expanded_rows = itertools.chain(*expanded_rows_nested)
@@ -116,7 +115,8 @@ class ResampleIndividualizeTask(luigi.Task):
         """
         mean = float(target['yieldMean'])
         std = float(target['yieldStd'])
-        samples_indexed = range(0, SAMPLE_RATE)
+        num_samples = min([int(target[const.SAMPLE_WEIGHT_ATTR]), SAMPLE_RATE])
+        samples_indexed = range(0, num_samples)
 
         def make_sample(index):
             value = random.gauss(mu=mean, sigma=std)
@@ -142,7 +142,10 @@ class BuildGaussianProcessModel(luigi.Task):
         Returns:
             ResampleIndividualizeTask: Task that provides individual instance data.
         """
-        return normalize_tasks.ResampleIndividualizeTask(target='train')
+        return {
+            'train': normalize_tasks.ResampleIndividualizeTask(target='train'),
+            'summary': normalize_tasks.NormalizeHistoricTrainingFrameTask()
+        }
 
     def output(self):
         """Specify the output file location for the trained model.
