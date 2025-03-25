@@ -36,15 +36,36 @@ def assign_year(year):
 
 
 class ResampleIndividualizeTask(luigi.Task):
+    """Task that resamples and individualizes training data.
+    
+    This task takes normalized historic training data and creates individual samples
+    based on the mean, standard deviation and sample weights. It filters rows based on
+    sample weight threshold and expands them into multiple samples using Gaussian sampling.
+    """
 
     def requires(self):
+        """Specify the dependency on normalized historic training data.
+
+        Returns:
+            NormalizeHistoricTrainingFrameTask: Task that provides normalized training data.
+        """
         return normalize_tasks.NormalizeHistoricTrainingFrameTask()
 
     def output(self):
+        """Specify the output file location for individualized samples.
+
+        Returns:
+            LocalTarget: Target for CSV file containing individualized training samples.
+        """
         return luigi.LocalTarget(const.get_file_location('train_sample_individual.csv'))
 
     def run(self):
-
+        """Execute the resampling and individualization process.
+        
+        Reads normalized data, filters rows by sample weight, transforms them with
+        year assignments, and expands each row into multiple samples using Gaussian
+        sampling based on mean and standard deviation.
+        """
         with self.input().open() as f_in:
             rows = csv.DictReader(f_in)
             allowed_rows = filter(lambda x: int(x[const.SAMPLE_WEIGHT_ATTR]) > SAMPLE_RATE, rows)
@@ -59,6 +80,14 @@ class ResampleIndividualizeTask(luigi.Task):
                 writer.writerows(expanded_rows)
 
     def _transform_row(self, target):
+        """Transform a single row by assigning set category and effective year.
+
+        Args:
+            target (dict): Dictionary containing row data including year.
+
+        Returns:
+            dict: Transformed row with added setAssign and optional effectiveYear.
+        """
         year = int(target['year'])
     
         if const.INCLUDE_YEAR_IN_MODEL:
@@ -68,6 +97,15 @@ class ResampleIndividualizeTask(luigi.Task):
         return target
 
     def _expand_rows(self, target):
+        """Expand a single row into multiple samples using Gaussian sampling.
+
+        Args:
+            target (dict): Dictionary containing mean, std and sample weight information.
+
+        Returns:
+            map: Iterator of dictionaries containing individual samples with values
+                drawn from Gaussian distribution.
+        """
         num_samples = round(target[const.SAMPLE_WEIGHT_ATTR] / SAMPLE_RATE)
         mean = float(target['mean'])
         std = float(target['std'])
