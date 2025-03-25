@@ -3,6 +3,10 @@
 License:
     BSD
 """
+
+import pickle
+import sklearn.gaussian_process
+
 import csv
 import random
 
@@ -118,3 +122,57 @@ class ResampleIndividualizeTask(luigi.Task):
             return ret_dict
 
         return map(make_sample, samples_indexed)
+class BuildGaussianProcessModel(luigi.Task):
+    """Task that builds and trains a Gaussian Process model.
+    
+    This task takes the normalized training data, filters for training set rows,
+    and fits a Gaussian Process Regressor with the specified kernel.
+    """
+    
+    kernel = luigi.Parameter(description="Kernel to use for the Gaussian Process")
+
+    def requires(self):
+        """Specify dependency on normalized historic training data.
+
+        Returns:
+            NormalizeHistoricTrainingFrameTask: Task that provides normalized training data.
+        """
+        return normalize_tasks.NormalizeHistoricTrainingFrameTask()
+
+    def output(self):
+        """Specify the output file location for the trained model.
+
+        Returns:
+            LocalTarget: Target for pickle file containing trained model.
+        """
+        return luigi.LocalTarget(const.get_file_location('gaussian_process_%s.pickle' % self.kernel))
+
+    def run(self):
+        """Execute the model training process.
+        
+        Reads normalized data, filters for training set rows, and fits a 
+        Gaussian Process model with the specified kernel.
+        """
+        with self.input().open() as f_in:
+            rows = list(csv.DictReader(f_in))
+            
+            # Filter for training set
+            train_rows = [row for row in rows if assign_year(int(row['year'])) == 'train']
+            
+            # Get input attributes
+            input_attrs = get_input_attrs([], True)
+            
+            # Prepare X and y
+            X = [[float(row[attr]) for attr in input_attrs] for row in train_rows]
+            y = [[float(row['yieldMean']), float(row['yieldStd'])] for row in train_rows]
+            
+            # Train model
+            model = sklearn.gaussian_process.GaussianProcessRegressor(
+                kernel=eval(self.kernel),
+                random_state=12345
+            )
+            model.fit(X, y)
+            
+            # Save model
+            with self.output().open('wb') as f_out:
+                pickle.dump(model, f_out)
