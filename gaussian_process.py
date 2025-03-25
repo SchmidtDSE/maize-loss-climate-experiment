@@ -170,8 +170,8 @@ class BuildGaussianProcessModel(luigi.Task):
 
             def parse_row(target):
                 return {
-                    'inputs': [float(row[attr]) for attr in INPUT_ATTRS],
-                    'output': float(row['yieldValue'])
+                    'inputs': [float(target[attr]) for attr in INPUT_ATTRS],
+                    'output': float(target['yieldValue'])
                 }
 
             # Prepare inputs and outputs
@@ -186,7 +186,7 @@ class BuildGaussianProcessModel(luigi.Task):
         )
         model.fit(inputs, outputs)
 
-        def parse_test_row(target):
+        def parse_test_row(row):
             return {
                 'year': int(row['year']),
                 'setAssign': row['setAssign'],
