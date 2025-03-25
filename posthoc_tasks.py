@@ -17,7 +17,7 @@ import normalize_tasks
 import training_tasks
 
 INPUT_ATTRS = training_tasks.get_input_attrs('all attrs', True)
-MAX_SAMPLE = 50
+SAMPLE_RATE = 20
 
 
 def assign_year(year):
