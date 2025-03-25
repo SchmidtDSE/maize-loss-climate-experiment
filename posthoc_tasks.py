@@ -7,6 +7,7 @@ import pickle
 import sklearn.gaussian_process
 
 import csv
+import itertools
 import random
 
 import luigi
