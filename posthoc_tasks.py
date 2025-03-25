@@ -17,7 +17,7 @@ import normalize_tasks
 import training_tasks
 
 INPUT_ATTRS = training_tasks.get_input_attrs('all attrs', True)
-SAMPLE_RATE = 1000
+MAX_SAMPLE = 200
 
 
 def assign_year(year):
@@ -75,9 +75,8 @@ class ResampleIndividualizeTask(luigi.Task):
         """
         with self.input().open() as f_in:
             rows = csv.DictReader(f_in)
-            min_sample = SAMPLE_RATE * 3
-            allowed_rows = filter(lambda x: float(x[const.SAMPLE_WEIGHT_ATTR]) > min_sample, rows)
-            transformed_rows = map(lambda x: self._transform_row(x), allowed_rows)
+            rows_allowed = filter(lambda x: int(x[const.SAMPLE_WEIGHT_ATTR]) >= 5, rows)
+            transformed_rows = map(lambda x: self._transform_row(x), rows_allowed)
             allowed_rows = filter(lambda x: x['setAssign'] == self.target, transformed_rows)
             expanded_rows_nested = map(lambda x: self._expand_rows(x), allowed_rows)
             expanded_rows = itertools.chain(*expanded_rows_nested)
@@ -115,7 +114,7 @@ class ResampleIndividualizeTask(luigi.Task):
             map: Iterator of dictionaries containing individual samples with values
                 drawn from Gaussian distribution.
         """
-        num_samples = round(float(target[const.SAMPLE_WEIGHT_ATTR]) / SAMPLE_RATE)
+        num_samples = min([target[const.SAMPLE_WEIGHT_ATTR], MAX_SAMPLE])
         mean = float(target['yieldMean'])
         std = float(target['yieldStd'])
         samples_indexed = range(0, num_samples)
