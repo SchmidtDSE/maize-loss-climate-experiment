@@ -156,7 +156,7 @@ class BuildGaussianProcessModel(luigi.Task):
             LocalTarget: Target for pickle file containing trained model.
         """
         filename = 'gaussian_process_%s_eval_%s.csv' % (self.kernel, self.target)
-        path = const.get_file_location()
+        path = const.get_file_location(filename)
         return luigi.LocalTarget(path)
 
     def run(self):
@@ -206,7 +206,8 @@ class BuildGaussianProcessModel(luigi.Task):
                 'predictedMean': result[0],
                 'actualMean': target['output']['mean'],
                 'predictedStd': result[1],
-                'actualStd': target['output']['std']
+                'actualStd': target['output']['std'],
+                const.SAMPLE_WEIGHT_ATTR: float(target[SAMPLE_WEIGHT_ATTR])
             }
 
         # Evaluate on test
@@ -227,7 +228,8 @@ class BuildGaussianProcessModel(luigi.Task):
                     'predictedMean',
                     'actualMean',
                     'predictedStd',
-                    'actualStd'
+                    'actualStd',
+                    const.SAMPLE_WEIGHT_ATTR
                 ])
                 writer.writeheader()
                 writer.writerows(eval_rows)
