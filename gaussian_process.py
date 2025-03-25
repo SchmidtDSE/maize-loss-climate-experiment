@@ -210,7 +210,7 @@ class BuildGaussianProcessModel(luigi.Task):
                 'actualMean': target['output']['mean'],
                 'predictedStd': result[1],
                 'actualStd': target['output']['std'],
-                const.SAMPLE_WEIGHT_ATTR: float(target[SAMPLE_WEIGHT_ATTR])
+                const.SAMPLE_WEIGHT_ATTR: float(target[const.SAMPLE_WEIGHT_ATTR])
             }
 
         # Evaluate on test
