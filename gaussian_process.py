@@ -167,7 +167,6 @@ class BuildGaussianProcessModel(luigi.Task):
         """
         with self.input()['train'].open() as f_in:
             rows = csv.DictReader(f_in)
-            training_rows = filter(lambda x: x['setAssign'] == 'train', rows)
 
             def parse_row(target):
                 return {
@@ -176,7 +175,7 @@ class BuildGaussianProcessModel(luigi.Task):
                 }
 
             # Prepare inputs and outputs
-            parsed_rows = [parse_row(x) for x in training_rows]
+            parsed_rows = [parse_row(x) for x in rows]
             inputs = [x['inputs'] for x in parsed_rows]
             outputs = [x['output'] for x in parsed_rows]
 
