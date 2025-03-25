@@ -63,7 +63,7 @@ class ResampleIndividualizeTask(luigi.Task):
         Returns:
             LocalTarget: Target for CSV file containing individualized training samples.
         """
-        path = const.get_file_location('train_sample_individual_%s.csv' % self.target)
+        path = const.get_file_location('sample_individual_%s.csv' % self.target)
         return luigi.LocalTarget(path)
 
     def run(self):
