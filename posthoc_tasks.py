@@ -114,7 +114,7 @@ class ResampleIndividualizeTask(luigi.Task):
             map: Iterator of dictionaries containing individual samples with values
                 drawn from Gaussian distribution.
         """
-        num_samples = min([target[const.SAMPLE_WEIGHT_ATTR], MAX_SAMPLE])
+        num_samples = min([int(target[const.SAMPLE_WEIGHT_ATTR]), MAX_SAMPLE])
         mean = float(target['yieldMean'])
         std = float(target['yieldStd'])
         samples_indexed = range(0, num_samples)
