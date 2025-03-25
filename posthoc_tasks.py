@@ -118,6 +118,3 @@ class ResampleIndividualizeTask(luigi.Task):
             return ret_dict
 
         return map(make_sample, samples_indexed)
-
-
-class 
