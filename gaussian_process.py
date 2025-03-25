@@ -198,7 +198,8 @@ class BuildGaussianProcessModel(luigi.Task):
                 'output': {
                     'mean': float(row['yieldMean']),
                     'std': float(row['yieldStd'])
-                }
+                },
+                const.SAMPLE_WEIGHT_ATTR: float(row[const.SAMPLE_WEIGHT_ATTR])
             }
 
         def evaluate_test_row(target):
