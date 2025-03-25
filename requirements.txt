@@ -14,6 +14,7 @@ numpy==1.26.4
 pandas==2.2.2
 pathos==0.3.2
 requests==2.32.0
+scikit-learn==1.6.1
 scipy==1.12.0
 shapely==2.0.3
 tensorflow==2.16.1

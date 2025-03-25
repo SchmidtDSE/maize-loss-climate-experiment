@@ -3,7 +3,6 @@
 License:
     BSD
 """
-
 import pickle
 import sklearn.gaussian_process
 
@@ -17,7 +16,7 @@ import normalize_tasks
 import training_tasks
 
 INPUT_ATTRS = training_tasks.get_input_attrs([], True)
-SAMPLE_RATE = 1000
+SAMPLE_RATE = 200
 
 
 def assign_year(year):
@@ -72,7 +71,8 @@ class ResampleIndividualizeTask(luigi.Task):
         """
         with self.input().open() as f_in:
             rows = csv.DictReader(f_in)
-            allowed_rows = filter(lambda x: int(x[const.SAMPLE_WEIGHT_ATTR]) > SAMPLE_RATE, rows)
+            min_sample = SAMPLE_RATE * 5
+            allowed_rows = filter(lambda x: float(x[const.SAMPLE_WEIGHT_ATTR]) > min_sample, rows)
             transformed_rows = map(lambda x: self._transform_row(x), allowed_rows)
             expanded_rows_nested = map(lambda x: self._expand_rows(x), transformed_rows)
             expanded_rows = itertools.chain(*expanded_rows_nested)
@@ -110,7 +110,7 @@ class ResampleIndividualizeTask(luigi.Task):
             map: Iterator of dictionaries containing individual samples with values
                 drawn from Gaussian distribution.
         """
-        num_samples = round(target[const.SAMPLE_WEIGHT_ATTR] / SAMPLE_RATE)
+        num_samples = round(float(target[const.SAMPLE_WEIGHT_ATTR]) / SAMPLE_RATE)
         mean = float(target['mean'])
         std = float(target['std'])
         samples_indexed = range(0, num_samples)
@@ -122,6 +122,8 @@ class ResampleIndividualizeTask(luigi.Task):
             return ret_dict
 
         return map(make_sample, samples_indexed)
+
+
 class BuildGaussianProcessModel(luigi.Task):
     """Task that builds and trains a Gaussian Process model.
     
@@ -129,15 +131,15 @@ class BuildGaussianProcessModel(luigi.Task):
     and fits a Gaussian Process Regressor with the specified kernel.
     """
     
-    kernel = luigi.Parameter(description="Kernel to use for the Gaussian Process")
+    kernel = luigi.Parameter()
 
     def requires(self):
-        """Specify dependency on normalized historic training data.
+        """Specify dependency on normalized individual instance historic training data.
 
         Returns:
-            NormalizeHistoricTrainingFrameTask: Task that provides normalized training data.
+            ResampleIndividualizeTask: Task that provides individual instance data.
         """
-        return normalize_tasks.NormalizeHistoricTrainingFrameTask()
+        return normalize_tasks.ResampleIndividualizeTask()
 
     def output(self):
         """Specify the output file location for the trained model.
@@ -145,7 +147,8 @@ class BuildGaussianProcessModel(luigi.Task):
         Returns:
             LocalTarget: Target for pickle file containing trained model.
         """
-        return luigi.LocalTarget(const.get_file_location('gaussian_process_%s.pickle' % self.kernel))
+        path = const.get_file_location('gaussian_process_%s.pickle' % self.kernel)
+        return luigi.LocalTarget(path)
 
     def run(self):
         """Execute the model training process.
@@ -154,25 +157,44 @@ class BuildGaussianProcessModel(luigi.Task):
         Gaussian Process model with the specified kernel.
         """
         with self.input().open() as f_in:
-            rows = list(csv.DictReader(f_in))
-            
-            # Filter for training set
-            train_rows = [row for row in rows if assign_year(int(row['year'])) == 'train']
-            
-            # Get input attributes
-            input_attrs = get_input_attrs([], True)
-            
+            rows = csv.DictReader(f_in)
+            training_rows = filter(lambda x: x['setAssign'] == 'train', rows)
+
+            def parse_row(target):
+                return {
+                    'inputs': [float(row[attr]) for attr in INPUT_ATTRS],
+                    'output': float(row['value'])
+                }
+
             # Prepare X and y
-            X = [[float(row[attr]) for attr in input_attrs] for row in train_rows]
-            y = [[float(row['yieldMean']), float(row['yieldStd'])] for row in train_rows]
-            
+            parsed_rows = [parse_row(x) for x in training_rows]
+            inputs = [x['inputs'] for x in parsed_rows]
+            outputs = [x['output'] for x in parsed_rows]
+
             # Train model
             model = sklearn.gaussian_process.GaussianProcessRegressor(
-                kernel=eval(self.kernel),
-                random_state=12345
+                kernel=self._get_kernel(self.kernel)
             )
-            model.fit(X, y)
-            
+            model.fit(inputs, outputs)
+
             # Save model
             with self.output().open('wb') as f_out:
                 pickle.dump(model, f_out)
+
+    def _get_kernel(self, name):
+        """
+        Retrieve the kernel configuration based on the provided name.
+
+        Args:
+            name (str): The name of the kernel configuration to retrieve.
+
+        Returns:
+            kernel: The kernel setting if known, otherwise raises a NotImplementedError.
+
+        Raises:
+            NotImplementedError: If the provided kernel name is unknown.
+        """
+        if name == 'default':
+            return None
+        else:
+            raise NotImplementedError('Unknown kernel setting: %s' % name)
