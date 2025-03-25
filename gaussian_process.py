@@ -145,7 +145,7 @@ class BuildGaussianProcessModel(luigi.Task):
             ResampleIndividualizeTask: Task that provides individual instance data.
         """
         return {
-            'train': normalize_tasks.ResampleIndividualizeTask(target='train'),
+            'train': ResampleIndividualizeTask(target='train'),
             'summary': normalize_tasks.NormalizeHistoricTrainingFrameTask()
         }
 
