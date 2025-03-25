@@ -63,7 +63,8 @@ class ResampleIndividualizeTask(luigi.Task):
         Returns:
             LocalTarget: Target for CSV file containing individualized training samples.
         """
-        return luigi.LocalTarget(const.get_file_location('train_sample_individual.csv'))
+        path = const.get_file_location('train_sample_individual_%s.csv' % self.target)
+        return luigi.LocalTarget(path)
 
     def run(self):
         """Execute the resampling and individualization process.
@@ -77,7 +78,7 @@ class ResampleIndividualizeTask(luigi.Task):
             min_sample = SAMPLE_RATE * 3
             allowed_rows = filter(lambda x: float(x[const.SAMPLE_WEIGHT_ATTR]) > min_sample, rows)
             transformed_rows = map(lambda x: self._transform_row(x), allowed_rows)
-            allowed_rows = filter(lambda x: x['setAssign'] == self.target)
+            allowed_rows = filter(lambda x: x['setAssign'] == self.target, transformed_rows)
             expanded_rows_nested = map(lambda x: self._expand_rows(x), allowed_rows)
             expanded_rows = itertools.chain(*expanded_rows_nested)
 
