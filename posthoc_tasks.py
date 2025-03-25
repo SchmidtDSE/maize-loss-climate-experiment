@@ -112,14 +112,14 @@ class ResampleIndividualizeTask(luigi.Task):
                 drawn from Gaussian distribution.
         """
         num_samples = round(float(target[const.SAMPLE_WEIGHT_ATTR]) / SAMPLE_RATE)
-        mean = float(target['mean'])
-        std = float(target['std'])
+        mean = float(target['yieldMean'])
+        std = float(target['yieldStd'])
         samples_indexed = range(0, num_samples)
 
         def make_sample(index):
             value = random.gauss(mu=mean, sigma=std)
             ret_dict = dict(map(lambda x: (x, target[x]), INPUT_ATTRS))
-            ret_dict['value'] = value
+            ret_dict['yieldValue'] = value
             return ret_dict
 
         return map(make_sample, samples_indexed)
@@ -164,7 +164,7 @@ class BuildGaussianProcessModel(luigi.Task):
             def parse_row(target):
                 return {
                     'inputs': [float(row[attr]) for attr in INPUT_ATTRS],
-                    'output': float(row['value'])
+                    'output': float(row['yieldValue'])
                 }
 
             # Prepare X and y
