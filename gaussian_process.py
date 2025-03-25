@@ -10,6 +10,7 @@ import pickle
 import random
 
 import luigi
+import numpy
 import sklearn.gaussian_process
 
 import const
@@ -118,7 +119,8 @@ class ResampleIndividualizeTask(luigi.Task):
         std = float(target['yieldStd'])
         sample_weight = int(target[const.SAMPLE_WEIGHT_ATTR])
         random_array = numpy.random.random(sample_weight)
-        num_samples = numpy.sum(random_array < 1 / SAMPLE_RATE)
+        threshold = 1 / SAMPLE_RATE
+        num_samples = numpy.sum(random_array < threshold)
         samples_indexed = range(0, num_samples)
 
         def make_sample(index):
