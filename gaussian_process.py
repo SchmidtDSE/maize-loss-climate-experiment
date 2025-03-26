@@ -251,10 +251,10 @@ class BuildGaussianProcessModelTask(luigi.Task):
         Raises:
             NotImplementedError: If the provided kernel name is unknown.
         """
-        if name == 'default':
-            return None
-        else:
-            raise NotImplementedError('Unknown kernel setting: %s' % name)
+        strategies {
+            'default': None
+        }
+        return strategies[name]
 
 
 class SummarizeGaussianProcessModelTask(luigi.Task):
@@ -310,3 +310,65 @@ class SummarizeGaussianProcessModelTask(luigi.Task):
             
             with self.output().open('w') as f_out:
                 json.dump(summary, f_out, indent=2)
+
+
+class SummarizeAllGaussianProcessModelTask(luigi.Task):
+    """Task that summarizes Gaussian Process model performance."""
+
+    def requires(self):
+        """Varying values for sweep.
+
+        Returns:
+            Dict: Multiple values to try in sweep.
+        """
+        return {
+            'default': SummarizeGaussianProcessModelTask(
+                kernel='default',
+                target='valid'
+            ),
+            'matern_rough': SummarizeGaussianProcessModelTask(
+                kernel='matern_rough',
+                target='valid'
+            ),
+            'matern_smooth': SummarizeGaussianProcessModelTask(
+                kernel='matern_smooth',
+                target='valid'
+            ),
+            'matern_rough_white': SummarizeGaussianProcessModelTask(
+                kernel='matern_rough_white',
+                target='valid'
+            ),
+            'matern_rough_white': SummarizeGaussianProcessModelTask(
+                kernel='matern_rough_white',
+                target='valid'
+            )
+        }
+
+    def output(self):
+        """Unified JSON document describing the sweep.
+
+        Returns:
+            LocalTarget: Target for JSON file containing model summary metrics.
+        """
+        filename = 'gaussian_process_all_summary_valid.json'
+        path = const.get_file_location(filename)
+        return luigi.LocalTarget(path)
+
+    def run(self):
+        """Calculate and write summary metrics."""
+
+        ret_dict = {}
+        
+        def get_json(name):
+            with self.input()[name].open() as f:
+                component = json.load(f)
+                ret_dict[name] = component
+
+        get_json('default')
+        get_json('matern_rough')
+        get_json('matern_smooth')
+        get_json('matern_rough_white')
+        get_json('matern_rough_white')
+
+        with self.output().open('w') as f_out:
+            json.dump(ret_dict, f_out, indent=2)
