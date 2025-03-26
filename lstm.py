@@ -110,7 +110,7 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
     layer_sizes = [128, 32, 8][-num_layers:]
 
     for i, layer_size in enumerate(layer_sizes):
-        is_final_layer = i == len(layers) - 1
+        is_final_layer = i == len(layer_sizes) - 1
         layer = build_layer(layer_size, not is_final_layer)
         model.add(layer)
         if dropout > 0:
@@ -198,7 +198,7 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
 
         return {
             'inputs': numpy.array(inputs, dtype='float32'),
-            'outputs: numpy.array(outputs, dtype='float32')
+            'outputs': numpy.array(outputs, dtype='float32')
         }
 
     frame = pandas.read_csv(temp_file_path)
