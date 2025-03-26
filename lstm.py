@@ -96,30 +96,25 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
 
     model = keras.Sequential()
     model.add(keras.layers.InputLayer(input_shape=(2, num_inputs)))
-    model.add(keras.layers.Normalization(axis=-1))
+    model.add(keras.layers.Normalization())
 
     if l2_reg == 0:
-        build_layer = lambda x: keras.layers.LSTM(x, return_sequences=True)
+        build_layer = lambda x, y: keras.layers.LSTM(x, return_sequences=y)
     else:
-        build_layer = lambda x: keras.layers.LSTM(
+        build_layer = lambda x, y: keras.layers.LSTM(
             x,
-            return_sequences=True,
+            return_sequences=y,
             kernel_regularizer=keras.regularizers.L2(l2_reg)
         )
 
-    layers = [
-        build_layer(128),
-        build_layer(32),
-        build_layer(8)
-    ][-num_layers:]
+    layer_sizes = [128, 32, 8][-num_layers:]
 
-    for i, layer in enumerate(layers):
+    for i, layer_size in enumerate(layer_sizes):
+        is_final_layer = i == len(layers) - 1
+        layer = build_layer(layer_size, not is_final_layer)
         model.add(layer)
         if dropout > 0:
-            model.add(keras.layers.Dropout(dropout))
-        if i == len(layers) - 1:
-            # Last layer should not return sequences
-            model.layers[-2].return_sequences = False
+            model.add(keras.layers.Dropout(dropout)) 
 
     model.add(keras.layers.Dense(2, activation='linear'))
 
@@ -201,7 +196,10 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
                 inputs.append(sequence)
                 outputs.append(group_sorted.iloc[i+1][output_attrs].values.astype('float32'))
 
-        return numpy.array(inputs, dtype='float32'), numpy.array(outputs, dtype='float32')
+        return {
+            'inputs': numpy.array(inputs, dtype='float32'),
+            'outputs: numpy.array(outputs, dtype='float32')
+        }
 
     frame = pandas.read_csv(temp_file_path)
     frame['setAssign'] = frame['year'].apply(
@@ -214,12 +212,17 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
         'test': process_data(frame[frame['setAssign'] == 'test'])
     }
 
-    model = build_model(num_layers, len(get_input_attrs(additional_block, allow_count)), l2_reg, dropout)
+    model = build_model(
+        num_layers,
+        len(get_input_attrs(additional_block, allow_count)),
+        l2_reg,
+        dropout
+    )
 
     # Train model
     model.fit(
-        data_splits['train'][0],
-        data_splits['train'][1],
+        data_splits['train']['inputs'],
+        data_splits['train']['outputs'],
         epochs=epochs,
         verbose=None
     )
@@ -235,9 +238,9 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
         }
 
     results = {
-        'train': evaluate_split(data_splits['train'][0], data_splits['train'][1]),
-        'valid': evaluate_split(data_splits['valid'][0], data_splits['valid'][1]),
-        'test': evaluate_split(data_splits['test'][0], data_splits['test'][1])
+        'train': evaluate_split(data_splits['train']['inputs'], data_splits['train']['outputs']),
+        'valid': evaluate_split(data_splits['valid']['inputs'], data_splits['valid']['outputs']),
+        'test': evaluate_split(data_splits['test']['inputs'], data_splits['test']['outputs'])
     }
 
     return {
