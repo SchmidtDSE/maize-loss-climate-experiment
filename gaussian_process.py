@@ -289,8 +289,10 @@ class SummarizeGaussianProcessModelTask(luigi.Task):
             rows = list(csv.DictReader(f_in))
             
             # Calculate MAE for mean and std
-            mean_errors = [abs(float(row['predictedMean']) - float(row['actualMean'])) for row in rows]
-            std_errors = [abs(float(row['predictedStd']) - float(row['actualStd'])) for row in rows]
+            def get_abs_diff(row, name):
+                return abs(float(row['predicted%s' % name]) - float(row['actual%s' % name])
+            mean_errors = [get_abs_diff(row, 'Mean') for row in rows]
+            std_errors = [get_abs_diff(row, 'Std') for row in rows]
             
             mean_mae = sum(mean_errors) / len(mean_errors)
             std_mae = sum(std_errors) / len(std_errors)
