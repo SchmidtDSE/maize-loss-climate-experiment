@@ -17,7 +17,7 @@ import normalize_tasks
 import training_tasks
 
 INPUT_ATTRS = training_tasks.get_input_attrs('all attrs', True)
-SAMPLE_RATE = 700000
+SAMPLE_RATE = 500000
 SWEEP_KERNELS = [
     'default',
     'matern_rough',
