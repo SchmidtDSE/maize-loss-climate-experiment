@@ -17,7 +17,16 @@ import normalize_tasks
 import training_tasks
 
 INPUT_ATTRS = training_tasks.get_input_attrs('all attrs', True)
-SAMPLE_RATE = 1000000
+SAMPLE_RATE = 700000
+SWEEP_KERNELS = [
+    'default',
+    'matern_rough',
+    'matern_mid',
+    'matern_smooth',
+    'matern_rough_white',
+    'matern_mid_white',
+    'matern_smooth_white',
+]
 
 
 def assign_year(year):
@@ -262,14 +271,19 @@ class BuildGaussianProcessModelTask(luigi.Task):
         """
         strategies = {
             'default': None,
-            'matern_rough': sklearn.gaussian_process.kernels.Matern(nu=1.5),
-            'matern_smooth': sklearn.gaussian_process.kernels.Matern(nu=2.5),
+            'matern_rough': sklearn.gaussian_process.kernels.Matern(nu=1),
+            'matern_mid': sklearn.gaussian_process.kernels.Matern(nu=1.5),
+            'matern_smooth': sklearn.gaussian_process.kernels.Matern(nu=2),
             'matern_rough_white': (
-                sklearn.gaussian_process.kernels.Matern(nu=1.5) +
+                sklearn.gaussian_process.kernels.Matern(nu=1) +
+                sklearn.gaussian_process.kernels.WhiteKernel()
+            ),
+            'matern_mid_white': (
+                sklearn.gaussian_process.kernels.Matern(nu=1) +
                 sklearn.gaussian_process.kernels.WhiteKernel()
             ),
             'matern_smooth_white': (
-                sklearn.gaussian_process.kernels.Matern(nu=2.5) +
+                sklearn.gaussian_process.kernels.Matern(nu=2) +
                 sklearn.gaussian_process.kernels.WhiteKernel()
             )
         }
@@ -340,28 +354,13 @@ class SummarizeAllGaussianProcessModelTask(luigi.Task):
         Returns:
             Dict: Multiple values to try in sweep.
         """
-        return {
-            'default': SummarizeGaussianProcessModelTask(
-                kernel='default',
+        return dict(map(
+            lambda x: SummarizeGaussianProcessModelTask(
+                kernel=x,
                 target='valid'
             ),
-            'matern_rough': SummarizeGaussianProcessModelTask(
-                kernel='matern_rough',
-                target='valid'
-            ),
-            'matern_smooth': SummarizeGaussianProcessModelTask(
-                kernel='matern_smooth',
-                target='valid'
-            ),
-            'matern_rough_white': SummarizeGaussianProcessModelTask(
-                kernel='matern_rough_white',
-                target='valid'
-            ),
-            'matern_smooth_white': SummarizeGaussianProcessModelTask(
-                kernel='matern_smooth_white',
-                target='valid'
-            )
-        }
+            SWEEP_KERNELS
+        ))
 
     def output(self):
         """Unified JSON document describing the sweep.
@@ -383,11 +382,8 @@ class SummarizeAllGaussianProcessModelTask(luigi.Task):
                 component = json.load(f)
                 ret_dict[name] = component
 
-        get_json('default')
-        get_json('matern_rough')
-        get_json('matern_smooth')
-        get_json('matern_rough_white')
-        get_json('matern_smooth_white')
+        for option in SWEEP_KERNELS:
+            get_json(option)
 
         with self.output().open('w') as f_out:
             json.dump(ret_dict, f_out, indent=2)
