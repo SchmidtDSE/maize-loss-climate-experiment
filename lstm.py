@@ -202,7 +202,7 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
                 inputs.append(sequence)
                 outputs.append(group_sorted.iloc[i+1][output_attrs].values.astype('float32'))
         
-        return numpy.array(inputs, dtype='float32'), numpy.array(y, dtype='float32')
+        return numpy.array(inputs, dtype='float32'), numpy.array(outputs, dtype='float32')
 
     frame = pandas.read_csv(temp_file_path)
     frame['setAssign'] = frame['year'].apply(
