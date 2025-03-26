@@ -130,7 +130,7 @@ class ResampleIndividualizeTask(luigi.Task):
         return map(make_sample, samples_indexed)
 
 
-class BuildGaussianProcessModel(luigi.Task):
+class BuildGaussianProcessModelTask(luigi.Task):
     """Task that builds and trains a Gaussian Process model.
     
     This task takes the normalized training data, filters for training set rows,
@@ -253,3 +253,5 @@ class BuildGaussianProcessModel(luigi.Task):
             return None
         else:
             raise NotImplementedError('Unknown kernel setting: %s' % name)
+
+
