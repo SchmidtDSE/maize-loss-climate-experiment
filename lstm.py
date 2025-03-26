@@ -133,6 +133,10 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
         return model
 
 
+OUTPUT_ATTRS = training_tasks.OUTPUT_ATTRS
+BLOCKED_ATTRS = training_tasks.BLOCKED_ATTRS
+
+
 def get_input_attrs(additional_block, allow_count):
     """Get the list of input attributes allowed to feed into the neural network.
 
