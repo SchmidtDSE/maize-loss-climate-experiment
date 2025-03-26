@@ -70,7 +70,7 @@ def transform_row(target):
 
 class ResampleIndividualizeTask(luigi.Task):
     """Task that resamples and individualizes training data.
-    
+
     This task takes normalized historic training data and creates individual samples
     based on the mean, standard deviation and sample weights. It filters rows based on
     sample weight threshold and expands them into multiple samples using Gaussian sampling.
@@ -97,7 +97,7 @@ class ResampleIndividualizeTask(luigi.Task):
 
     def run(self):
         """Execute the resampling and individualization process.
-        
+
         Reads normalized data, filters rows by sample weight, transforms them with
         year assignments, and expands each row into multiple samples using Gaussian
         sampling based on mean and standard deviation.
@@ -144,11 +144,11 @@ class ResampleIndividualizeTask(luigi.Task):
 
 class BuildGaussianProcessModelTask(luigi.Task):
     """Task that builds and trains a Gaussian Process model.
-    
+
     This task takes the normalized training data, filters for training set rows,
     and fits a Gaussian Process Regressor with the specified kernel.
     """
-    
+
     kernel = luigi.Parameter()
     target = luigi.Parameter()
 
@@ -175,8 +175,8 @@ class BuildGaussianProcessModelTask(luigi.Task):
 
     def run(self):
         """Execute the model training process.
-        
-        Reads normalized data, filters for training set rows, and fits a 
+
+        Reads normalized data, filters for training set rows, and fits a
         Gaussian Process model with the specified kernel.
         """
         with self.input()['train'].open() as f_in:
@@ -266,33 +266,27 @@ class BuildGaussianProcessModelTask(luigi.Task):
             name (str): The name of the kernel configuration to retrieve.
 
         Returns:
-            kernel: The kernel setting if known, otherwise raises a NotImplementedError.
+            kernel: The kernel setting if known, otherwise raises a KeyError.
 
         Raises:
-            NotImplementedError: If the provided kernel name is unknown.
+            KeyError: If the provided kernel name is unknown.
         """
+        matern_rough = sklearn.gaussian_process.kernels.Matern(nu=1)
+        matern_mid = sklearn.gaussian_process.kernels.Matern(nu=1.5)
+        matern_smooth = sklearn.gaussian_process.kernels.Matern(nu=2)
+        matern_very_smooth = sklearn.gaussian_process.kernels.Matern(nu=2.5)
+        white_kernel = sklearn.gaussian_process.kernels.WhiteKernel()
+        
         strategies = {
             'default': None,
-            'matern_rough': sklearn.gaussian_process.kernels.Matern(nu=1),
-            'matern_mid': sklearn.gaussian_process.kernels.Matern(nu=1.5),
-            'matern_smooth': sklearn.gaussian_process.kernels.Matern(nu=2),
-            'matern_very_smooth': sklearn.gaussian_process.kernels.Matern(nu=2.5),
-            'matern_rough_white': (
-                sklearn.gaussian_process.kernels.Matern(nu=1) +
-                sklearn.gaussian_process.kernels.WhiteKernel()
-            ),
-            'matern_mid_white': (
-                sklearn.gaussian_process.kernels.Matern(nu=1) +
-                sklearn.gaussian_process.kernels.WhiteKernel()
-            ),
-            'matern_smooth_white': (
-                sklearn.gaussian_process.kernels.Matern(nu=2) +
-                sklearn.gaussian_process.kernels.WhiteKernel()
-            ),
-            'matern_very_smooth_white': (
-                sklearn.gaussian_process.kernels.Matern(nu=2.5) +
-                sklearn.gaussian_process.kernels.WhiteKernel()
-            )
+            'matern_rough': matern_rough,
+            'matern_mid': matern_mid,
+            'matern_smooth': matern_smooth,
+            'matern_very_smooth': matern_very_smooth
+            'matern_rough_white': matern_rough + white_kernel,
+            'matern_mid_white': matern_mid + white_kernel,
+            'matern_smooth_white': matern_smooth + white_kernel,
+            'matern_very_smooth_white': matern_very_smooth + white_kernel
         }
         return strategies[name]
 
@@ -328,7 +322,7 @@ class SummarizeGaussianProcessModelTask(luigi.Task):
         """Calculate and write summary metrics."""
         with self.input().open('r') as f_in:
             rows = list(csv.DictReader(f_in))
-            
+
             # Calculate MAE for mean and std
             def get_abs_diff(row, name):
                 predicted = float(row['predicted%s' % name])
@@ -337,17 +331,17 @@ class SummarizeGaussianProcessModelTask(luigi.Task):
 
             mean_errors = [get_abs_diff(row, 'Mean') for row in rows]
             std_errors = [get_abs_diff(row, 'Std') for row in rows]
-            
+
             mean_mae = sum(mean_errors) / len(mean_errors)
             std_mae = sum(std_errors) / len(std_errors)
-            
+
             summary = {
                 'mean_mae': mean_mae,
                 'std_mae': std_mae,
                 'kernel': self.kernel,
                 'target': self.target
             }
-            
+
             with self.output().open('w') as f_out:
                 json.dump(summary, f_out, indent=2)
 
