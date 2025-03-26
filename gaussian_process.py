@@ -17,7 +17,7 @@ import normalize_tasks
 import training_tasks
 
 INPUT_ATTRS = training_tasks.get_input_attrs('all attrs', True)
-SAMPLE_RATE = 300000
+SAMPLE_RATE = 100000
 
 
 def assign_year(year):
@@ -332,10 +332,6 @@ class SummarizeAllGaussianProcessModelTask(luigi.Task):
             Dict: Multiple values to try in sweep.
         """
         return {
-            'default': SummarizeGaussianProcessModelTask(
-                kernel='default',
-                target='valid'
-            ),
             'matern_rough': SummarizeGaussianProcessModelTask(
                 kernel='matern_rough',
                 target='valid'
@@ -374,7 +370,6 @@ class SummarizeAllGaussianProcessModelTask(luigi.Task):
                 component = json.load(f)
                 ret_dict[name] = component
 
-        get_json('default')
         get_json('matern_rough')
         get_json('matern_smooth')
         get_json('matern_rough_white')
