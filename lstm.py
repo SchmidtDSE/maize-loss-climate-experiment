@@ -93,8 +93,8 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
     import keras.optimizers
 
     model = keras.Sequential()
-    model.add(keras.Input(shape=(2, num_inputs)))  # Looking back 1 year (2 timepoints)
-    model.add(keras.layers.Normalization())
+    model.add(keras.layers.InputLayer(input_shape=(2, num_inputs)))  # Looking back 1 year (2 timepoints)
+    model.add(keras.layers.Normalization(axis=-1))
 
     if l2_reg == 0:
         build_layer = lambda x: keras.layers.LSTM(x, return_sequences=True)
