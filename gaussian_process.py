@@ -202,13 +202,13 @@ class BuildGaussianProcessModelTask(luigi.Task):
                 const.SAMPLE_WEIGHT_ATTR: float(row[const.SAMPLE_WEIGHT_ATTR])
             }
 
-        def evaluate_test_row(target, result):
+        def evaluate_test_row(target, mean_result, std_result):
             return {
                 'year': target['year'],
                 'setAssign': target['setAssign'],
-                'predictedMean': result[0][0],
+                'predictedMean': mean_result,
                 'actualMean': target['output']['mean'],
-                'predictedStd': result[1][0],
+                'predictedStd': std_result,
                 'actualStd': target['output']['std'],
                 const.SAMPLE_WEIGHT_ATTR: float(target[const.SAMPLE_WEIGHT_ATTR])
             }
@@ -223,10 +223,14 @@ class BuildGaussianProcessModelTask(luigi.Task):
             )
             parsed_rows = list(map(parse_test_row, test_rows))
             inputs = [x['inputs'] for x in parsed_rows]
-            results = model.predict(inputs, return_std=True).tolist()
-            parsed_rows_with_results = zip(parsed_rows, results)
+            results = model.predict(inputs, return_std=True)
+            parsed_rows_with_results = zip(
+                parsed_rows,
+                results[0].tolist(),
+                results[1].tolist()
+            )
             eval_rows = map(
-                lambda x: evaluate_test_row(x[0], x[1]),
+                lambda x: evaluate_test_row(x[0], x[1], x[2]),
                 parsed_rows_with_results
             )
 
