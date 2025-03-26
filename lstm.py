@@ -19,7 +19,7 @@ import const
 import normalize_tasks
 import training_tasks
 
-DEFAULT_NUM_LAYERS = [1, 2, 3, 4, 5]
+DEFAULT_NUM_LAYERS = [1, 2, 3]
 
 
 class SortInputDataForLstmTask(luigi.Task):
@@ -109,10 +109,8 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
 
     layers = [
         build_layer(128),
-        build_layer(64),
         build_layer(32),
-        build_layer(8),
-        build_layer(4)
+        build_layer(8)
     ][-num_layers:]
 
     for i, layer in enumerate(layers):
