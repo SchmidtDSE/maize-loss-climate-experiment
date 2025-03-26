@@ -93,7 +93,7 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
     import keras.optimizers
 
     model = keras.Sequential()
-    model.add(keras.layers.InputLayer(input_shape=(2, num_inputs)))  # Looking back 1 year (2 timepoints)
+    model.add(keras.layers.InputLayer(input_shape=(2, num_inputs)))
     model.add(keras.layers.Normalization(axis=-1))
 
     if l2_reg == 0:
@@ -198,10 +198,9 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
         for _, group in groups:
             group_sorted = group.sort_values('year')
             for i in range(len(group_sorted) - 1):
-                if group_sorted.iloc[i+1]['year'] - group_sorted.iloc[i]['year'] == 1:
-                    sequence = group_sorted.iloc[i:i+2][input_attrs].values.astype('float32')
-                    inputs.append(sequence) #Keep the original shape for LSTM input
-                    outputs.append(group_sorted.iloc[i+1][output_attrs].values.astype('float32'))
+                sequence = group_sorted.iloc[i:i+2][input_attrs].values.astype('float32')
+                inputs.append(sequence)
+                outputs.append(group_sorted.iloc[i+1][output_attrs].values.astype('float32'))
 
         return numpy.array(inputs, dtype='float32'), numpy.array(outputs, dtype='float32')
 
