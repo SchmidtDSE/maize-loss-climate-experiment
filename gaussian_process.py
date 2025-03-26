@@ -290,7 +290,10 @@ class SummarizeGaussianProcessModelTask(luigi.Task):
             
             # Calculate MAE for mean and std
             def get_abs_diff(row, name):
-                return abs(float(row['predicted%s' % name]) - float(row['actual%s' % name])
+                predicted = float(row['predicted%s' % name])
+                actual = float(row['actual%s' % name])
+                return abs(predicted - actual)
+
             mean_errors = [get_abs_diff(row, 'Mean') for row in rows]
             std_errors = [get_abs_diff(row, 'Std') for row in rows]
             
