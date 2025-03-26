@@ -344,8 +344,8 @@ class SummarizeAllGaussianProcessModelTask(luigi.Task):
                 kernel='matern_rough_white',
                 target='valid'
             ),
-            'matern_rough_white': SummarizeGaussianProcessModelTask(
-                kernel='matern_rough_white',
+            'matern_smooth_white': SummarizeGaussianProcessModelTask(
+                kernel='matern_smooth_white',
                 target='valid'
             )
         }
@@ -373,7 +373,7 @@ class SummarizeAllGaussianProcessModelTask(luigi.Task):
         get_json('matern_rough')
         get_json('matern_smooth')
         get_json('matern_rough_white')
-        get_json('matern_rough_white')
+        get_json('matern_smooth_white')
 
         with self.output().open('w') as f_out:
             json.dump(ret_dict, f_out, indent=2)
