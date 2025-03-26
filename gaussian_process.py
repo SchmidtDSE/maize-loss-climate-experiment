@@ -251,8 +251,12 @@ class BuildGaussianProcessModelTask(luigi.Task):
         Raises:
             NotImplementedError: If the provided kernel name is unknown.
         """
-        strategies {
-            'default': None
+        strategies = {
+            'default': None,
+            'matern_rough': sklearn.gaussian_process.kernels.Matern(nu=1.5),
+            'matern_smooth': sklearn.gaussian_process.kernels.Matern(nu=2.5),
+            'matern_rough_white': sklearn.gaussian_process.kernels.Matern(nu=1.5) + sklearn.gaussian_process.kernels.WhiteKernel(),
+            'matern_smooth_white': sklearn.gaussian_process.kernels.Matern(nu=2.5) + sklearn.gaussian_process.kernels.WhiteKernel()
         }
         return strategies[name]
 
