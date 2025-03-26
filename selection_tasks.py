@@ -428,6 +428,60 @@ class PostHocTestRawDataRetrainCountTask(PostHocTestRawDataTemplateTask):
         return False
 
 
+class PostHocTestRawDataRetrainCountWithGeohashTask(PostHocTestRawDataTemplateTask):
+    """Post-hoc test for test set from sweep with expanded training.
+
+    Post-hoc test that calculates test set performance after retraining on train and validation from
+    the sweep.
+    """
+
+    def get_set_assign(self, record):
+        """Apply a set assignment consistent with sweep task.
+
+        Args:
+            record: The record to assign.
+
+        Returns:
+            The set assignment.
+        """
+        return 'test' if record['year'] in [2013, 2015] else 'train'
+
+    def get_filename(self):
+        """Get the filename at which results should be written inside the workspace.
+
+        Returns:
+            Filename at which results should be written.
+        """
+        return 'post_hoc_retrain_with_count_geohash.csv'
+
+    def get_output_cols(self):
+        """Get the columns expected in output records.
+
+        Returns:
+            List of string.
+        """
+        # Weighting by unit
+        return [
+            'setAssign',
+            'yieldMean',
+            'yieldStd',
+            'predictedMean',
+            'predictedStd',
+            'meanResidual',
+            'stdResidual',
+            'yieldObservations,
+            'geohash'
+        ]
+
+    def output_test_only(self):
+        """Determine if this task should ouput results on the test set.
+
+        Returns:
+            True if only test records should be reported or false if all records should be reported.
+        """
+        return False
+
+
 class PostHocTestRawDataRandomCountTask(PostHocTestRawDataTemplateTask):
 
     def get_set_assign(self, record):
