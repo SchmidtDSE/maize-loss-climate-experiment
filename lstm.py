@@ -189,19 +189,20 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
 
     def process_data(frame):
         input_attrs = get_input_attrs(additional_block, allow_count)
-        
+
         # Group by geohash to create sequences
         groups = frame.groupby('geohash')
         inputs = []
         outputs = []
-        
+
         for _, group in groups:
             group_sorted = group.sort_values('year')
             for i in range(len(group_sorted) - 1):
-                sequence = group_sorted.iloc[i:i+2][input_attrs].values.astype('float32')
-                inputs.append(sequence)
-                outputs.append(group_sorted.iloc[i+1][output_attrs].values.astype('float32'))
-        
+                if group_sorted.iloc[i+1]['year'] - group_sorted.iloc[i]['year'] == 1:
+                    sequence = group_sorted.iloc[i:i+2][input_attrs].values.astype('float32')
+                    inputs.append(sequence) #Keep the original shape for LSTM input
+                    outputs.append(group_sorted.iloc[i+1][output_attrs].values.astype('float32'))
+
         return numpy.array(inputs, dtype='float32'), numpy.array(outputs, dtype='float32')
 
     frame = pandas.read_csv(temp_file_path)
@@ -216,7 +217,7 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
     }
 
     model = build_model(num_layers, len(get_input_attrs(additional_block, allow_count)), l2_reg, dropout)
-    
+
     # Train model
     model.fit(
         data_splits['train'][0],
