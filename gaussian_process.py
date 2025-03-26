@@ -276,7 +276,7 @@ class BuildGaussianProcessModelTask(luigi.Task):
         matern_smooth = sklearn.gaussian_process.kernels.Matern(nu=2)
         matern_very_smooth = sklearn.gaussian_process.kernels.Matern(nu=2.5)
         white_kernel = sklearn.gaussian_process.kernels.WhiteKernel()
-        
+
         strategies = {
             'default': None,
             'matern_rough': matern_rough,
@@ -293,7 +293,7 @@ class BuildGaussianProcessModelTask(luigi.Task):
 
 class SummarizeGaussianProcessModelTask(luigi.Task):
     """Task that summarizes Gaussian Process model performance."""
-    
+
     kernel = luigi.Parameter()
     target = luigi.Parameter()
 
@@ -377,7 +377,7 @@ class SummarizeAllGaussianProcessModelTask(luigi.Task):
         """Calculate and write summary metrics."""
 
         ret_dict = {}
-        
+
         def get_json(name):
             with self.input()[name].open() as f:
                 component = json.load(f)
