@@ -192,21 +192,22 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
         
         # Group by geohash to create sequences
         groups = frame.groupby('geohash')
-        X, y = [], []
+        inputs = []
+        outputs = []
         
         for _, group in groups:
             group_sorted = group.sort_values('year')
             for i in range(len(group_sorted) - 1):
-                if group_sorted.iloc[i+1]['year'] - group_sorted.iloc[i]['year'] == 1:
-                    sequence = group_sorted.iloc[i:i+2][input_attrs].values.astype('float32')
-                    X.append(sequence)
-                    y.append(group_sorted.iloc[i+1][output_attrs].values.astype('float32'))
+                sequence = group_sorted.iloc[i:i+2][input_attrs].values.astype('float32')
+                inputs.append(sequence)
+                outputs.append(group_sorted.iloc[i+1][output_attrs].values.astype('float32'))
         
-        return numpy.array(X, dtype='float32'), numpy.array(y, dtype='float32')
+        return numpy.array(inputs, dtype='float32'), numpy.array(y, dtype='float32')
 
     frame = pandas.read_csv(temp_file_path)
-    frame['setAssign'] = frame['year'].apply(lambda x: 
-        'train' if x < 2013 else ('test' if x % 2 == 0 else 'valid'))
+    frame['setAssign'] = frame['year'].apply(
+        lambda x: 'train' if x < 2013 else ('test' if x % 2 == 0 else 'valid')
+    )
 
     data_splits = {
         'train': process_data(frame[frame['setAssign'] == 'train']),
@@ -225,10 +226,10 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
     )
 
     # Evaluate model
-    def evaluate_split(X, y):
-        predictions = model.predict(X, verbose=None)
-        mean_errors = numpy.abs(predictions[:, 0] - y[:, 0])
-        std_errors = numpy.abs(predictions[:, 1] - y[:, 1])
+    def evaluate_split(inputs, outputs):
+        predictions = model.predict(inputs, verbose=None)
+        mean_errors = numpy.abs(predictions[:, 0] - outputs[:, 0])
+        std_errors = numpy.abs(predictions[:, 1] - outputs[:, 1])
         return {
             'mean': numpy.mean(mean_errors),
             'std': numpy.mean(std_errors)
