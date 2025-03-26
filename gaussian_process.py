@@ -282,7 +282,7 @@ class BuildGaussianProcessModelTask(luigi.Task):
             'matern_rough': matern_rough,
             'matern_mid': matern_mid,
             'matern_smooth': matern_smooth,
-            'matern_very_smooth': matern_very_smooth
+            'matern_very_smooth': matern_very_smooth,
             'matern_rough_white': matern_rough + white_kernel,
             'matern_mid_white': matern_mid + white_kernel,
             'matern_smooth_white': matern_smooth + white_kernel,
