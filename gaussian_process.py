@@ -5,6 +5,7 @@ License:
 """
 import csv
 import itertools
+import json
 import random
 
 import luigi
@@ -255,3 +256,51 @@ class BuildGaussianProcessModelTask(luigi.Task):
             raise NotImplementedError('Unknown kernel setting: %s' % name)
 
 
+class SummarizeGaussianProcessModelTask(luigi.Task):
+    """Task that summarizes Gaussian Process model performance."""
+    
+    kernel = luigi.Parameter()
+    target = luigi.Parameter()
+
+    def requires(self):
+        """Get the tasks whose outputs are required for running the model.
+
+        Returns:
+            BuildGaussianProcessModelTask: Task that builds and evaluates the model.
+        """
+        return BuildGaussianProcessModelTask(
+            kernel=self.kernel,
+            target=self.target
+        )
+
+    def output(self):
+        """Specify the output file location for the model summary.
+
+        Returns:
+            LocalTarget: Target for JSON file containing model summary metrics.
+        """
+        filename = 'gaussian_process_%s_summary_%s.json' % (self.kernel, self.target)
+        path = const.get_file_location(filename)
+        return luigi.LocalTarget(path)
+
+    def run(self):
+        """Calculate and write summary metrics."""
+        with self.input().open('r') as f_in:
+            rows = list(csv.DictReader(f_in))
+            
+            # Calculate MAE for mean and std
+            mean_errors = [abs(float(row['predictedMean']) - float(row['actualMean'])) for row in rows]
+            std_errors = [abs(float(row['predictedStd']) - float(row['actualStd'])) for row in rows]
+            
+            mean_mae = sum(mean_errors) / len(mean_errors)
+            std_mae = sum(std_errors) / len(std_errors)
+            
+            summary = {
+                'mean_mae': mean_mae,
+                'std_mae': std_mae,
+                'kernel': self.kernel,
+                'target': self.target
+            }
+            
+            with self.output().open('w') as f_out:
+                json.dump(summary, f_out, indent=2)
