@@ -290,7 +290,7 @@ class BuildGaussianProcessModelTask(luigi.Task):
                 sklearn.gaussian_process.kernels.WhiteKernel()
             ),
             'matern_very_smooth_white': (
-                sklearn.gaussian_process.kernels.Matern(nu=2) +
+                sklearn.gaussian_process.kernels.Matern(nu=2.5) +
                 sklearn.gaussian_process.kernels.WhiteKernel()
             )
         }
