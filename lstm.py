@@ -257,7 +257,7 @@ class LstmSweepTemplateTask(luigi.Task):
     def requires(self):
         """Require training frame upload and cluster availability."""
         return {
-            'upload': UploadHistoricTrainingFrame(),
+            'upload': UploadSortedTrainingFrame(),
             'cluster': cluster_tasks.StartClusterTask()
         }
 
