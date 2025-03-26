@@ -202,8 +202,7 @@ class BuildGaussianProcessModelTask(luigi.Task):
                 const.SAMPLE_WEIGHT_ATTR: float(row[const.SAMPLE_WEIGHT_ATTR])
             }
 
-        def evaluate_test_row(target):
-            result = model.predict([target['inputs']], return_std=True)
+        def evaluate_test_row(target, result):
             return {
                 'year': target['year'],
                 'setAssign': target['setAssign'],
@@ -222,8 +221,14 @@ class BuildGaussianProcessModelTask(luigi.Task):
                 lambda x: x['setAssign'] == self.target,
                 all_transformed_rows
             )
-            parsed_rows = map(parse_test_row, test_rows)
-            eval_rows = map(evaluate_test_row, parsed_rows)
+            parsed_rows = list(map(parse_test_row, test_rows))
+            inputs = [x['inputs'] for x in parsed_rows]
+            results = model.predict(inputs, return_std=True).tolist()
+            parsed_rows_with_results = zip(parsed_rows, results)
+            eval_rows = map(
+                lambda x: evaluate_test_row(x[0], x[1]),
+                parsed_rows_with_results
+            )
 
             with self.output().open('w') as f_out:
                 writer = csv.DictWriter(f_out, fieldnames=[
