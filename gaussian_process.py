@@ -5,8 +5,6 @@ License:
 """
 import csv
 import itertools
-import math
-import pickle
 import random
 
 import luigi
@@ -18,7 +16,7 @@ import normalize_tasks
 import training_tasks
 
 INPUT_ATTRS = training_tasks.get_input_attrs('all attrs', True)
-SAMPLE_RATE = 1000000
+SAMPLE_RATE = 300000
 
 
 def assign_year(year):
