@@ -7,7 +7,9 @@ import json
 
 import luigi
 
+import const
 import preprocess_combine_tasks
+import selection_tasks
 
 BIOMASS_CONVERSION_FACTOR = 1 / 50
 
@@ -29,7 +31,8 @@ class GetAverageTestTonnesPerHectareTask(luigi.Task):
         Returns:
             LocalTarget where the average should be written.
         """
-        return luigi.LocalTarget('average_test_tonnes.json')
+        path = const.get_file_location('average_test_tonnes.json')
+        return luigi.LocalTarget(path)
 
     def run(self):
         """Calculate the weighted average and convert to tonnes per hectare."""
@@ -75,7 +78,8 @@ class GetTestErrorTonnesPerHectareTask(luigi.Task):
         Returns:
             LocalTarget where the error should be written.
         """
-        return luigi.LocalTarget('test_error_tonnes.json')
+        path = const.get_file_location('test_error_tonnes.json')
+        return luigi.LocalTarget(path)
 
     def run(self):
         """Calculate the test set average absolute error in tonnes per hectare."""
