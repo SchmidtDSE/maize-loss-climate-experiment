@@ -114,7 +114,7 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
         layer = build_layer(layer_size, not is_final_layer)
         model.add(layer)
         if dropout > 0:
-            model.add(keras.layers.Dropout(dropout)) 
+            model.add(keras.layers.Dropout(dropout))
 
     model.add(keras.layers.Dense(2, activation='linear'))
 
@@ -122,7 +122,7 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
     model.compile(optimizer=optimizer, loss='mae', metrics=['mae'])
 
     if const.MODEL_TRANSFORM:
-        return training_tasks.TransformModel(model) 
+        return training_tasks.TransformModel(model)
     else:
         return model
 
@@ -192,9 +192,9 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
         for _, group in groups:
             group_sorted = group.sort_values('year')
             for i in range(len(group_sorted) - 1):
-                sequence = group_sorted.iloc[i:i+2][input_attrs].values.astype('float32')
+                sequence = group_sorted.iloc[i:i + 2][input_attrs].values.astype('float32')
                 inputs.append(sequence)
-                outputs.append(group_sorted.iloc[i+1][output_attrs].values.astype('float32'))
+                outputs.append(group_sorted.iloc[i + 1][output_attrs].values.astype('float32'))
 
         return {
             'inputs': numpy.array(inputs, dtype='float32'),
@@ -338,6 +338,7 @@ class LstmSweepTemplateTask(luigi.Task):
 
     def get_allow_counts(self):
         raise NotImplementedError('Must use implementor.')
+
 
 class LstmSweepTask(LstmSweepTemplateTask):
     """Perform main LSTM model sweep."""
