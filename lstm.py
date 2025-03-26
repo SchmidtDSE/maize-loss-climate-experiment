@@ -19,6 +19,8 @@ import const
 import normalize_tasks
 import training_tasks
 
+DEFAULT_NUM_LAYERS = [1, 2, 3, 4, 5]
+
 
 class SortInputDataForLstmTask(luigi.Task):
     """Sort input data by year and geohash for LSTM processing."""
@@ -106,12 +108,11 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
         )
 
     layers = [
-        build_layer(512),
-        build_layer(256),
         build_layer(128),
         build_layer(64),
         build_layer(32),
-        build_layer(8)
+        build_layer(8),
+        build_layer(4)
     ][-num_layers:]
 
     for i, layer in enumerate(layers):
@@ -344,7 +345,7 @@ class LstmSweepTask(LstmSweepTemplateTask):
         return 'lstm_sweep.csv'
 
     def get_num_layers(self):
-        return training_tasks.DEFAULT_NUM_LAYERS
+        return DEFAULT_NUM_LAYERS
 
     def get_l2_regs(self):
         return training_tasks.DEFAULT_REGULARIZATION
