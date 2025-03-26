@@ -149,7 +149,7 @@ class StartClusterTask(luigi.Task):
         Run this step to start the cluster, writing the status message with the cluster name and
         dashboard link to the output file.
         """
-        cluster = get_cluster(machine_type='m7a.large')
+        cluster = get_cluster(machine_type='m7a.xlarge')
         client = cluster.get_client()
 
         with self.output().open('w') as f:

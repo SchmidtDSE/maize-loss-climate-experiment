@@ -290,7 +290,7 @@ class LstmSweepTemplateTask(luigi.Task):
         access_key = os.environ.get('AWS_ACCESS_KEY', '')
         access_secret = os.environ.get('AWS_ACCESS_SECRET', '')
 
-        cluster = cluster_tasks.get_cluster(machine_type='m7a.large')
+        cluster = cluster_tasks.get_cluster(machine_type='m7a.xlarge')
         cluster.adapt(minimum=10, maximum=self.get_max_workers())
 
         client = cluster.get_client()
