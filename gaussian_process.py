@@ -25,7 +25,7 @@ SWEEP_KERNELS = [
     'matern_smooth',
     'matern_rough_white',
     'matern_mid_white',
-    'matern_smooth_white',
+    'matern_smooth_white'
 ]
 
 
@@ -355,10 +355,10 @@ class SummarizeAllGaussianProcessModelTask(luigi.Task):
             Dict: Multiple values to try in sweep.
         """
         return dict(map(
-            lambda x: SummarizeGaussianProcessModelTask(
+            lambda x: (x, SummarizeGaussianProcessModelTask(
                 kernel=x,
                 target='valid'
-            ),
+            )),
             SWEEP_KERNELS
         ))
 
