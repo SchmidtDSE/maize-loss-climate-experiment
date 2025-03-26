@@ -23,9 +23,11 @@ SWEEP_KERNELS = [
     'matern_rough',
     'matern_mid',
     'matern_smooth',
+    'matern_very_smooth',
     'matern_rough_white',
     'matern_mid_white',
-    'matern_smooth_white'
+    'matern_smooth_white',
+    'matern_very_smooth_white'
 ]
 
 
@@ -274,6 +276,7 @@ class BuildGaussianProcessModelTask(luigi.Task):
             'matern_rough': sklearn.gaussian_process.kernels.Matern(nu=1),
             'matern_mid': sklearn.gaussian_process.kernels.Matern(nu=1.5),
             'matern_smooth': sklearn.gaussian_process.kernels.Matern(nu=2),
+            'matern_very_smooth': sklearn.gaussian_process.kernels.Matern(nu=2.5),
             'matern_rough_white': (
                 sklearn.gaussian_process.kernels.Matern(nu=1) +
                 sklearn.gaussian_process.kernels.WhiteKernel()
@@ -283,6 +286,10 @@ class BuildGaussianProcessModelTask(luigi.Task):
                 sklearn.gaussian_process.kernels.WhiteKernel()
             ),
             'matern_smooth_white': (
+                sklearn.gaussian_process.kernels.Matern(nu=2) +
+                sklearn.gaussian_process.kernels.WhiteKernel()
+            ),
+            'matern_very_smooth_white': (
                 sklearn.gaussian_process.kernels.Matern(nu=2) +
                 sklearn.gaussian_process.kernels.WhiteKernel()
             )
