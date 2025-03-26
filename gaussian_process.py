@@ -185,7 +185,8 @@ class BuildGaussianProcessModelTask(luigi.Task):
         # Train model
         model = sklearn.gaussian_process.GaussianProcessRegressor(
             kernel=self._get_kernel(self.kernel),
-            copy_X_train=False
+            copy_X_train=False,
+            normalize_y=True
         )
         model.fit(inputs, outputs)
 
@@ -206,9 +207,9 @@ class BuildGaussianProcessModelTask(luigi.Task):
             return {
                 'year': target['year'],
                 'setAssign': target['setAssign'],
-                'predictedMean': result[0],
+                'predictedMean': result[0][0],
                 'actualMean': target['output']['mean'],
-                'predictedStd': result[1],
+                'predictedStd': result[1][0],
                 'actualStd': target['output']['std'],
                 const.SAMPLE_WEIGHT_ATTR: float(target[const.SAMPLE_WEIGHT_ATTR])
             }
