@@ -263,7 +263,7 @@ class LstmSweepTemplateTask(luigi.Task):
         """Require training frame upload and cluster availability."""
         return {
             'upload': UploadSortedTrainingFrame(),
-            'cluster': cluster_tasks.StartClusterTask()
+            'cluster': cluster_tasks.StartBigClusterTask()
         }
 
     def output(self):
@@ -290,7 +290,7 @@ class LstmSweepTemplateTask(luigi.Task):
         access_key = os.environ.get('AWS_ACCESS_KEY', '')
         access_secret = os.environ.get('AWS_ACCESS_SECRET', '')
 
-        cluster = cluster_tasks.get_cluster()
+        cluster = cluster_tasks.get_cluster(machine_type='m7a.large')
         cluster.adapt(minimum=10, maximum=self.get_max_workers())
 
         client = cluster.get_client()

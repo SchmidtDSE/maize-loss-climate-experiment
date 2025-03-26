@@ -66,7 +66,7 @@ class SimulatedDaskCluster:
 simulated_cluster = SimulatedDaskCluster()
 
 
-def get_cluster():
+def get_cluster(machine_type='m7a.medium'):
     """Get the pipeline cluster or start it if it is not running.
 
     Returns:
@@ -109,9 +109,9 @@ def get_cluster():
             return coiled.Cluster(
                 name=const.CLUSTER_NAME,
                 n_workers=const.START_WORKERS,
-                software="maize-env",
-                worker_vm_types=['m7a.medium'],
-                scheduler_vm_types=['m7a.medium'],
+                software='maize-env',
+                worker_vm_types=[machine_type],
+                scheduler_vm_types=[machine_type],
                 environ={
                     'AWS_ACCESS_KEY': os.environ.get('AWS_ACCESS_KEY', ''),
                     'AWS_ACCESS_SECRET': os.environ.get('AWS_ACCESS_SECRET', ''),
@@ -122,8 +122,8 @@ def get_cluster():
             return coiled.Cluster(
                 name=const.CLUSTER_NAME,
                 n_workers=const.START_WORKERS,
-                worker_vm_types=['m7a.medium'],
-                scheduler_vm_types=['m7a.medium'],
+                worker_vm_types=[machine_type],
+                scheduler_vm_types=[machine_type],
                 environ={
                     'AWS_ACCESS_KEY': os.environ.get('AWS_ACCESS_KEY', ''),
                     'AWS_ACCESS_SECRET': os.environ.get('AWS_ACCESS_SECRET', ''),
@@ -142,6 +142,31 @@ class StartClusterTask(luigi.Task):
             LocalTarget where status should be written.
         """
         return luigi.LocalTarget(const.get_file_location('cluster_start.txt'))
+
+    def run(self):
+        """Run this step to start the cluster.
+
+        Run this step to start the cluster, writing the status message with the cluster name and
+        dashboard link to the output file.
+        """
+        cluster = get_cluster(machine_type='m7a.large')
+        client = cluster.get_client()
+
+        with self.output().open('w') as f:
+            template_vals = (const.CLUSTER_NAME, client.dashboard_link)
+            f.write('%s opened at %s' % template_vals)
+
+
+class StartBigClusterTask(luigi.Task):
+    """Task to start a bigger cluster."""
+
+    def output(self):
+        """Indicate where status should be written.
+
+        Returns:
+            LocalTarget where status should be written.
+        """
+        return luigi.LocalTarget(const.get_file_location('cluster_big_start.txt'))
 
     def run(self):
         """Run this step to start the cluster.
