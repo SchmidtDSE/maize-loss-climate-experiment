@@ -1,4 +1,3 @@
-
 """Tasks to train and evaluate LSTM models for yield prediction.
 
 License:
@@ -18,6 +17,8 @@ import pandas
 import cluster_tasks
 import const
 import normalize_tasks
+import training_tasks
+
 
 class SortInputDataForLstmTask(luigi.Task):
     """Sort input data by year and geohash for LSTM processing."""
@@ -36,6 +37,7 @@ class SortInputDataForLstmTask(luigi.Task):
         frame_sorted = frame.sort_values(['year', 'geohash'])
         frame_sorted.to_csv(self.output().path, index=False)
 
+
 class UploadHistoricTrainingFrame(luigi.Task):
     """Upload the sorted model training frame."""
 
@@ -45,7 +47,8 @@ class UploadHistoricTrainingFrame(luigi.Task):
 
     def output(self):
         """Indicate where upload confirmation should be written."""
-        return luigi.LocalTarget(const.get_file_location('upload_historic_lstm_confirm.txt'))
+        path = const.get_file_location('upload_historic_lstm_confirm.txt')
+        return luigi.LocalTarget(path)
 
     def run(self):
         """Perform the upload or local copy."""
@@ -63,10 +66,15 @@ class UploadHistoricTrainingFrame(luigi.Task):
                 aws_access_key_id=access_key,
                 aws_secret_access_key=access_secret
             )
-            s3.upload_file(self.input().path, const.BUCKET_OR_DIR, 'historic_training_lstm.csv')
+            s3.upload_file(
+                self.input().path,
+                const.BUCKET_OR_DIR,
+                'historic_training_lstm.csv'
+            )
 
         with self.output().open('w') as f:
             f.write('success')
+
 
 def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEARNING_RATE):
     """Build an LSTM-based model.
@@ -119,19 +127,47 @@ def build_model(num_layers, num_inputs, l2_reg, dropout, learning_rate=const.LEA
     optimizer = keras.optimizers.AdamW(learning_rate=learning_rate)
     model.compile(optimizer=optimizer, loss='mae', metrics=['mae'])
 
-    return TransformModel(model) if const.MODEL_TRANSFORM else model
+    if const.MODEL_TRANSFORM:
+        return training_tasks.TransformModel(model) 
+    else:
+        return model
 
-# Reuse TransformModel from training_tasks.py
-from training_tasks import TransformModel
 
-# Modified try_model for LSTM
+def get_input_attrs(additional_block, allow_count):
+    """Get the list of input attributes allowed to feed into the neural network.
+
+    Args:
+        additional_block: Collection of strings that are manually blocked from being used as neural
+            network inputs.
+        allow_count: Flag indicating if sample information can be included in model inputs. True if
+            included and false otherwise.
+
+    Returns:
+        Sorted list of strings corresponding to attributes that can be used as neural network
+        inputs.
+    """
+    all_attrs = const.TRAINING_FRAME_ATTRS
+    all_attrs_no_geohash = filter(lambda x: x != 'geohash', all_attrs)
+    all_attrs_no_output = filter(lambda x: x not in OUTPUT_ATTRS, all_attrs_no_geohash)
+    input_attrs = sorted(filter(lambda x: x not in BLOCKED_ATTRS, all_attrs_no_output))
+
+    additional_block_lower = additional_block.lower()
+    input_attrs = filter(lambda x: additional_block_lower not in x.lower(), input_attrs)
+
+    if allow_count:
+        input_attrs = filter(lambda x: 'count' not in x.lower(), input_attrs)
+
+    input_attrs = list(input_attrs)
+
+    return input_attrs
+
+
 def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, filename,
     additional_block, allow_count, seed=12345, output_attrs=training_tasks.OUTPUT_ATTRS,
     epochs=const.EPOCHS, blocked_attrs=training_tasks.BLOCKED_ATTRS):
     """Try building and training an LSTM model."""
     import random
     import pandas
-    from training_tasks import get_input_attrs
 
     random.seed(seed)
 
@@ -213,6 +249,7 @@ def try_model(access_key, secret_key, num_layers, l2_reg, dropout, bucket_name, 
         'testMean': results['test']['mean'],
         'testStd': results['test']['std']
     }
+
 
 class LstmSweepTemplateTask(luigi.Task):
     """Template task for LSTM model parameter sweep."""
