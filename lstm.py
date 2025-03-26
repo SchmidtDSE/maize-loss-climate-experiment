@@ -38,7 +38,7 @@ class SortInputDataForLstmTask(luigi.Task):
         frame_sorted.to_csv(self.output().path, index=False)
 
 
-class UploadHistoricTrainingFrame(luigi.Task):
+class UploadSortedTrainingFrame(luigi.Task):
     """Upload the sorted model training frame."""
 
     def requires(self):
