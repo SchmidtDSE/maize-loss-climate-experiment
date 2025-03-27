@@ -272,6 +272,58 @@ class PostHocTestRawDataTemporalResidualsTask(PostHocTestRawDataTemplateTask):
         return True
 
 
+class PostHocTestRawDataTemporalResidualsSingleYearTask(PostHocTestRawDataTemplateTask):
+    """Post-hoc test which tests a model's ability to predict into the future.
+
+    Post-hoc test which tests a model's ability to predict into the future, reporting only on test
+    set which, in this case, is just one year.
+    """
+
+    def get_set_assign(self, record):
+        """Assign records based on their year.
+
+        Args:
+            record: The record to assign.
+
+        Returns:
+            The set assignment as a string.
+        """
+        return 'test' if record['year'] == 2020 else 'train'
+
+    def get_filename(self):
+        """Get the filename at which results should be written inside the workspace.
+
+        Returns:
+            Filename at which results should be written.
+        """
+        return 'post_hoc_temporal_comparison.csv'
+
+    def get_output_cols(self):
+        """Get the columns expected in output records.
+
+        Returns:
+            List of string.
+        """
+        # Weighting by geohash
+        return [
+            'setAssign',
+            'yieldMean',
+            'yieldStd',
+            'predictedMean',
+            'predictedStd',
+            'meanResidual',
+            'stdResidual'
+        ]
+
+    def output_test_only(self):
+        """Determine if this task should ouput results on the test set.
+
+        Returns:
+            True if only test records should be reported or false if all records should be reported.
+        """
+        return True
+
+
 class PostHocTestRawDataClimateCountTask(PostHocTestRawDataTemplateTask):
     """Post-hoc test which tests a model's ability to predict with out of sample climate data."""
 
@@ -417,60 +469,6 @@ class PostHocTestRawDataRetrainCountTask(PostHocTestRawDataTemplateTask):
             'meanResidual',
             'stdResidual',
             'yieldObservations'
-        ]
-
-    def output_test_only(self):
-        """Determine if this task should ouput results on the test set.
-
-        Returns:
-            True if only test records should be reported or false if all records should be reported.
-        """
-        return False
-
-
-class PostHocTestRawDataRetrainCountWithGeohashTask(PostHocTestRawDataTemplateTask):
-    """Post-hoc test for test set from sweep with expanded training.
-
-    Post-hoc test that calculates test set performance after retraining on train and validation from
-    the sweep.
-    """
-
-    def get_set_assign(self, record):
-        """Apply a set assignment consistent with sweep task.
-
-        Args:
-            record: The record to assign.
-
-        Returns:
-            The set assignment.
-        """
-        return 'test' if record['year'] in [2013, 2015] else 'train'
-
-    def get_filename(self):
-        """Get the filename at which results should be written inside the workspace.
-
-        Returns:
-            Filename at which results should be written.
-        """
-        return 'post_hoc_retrain_with_count_geohash.csv'
-
-    def get_output_cols(self):
-        """Get the columns expected in output records.
-
-        Returns:
-            List of string.
-        """
-        # Weighting by unit
-        return [
-            'setAssign',
-            'yieldMean',
-            'yieldStd',
-            'predictedMean',
-            'predictedStd',
-            'meanResidual',
-            'stdResidual',
-            'yieldObservations,
-            'geohash'
         ]
 
     def output_test_only(self):
