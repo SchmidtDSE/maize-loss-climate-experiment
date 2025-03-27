@@ -288,7 +288,7 @@ class PostHocTestRawDataTemporalResidualsSingleYearTask(PostHocTestRawDataTempla
         Returns:
             The set assignment as a string.
         """
-        return 'test' if record['year'] == 2020 else 'train'
+        return 'test' if record['year'] == 2016 else 'train'
 
     def get_filename(self):
         """Get the filename at which results should be written inside the workspace.
