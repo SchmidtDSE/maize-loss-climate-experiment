@@ -133,6 +133,9 @@ While our model does not explicitly consider trend adjustment, historically-cons
 ### Coverage levels
 We observe that there may be geographic bias in coverage levels. This may include some areas with different policy availability, possibly including geographically-biased supplemental policy usage. This results both from grower and institutional behavior and may prove important in specific prediction of future claims. However, lacking public data on coverage levels chosen with geographic specificity, we respond to this limitation by allowing for investigation of different coverage levels within our interactive tool. Though we do not believe this to impact our predictions of general claims probability and severity changes, this aspect may impact research making specific annual predictions. Therefore, we encourage future work on further investigation of coverage level selection and its intersection with climate change.
 
+## Alternative models
+Within @scikit-learn, we sweep Gaussian Process with varying kernels (Matern and RBF) and nu for Matern (1.0, 1.5, 2.0, 2.5) with optional addition of the White Kernel. We also attempt LSTM with optional stacking [@zhang_stock_2021] using the same L2 and dropout options as the feed forward network but with varying numbers of stacked LSTM layers (8, 32, 128). Though the feed forward network did not threaten memory exhaustion, note that the LSTM sizes were chosen as to fit within memory constraints of the distributed sweep workers (17.1 GB of RAM per model) and Gaussian Process also saw random sampling to accomplish the same.
+
 # Detailed simulation results
 For reference, we provide further detailed simulated results in Table @tbl:simresults.
 

@@ -94,11 +94,11 @@ We predict yield delta distributions per year ahead of Monte Carlo simulations. 
 Prior work suggests that yields follow a beta distribution [@nelson_influence_1990] but the expected shape of changes to yield (yield deltas) is unknown. Therefore, our open source pipeline can predict shape parameters^[The neural network predicts 2 parameters for normal (mean, std) and 4 for beta (center, scale, a, b) [@scipy_beta_2024]. This use of summary statistics helps ensure appropriate dimensionality for the dataset size [@alwosheel_dataset_2018].] for either a normal distribution or beta distribution. We choose the appropriate shape by calculating the skew and kurtosis of the observed yield deltas distributions, using the normal distribution if meeting approximate normality per @kim_statistical_2013 or beta distribution otherwise.
 
 ### Neural network
-Our regressors ($f$) use neighborhood-level climate variables ($C$) and historic yield information to predict future yield changes ($y_{\Delta\%}$) per year. We preprocess these inputs using z score normalization [@kim_investigating_2024].
+Machine learning performs well in prior literature on similar problems [@leng_predicting_2020; @klompenburg_crop_2020]. Our regressors ($f$) use neighborhood-level climate variables ($C$) and historic yield information to predict future yield changes ($y_{\Delta\%}$) per year. We preprocess these inputs using z score normalization [@kim_investigating_2024].
 
 $$f(C_z, y_{\mu-historic-z}, y_{\sigma-historic-z}) \hat= y_{\Delta\%}(x) = \frac{y_{actual} - y_{expected}}{y_{expected}}$$ {#eq:nn}
 
-Note that we use machine learning per the advice of @leng_predicting_2020 and @klompenburg_crop_2020. In addition to possibly better out-of-sample estimation relative to other similar approaches [@mwiti_random_2023], we specifically use feed forward artificial neural networks [@baheti_essential_2021] as they support multi-variable output within a single model, predicting distribution parameters together in the same network as opposed to some other machine learning options which must predict them separately [@brownlee_deep_2020]. 
+In addition to possibly better out-of-sample estimation relative to other similar approaches [@mwiti_random_2023], we use feed forward artificial neural networks [@baheti_essential_2021] as they support multi-variable output within a single model, predicting distribution parameters together in the same network [@brownlee_deep_2020]. 
 
 | **Parameter**                | **Options**                  | **Description**                                                                                                                                                       | **Purpose**                                                                                                                          |
 | ----------------------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
@@ -109,7 +109,7 @@ Note that we use machine learning per the advice of @leng_predicting_2020 and @k
 
 Table: Parameters which we try in different permutations to find an optimal configuration. {#tbl:sweepparam}
 
-We "grid search" [@joseph_grid_2018] in order to find a suitable combination of neural network hyper-parameters, trying hundreds of permutations^[All non-output neurons use Leaky ReLU activation per @maas_rectifier_2013 and we use AdamW optimizer [@kingma_adam_2014; @loshchilov_decoupled_2017].] from Table @tbl:sweepparam and selecting an ideal configuration based on performance. Finally, with meta-parameters chosen, we retrain on all available data ahead of simulations.
+We "grid search" [@joseph_grid_2018] in order to find a suitable combination of neural network hyper-parameters, trying hundreds of permutations^[All non-output neurons use Leaky ReLU activation per @maas_rectifier_2013 and we use AdamW optimizer [@kingma_adam_2014; @loshchilov_decoupled_2017].] from Table @tbl:sweepparam and selecting an ideal configuration based on performance. Then, with meta-parameters chosen, we retrain on all available data ahead of simulations. Finally, we compare these results to alternative models. First, we compare our results to recent literature. Second, we contrast our eprformance sweep across Gaussian Process [@scikit-learn] and LSTM [@zhang_stock_2021] as further described in the appendix.
 
 ## Evaluation
 We choose our model using each candidate's ability to predict into future years, a task representative of the Monte Carlo simulations [@brownlee_what_2020]:
@@ -151,7 +151,7 @@ We project climate change to roughly double loss probabilities ($p_{l}$) at mid-
 The dataset spanning 1999 to 2016 includes a median of 83k SCYM yield estimations per neighborhood. These field-level estimations are represented within annual neighborhood-level yield distributions. While yield itself is often not normally distributed, nearly all yield _delta_ distributions exhibit approximate normality [@kim_statistical_2013]. Therefore, we report model outputs assuming a normal distribution of yield deltas. However, our supplemental materials provide further statistics and alternative beta distribution results.
 
 ## Neural network outcomes
-With bias towards performance in mean prediction, we select {{numLayers}} hidden layers using {{dropout}} dropout and {{l2}} L2 from our sweep with all data attributes included. As described in supplemental, additional layers show diminishing returns. Table @tbl:trainresults reports mean absolute error (MAE) in yield delta percentage points ($|\frac{y_{actual} - y_{expected}}{y_{expected}} - y_{\Delta\% - Predicted}|$). Our selected model sees {{retrainMeanMae}} MAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMae}} when predicting neighborhood standard deviation in our fully hidden test set after retraining with train and validation together.
+With bias towards performance in mean prediction, the feed forward neural network with {{numLayers}} hidden layers using {{dropout}} dropout and {{l2}} L2 sees strongest performance across all model sweeps. As described in supplemental, additional layers show diminishing returns. Table @tbl:trainresults reports mean absolute error (MAE) in yield delta percentage points ($|\frac{y_{actual} - y_{expected}}{y_{expected}} - y_{\Delta\% - Predicted}|$). Our selected model sees {{retrainMeanMae}} MAE when predicting neighborhood mean change in yield ($y_{\Delta\%}$) and {{retrainStdMae}} when predicting neighborhood standard deviation in our fully hidden test set after retraining with train and validation together. 
 
 | **Set**             | **MAE for Mean Prediction** | **MAE for Std Prediction** |
 | -------------------- | ----------------------- | ---------------------- |
@@ -161,7 +161,7 @@ With bias towards performance in mean prediction, we select {{numLayers}} hidden
 
 Table: Results of model training and selection. {#tbl:trainresults}
 
-In addition to Table @tbl:posthocresults which evaluates regression performance in varied test sets, our interactive tools [@pottinger_data_2024] and supplemental materials offer additional performance metrics.
+Furthermore, tn addition to Table @tbl:posthocresults which evaluates regression performance in varied test sets, our interactive tools [@pottinger_data_2024] and supplemental materials offer additional performance metrics.
 
 | **Task**              | **Test Mean Pred MdAE** | **Test Std Pred MdAE** | **% of Units in Test Set** |
 | --------------------- | ---------------------- | --------------------- | -------------------------- |
@@ -171,6 +171,16 @@ In addition to Table @tbl:posthocresults which evaluates regression performance 
 | Climatic | {{climateMeanMae}}     | {{climateStdMae}}     | {{climatePercent}}         |
 
 Table: Results of tests after model selection. Tasks have a different number of risk units within their test set based on task definition. {#tbl:posthocresults}
+
+This model out-performs Guassian Process and stacked LSTM as described in Table @tbl:modelcompare. While we are unaware of another study predicting insurance-relevant percent change in yield at granular scale, we compare our 0.74 test set correlation coefficient to 0.73 recently reported by @khaki_crop_2019 in absolute yield prediction when using analogous data. However, while this other study focuses on site-level prediction in a specific future year so further improve upon their 0.73 by incorporating site-specific genotypical and soil data not available at our broad geographic scale, we contribute novel mechanics to predict variance and propagation of error required for insured-unit level prediction required for Monte Carlo simulation of institutional-level outcomes for crop insurance.
+
+| **Model**            | **MAE for Mean Prediction** | **MAE for Std Prediction** | **Configuration**     |
+| -------------------- | ----------------------- | ---------------------- | ----------------------------- |
+| Gaussian Process     | 0.144                   | 0.042                  | Matern (nu=0.25) + White Kernel |
+| Feed Forward         | {{validationMeanMae}}   | {{validationStdMae}}   | {{numLayers}} layers; {{dropout}} dropout; {{l2}} L2 |
+| LSTM                 | 0.180                   | 0.054                  | 3 layers; 0 dropout; 0.1 L2 |
+
+Table: Validation set performance comparison for model types using top candidate model found in sweep. {#tbl:modelcompare}
 
 ## Simulation outcomes
 After retraining on all available data using the selected configuration from our sweep, Monte Carlo simulates risk unit yield deltas from which we derive overall system metrics like claims rate. To capture insurance mechanics, these trials track changes to average yields over time at the neighborhood and approximated risk unit level. Additionally, we also sample test set model residuals to account for error. Despite the conservative nature of the Bonferroni correction [@mcdonald_handbook_2014], {{percentSignificant}} of maize acreage in SSP245 falls within a neighborhood with significant changes to claim probability ($p < 0.05 / n$) at some point during the 2050 series simulations.
