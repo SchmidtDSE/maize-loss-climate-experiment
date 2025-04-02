@@ -34,13 +34,14 @@ class Configuration:
         self._scenario = scenario
         self._risk_range = risk_range
         self._metric = metric
-        self._visualization = visualization
         self._threshold = threshold
         self._adjustment = adjustment
         self._sig_filter = sig_filter
         self._var = var
         self._month = month
         self._loss = loss
+
+        self._set_viz(visualization)
 
     def get_scenario(self):
         """Get the scenario selected by the user.
@@ -136,7 +137,7 @@ class Configuration:
         """Get the visualization type to display to the user.
 
         Returns:
-            The visualization type to display (scatter or map).
+            The visualization type to display (scatter, neighborhood, etc).
         """
         return self._visualization
 
@@ -161,6 +162,24 @@ class Configuration:
             self._month,
             self._loss
         )
+
+    def get_show_acreage(self):
+        """Indicate if acreage should be shown.
+
+
+        Returns:
+            True if the circles should be sized according to maize growing acreage or false if they
+            should have the same size.
+        """
+        return self._show_acreage
+
+    def get_viz_type(self):
+        """Get the type of visualization to use which may have subtypes.
+
+        Returns:
+            Visualization type like map or scatter.
+        """
+        self._visualization_type
 
     def get_threshold(self):
         """Get the statistical significance threshold.
@@ -349,6 +368,21 @@ class Configuration:
             new_val
         )
 
+    def _set_viz(self, viz_str):
+        self._visualization = viz_str
+
+        if viz_str == 'scatter':
+            self._visualization_type = 'scatter'
+            self._show_acreage = False
+        elif viz_str == 'neighborhood':
+            self._visualization_type = 'map'
+            self._show_acreage = False
+        elif viz_str == 'acreage':
+            self._visualization_type = 'map'
+            self._show_acreage = True
+        else:
+            raise RuntimeError('Unknwon viz descsriptor: ' + viz_str)
+
 
 class ConfigurationPresenter:
     """Meta-widget which allows the user to control a Configuration."""
@@ -379,7 +413,7 @@ class ConfigurationPresenter:
             0,
             current_y,
             'Visualization',
-            ['scatter', 'map'],
+            ['scatter', 'neighborhood', 'acreage'],
             self._config.get_visualization(),
             lambda x: self._set_config(self._config.get_with_visualization(x)),
             keyboard_button='v'
