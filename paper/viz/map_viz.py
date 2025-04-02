@@ -15,7 +15,7 @@ class MapMainPresenter:
     """Map component presenter."""
 
     def __init__(self, sketch, x, y, width, height, records, metric, var, selected_geohashes,
-        on_selection):
+        show_acreage, on_selection):
         """Create a new map component.
 
         Args:
@@ -29,6 +29,7 @@ class MapMainPresenter:
             var: The contextualizing dimension.
             selected_geohashes: Set of geohashes currently highglighted by the user (collection of
                 strings).
+            show_acreage: Flag indicating if the acreage should be shown.
             on_selection: Callback to invoke when the collection of selected geohashes changes.
         """
         self._sketch = sketch
@@ -42,6 +43,7 @@ class MapMainPresenter:
 
         self._selected_geohashes = selected_geohashes
         self._on_selection = on_selection
+        self._show_acreage = show_acreage
 
         self._needs_redraw = False
         self._selecting = False
@@ -100,7 +102,7 @@ class MapMainPresenter:
         self._sketch.pop_style()
         self._sketch.pop_transform()
 
-    def update_data(self, records, metric, var, selected_geohashes):
+    def update_data(self, records, metric, var, selected_geohashes, show_acreage):
         """Update the data to display within the map.
 
         Args:
@@ -108,11 +110,13 @@ class MapMainPresenter:
             metric: The metric like risk or yield to display within the map.
             var: The contextualizing dimension to display.
             selected_geohashes: Collection of geohashes highlighted by the user.
+            show_acreage: Flag indicating if the acreage should be shown.
         """
         self._records = records
         self._metric = metric
         self._var = var
         self._selected_geohashes = selected_geohashes
+        self._show_acreage = show_acreage
         self._needs_redraw = True
         self._selecting = False
 
@@ -168,6 +172,9 @@ class MapMainPresenter:
         total = sum(map(lambda x: x.get_count(), records))
 
         def get_radius(r):
+            if not self._show_acreage:
+                return 2
+
             result = math.sqrt(r / max_count * 900)
             if result < 1:
                 return 1

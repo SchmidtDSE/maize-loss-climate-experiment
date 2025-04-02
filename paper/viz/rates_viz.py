@@ -301,14 +301,14 @@ class RatesMainPresenter:
             self._sketch,
             5,
             20,
-            const.WIDTH - 280,
+            const.WIDTH - 320,
             const.HEIGHT - 5 - 20,
             start_config
         )
 
         self._config_presenter = ConfigPresenter(
             self._sketch,
-            const.WIDTH - 260,
+            const.WIDTH - 305,
             5,
             lambda config: self._update_config(config),
             start_config

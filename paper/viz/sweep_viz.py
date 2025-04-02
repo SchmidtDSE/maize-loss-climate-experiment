@@ -38,14 +38,14 @@ class SweepMainPresenter:
             self._sketch,
             5,
             5,
-            const.WIDTH - 280,
+            const.WIDTH - 320,
             const.HEIGHT - 10,
             data,
             lambda: self._request_redraw()
         )
         self._config_presenter = ConfigPresenter(
             self._sketch,
-            const.WIDTH - 260,
+            const.WIDTH - 305,
             5,
             lambda config: self._update_config(config),
             lambda: self._show_all()
@@ -736,9 +736,9 @@ class ScatterPresenter:
         Returns:
             Vertical pixels coordinate.
         """
-        if val > 0.2:
-            val = 0.2
-        offset = val * 100 / 20 * (self._height - 50 - 20) + 50
+        if val > 0.25:
+            val = 0.25
+        offset = val * 100 / 25 * (self._height - 50 - 25) + 50
         return self._height - offset
 
     def _draw_horiz_axis(self):
@@ -786,13 +786,13 @@ class ScatterPresenter:
         self._sketch.set_text_font(const.FONT_SRC, 12)
         self._sketch.set_text_align('right', 'center')
 
-        tick_points_int = range(0, 25, 5)
+        tick_points_int = range(0, 30, 5)
         tick_points_float = map(lambda x: x / 100, tick_points_int)
         for val in tick_points_float:
             self._sketch.draw_text(
                 48,
                 self._get_y(val),
-                ('>' if val >= 0.199 else '') + ('%d%%' % round(val * 100))
+                ('>' if val >= 0.249 else '') + ('%d%%' % round(val * 100))
             )
 
         self._sketch.set_text_align('center', 'center')

@@ -120,15 +120,16 @@ class ResultsVizPresenter:
             self._config.get_metric(),
             self._config.get_var(),
             self._selected_geohashes,
+            self._config.get_show_acreage(),
             lambda x: self._update_selected_geohashes(x)
         )
 
         percents_initial = preprocess.make_percents(data_initial)
         self._legend_presenter = legend.LegendPresenter(
             self._sketch,
-            const.MAIN_WIDTH + 30,
+            const.MAIN_WIDTH + 20,
             50 + main_height - 130,
-            250,
+            295,
             125,
             percents_initial,
             self._config.get_metric(),
@@ -138,7 +139,7 @@ class ResultsVizPresenter:
 
         self._configuration_pesenter = config_buttons.ConfigurationPresenter(
             self._sketch,
-            const.MAIN_WIDTH + 30,
+            const.MAIN_WIDTH + 20,
             50,
             self._config,
             lambda x: self._change_config(x)
@@ -213,7 +214,8 @@ class ResultsVizPresenter:
             new_data,
             self._config.get_metric(),
             self._config.get_var(),
-            self._selected_geohashes
+            self._selected_geohashes,
+            self._config.get_show_acreage()
         )
 
         new_percents = preprocess.make_percents(new_data)
@@ -285,8 +287,8 @@ class ResultsVizPresenter:
         self._sketch.clear_stroke()
         self._sketch.set_text_font(const.FONT_SRC, 12)
         self._sketch.set_text_align('left', 'center')
-        self._sketch.draw_text(130, 17, const.SELECTION_INSTRUCTION)
-        self._sketch.draw_text(130, 29, self._get_description())
+        self._sketch.draw_text(160, 17, const.SELECTION_INSTRUCTION)
+        self._sketch.draw_text(160, 29, self._get_description())
 
         self._sketch.pop_style()
         self._sketch.pop_transform()
