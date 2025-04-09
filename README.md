@@ -61,6 +61,40 @@ Instead of retrieving data from https://ag-adaptation-study.pub, you can use you
 
 <br>
 
+## Examples
+
+The following section provides a "cookbook" of common examples for how to use these tools for the most common scenarios.
+
+### Review existing results
+If wanting to review the current outputs, simply navigate to [https://ag-adaptation-study.pub](https://ag-adaptation-study.pub). No additional software is required. 
+
+### Run interactive tools
+To use the existing outputs and run the interactive tools locally after cloning this repository, gather the data and run the visualization scripts.
+
+```
+$ cd paper/viz
+$ wget https://ag-adaptation-study.pub/archive/data.zip
+$ unzip data.zip
+$ cd data
+$ wget http://ag-adaptation-study.pub/data/sweep_ag_all.csv
+$ cd ..
+$ pip install -r requirements.txt
+$ python hist_viz.py
+```
+
+This runs the historgram visualization but `hist_viz.py`, `history_viz.py`, `rates_viz.py`, `results_viz_entry.py`, and `sweep_viz.py` are all available.
+
+### Execute the pipeline locally via Docker
+The following will execute the entire pipeline locally after having placed [SCYM](https://www.sciencedirect.com/science/article/pii/S0034425715001637) and [CHC-CMIP6](https://www.chc.ucsb.edu/data/chc-cmip6) in a local directory (assumed to be `path/to/data` below).
+
+```
+$ export USE_AWS=0
+$ export SOURCE_DATA_LOC=path/to/data
+$ bash run_docker.sh
+```
+
+<br>
+
 ## Testing
 As part of CI / CD and for local development, the following are required to pass for both the pipeline in the root of this repository and the interactives written in Python at `paper/viz`:
 
