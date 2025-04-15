@@ -11,8 +11,8 @@ import symbols
 class LegendPresenter:
     """Presenter for the supporting legend component."""
 
-    def __init__(self, sketch, x, y, legend_width, legend_height, initial_percents,
-        metric, var, viz):
+    def __init__(self, sketch, x, y, legend_width, legend_height,
+                 initial_percents, metric, var, viz):
         """Create a new legend.
 
         Args:
@@ -121,16 +121,12 @@ class LegendPresenter:
             self._sketch.clear_stroke()
             self._sketch.set_fill(const.INACTIVE_TEXT_COLOR)
             percent_rounded = round(percent * 100)
-            self._sketch.draw_text(17, y - 2, '%d%% %s' % (percent_rounded, name_cut))
+            self._sketch.draw_text(17, y - 2,
+                                   '%d%% %s' % (percent_rounded, name_cut))
 
             if not use_symbols:
                 self._sketch.set_fill(const.EMBEDDED_BAR_COLOR)
-                self._sketch.draw_rect(
-                    19,
-                    y,
-                    self._get_width(percent),
-                    5
-                )
+                self._sketch.draw_rect(17, y, self._get_width(percent), 5)
 
             y += 18 if use_symbols else 25
 
@@ -139,7 +135,8 @@ class LegendPresenter:
             max_val = const.VAR_MAXS[self._var]
             extent_val = max([abs(min_val), abs(max_val)])
             self._sketch.set_rect_mode('corner')
-            all_colors = list(reversed(const.MAP_SCALE_NEGATIVE)) + const.MAP_SCALE_POSITIVE
+            all_colors = list(reversed(
+                const.MAP_SCALE_NEGATIVE)) + const.MAP_SCALE_POSITIVE
             i = 0
             for x in range(38, 38 + 7 * 12, 12):
                 self._sketch.clear_stroke()
@@ -153,7 +150,8 @@ class LegendPresenter:
             self._sketch.set_text_align('right', 'center')
             self._sketch.draw_text(37, y + 5, '-%.1f' % extent_val)
             self._sketch.set_text_align('left', 'center')
-            self._sketch.draw_text(38 + 7 * 12 + 1, y + 5, '+%.1f' % extent_val)
+            self._sketch.draw_text(38 + 7 * 12 + 1, y + 5,
+                                   '+%.1f' % extent_val)
 
         self._sketch.pop_style()
         self._sketch.pop_transform()

@@ -130,7 +130,7 @@ class ResultsVizPresenter:
             const.MAIN_WIDTH + 20,
             50 + main_height - 140,
             295,
-            125,
+            135,
             percents_initial,
             self._config.get_metric(),
             self._config.get_var(),
