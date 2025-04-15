@@ -71,7 +71,7 @@ class LegendPresenter:
 
         self._sketch.draw_rect(0, 0, self._legend_width, self._legend_height)
 
-        self._sketch.set_text_font(const.FONT_SRC, 12)
+        self._sketch.set_text_font(const.FONT_SRC, 13)
         self._sketch.set_text_align('left', 'baseline')
         self._sketch.set_ellipse_mode('radius')
 
@@ -126,13 +126,13 @@ class LegendPresenter:
             if not use_symbols:
                 self._sketch.set_fill(const.EMBEDDED_BAR_COLOR)
                 self._sketch.draw_rect(
-                    17,
+                    19,
                     y,
                     self._get_width(percent),
                     5
                 )
 
-            y += 15 if use_symbols else 25
+            y += 18 if use_symbols else 25
 
         if use_symbols:
             min_val = const.VAR_MINS[self._var]

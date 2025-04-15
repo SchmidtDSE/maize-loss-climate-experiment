@@ -128,7 +128,7 @@ class ResultsVizPresenter:
         self._legend_presenter = legend.LegendPresenter(
             self._sketch,
             const.MAIN_WIDTH + 20,
-            50 + main_height - 130,
+            50 + main_height - 140,
             295,
             125,
             percents_initial,
