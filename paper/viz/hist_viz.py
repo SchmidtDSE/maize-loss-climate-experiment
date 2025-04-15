@@ -488,7 +488,7 @@ class MainPresenter:
             )
 
             if is_claim:
-                self._sketch.set_text_font(const.FONT_SRC, 9)
+                self._sketch.set_text_font(const.FONT_SRC, 10)
 
                 self._sketch.push_transform()
                 self._sketch.translate(x, SUB_CHART_HEIGHT - height - 17)
@@ -537,7 +537,7 @@ class MainPresenter:
             )
 
             if is_claim:
-                self._sketch.set_text_font(const.FONT_SRC, 9)
+                self._sketch.set_text_font(const.FONT_SRC, 10)
 
                 self._sketch.push_transform()
                 self._sketch.translate(x, height + 15)
@@ -713,7 +713,7 @@ class MainPresenter:
         self._sketch.clear_stroke()
         self._sketch.set_rect_mode('corner')
         self._sketch.set_text_align('center', 'center')
-        self._sketch.set_text_font(const.FONT_SRC, 11)
+        self._sketch.set_text_font(const.FONT_SRC, 12)
 
         is_catastrophic = self._target_threshold == '75% cov'
         max_val = 35 if is_catastrophic else 45
@@ -754,7 +754,7 @@ class MainPresenter:
         self._sketch.translate(50, 20 + SUB_CHART_HEIGHT + 50)
         self._sketch.clear_stroke()
         self._sketch.set_rect_mode('corner')
-        self._sketch.set_text_font(const.FONT_SRC, 11)
+        self._sketch.set_text_font(const.FONT_SRC, 12)
 
         is_catastrophic = self._target_threshold == '75% cov'
         max_val = 35 if is_catastrophic else 45
