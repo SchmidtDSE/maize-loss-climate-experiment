@@ -488,7 +488,7 @@ class MainPresenter:
             )
 
             if is_claim:
-                self._sketch.set_text_font(const.FONT_SRC, 10)
+                self._sketch.set_text_font(const.FONT_SRC, 11)
 
                 self._sketch.push_transform()
                 self._sketch.translate(x, SUB_CHART_HEIGHT - height - 17)
@@ -537,7 +537,7 @@ class MainPresenter:
             )
 
             if is_claim:
-                self._sketch.set_text_font(const.FONT_SRC, 10)
+                self._sketch.set_text_font(const.FONT_SRC, 11)
 
                 self._sketch.push_transform()
                 self._sketch.translate(x, height + 15)
