@@ -10,8 +10,8 @@ import const
 class Configuration:
     """Data structure representing the geohash-level results visualization configuration state."""
 
-    def __init__(self, scenario, risk_range, metric, visualization, threshold, adjustment,
-        sig_filter, var, month, loss):
+    def __init__(self, scenario, risk_range, metric, visualization, threshold,
+                 adjustment, sig_filter, var, month, loss):
         """Create a new record of configuration.
 
         Args:
@@ -60,18 +60,10 @@ class Configuration:
         Returns:
             A copy of this configuration but with the new selected scenario.
         """
-        return Configuration(
-            new_val,
-            self._risk_range,
-            self._metric,
-            self._visualization,
-            self._threshold,
-            self._adjustment,
-            self._sig_filter,
-            self._var,
-            self._month,
-            self._loss
-        )
+        return Configuration(new_val, self._risk_range, self._metric,
+                             self._visualization, self._threshold,
+                             self._adjustment, self._sig_filter, self._var,
+                             self._month, self._loss)
 
     def get_risk_range(self):
         """Get the year range which should be used in determining risk.
@@ -90,18 +82,10 @@ class Configuration:
         Returns:
             Copy of this configuration object with the new risk range.
         """
-        return Configuration(
-            self._scenario,
-            new_val,
-            self._metric,
-            self._visualization,
-            self._threshold,
-            self._adjustment,
-            self._sig_filter,
-            self._var,
-            self._month,
-            self._loss
-        )
+        return Configuration(self._scenario, new_val, self._metric,
+                             self._visualization, self._threshold,
+                             self._adjustment, self._sig_filter, self._var,
+                             self._month, self._loss)
 
     def get_metric(self):
         """Get the metric which should be displayed in the visualization.
@@ -120,18 +104,10 @@ class Configuration:
         Returns:
             Copy of this configuration object with the new metric
         """
-        return Configuration(
-            self._scenario,
-            self._risk_range,
-            new_val,
-            self._visualization,
-            self._threshold,
-            self._adjustment,
-            self._sig_filter,
-            self._var,
-            self._month,
-            self._loss
-        )
+        return Configuration(self._scenario, self._risk_range, new_val,
+                             self._visualization, self._threshold,
+                             self._adjustment, self._sig_filter, self._var,
+                             self._month, self._loss)
 
     def get_visualization(self):
         """Get the visualization type to display to the user.
@@ -150,18 +126,10 @@ class Configuration:
         Returns:
             Copy of this configuration object with a new type of visualization selected.
         """
-        return Configuration(
-            self._scenario,
-            self._risk_range,
-            self._metric,
-            new_val,
-            self._threshold,
-            self._adjustment,
-            self._sig_filter,
-            self._var,
-            self._month,
-            self._loss
-        )
+        return Configuration(self._scenario, self._risk_range, self._metric,
+                             new_val, self._threshold, self._adjustment,
+                             self._sig_filter, self._var, self._month,
+                             self._loss)
 
     def get_show_acreage(self):
         """Indicate if acreage should be shown.
@@ -198,18 +166,10 @@ class Configuration:
         Returns:
             Copy of this configuration object with the new significance threshold.
         """
-        return Configuration(
-            self._scenario,
-            self._risk_range,
-            self._metric,
-            self._visualization,
-            new_val,
-            self._adjustment,
-            self._sig_filter,
-            self._var,
-            self._month,
-            self._loss
-        )
+        return Configuration(self._scenario, self._risk_range, self._metric,
+                             self._visualization, new_val, self._adjustment,
+                             self._sig_filter, self._var, self._month,
+                             self._loss)
 
     def get_adjustment(self):
         """Get the statistical adjustment to apply.
@@ -232,18 +192,10 @@ class Configuration:
         Returns:
             Copy of this configuration object with the new significance adjustment.
         """
-        return Configuration(
-            self._scenario,
-            self._risk_range,
-            self._metric,
-            self._visualization,
-            self._threshold,
-            new_val,
-            self._sig_filter,
-            self._var,
-            self._month,
-            self._loss
-        )
+        return Configuration(self._scenario, self._risk_range, self._metric,
+                             self._visualization, self._threshold, new_val,
+                             self._sig_filter, self._var, self._month,
+                             self._loss)
 
     def get_sig_filter(self):
         """Determine if a filter should be applied for significance.
@@ -263,18 +215,10 @@ class Configuration:
         Returns:
             Copy of this configuration object with the new significance filter option.
         """
-        return Configuration(
-            self._scenario,
-            self._risk_range,
-            self._metric,
-            self._visualization,
-            self._threshold,
-            self._adjustment,
-            new_val,
-            self._var,
-            self._month,
-            self._loss
-        )
+        return Configuration(self._scenario, self._risk_range, self._metric,
+                             self._visualization, self._threshold,
+                             self._adjustment, new_val, self._var, self._month,
+                             self._loss)
 
     def get_var(self):
         """Get the contextualizing dimension to use in understanding the selected metric.
@@ -294,18 +238,10 @@ class Configuration:
         Returns:
             Copy of this configuration object with the new dimension selection.
         """
-        return Configuration(
-            self._scenario,
-            self._risk_range,
-            self._metric,
-            self._visualization,
-            self._threshold,
-            self._adjustment,
-            self._sig_filter,
-            new_val,
-            self._month,
-            self._loss
-        )
+        return Configuration(self._scenario, self._risk_range, self._metric,
+                             self._visualization, self._threshold,
+                             self._adjustment, self._sig_filter, new_val,
+                             self._month, self._loss)
 
     def get_month(self):
         """Get the month from which the contextualizing dimension values should be shown.
@@ -325,18 +261,10 @@ class Configuration:
         Returns:
             Copy of this configuration object with the new month selection.
         """
-        return Configuration(
-            self._scenario,
-            self._risk_range,
-            self._metric,
-            self._visualization,
-            self._threshold,
-            self._adjustment,
-            self._sig_filter,
-            self._var,
-            new_val,
-            self._loss
-        )
+        return Configuration(self._scenario, self._risk_range, self._metric,
+                             self._visualization, self._threshold,
+                             self._adjustment, self._sig_filter, self._var,
+                             new_val, self._loss)
 
     def get_loss(self):
         """Get the loss threshold.
@@ -355,18 +283,10 @@ class Configuration:
         Returns:
             Copy of this configuration object with the new loss threshold selection.
         """
-        return Configuration(
-            self._scenario,
-            self._risk_range,
-            self._metric,
-            self._visualization,
-            self._threshold,
-            self._adjustment,
-            self._sig_filter,
-            self._var,
-            self._month,
-            new_val
-        )
+        return Configuration(self._scenario, self._risk_range, self._metric,
+                             self._visualization, self._threshold,
+                             self._adjustment, self._sig_filter, self._var,
+                             self._month, new_val)
 
     def _set_viz(self, viz_str):
         self._visualization = viz_str
@@ -412,151 +332,115 @@ class ConfigurationPresenter:
             self._sketch,
             0,
             current_y,
-            'Visualization',
-            ['scatter', 'neighborhood', 'acreage'],
+            'Visualization', ['scatter', 'neighborhood', 'acreage'],
             self._config.get_visualization(),
             lambda x: self._set_config(self._config.get_with_visualization(x)),
-            keyboard_button='v'
-        )
+            keyboard_button='v')
 
-        current_y += self._viz_buttons.get_height() + 12
+        current_y += self._viz_buttons.get_height() + 11
 
         self._metric_buttons = buttons.ToggleButtonSet(
             self._sketch,
             0,
             current_y,
-            'Metric',
-            ['yield', 'risk'],
+            'Metric', ['yield', 'risk'],
             self._config.get_metric(),
             lambda x: self._set_config(self._config.get_with_metric(x)),
-            keyboard_button='o'
-        )
+            keyboard_button='o')
 
-        current_y += self._metric_buttons.get_height() + 12
+        current_y += self._metric_buttons.get_height() + 11
 
         self._loss_buttons = buttons.ToggleButtonSet(
             self._sketch,
             0,
             current_y,
-            'Loss',
-            ['75% cov', '85% cov'],
+            'Loss', ['75% cov', '85% cov'],
             self._config.get_loss(),
             lambda x: self._set_config(self._config.get_with_loss(x)),
-            keyboard_button='c'
-        )
+            keyboard_button='c')
 
-        current_y += self._viz_buttons.get_height() + 25
+        current_y += self._viz_buttons.get_height() + 24
 
         self._scenario_buttons = buttons.ToggleButtonSet(
             self._sketch,
             0,
             current_y,
-            'Scenario',
-            ['2030 series', '2050 series'],
+            'Scenario', ['2030 series', '2050 series'],
             self._config.get_scenario(),
             lambda x: self._set_config(self._config.get_with_scenario(x)),
-            keyboard_button='y'
-        )
+            keyboard_button='y')
 
-        current_y += self._scenario_buttons.get_height() + 12
+        current_y += self._scenario_buttons.get_height() + 11
 
         self._range_buttons = buttons.ToggleButtonSet(
             self._sketch,
             0,
             current_y,
-            'Range of Risk',
-            ['Sample 1 Year', 'Avg All Years'],
+            'Range of Risk', ['Sample 1 Year', 'Avg All Years'],
             self._config.get_risk_range(),
             lambda x: self._set_config(self._config.get_with_risk_range(x)),
-            keyboard_button='s'
-        )
+            keyboard_button='s')
 
-        current_y += self._range_buttons.get_height() + 25
+        current_y += self._range_buttons.get_height() + 24
 
         self._threshold_buttons = buttons.ToggleButtonSet(
             self._sketch,
             0,
             current_y,
-            'Threshold',
-            ['p <  0.05', 'p <  0.10'],
+            'Threshold', ['p <  0.05', 'p <  0.10'],
             self._config.get_threshold(),
             lambda x: self._set_config(self._config.get_with_threshold(x)),
-            keyboard_button='t'
-        )
+            keyboard_button='t')
 
-        current_y += self._threshold_buttons.get_height() + 12
+        current_y += self._threshold_buttons.get_height() + 11
 
         self._adj_buttons = buttons.ToggleButtonSet(
             self._sketch,
             0,
             current_y,
-            'Adjustment',
-            ['Bonferroni', 'no correction'],
+            'Adjustment', ['Bonferroni', 'no correction'],
             self._config.get_adjustment(),
             lambda x: self._set_config(self._config.get_with_adjustment(x)),
-            keyboard_button='b'
-        )
+            keyboard_button='b')
 
-        current_y += self._adj_buttons.get_height() + 12
+        current_y += self._adj_buttons.get_height() + 11
 
         self._filter_buttons = buttons.ToggleButtonSet(
             self._sketch,
             0,
             current_y,
-            'Filter',
-            ['significant only', 'all'],
+            'Filter', ['significant only', 'all'],
             self._config.get_sig_filter(),
             lambda x: self._set_config(self._config.get_with_sig_filter(x)),
-            keyboard_button='f'
-        )
+            keyboard_button='f')
 
-        current_y += self._filter_buttons.get_height() + 25
+        current_y += self._filter_buttons.get_height() + 24
 
         self._var_buttons = buttons.ToggleButtonSet(
             self._sketch,
             0,
             current_y,
-            'Variable',
-            [
-                'no var',
-                'chirps',
-                'rhn',
-                'svp',
-                'tmax',
-                'tmin',
-                'vpd',
+            'Variable', [
+                'no var', 'chirps', 'rhn', 'svp', 'tmax', 'tmin', 'vpd',
                 'wbgtmax'
             ],
             self._config.get_var(),
             lambda x: self._set_config(self._config.get_with_var(x)),
-            keyboard_button='g'
-        )
+            keyboard_button='g')
 
         self._month_buttons = buttons.ToggleButtonSet(
             self._sketch,
             5,
             const.HEIGHT - const.BUTTON_HEIGHT - 5,
-            'Month',
-            [
-                'jan',
-                'feb',
-                'mar',
-                'apr',
-                'may',
-                'jun',
-                'jul',
-                'aug',
-                'sep',
-                'oct',
-                'nov',
-                'dec'
+            'Month', [
+                'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep',
+                'oct', 'nov', 'dec'
             ],
             self._config.get_month(),
             lambda x: self._set_config(self._config.get_with_month(x)),
             make_rows=False,
             narrow=True,
-            keyboard_button='m'
-        )
+            keyboard_button='m')
 
     def step(self, mouse_x, mouse_y, clicked, keypress):
         """Update and draw this meta-widget and its sub-widgets.
