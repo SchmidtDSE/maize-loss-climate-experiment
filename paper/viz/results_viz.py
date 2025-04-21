@@ -74,10 +74,10 @@ class ResultsVizPresenter:
                 '2050 series',
                 'Avg All Years',
                 'yield',
-                'scatter',
+                'neighborhood',
                 'p <  0.05',
                 'Bonferroni',
-                'significant only',
+                'all',
                 'no var',
                 'jul',
                 '75% cov'
