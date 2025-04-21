@@ -22,13 +22,8 @@ import scatter
 class ResultsVizPresenter:
     """Main presenter for the neighborhood-level results viz that coordinates other components."""
 
-    def __init__(self,
-                 target,
-                 loading_id,
-                 default_configuration=None,
-                 data_loc=None,
-                 climate_loc=None,
-                 output_loc=None):
+    def __init__(self, target, loading_id, default_configuration=None, data_loc=None,
+        climate_loc=None, output_loc=None):
         """Create a enw results viz instance.
 
         Args:
@@ -46,11 +41,9 @@ class ResultsVizPresenter:
         """
 
         if output_loc:
-            self._sketch = sketchingpy.Sketch2DStatic(const.WIDTH,
-                                                      const.HEIGHT)
+            self._sketch = sketchingpy.Sketch2DStatic(const.WIDTH, const.HEIGHT)
         else:
-            self._sketch = sketchingpy.Sketch2D(const.WIDTH, const.HEIGHT,
-                                                target, loading_id)
+            self._sketch = sketchingpy.Sketch2D(const.WIDTH, const.HEIGHT, target, loading_id)
 
         if data_loc:
             self._data_loc = data_loc
@@ -78,38 +71,79 @@ class ResultsVizPresenter:
             self._config = default_configuration
         else:
             self._config = config_buttons.Configuration(
-                '2050 series', 'Avg All Years', 'yield', 'neighborhood',
-                'p <  0.05', 'Bonferroni', 'all', 'no var', 'jul', '75% cov')
+                '2050 series',
+                'Avg All Years',
+                'yield',
+                'neighborhood',
+                'p <  0.05',
+                'Bonferroni',
+                'all',
+                'no var',
+                'jul',
+                '75% cov'
+            )
 
-        data_initial = preprocess.make_scatter_values(self._all_records,
-                                                      self._climate_deltas,
-                                                      self._config)
+        data_initial = preprocess.make_scatter_values(
+            self._all_records,
+            self._climate_deltas,
+            self._config
+        )
 
         self._select_button = buttons.Button(
-            self._sketch, 5, 10, 'Select Fields',
-            lambda x: self._start_fields_selection())
+            self._sketch,
+            5,
+            10,
+            'Select Fields',
+            lambda x: self._start_fields_selection()
+        )
 
         self._scatter_presenter = scatter.ScatterMainPresenter(
-            self._sketch, 5, 50, const.MAIN_WIDTH, main_height, data_initial,
-            self._config.get_metric(), self._config.get_var(),
+            self._sketch,
+            5,
+            50,
+            const.MAIN_WIDTH,
+            main_height,
+            data_initial,
+            self._config.get_metric(),
+            self._config.get_var(),
             self._selected_geohashes,
-            lambda x: self._update_selected_geohashes(x))
+            lambda x: self._update_selected_geohashes(x)
+        )
 
         self._map_presenter = map_viz.MapMainPresenter(
-            self._sketch, 5, 50, const.MAIN_WIDTH, main_height, data_initial,
-            self._config.get_metric(), self._config.get_var(),
-            self._selected_geohashes, self._config.get_show_acreage(),
-            lambda x: self._update_selected_geohashes(x))
+            self._sketch,
+            5,
+            50,
+            const.MAIN_WIDTH,
+            main_height,
+            data_initial,
+            self._config.get_metric(),
+            self._config.get_var(),
+            self._selected_geohashes,
+            self._config.get_show_acreage(),
+            lambda x: self._update_selected_geohashes(x)
+        )
 
         percents_initial = preprocess.make_percents(data_initial)
         self._legend_presenter = legend.LegendPresenter(
-            self._sketch, const.MAIN_WIDTH + 20, 50 + main_height - 140, 295,
-            135, percents_initial, self._config.get_metric(),
-            self._config.get_var(), self._config.get_visualization())
+            self._sketch,
+            const.MAIN_WIDTH + 20,
+            50 + main_height - 140,
+            295,
+            135,
+            percents_initial,
+            self._config.get_metric(),
+            self._config.get_var(),
+            self._config.get_visualization()
+        )
 
         self._configuration_pesenter = config_buttons.ConfigurationPresenter(
-            self._sketch, const.MAIN_WIDTH + 20, 50, self._config,
-            lambda x: self._change_config(x))
+            self._sketch,
+            const.MAIN_WIDTH + 20,
+            50,
+            self._config,
+            lambda x: self._change_config(x)
+        )
 
         self._clicked = False
         self._key_waiting = None
@@ -163,25 +197,34 @@ class ResultsVizPresenter:
 
         self._change_waiting = True
 
-        new_data = preprocess.make_scatter_values(self._all_records,
-                                                  self._climate_deltas,
-                                                  self._config)
+        new_data = preprocess.make_scatter_values(
+            self._all_records,
+            self._climate_deltas,
+            self._config
+        )
 
-        self._scatter_presenter.update_data(new_data,
-                                            self._config.get_metric(),
-                                            self._config.get_var(),
-                                            self._selected_geohashes)
+        self._scatter_presenter.update_data(
+            new_data,
+            self._config.get_metric(),
+            self._config.get_var(),
+            self._selected_geohashes
+        )
 
-        self._map_presenter.update_data(new_data, self._config.get_metric(),
-                                        self._config.get_var(),
-                                        self._selected_geohashes,
-                                        self._config.get_show_acreage())
+        self._map_presenter.update_data(
+            new_data,
+            self._config.get_metric(),
+            self._config.get_var(),
+            self._selected_geohashes,
+            self._config.get_show_acreage()
+        )
 
         new_percents = preprocess.make_percents(new_data)
-        self._legend_presenter.update_data(new_percents,
-                                           self._config.get_metric(),
-                                           self._config.get_var(),
-                                           self._config.get_visualization())
+        self._legend_presenter.update_data(
+            new_percents,
+            self._config.get_metric(),
+            self._config.get_var(),
+            self._config.get_visualization()
+        )
 
     def _step(self):
         """Update the visualization and display."""
@@ -215,8 +258,7 @@ class ResultsVizPresenter:
         else:
             self._map_presenter.step(mouse_x, mouse_y, self._clicked)
 
-        self._configuration_pesenter.step(mouse_x, mouse_y, self._clicked,
-                                          self._key_waiting)
+        self._configuration_pesenter.step(mouse_x, mouse_y, self._clicked, self._key_waiting)
         self._legend_presenter.step(mouse_x, mouse_y, self._clicked)
 
         if not self._selecting:
@@ -269,8 +311,11 @@ class ResultsVizPresenter:
         else:
             area_str = 'Area of circle proportional to num fields.'
 
-        description = ' '.join(
-            ['Using CHC-CMIP6 and Lobell.', agg_str, area_str])
+        description = ' '.join([
+            'Using CHC-CMIP6 and Lobell.',
+            agg_str,
+            area_str
+        ])
 
         return description
 
