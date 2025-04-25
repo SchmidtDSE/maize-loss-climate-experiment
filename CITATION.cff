@@ -1,12 +1,23 @@
 cff-version: '1.1.0'
 message: 'Please cite the following works to reference this software.'
 authors:
-  - A Samuel Pottinger
-  - Lawson Connor
-  - Brookie Guzder-Williams
-  - Maya Weltman-Fahs
-  - Nick Gondek
-  - Timothy Bowles
+  - family-names: "Pottinger"
+    given-names: "A. Samuel"
+    orcid: "https://orcid.org/0000-0002-0458-4985"
+  - family-names: "Connor"
+    given-names: "Lawson"
+    orcid: "https://orcid.org/0000-0001-5951-5752"
+  - family-names: "Guzder-Williams"
+    given-names: "Brookie"
+    orcid: "https://orcid.org/0000-0001-6855-8260"
+  - family-names: "Weltman-Fahs"
+    given-names: "May"
+  - family-names: "Gondek"
+    given-names: "Nick"
+    orcid: "https://orcid.org/0009-0007-7431-4669"
+  - family-names: "Bowles"
+    given-names: "Timothy"
+    orcid: "https://orcid.org/0000-0002-4840-3787"
   
 doi: '10.48550/ARXIV:2408.02217'
 identifiers:
