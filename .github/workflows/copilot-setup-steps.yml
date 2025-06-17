@@ -1,0 +1,59 @@
+name: "Copilot Setup Steps"
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install checks
+        run: pip install pycodestyle pyflakes nose2
+      - name: Install main dependencies
+        run: pip install -r requirements.txt
+      - name: Install paper dependencies
+        run: cd paper; pip install -r requirements.txt
+      - name: Install viz dependencies
+        run: cd paper/viz; pip install -r requirements.txt
+      - name: Update apt
+        run: sudo apt-get update
+      - name: Install zip
+        run: sudo apt-get install zip
+      - name: Install wget
+        run: sudo apt-get install wget
+      - name: Download pipeline summary outputs
+        run: wget https://ag-adaptation-study.pub/archive/outputs.zip
+      - name: Unzip downloaded summary data
+        run: unzip outputs.zip
+      - name: Move downloaded summary data
+        run: mv outputs paper/outputs
+      - name: Download pipeline detailed outputs
+        run: wget https://ag-adaptation-study.pub/archive/data.zip
+      - name: Unzip downloaded detailed data
+        run: unzip data.zip
+      - name: Move downloaded detailed data
+        run: mv data paper/viz/data
+      - name: Make font build dir
+        run: mkdir font_build
+      - name: Download font
+        run: cd font_build; wget https://github.com/uswds/public-sans/releases/download/v2.001/public-sans-v2.001.zip
+      - name: Unzip font
+        run: cd font_build; unzip public-sans-v2.001
+      - name: Make font destination
+        run: mkdir paper/viz/font
+      - name: Move font
+        run: mv font_build/fonts/otf/PublicSans-Regular.otf paper/viz/font/PublicSans-Regular.otf
+      - name: Make destination
+        run: mkdir paper/img
+      - name: Render images
+        run: cd paper/viz; bash render_images.sh
