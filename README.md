@@ -220,6 +220,8 @@ We also use:
  - [Color Brewer](https://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3) under the [Apache v2 License](https://github.com/axismaps/colorbrewer/).
  - [Public Sans](https://public-sans.digital.gov/) under the [CC0 License](https://github.com/uswds/public-sans/blob/develop/LICENSE.md).
 
+GitHub Copilot used for some post-publication steps, largely to prepare materials for presentations.
+
 <br>
 
 ## License
