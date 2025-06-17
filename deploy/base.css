@@ -1,0 +1,382 @@
+@font-face {
+    font-family: PublicSans-Regular;
+    src: url("font/PublicSans-Regular.otf") format("opentype");
+}
+
+a, a:link, a:visited, a:hover, a:focus, a:active {
+    color: #555555;
+}
+
+a.emphasized-link, a.emphasized-link:link, a.emphasized-link:visited, a.emphasized-link:hover, a.emphasized-link:focus, a.emphasized-link:active {
+    color: #5050C0;
+    text-decoration: none;
+}
+
+a:hover, a:focus, a:active, a.emphasized-link:hover, a.emphasized-link:focus, a.emphasized-link:active {
+    color: #3333C0;
+    text-decoration: underline;
+}
+
+html {
+    font-family: PublicSans-Regular;
+    font-size: 15px;
+    color: #333333;
+    background-color: #F0F0F0;
+}
+
+body {
+    max-width: 1350px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+details {
+    margin-top: 15px;
+}
+
+details summary.button {
+    color: #5050C0;
+}
+
+details summary.button:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+details .sub-content {
+    color: #606060;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+details .sub-content .vocab {
+    color: #505050;
+}
+
+dt {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+h1 {
+    font-size: 28px;
+    color: #000000;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+h2 {
+    font-size: 20px;
+    color: #000000;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+main {
+    margin-top: 10px;
+    padding-top: 10px;
+    background-color: white;
+}
+
+nav.styled {
+    border-bottom: 1px solid black;
+    margin-top: 25px;
+    padding-bottom: 10px;
+    border-top: 1px solid #555555;
+    text-align: center;
+}
+
+nav.styled .nav-item {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    display: inline-block;
+}
+
+table {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+table, th, td {
+    border: 1px solid #555555;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 3px;
+}
+
+.app-intro {
+    padding: 10px;
+    font-size: 17px;
+    border: 1px solid #A0A0A0;
+    border-radius: 5px;
+    color: #000000;
+}
+
+.app-intro a.load-app-link {
+    padding: 5px;
+    background-color: #5050C0;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.app-intro a.load-app-link:hover {
+    text-decoration: underline;
+}
+
+.app-intro .instruction {
+    margin-bottom: 12px;
+}
+
+.block-quote {
+    border: 1px solid #A0A0A0;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 15px 10px;
+    text-align: left;
+    color: #505050;
+}
+
+.body-text {
+    text-align: left;
+}
+
+.body-text.separated {
+    border-bottom: 1px dotted #A0A0A0;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+}
+
+.bottom-links {
+    text-align: center;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.bottom-section {
+    margin-top: 25px;
+    padding-bottom: 25px;
+}
+
+.citations {
+    margin-top: 30px;
+}
+
+.csl-entry {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 11px;
+}
+
+.details-inner {
+    margin-top: 10px;
+    margin-left: 15px;
+}
+
+.diagram {
+    border: 1px solid #A0A0A0;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 15px 5px;
+}
+
+.diagram img {
+    min-width: 50%;
+    max-width: 90%;
+}
+
+.emphasis {
+    font-weight: bold;
+    color: black;
+}
+
+.header-subtext {
+    padding-bottom: 40px;
+    color: black;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.inline-header {
+    font-size: 15px;
+    color: #000000;
+    display: inline-block;
+    margin-bottom: 0;
+    font-weight: bold;
+}
+
+.interactive {
+    width: 100%;
+    overflow-x: auto;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #707070;
+    font-size: 13px;
+}
+
+.interactive canvas {
+    border: 1px solid #A0A0A0;
+    border-radius: 5px;
+}
+
+.keyboard-controls {
+    padding: 10px;
+    font-size: 17px;
+    border: 1px solid #A0A0A0;
+    border-radius: 5px;
+    color: #000000;
+    text-align: left;
+    background-color: #F5F5F5;
+    margin-top: 10px;
+    display: none;
+}
+
+.keyboard-controls.visible {
+    display: block;
+}
+
+.keyboard-controls.override {
+    display: none;
+}
+
+.major-section {
+    border-bottom: 1px dotted #555555;
+    margin-top: 25px;
+    padding-bottom: 25px;
+}
+
+.next-button-holder {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.next-button-holder a {
+    padding: 5px;
+    background-color: #5050C0;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.next-button-holder a:hover {
+    text-decoration: underline;
+}
+
+.page {
+    background-color: #FFFFFF;
+    filter: drop-shadow(0 0 0.7rem #C0C0C0);
+    padding: 20px;
+    margin: 10px;
+}
+
+.page-warning {
+    filter: drop-shadow(0 0 0.7rem #C0C0C0);
+    padding: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    background-color: white;
+    border: 1px solid black;
+}
+
+.paragraph {
+    margin-bottom: 14px;
+}
+
+.presentation {
+    text-align: center;
+    color: #333333;
+}
+
+.setting {
+    margin-top: 40px;
+}
+
+.setting h3 {
+    margin-bottom: 10px;
+}
+
+.setting .option-set {
+    margin-top: 10px;
+}
+
+.sketch {
+    display: none;
+}
+
+.skip-link {
+    background: rgba(255, 255, 255, 0.5);
+    height: 20px;
+    padding: 4px;
+    left: 0;
+    top: 0;
+    position: absolute;
+    transform: translateY(-100%);
+    z-index: 1;
+}
+  
+.skip-link:focus {
+    transform: translateY(0%);
+    z-index: 1;
+}
+
+.tooltip {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+}
+
+.tooltip:hover {
+    cursor: pointer;
+    text-decoration-style: dashed;
+}
+
+.tooltip.disabled {
+    text-decoration: none;
+}
+
+.tooltip.disabled:hover {
+    cursor: default;
+    text-decoration: none;
+}
+
+.viz-alternative {
+    padding: 10px;
+    font-size: 17px;
+    border: 1px solid #A0A0A0;
+    border-radius: 5px;
+    color: #000000;
+    text-align: left;
+    background-color: #F5F5F5;
+    display: none;
+}
+
+.viz-alternative a:link, .viz-alternative a:visited {
+    color: black;
+}
+
+.viz-alternative a:active, .viz-alternative a:hover {
+    color: #0000C0;
+}
+
+.vocab {
+    font-weight: bold;
+    color: black;
+}
+
+.vocab-bullet dd {
+    display: inline-block;
+}
+
+.vocab-bullet dt {
+    display: inline-block;
+}
+
+#tools section {
+    border-top: 1px solid #D0D0D0;
+    margin-top: 30px;
+}

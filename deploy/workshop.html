@@ -1,0 +1,474 @@
+<!doctype html>
+<html id="root" lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+        <!-- Sketchingpy / PyScript -->
+        <link rel="stylesheet" href="/third_party/core.css">
+        <script type="module" src="/third_party/core.js"></script>
+
+        <link rel="stylesheet" href="/third_party/tabby.css">
+
+        <title>Workshop: Climate-Driven Doubling of US Maize Loss Probability</title>
+        <meta name="description" content="Workshop presentation of climate-driven doubling in maize loss probability within U.S. Crop Insurance: AI, prediction, and policy.">
+        <meta name="keywords" content="agriculture, maize, corn, policy, AI, machine learning, insurance, workshop">
+        <meta name="author" content="Pottinger et al. Schmidt Center for Data Science and Environment at UC Berkeley. See humans.txt.">
+
+        <meta property="og:title" content="Workshop: Climate-Driven Doubling of US Maize Loss Probability" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="Workshop presentation of climate-driven doubling in maize loss probability within U.S. Crop Insurance: AI, prediction, and policy.">
+        <meta property="og:url" content="https://ag-adaptation-study.pub/workshop.html" />
+        <meta property="og:image" content="https://ag-adaptation-study.pub/social/map.png" />
+
+        <meta name="twitter:title" content="Workshop: Climate-Driven Doubling of US Maize Loss Probability">
+        <meta name="twitter:description" content="Workshop presentation of climate-driven doubling in maize loss probability within U.S. Crop Insurance: AI, prediction, and policy.">
+        <meta name="twitter:image" content="https://ag-adaptation-study.pub/social/map.png">
+        <meta name="twitter:card" content="summary_large_image">
+
+        <link rel="stylesheet" href="base.css?v=1750197695">
+    </head>
+    <body>
+        <py-config>
+        {
+            "packages": [
+                "/third_party/sketchingpy-0.2.4-py3-none-any.whl",
+                "/third_party/toolz-0.12.1-py3-none-any.whl"
+            ],
+            "files": {
+                "/buttons.pyscript?v=1750197695": "buttons.py",
+                "/config_buttons.pyscript?v=1750197695": "config_buttons.py",
+                "/const.pyscript?v=1750197695": "const.py",
+                "/data_struct.pyscript?v=1750197695": "data_struct.py",
+                "/history_viz.pyscript?v=1750197695": "history_viz.py",
+                "/hist_viz.pyscript?v=1750197695": "hist_viz.py",
+                "/legend.pyscript?v=1750197695": "legend.py",
+                "/map_viz.pyscript?v=1750197695": "map_viz.py",
+                "/preprocess.pyscript?v=1750197695": "preprocess.py",
+                "/rates_viz.pyscript?v=1750197695": "rates_viz.py",
+                "/results_viz_entry.pyscript?v=1750197695": "results_viz_entry.py",
+                "/results_viz.pyscript?v=1750197695": "results_viz.py",
+                "/scatter.pyscript?v=1750197695": "scatter.py",
+                "/sweep_viz.pyscript?v=1750197695": "sweep_viz.py",
+                "/symbols.pyscript?v=1750197695": "symbols.py"
+            }
+        }
+        </py-config>
+
+        <a class="skip-link" href="#main">
+            Skip to content
+        </a>
+        <a href="#settings" tab="settings" class="skip-link advance-button">
+            Skip to accessibility settings
+        </a>
+
+        <div class="page-warning" id="browser-warning"><span class="emoji">💿</span> We don't recognize your browser. It may be out of date and unable to run the interactive elements on this page or it may just be a less common piece of software. If you run into issues, please consider updating or using Firefox!</div>
+
+        <div class="page-warning" id="mobile-warning"><span class="emoji">📱</span> Parts of this experience involve experimenting with data inside tools optimized for larger screens. This window might be a little cramped. If you run into trouble, please try resizing this window, rotating your screen, or visiting us again on a larger device.</div>
+
+        <div class="page">
+
+            <header>
+                <h1>Climate-Driven Doubling of U.S. Maize Loss Probability</h1>
+                <div class="header-subtext">Workshop: Interactive Simulation with Neural Network Monte Carlo</div>
+            </header>
+            
+            <nav>
+                <ul data-tabs>
+                    <li><a data-tabby-default href="#content">Content</a></li>
+                    <li><a href="#settings">Settings</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+            </nav>
+
+            <main class="presentation" id="main">
+                <section id="content">
+                    <h2><span class="emoji" aria-hidden="true">🌽</span> Workshop outline</h2>
+                    <div class="body-text">
+                        <div class="paragraph" role="paragraph">
+                            Slides which overview Climate-driven doubling of U.S. maize loss probability: Interactive simulation with neural network Monte Carlo. Published in JDSSV as Pottinger et al 2025 with DOI: <a href="https://doi.org/10.52933/jdssv.v5i3.134" target="_blank">10.52933/jdssv.v5i3.134</a>.
+                        </div>
+
+                        <h3><span class="emoji" aria-hidden="true">📖</span> Background</h3>
+                        <div class="paragraph" role="paragraph">
+                            <ul>
+                                <li>The <strong>costs of crop insurance in the U.S. have already increased by 500%</strong> since the early 2000s with annual indemnities reaching $19B in 2022 (<a href="https://www.ewg.org/research/crop-insurance-costs-soar-over-time-reaching-record-high-2022" target="_blank">Schechinger 2023</a>).</li>
+                                <li>Retrospective analysis attributes 19% of "national-level crop insurance losses" between 1991 and 2017 to climate warming, an estimate rising to <strong>47% during the drought-stricken 2012 growing season</strong> (<a href="https://iopscience.iop.org/article/10.1088/1748-9326/ac1223" target="_blank">Diffenbaugh et al. 2021</a>)</li>
+                            </ul>
+                        </div>
+
+                        <h3><span class="emoji" aria-hidden="true">🔬</span> Study</h3>
+                        <div class="paragraph" role="paragraph">
+                            <ul>
+                                <li><strong>Research question</strong>: We want to explore what the future of the Federal Crop Insurance Program might look like under climate change to evaluate how the structures of FCIP might interact with possible changes to yield patterns.</li>
+                                <li><strong>Data</strong>: We used SCYM (<a href="https://www.sciencedirect.com/science/article/abs/pii/S0034425715001637" target="_blank">Lobell et al 2015</a>) for historic yield estimation and CHC-CMIP6 (<a href="https://www.nature.com/articles/s41597-024-03074-w" target="_blank">Funk et al 2024</a>) under SSP245 at near term (approximately 2030s) and medium term (approximately 2050s).</li>
+                                <li><strong>Tools</strong>: We built interactive visualizations as "explorable explanations" to help support dialogue and user agency to experiment with these ideas.</li>
+                            </ul>
+                        </div>
+
+                        <div class="paragraph" role="paragraph">
+                            <strong>Add the Rates Explorer interactive:</strong>
+                        </div>
+                        <div class="interactive" id="policy-abstract">
+                            <div class="default-viz">
+                                <div class="app-intro">
+                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
+                                </div>
+                                <div class="sketch">
+                                    <div id="sketch-load-message-rates">
+                                        Loading...
+                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                    </div>
+                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-rates"></canvas>
+                                </div>
+                            </div>
+                            <div class="keyboard-controls">
+                                <h4>Keyboard Controls</h4>
+                                <ul>
+                                    <li><span class="keyboard-key">Up / Down</span>: Adjust subsidy rate</li>
+                                    <li><span class="keyboard-key">Left / Right</span>: Adjust coverage level</li>
+                                    <li><span class="keyboard-key">Enter</span>: Toggle auto-advance</li>
+                                    <li><span class="keyboard-key">Escape</span>: Exit interactive</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <h3><span class="emoji" aria-hidden="true">⚙️</span> Method</h3>
+                        <div class="paragraph" role="paragraph">
+                            <ul>
+                                <li>Neural network uses past yield outcomes under past climate conditions as well as how growers may have responded to those conditions to <strong>predict future yield outcomes as distributions of yield deltas</strong> not point values, allowing us to propagate uncertainty and make probabilistic claims.</li>
+                                <li>Monte Carlo <strong>simulates outcomes both in terms of yield but also in terms of probability of claim</strong> under the yield protection form of Multi-Peril Crop Insurance though similar stressors may be present for revenue protection.</li>
+                                <li>We can run these at <strong>risk unit-level resolution</strong> sampled from historic values to build geospatial result datasets that incorporate a sense of historic variability under different climate conditions.</li>
+                            </ul>
+                        </div>
+
+                        <div class="paragraph" role="paragraph">
+                            <strong>Add the ML & Hyperparameters interactive:</strong>
+                        </div>
+                        <div class="interactive" id="sweep-viz-holder">
+                            <div class="default-viz">
+                                <div class="app-intro">
+                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
+                                </div>
+                                <div class="sketch">
+                                    <div id="sketch-load-message-methods">
+                                        Loading...
+                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                    </div>
+                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-methods"></canvas>
+                                </div>
+                            </div>
+                            <div class="keyboard-controls">
+                                <h4>Keyboard Controls</h4>
+                                <ul>
+                                    <li><span class="keyboard-key">Arrow keys</span>: Navigate options</li>
+                                    <li><span class="keyboard-key">Enter</span>: Select option</li>
+                                    <li><span class="keyboard-key">Escape</span>: Exit interactive</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <h3><span class="emoji" aria-hidden="true">📈</span> Summary</h3>
+                        <div class="paragraph" role="paragraph">
+                            <ul>
+                                <li><strong>Simulations see a riskier future</strong>: Yield losses which may trigger indemnity claims will not only be more severe around 2050 but also be twice as frequent.</li>
+                                <li><strong>We anticipate FCIP pressures</strong>: the traditional "75% of average APH yield" will likely become riskier to insure than in the past.</li>
+                            </ul>
+                        </div>
+
+                        <div class="diagram">
+                            <img src="img/summary_figure.png" alt="Summary figure showing the climate-driven doubling of U.S. maize loss probability" />
+                            <div class="caption">Summary figure: Climate-driven doubling of U.S. maize loss probability</div>
+                        </div>
+
+                        <h3><span class="emoji" aria-hidden="true">🔍</span> Details</h3>
+                        <div class="paragraph" role="paragraph">
+                            <ul>
+                                <li>The shape of the "yield deltas" distribution is changing to be <strong>less symmetric</strong> such that bad years are becoming more common.</li>
+                                <li>The <strong>probability of a loss is increasing</strong> even if that loss is not realized each year and there are not consistent decreases in yield.</li>
+                                <li>These seem to correspond somewhat to <strong>drought / heat stress</strong> but also different risk units see different variability.</li>
+                                <li><strong>12.7% of neighborhoods</strong> may see both <strong>increased average yields AND increased claims rates</strong> simultaneously, highlighting how yield volatility can elevate risk even when overall productivity improves.</li>
+                            </ul>
+                        </div>
+
+                        <div class="paragraph" role="paragraph">
+                            <strong>Add the Predicted Distributions interactive:</strong>
+                        </div>
+                        <div class="interactive" id="distributions">
+                            <div class="default-viz">
+                                <div class="app-intro">
+                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
+                                </div>
+                                <div class="sketch">
+                                    <div id="sketch-load-message-distributions">
+                                        Loading...
+                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                    </div>
+                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-distributions"></canvas>
+                                </div>
+                            </div>
+                            <div class="keyboard-controls">
+                                <h4>Keyboard Controls</h4>
+                                <ul>
+                                    <li><span class="keyboard-key">Left / Right</span>: Change year</li>
+                                    <li><span class="keyboard-key">Up / Down</span>: Change neighborhood</li>
+                                    <li><span class="keyboard-key">Enter</span>: Toggle animation</li>
+                                    <li><span class="keyboard-key">Escape</span>: Exit interactive</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <h3><span class="emoji" aria-hidden="true">🏛️</span> Policy</h3>
+                        <div class="paragraph" role="paragraph">
+                            <ul>
+                                <li>Some risk units have more variability than others under growing condition stress. This may have to do with intrinsic properties but it <strong>may also have to do with differences in practices which provide resilience</strong>.</li>
+                                <li>The current structure of MPCI is based on average with yield exclusions which <strong>does not necessarily financially incentivize stability</strong> as it encourages growers to drive up yields even at the expense of variability.</li>
+                                <li>Switching to a standard deviation based coverage level can achieve claims rates similar to the current average-based coverage level today but <strong>keeps those claims rates from dramatically increasing in the future</strong> as growing conditions evolve.</li>
+                                <li>This is <strong>practice-agnostic</strong>, allowing growers flexibility to achieve stability that can complement practice-specific efforts but possible offer mechanisms to mitigate issues with practice-specific approaches explored by prior work (<a href="https://onlinelibrary.wiley.com/doi/10.1002/aepp.13206" target="_blank">Connor et al 2021</a>).</li>
+                            </ul>
+                        </div>
+
+                        <div class="paragraph" role="paragraph">
+                            <strong>Add the Claims & Policy interactive:</strong>
+                        </div>
+                        <div class="interactive" id="claims">
+                            <div class="default-viz">
+                                <div class="app-intro">
+                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
+                                </div>
+                                <div class="sketch">
+                                    <div id="sketch-load-message-claims">
+                                        Loading...
+                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                    </div>
+                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-claims"></canvas>
+                                </div>
+                            </div>
+                            <div class="keyboard-controls">
+                                <h4>Keyboard Controls</h4>
+                                <ul>
+                                    <li><span class="keyboard-key">Left / Right</span>: Change coverage level</li>
+                                    <li><span class="keyboard-key">Up / Down</span>: Change year</li>
+                                    <li><span class="keyboard-key">Space</span>: Toggle policy type</li>
+                                    <li><span class="keyboard-key">Escape</span>: Exit interactive</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <h3><span class="emoji" aria-hidden="true">🔮</span> Future</h3>
+                        <div class="paragraph" role="paragraph">
+                            <ul>
+                                <li><strong>Revenue Protection</strong> is quite difficult to model but would be useful for painting a broader picture.</li>
+                                <li>We explored practice-agnostic tweaks to FCIP formulations but we could further explore these results in <strong>practice-specific</strong> contexts.</li>
+                                <li>Undertaking work to better understand policy opportunities including through <strong>508h</strong>.</li>
+                            </ul>
+                        </div>
+
+                        <div class="paragraph" role="paragraph">
+                            <strong>Add the Neighborhoods interactive:</strong>
+                        </div>
+                        <div class="interactive" id="neighborhoods">
+                            <div class="default-viz">
+                                <div class="app-intro">
+                                    <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                    <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
+                                </div>
+                                <div class="sketch">
+                                    <div id="sketch-load-message-neighborhoods">
+                                        Loading...
+                                        <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                    </div>
+                                    <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-neighborhoods"></canvas>
+                                </div>
+                            </div>
+                            <div class="keyboard-controls">
+                                <h4>Keyboard Controls</h4>
+                                <ul>
+                                    <li><span class="keyboard-key">Arrow keys</span>: Pan map</li>
+                                    <li><span class="keyboard-key">+/-</span>: Zoom in/out</li>
+                                    <li><span class="keyboard-key">Space</span>: Reset view</li>
+                                    <li><span class="keyboard-key">Tab</span>: Cycle through filters</li>
+                                    <li><span class="keyboard-key">Escape</span>: Exit interactive</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="settings">
+                    <h2><span class="emoji" aria-hidden="true">⚙️</span> Settings</h2>
+                    <div class="body-text">
+                        The following options may help some more comfortably engage with this content. When you are done configuring your preferred experience, you can <a href="#content" tab="content" class="advance-button">return to the workshop content</a> complementing our <a href="https://jdssv.org/index.php/jdssv/article/view/134" target="_blank">scientific paper</a>.
+
+                        <section class="setting" id="keyboard-setting">
+                            <h3>Visualization keyboard controls</h3>
+                            
+                            Readers who prefer to use the keyboard instead of a mouse or their finger for a touchscreen can elect to have a list of keyboard controls shown below each interactive visualization. Press escape to leave an interactive.
+
+                            <div class="option-set">
+                                <div>
+                                    <input type="radio" name="keyboard-settings" class="keyboard-setting-radio" id="show-keyboard" value="show">
+                                    <label for="show-keyboard">Show visualization keyboard controls</label>
+                                </div>
+
+                                <div>
+                                    <input type="radio" name="keyboard-settings" class="keyboard-setting-radio" id="hide-keyboard" value="hide" checked>
+                                    <label for="hide-keyboard">Hide visualization keyboard controls</label>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="setting">
+                            <h3>Tooltips</h3>
+                            
+                            Some words displayed with dotted underline will show additional text when either hovered over, tapped / clicked on, or given focus. This may be distracting for some users and may be disabled.
+
+                            <div class="option-set">
+                                <div>
+                                    <input type="radio" name="tooltips-settings" class="tooltips-setting-radio" id="show-tooltips" value="show" checked>
+                                    <label for="show-tooltips">Enable tooltips</label>
+                                </div>
+
+                                <div>
+                                    <input type="radio" name="tooltips-settings" class="tooltips-setting-radio" id="hide-tooltips" value="hide">
+                                    <label for="hide-tooltips">Disable tooltips</label>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="setting">
+                            <h3>Visualizations</h3>
+                            
+                            Interactive visualizations may be distracting for some users. You can disable them entirely while keeping the text content.
+
+                            <div class="option-set">
+                                <div>
+                                    <input type="radio" name="visualizations-settings" class="visualizations-setting-radio" id="show-visualizations" value="show" checked>
+                                    <label for="show-visualizations">Enable interactive visualizations</label>
+                                </div>
+
+                                <div>
+                                    <input type="radio" name="visualizations-settings" class="visualizations-setting-radio" id="hide-visualizations" value="hide">
+                                    <label for="hide-visualizations">Disable interactive visualizations</label>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="setting">
+                            <h3>Visual elements</h3>
+                            
+                            Some users may prefer to disable emoji and other visual elements for a more minimal experience.
+
+                            <div class="option-set">
+                                <div>
+                                    <input type="radio" name="symbols-settings" class="symbols-setting-radio" id="show-symbols" value="show" checked>
+                                    <label for="show-symbols">Show emoji and visual elements</label>
+                                </div>
+
+                                <div>
+                                    <input type="radio" name="symbols-settings" class="symbols-setting-radio" id="hide-symbols" value="hide">
+                                    <label for="hide-symbols">Minimize visual elements</label>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </section>
+
+                <section id="about">
+                    <h2><span class="emoji" aria-hidden="true">ℹ️</span> About this website</h2>
+                    <div class="body-text">
+                        <div class="paragraph" role="paragraph">
+                            This website houses interactive exploratory tools to complement a traditional <a href="https://jdssv.org/index.php/jdssv/article/view/134" target="_blank">scientific paper</a> which offers further details.
+                        </div>
+                        <div class="paragraph" role="paragraph">
+                            This a collaboration between folks at the University of California Berkeley and the University of Arkansas:
+
+                            <ul>
+                                <li><a href="https://gleap.org/" target="_blank">A Samuel Pottinger</a>: Lead author, machine learning / artifical intelligence, data visualization, interactive science. Schmidt Center for Data Science and Environment at UC Berkeley.</li>
+                                <li><a href="https://agribusiness.uark.edu/directory/index/uid/lconnor/name/Lawson+Connor/" target="_blank">Lawson Connor</a>: Agricultural economics and policy. Department of Agricultural Economics and Agribusiness, University of Arkansas.</li>
+                                <li><a href="https://dse.berkeley.edu/people/brookie-guzder-williams" target="_blank">Brookie Guzder-Williams</a>: Machine learning / artifical intelligence. Schmidt Center for Data Science and Environment at UC Berkeley.</li>
+                                <li><a href="https://dse.berkeley.edu/people/maya-weltman-fahs" target="_blank">Maya Weltman-Fahs</a>: Policy and management. Schmidt Center for Data Science and Environment at UC Berkeley.</li>
+                                <li><a href="https://ourenvironment.berkeley.edu/people/bowles" target="_blank">Timothy Bowles</a>: Agroecology, soil health, and regenerative agriculture. Department of Environmental Science, Policy & Management, University of California Berkeley.</li>
+                            </ul>
+
+                            Funding for the project comes from the <a href="https://dse.berkeley.edu/" target="_blank">Eric and Wendy Schmidt Center for Data Science and Environment at UC Berkeley</a>. See also our <a href="/humans.txt" target="_blank">humans.txt</a> file.
+
+                            <details>
+                                <summary class="button">How to cite us <span class="chevron" aria-hidden="true">>></span></summary>
+                                <div class="sub-content">
+                                    <div class="paragraph" role="paragraph">
+                                        We are <a href="https://jdssv.org/index.php/jdssv/article/view/134">published in JDSSV</a>. Please see our <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/CITATION.cff">citation (CFF) file</a>.
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                        <div class="paragraph" role="paragraph">
+                            This project is open source with code released under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#source" target="_blank">BSD License</a> with data available under the <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/LICENSE.md#data" target="_blank">CC-BY-NC License</a>. The interactive components were made in <a href="https://sketchingpy.org/" target="_blank">Sketchingpy</a> and can be executed outside of the browser. Other open source components used and additional details can be found in our <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment/blob/main/README.md" target="_blank">readme</a>.
+
+                            <details>
+                                <summary class="button">Open source credits <span class="chevron" aria-hidden="true">>></span></summary>
+                                <div class="sub-content">
+                                    <div class="paragraph" role="paragraph">
+                                        This website makes use of the following open source libraries:
+                                        <ul>
+                                            <li><a href="https://pyscript.net/" target="_blank">PyScript</a> for running Python in the browser</li>
+                                            <li><a href="https://sketchingpy.org/" target="_blank">Sketchingpy</a> for interactive visualizations</li>
+                                            <li><a href="https://github.com/cferdinandi/tabby" target="_blank">Tabby</a> for tab navigation</li>
+                                            <li><a href="https://atomiks.github.io/tippyjs/" target="_blank">Tippy.js</a> for tooltips</li>
+                                            <li><a href="https://fonts.google.com/specimen/Public+Sans" target="_blank">Public Sans</a> font</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <div class="bottom-links">
+            <a href="index.html">main site</a> / <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment" target="_blank">open source</a> / <a href="terms.html" target="_blank">terms and privacy</a> / <a href="#settings" tab="settings" class="advance-button">accessibility</a> / <a href="#about" tab="about" class="advance-button">about</a>
+        </div>
+    </body>
+
+    <script type="text/javascript" src="third_party/ua-parser.min.js"></script>
+    <script type="text/javascript">
+        var SUPPORTED_OPTIONS = {
+            "Microsoft Edge": 100,
+            "Edge": 100,
+            "Firefox": 106,
+            "Chrome": 100,
+            "Opera": 86,
+            "Safari": 15,
+            "Mobile Safari": 15
+        };
+
+        var parser = new UAParser();
+        var result = parser.getResult();
+        var name = result.browser.name;
+        var version = parseInt(result.browser.version.split(".")[0]);
+        
+        if (result.device.type === "mobile" || result.device.type === "tablet") {
+            document.getElementById("mobile-warning").style.display = "block";
+        }
+
+        var supported = false;
+        if (name in SUPPORTED_OPTIONS) {
+            supported = version >= SUPPORTED_OPTIONS[name];
+        }
+
+        if (!supported) {
+            document.getElementById("browser-warning").style.display = "block";
+        }
+    </script>
+
+    <script src="/third_party/popper.min.js"></script>
+    <script src="/third_party/tabby.js"></script>
+    <script src="/third_party/tippy-bundle.umd.min.js"></script>
+    <script src="driver.js?v=1750197695"></script>
+
+</html>
