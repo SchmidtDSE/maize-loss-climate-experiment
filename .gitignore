@@ -10,3 +10,6 @@ paper/viz/data
 paper/viz/data.zip
 package
 .gitpod.yml
+font_build
+data.zip
+outputs.zip

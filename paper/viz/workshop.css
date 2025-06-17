@@ -1,0 +1,177 @@
+/* Workshop-specific styling */
+
+.workshop-content {
+    padding: 20px;
+}
+
+.workshop-section {
+    margin-bottom: 40px;
+    padding: 30px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.workshop-section:last-child {
+    border-bottom: none;
+}
+
+.workshop-section h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333333;
+}
+
+.workshop-section .body-text {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.workshop-section ul {
+    margin: 15px 0;
+    padding-left: 25px;
+}
+
+.workshop-section li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.figure-container {
+    margin: 30px 0;
+    text-align: center;
+}
+
+.workshop-image {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.figure-caption {
+    margin-top: 10px;
+    font-style: italic;
+    color: #666;
+    font-size: 14px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Interactive components in workshop format */
+.workshop-section .interactive {
+    margin: 25px 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.workshop-section .app-intro {
+    text-align: center;
+}
+
+.workshop-section .instruction {
+    margin-bottom: 15px;
+    font-size: 16px;
+    color: #333;
+}
+
+.workshop-section .load-app-link {
+    background-color: #5050C0;
+    color: white;
+    text-decoration: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    border-radius: 4px;
+    display: inline-block;
+    transition: background-color 0.2s;
+}
+
+.workshop-section .load-app-link:hover {
+    background-color: #3333C0;
+    text-decoration: none;
+}
+
+.workshop-section .sketch {
+    margin-top: 15px;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.workshop-section .sketch-load-progress {
+    width: 100%;
+    max-width: 400px;
+    height: 8px;
+    margin-top: 10px;
+}
+
+.workshop-section .sketch canvas {
+    max-width: 100%;
+}
+
+.workshop-section .interactive > div:last-child {
+    margin-top: 10px;
+    font-style: italic;
+    color: #666;
+    text-align: center;
+}
+
+.chevron {
+    font-size: 12px;
+    margin-left: 5px;
+}
+
+/* Emphasis styling consistent with main site */
+.emphasis {
+    font-weight: bold;
+}
+
+/* Navigation adjustments for workshop layout */
+nav ul {
+    justify-content: center;
+}
+
+nav li {
+    margin: 0 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .workshop-content {
+        padding: 10px;
+    }
+    
+    .workshop-section {
+        padding: 20px 0;
+        margin-bottom: 30px;
+    }
+    
+    .workshop-section h2 {
+        font-size: 20px;
+    }
+    
+    .workshop-section .body-text {
+        font-size: 15px;
+    }
+}
+
+/* Print styles for workshop handouts */
+@media print {
+    .workshop-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    
+    .interactive {
+        display: none;
+    }
+    
+    .figure-container {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+}
