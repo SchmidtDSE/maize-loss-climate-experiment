@@ -96,10 +96,14 @@
 .workshop-section .sketch {
     margin-top: 15px;
     min-height: 400px;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     flex-direction: column;
+}
+
+.workshop-section .sketch[style*="display: block"] {
+    display: flex !important;
 }
 
 .workshop-section .sketch-load-progress {
