@@ -85,17 +85,23 @@ function initInteractivesLinks() {
  * Add event listeners for special links which interact with details.
  */
 function initBespokeControls() {
-    document.getElementById("expand-rate-var-link").addEventListener("click", (event) => {
-        document.getElementById("rate-var-details").setAttribute("open", true);
-        document.getElementById("rate-var-details").focus();
-        event.preventDefault();
-    });
+    const expandRateVarLink = document.getElementById("expand-rate-var-link");
+    if (expandRateVarLink) {
+        expandRateVarLink.addEventListener("click", (event) => {
+            document.getElementById("rate-var-details").setAttribute("open", true);
+            document.getElementById("rate-var-details").focus();
+            event.preventDefault();
+        });
+    }
 
-    document.getElementById("toc-link").addEventListener("click", (event) => {
-        globalTabs.toggle("introduction");
-        document.getElementById("toc").setAttribute("open", true);
-        document.getElementById("toc").focus();
-    });
+    const tocLink = document.getElementById("toc-link");
+    if (tocLink) {
+        tocLink.addEventListener("click", (event) => {
+            globalTabs.toggle("introduction");
+            document.getElementById("toc").setAttribute("open", true);
+            document.getElementById("toc").focus();
+        });
+    }
 }
 
 
