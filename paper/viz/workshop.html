@@ -125,13 +125,24 @@
                         </div>
 
                         <div class="workshop-section" id="method-section">
-                            <h2><span class="emoji" aria-hidden="true">🧠</span> Method</h2>
+                            <h2><span class="emoji" aria-hidden="true">💻</span> Method</h2>
                             <div class="body-text">
                                 <ul>
                                     <li>Neural network uses past yield outcomes under past climate conditions as well as how growers may have responded to those conditions to <strong>predict future yield outcomes as distributions of yield deltas</strong> not point values, allowing us to propagate uncertainty and make probabilistic claims.</li>
                                     <li>Monte Carlo <strong>simulates outcomes both in terms of yield but also in terms of probability of claim</strong> under the yield protection form of Multi-Peril Crop Insurance though similar stressors may be present for revenue protection.</li>
                                     <li>We can run these at <strong>risk unit-level resolution</strong> sampled from historic values to build geospatial result datasets that incorporate a sense of historic variability under different climate conditions.</li>
                                 </ul>
+
+                                <details>
+                                    <summary>Additional technical details</summary>
+                                    <ul>
+                                        <li>Predict yield delta distributions which are historically normal at unit level.</li>
+                                        <li>Feed forward neural network outperformed classical approaches including Gaussian Process and LSTM.</li>
+                                        <li>Train on data between 1999 to 2012 inclusive, validateon 2014 and 2016 to compare candidates from grid search, and test on 2013 and 2015 which serve as a fully hidden set estimating future performance.</li>
+                                        <li>Retrain on train and validation together: 6.2% MAE for mean and 2.0% MAE for std prediction. Additional details and trials in paper.</li>
+                                        <li>0.74 test set correlation coefficient on par with leading prior work but we use Monte Carlo to propogate uncertainty.</li>
+                                    </ul>
+                                </details>
                                 
                                 <div class="interactive" id="sweep-viz-holder">
                                     <div class="app-intro">
@@ -199,7 +210,7 @@
                                     <li>Some risk units have more variability than others under growing condition stress. This may have to do with intrinsic properties but it <strong>may also have to do with differences in practices which provide resilience</strong>.</li>
                                     <li>The current structure of MPCI is based on average with yield exclusions which <strong>does not necessarily financially incentivize stability</strong> as it encourages growers to drive up yields even at the expense of variability.</li>
                                     <li>Switching to a standard deviation based coverage level can achieve claims rates similar to the current average-based coverage level today but <strong>keeps those claims rates from dramatically increasing in the future</strong> as growing conditions evolve.</li>
-                                    <li>This is <strong>practice-agnostic</strong>, allowing growers flexibility to achieve stability that can complement practice-specific efforts but possible offer mechanisms to mitigate issues with practice-specific approaches explored by prior work (<a href="https://onlinelibrary.wiley.com/doi/10.1002/aepp.13206" target="_blank">Connor et al 2021</a>).</li>
+                                    <li>This is <strong>practice-agnostic</strong>, allowing growers flexibility to achieve stability that can complement practice-specific efforts but possible offer mechanisms to address some complexities with practice-specific approaches explored by prior work (<a href="https://onlinelibrary.wiley.com/doi/10.1002/aepp.13206" target="_blank">Connor et al 2021</a>).</li>
                                 </ul>
                                 
                                 <div class="interactive">
