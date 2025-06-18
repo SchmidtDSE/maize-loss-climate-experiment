@@ -41,7 +41,7 @@ RUN pip install -r requirements.txt \
 
 # Install additional Pandoc extensions
 RUN pip install --force-reinstall git+https://github.com/tomduck/pandoc-xnos@284474574f51888be75603e7d1df667a0890504d#egg=pandoc-xnos \
-    && pip install pandoc-eqnos --user
+    && pip install pandoc-eqnos
 
 # Create directories for development data
 RUN mkdir -p paper/outputs paper/viz/data paper/viz/font paper/img
