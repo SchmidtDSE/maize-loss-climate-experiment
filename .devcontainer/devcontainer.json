@@ -1,0 +1,66 @@
+{
+	"name": "Maize Loss Climate Experiment",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.flake8",
+				"ms-python.pylint",
+				"ms-toolsai.jupyter",
+				"ms-vscode.makefile-tools",
+				"redhat.vscode-yaml",
+				"ms-vscode.vscode-json"
+			],
+			"settings": {
+				"python.defaultInterpreterPath": "/usr/local/bin/python",
+				"python.linting.enabled": true,
+				"python.linting.pycodestyleEnabled": true,
+				"python.linting.pyflakesEnabled": true,
+				"python.formatting.provider": "none",
+				"editor.formatOnSave": true,
+				"files.trimTrailingWhitespace": true,
+				"terminal.integrated.defaultProfile.linux": "bash"
+			}
+		}
+	},
+	"forwardPorts": [8000, 8080, 8888],
+	"portsAttributes": {
+		"8000": {
+			"label": "Web Server",
+			"onAutoForward": "notify"
+		},
+		"8080": {
+			"label": "Alt Web Server", 
+			"onAutoForward": "notify"
+		},
+		"8888": {
+			"label": "Jupyter",
+			"onAutoForward": "notify"
+		}
+	},
+	"postCreateCommand": "bash .devcontainer/post-create.sh",
+	"remoteUser": "vscode",
+	"features": {
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": true,
+			"configureZshAsDefaultShell": true,
+			"installOhMyZsh": true,
+			"username": "vscode",
+			"userUid": "1000",
+			"userGid": "1000"
+		},
+		"ghcr.io/devcontainers/features/python:1": {
+			"version": "3.11",
+			"installTools": true
+		},
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {}
+	},
+	"mounts": [
+		"source=vscode-server,target=/home/vscode/.vscode-server,type=volume"
+	]
+}

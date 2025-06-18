@@ -22,6 +22,22 @@ The easiest way to engage with these results is through the web-based interactiv
 ## Local setup
 For those wishing to extend this work, you can execute this pipeline locally by checking out this repository (`git clone git@github.com:SchmidtDSE/maize-loss-climate-experiment.git`).
 
+### Dev Container (Recommended)
+The easiest way to get started with development is using the provided dev container, which automatically sets up all dependencies for pipeline, paper, and visualization development:
+
+1. **GitHub Codespaces**: Click the "Code" button and select "Open with Codespaces" for instant cloud-based development.
+2. **VS Code with Dev Containers**: Open the repository in VS Code and click "Reopen in Container" when prompted (requires Docker and the Dev Containers extension).
+3. **Local Docker**: Clone the repository and run `docker build -t maize-experiment .devcontainer` then `docker run -it -v $(pwd):/workspaces/maize-loss-climate-experiment maize-experiment`.
+
+The dev container includes:
+- Python 3.11 with all project dependencies pre-installed
+- LaTeX and Pandoc for paper building
+- Sample data for visualization development
+- Development tools (linting, testing)
+- All system dependencies configured
+
+After the container starts, you'll have a fully configured environment ready for development on any component.
+
 ### Local pipeline
 First, get access to the [SCYM](https://www.sciencedirect.com/science/article/pii/S0034425715001637) and [CHC-CMIP6](https://www.chc.ucsb.edu/data/chc-cmip6) datasets and download all of the geotiffs to an AWS S3 Bucket or another location which can be accessed via the file system. This will allow you to choose from two execution options:
 
@@ -58,6 +74,9 @@ Then, execute `render_docker.sh` to drop the results into the `paper_rendered` d
 
 ### Local package
 Instead of retrieving data from https://ag-adaptation-study.pub, you can use your own pipeline data outputs by running `bash package.sh`. This will produce the `data` and `outputs` sub-directories inside of a new `package` directory which can be used for the interactive tools and paper rendering respectively.
+
+### Alternative: Manual setup
+If you prefer not to use the dev container, you can manually set up each component following the individual setup instructions below, though this requires more configuration steps.
 
 <br>
 

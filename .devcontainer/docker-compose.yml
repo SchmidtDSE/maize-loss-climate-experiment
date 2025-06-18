@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  dev:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspaces/maize-loss-climate-experiment:cached
+      - vscode-server:/root/.vscode-server
+    ports:
+      - "8000:8000"
+      - "8080:8080"
+      - "8888:8888"
+    working_dir: /workspaces/maize-loss-climate-experiment
+    command: sleep infinity
+    environment:
+      - USE_AWS=0
+      - SOURCE_DATA_LOC=/workspaces/maize-loss-climate-experiment/dev-data
+
+volumes:
+  vscode-server:
