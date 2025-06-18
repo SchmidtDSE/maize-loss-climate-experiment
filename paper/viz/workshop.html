@@ -367,33 +367,74 @@
             </main>
         </div>
 
-        <script src="/third_party/tabby.js"></script>
-        <script src="driver.js?v=EPOCH"></script>
-        
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                initTabs();
-                initInteractivesLinks();
-
-                // Check browser and mobile warnings
-                const browserWarning = document.getElementById("browser-warning");
-                const mobileWarning = document.getElementById("mobile-warning");
-                
-                // Simple browser detection
-                const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
-                const isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
-                const isSafari = navigator.userAgent.toLowerCase().indexOf('safari') > -1 && !isChrome;
-                const isEdge = navigator.userAgent.toLowerCase().indexOf('edge') > -1;
-                
-                if (!isFirefox && !isChrome && !isSafari && !isEdge) {
-                    browserWarning.style.display = "block";
-                }
-                
-                // Mobile detection
-                if (window.innerWidth < 768 || window.innerHeight < 600) {
-                    mobileWarning.style.display = "block";
-                }
-            });
-        </script>
+        <div class="bottom-links">
+            <a href="#content">workshop content</a> / <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment" target="_blank">open source</a> / <a href="terms.html" target="_blank">terms and privacy</a> / <a href="#settings" tab="settings" class="advance-button">accessibility</a> / <a href="#about" tab="about" class="advance-button">about</a>
+        </div>
     </body>
+
+    <script type="text/javascript" src="third_party/ua-parser.min.js"></script>
+    <script type="text/javascript">
+        var SUPPORTED_OPTIONS = {
+            "Microsoft Edge": 100,
+            "Edge": 100,
+            "Firefox": 106,
+            "Chrome": 100,
+            "Opera": 86,
+            "Safari": 15,
+            "Mobile Safari": 15,
+            "Mobile Chrome": 95,
+            "Mobile Firefox": 114
+        };
+
+
+        function isSupported() {
+            try {
+                var uap = new UAParser();
+                var result = uap.getResult();
+                var browser = result.browser;
+
+                if (SUPPORTED_OPTIONS[browser.name] === undefined) {
+                    return false;
+                }
+
+                var minVersion = SUPPORTED_OPTIONS[browser.name];
+                var majorVersion = parseFloat(browser.major);
+
+                if (majorVersion < minVersion) {
+                    return false;
+                } else {
+                    return true;
+                }
+            } catch {
+                return false;
+            }
+        }
+
+
+        function checkBrowser() {
+            if (isSupported()) {
+                document.getElementById("browser-warning").style.display = "none";
+            }
+        }
+
+        function checkWindow() {
+            if (window.innerWidth > 950) {
+                document.getElementById("mobile-warning").style.display = "none";
+            } else {
+                document.getElementById("mobile-warning").style.display = "block";
+            }
+        }
+
+
+        checkBrowser();
+        checkWindow();
+
+        addEventListener("resize", (event) => checkWindow());
+    </script>
+
+    <script src="/third_party/popper.min.js"></script>
+    <script src="/third_party/tabby.js"></script>
+    <script src="/third_party/tippy-bundle.umd.min.js"></script>
+    <script src="driver.js?v=EPOCH"></script>
+
 </html>
