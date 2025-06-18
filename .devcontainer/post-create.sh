@@ -14,7 +14,7 @@ unzip -q public-sans-v2.001.zip
 
 # Set up font in viz directory
 mkdir -p ../paper/viz/font
-cp fonts/otf/PublicSans-Regular.otf ../paper/viz/font/PublicSans-Regular.otf
+cp public-sans-v2.001/fonts/otf/PublicSans-Regular.otf ../paper/viz/font/PublicSans-Regular.otf
 
 # Clean up
 cd ..
