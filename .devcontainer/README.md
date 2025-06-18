@@ -14,8 +14,9 @@ The dev container automatically sets up a complete development environment with:
 - **Public Sans font** configured for visualizations
 
 ## Usage
+The dev contisner can be used across many environments and platforms but we provide some commons ones here.
 
-### GitHub Codespaces (Recommended)
+### GitHub Codespaces
 1. Click the "Code" button on GitHub
 2. Select "Open with Codespaces"
 3. Wait for the environment to build and configure
@@ -26,7 +27,7 @@ The dev container automatically sets up a complete development environment with:
 3. Click "Reopen in Container" when prompted
 4. Or use Command Palette: "Dev Containers: Reopen in Container"
 
-### Docker Compose (Alternative)
+### Docker Compose
 ```bash
 cd .devcontainer
 docker-compose up -d
