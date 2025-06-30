@@ -231,7 +231,7 @@
                         <div class="paragraph" role="paragraph">
                             A mixture of many variables determines the price a producer pays for insurance (<a href="https://www.extension.iastate.edu/agdm/crops/html/a1-52.html" target="_blank">Plastina and Edwards 2020</a>). First, the grower chooses how much of their expected yields they want to insure (horizontal axis in the <a href="#policy-abstract">interactive</a>). These expectations are set through reports of a grower's yields where those histories are called <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">Actual Production Histories</span>. Still, in determining the specific cost of a policy, the plan combines multiple variables together: certain county-level data, the <span tabindex="0" class="tooltip" data-tippy-content="Actual Production History. For our purposes, this is the average of the last ten years of crop yields (FCIC 2020).">APH</span> for a <span tabindex="0" class="tooltip" data-tippy-content="A set of fields which are insured together in a policy. This is sometimes also called an insured unit.">risk unit</span>, and a series of adjustments. These factors set a price and a subsidy from the government (vertical axis in the <a href="#policy-abstract">interactive</a>). For example, an APH of 200 bushells / acre at $4 / bushell within a 4% county premium rate (75% coverage, 55% subsidy) would get a $13.20 / acre subsidy. See <a href="#rate-var-details" id="expand-rate-var-link">details about variables used for rate setting</a>.
                         </div>
-                        <div class="interactive" id="policy-abstract">
+                        <div class="interactive full-width" id="policy-abstract">
                             <div class="default-viz">
                                 <div class="app-intro">
                                     <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
@@ -400,7 +400,7 @@
                             Clicking the "Try Model" button will test a new model where we split the historic data such that the network trains from one piece (training set) before we grade it on the part it has not seen before (validation set). We score performance with <span tabindex="0" class="tooltip" data-tippy-content="This is a simple average of the error magnitude. In other words, it indicates, on average, how far off predictions from the network are from actuals regardless of if the model was too high or too low">mean absolute error</span> (<a href="https://towardsdatascience.com/what-are-rmse-and-mae-e405ce230383" target="_blank">Acharya 2021</a>). For example, if the model predicts that a neighborhood's yield will drop by 10% and it actually drops by 15%, the error would be 5%. Our goal: go left on the horizontal axis (minimize error predicting <span tabindex="0" class="tooltip" data-tippy-content="This is simply the average of the yields within the grid cell.">mean</span>) and to the bottom on the vertical axis (minimize error predicting <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are expected to be in a grid cell (where we assume yields approximately follow a normal distribution within a grid cell).">std</span>).
                         </div>
                     </div>
-                    <div class="interactive" id="sweep-viz-holder">
+                    <div class="interactive full-width" id="sweep-viz-holder">
                         <div class="default-viz">
                             <div class="app-intro">
                                 <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
@@ -556,7 +556,7 @@
                             </details>
                         </div>
                     </div>
-                    <div class="interactive">
+                    <div class="interactive full-width">
                         <div class="default-viz">
                             <div class="app-intro">
                                 <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
@@ -707,7 +707,7 @@
                             Alternative formulations require more reserach. However, for the sake of exploration, use this next interactive to consider if one insures up to a certain number of  <span tabindex="0" class="tooltip" data-tippy-content="In our case, this is a measure of how wide the range of yields are.">standard deviations</span> below average instead of insuring up to a percentage below average yield. For example, note that the high stability grower (by default) sees no claims under the current average-based APH whereas the low stability grower sees three claims. In contrast, these two hypothetical growers achieve closer parity in terms of claims when using standard deviation-based formulations.
                         </div>
                     </div>
-                    <div class="interactive">
+                    <div class="interactive full-width">
                         <div class="default-viz">
                             <div class="app-intro">
                                 <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
@@ -822,7 +822,7 @@
                             </details>
                         </div>
                     </div>
-                    <div class="interactive">
+                    <div class="interactive full-width">
                         <div class="default-viz">
                             <div class="app-intro">
                                 <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>

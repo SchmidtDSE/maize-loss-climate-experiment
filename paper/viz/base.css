@@ -209,13 +209,16 @@ th, td {
 }
 
 .interactive {
-    width: 100%;
     overflow-x: auto;
     text-align: center;
     margin-top: 10px;
     margin-bottom: 10px;
     color: #707070;
     font-size: 13px;
+}
+
+.interactive.full-width {
+    width: 100%;
 }
 
 .interactive canvas {
