@@ -98,68 +98,15 @@
                             </div>
                         </div>
 
-                        <div class="workshop-section" id="study-section">
-                            <h2><span class="emoji" aria-hidden="true">🔬</span> Study</h2>
-                            <div class="body-text">
-                                <ul>
-                                    <li><strong>Research question:</strong> We want to explore what the future of the Federal Crop Insurance Program might look like under climate change to evaluate how the structures of FCIP might interact with possible changes to yield patterns.</li>
-                                    <li><strong>Data:</strong> We used SCYM (<a href="https://www.sciencedirect.com/science/article/abs/pii/S0034425715001637" target="_blank">Lobell et al 2015</a>) for historic yield estimation and CHC-CMIP6 (<a href="https://www.nature.com/articles/s41597-024-03074-w" target="_blank">Funk et al 2024</a>) under SSP245 at near term (approximately 2030s) and medium term (approximately 2050s).</li>
-                                    <li><strong>Tools:</strong> We built interactive visualizations as "explorable explanations" to help support dialogue and user agency to experiment with these ideas.</li>
-                                </ul>
-                                
-                                <div class="interactive" id="policy-abstract">
-                                    <div class="app-intro">
-                                        <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
-                                        <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
-                                    </div>
-                                    <div class="sketch">
-                                        <div id="sketch-load-message-rates">
-                                            Loading...
-                                            <progress class="sketch-load-progress" max="20" value="0"></progress>
-                                        </div>
-                                        <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-rates"></canvas>
-                                    </div>
-                                    <div>Rates Explorer: Explore how rates are set within Multi-Peril Crop Insurance.</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="workshop-section" id="method-section">
-                            <h2><span class="emoji" aria-hidden="true">💻</span> Method</h2>
-                            <div class="body-text">
-                                <ul>
-                                    <li>Neural network uses past yield outcomes under past climate conditions as well as how growers may have responded to those conditions to <strong>predict future yield outcomes as distributions of yield deltas</strong> not point values, allowing us to propagate uncertainty and make probabilistic claims.</li>
-                                    <li>Monte Carlo <strong>simulates outcomes both in terms of yield but also in terms of probability of claim</strong> under the yield protection form of Multi-Peril Crop Insurance though similar stressors may be present for revenue protection.</li>
-                                    <li>We can run these at <strong>risk unit-level resolution</strong> sampled from historic values to build geospatial result datasets that incorporate a sense of historic variability under different climate conditions.</li>
-                                    <li>Retrain on train and validation together <strong>match leading yield prediction performance in literature</strong> when using growing conditions (6.2% MAE for mean and 2.0% MAE for std prediction in temporally displaced test set).</li>
-                                </ul>
-
-                                <details>
-                                    <summary>Additional technical details</summary>
-                                    <ul>
-                                        <li>Predict yield delta distributions which are historically normal at unit level.</li>
-                                        <li>Feed forward neural network outperformed classical approaches including Gaussian Process and LSTM.</li>
-                                        <li>Train on data between 1999 to 2012 inclusive, validateon 2014 and 2016 to compare candidates from grid search, and test on 2013 and 2015 which serve as a fully hidden set estimating future performance.</li>
-                                        <li>0.74 test set correlation coefficient on par with leading prior work but we use Monte Carlo to propagate uncertainty.</li>
-                                        <li>Additional details and trials in paper.</li>
-                                    </ul>
-                                </details>
-                                
-                                <div class="interactive" id="sweep-viz-holder">
-                                    <div class="app-intro">
-                                        <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
-                                        <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
-                                    </div>
-                                    <div class="sketch">
-                                        <div id="sketch-load-message-methods">
-                                            Loading...
-                                            <progress class="sketch-load-progress" max="20" value="0"></progress>
-                                        </div>
-                                        <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-methods"></canvas>
-                                    </div>
-                                    <div>ML & Hyperparameters: Shows model performance across different hyperparameter configurations.</div>
-                                </div>
-                            </div>
+                        <div class="workshop-section" id="quick-section">
+                            <h2><span class="emoji" aria-hidden="true">🏃</span> Quick Description</h2>
+                            <ul>
+                                <li>We built a <strong>simulation tool</strong>.</li>
+                                <li>We looked at expected <strong>changes in growing conditions</strong>.</li>
+                                <li>We ran models into the past as well as <strong>1 decade vs 3 decades</strong> into the future.
+                                <li>We focused on the US <strong>Corn Belt</strong>.</li>
+                                <li>We tracked <strong>individual risk units and insurance policies</strong>.</li>
+                            </ul>
                         </div>
 
                         <div class="workshop-section" id="summary-section">
@@ -230,6 +177,70 @@
                                         <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-conclusion"></canvas>
                                     </div>
                                     <div>Claims: Examines how policy choices could change claims rates and response to adverse conditions.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="workshop-section" id="study-section">
+                            <h2><span class="emoji" aria-hidden="true">🔬</span> Study Details</h2>
+                            <div class="body-text">
+                                <ul>
+                                    <li><strong>Research question:</strong> We want to explore what the future of the Federal Crop Insurance Program might look like under climate change to evaluate how the structures of FCIP might interact with possible changes to yield patterns.</li>
+                                    <li><strong>Data:</strong> We used SCYM (<a href="https://www.sciencedirect.com/science/article/abs/pii/S0034425715001637" target="_blank">Lobell et al 2015</a>) for historic yield estimation and CHC-CMIP6 (<a href="https://www.nature.com/articles/s41597-024-03074-w" target="_blank">Funk et al 2024</a>) under SSP245 at near term (approximately 2030s) and medium term (approximately 2050s).</li>
+                                    <li><strong>Tools:</strong> We built interactive visualizations as "explorable explanations" to help support dialogue and user agency to experiment with these ideas.</li>
+                                </ul>
+                                
+                                <div class="interactive" id="policy-abstract">
+                                    <div class="app-intro">
+                                        <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                        <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
+                                    </div>
+                                    <div class="sketch">
+                                        <div id="sketch-load-message-rates">
+                                            Loading...
+                                            <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                        </div>
+                                        <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-rates"></canvas>
+                                    </div>
+                                    <div>Rates Explorer: Explore how rates are set within Multi-Peril Crop Insurance.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="workshop-section" id="method-section">
+                            <h2><span class="emoji" aria-hidden="true">💻</span> Method</h2>
+                            <div class="body-text">
+                                <ul>
+                                    <li>Neural network uses past yield outcomes under past climate conditions as well as how growers may have responded to those conditions to <strong>predict future yield outcomes as distributions of yield deltas</strong> not point values, allowing us to propagate uncertainty and make probabilistic claims.</li>
+                                    <li>Monte Carlo <strong>simulates outcomes both in terms of yield but also in terms of probability of claim</strong> under the yield protection form of Multi-Peril Crop Insurance though similar stressors may be present for revenue protection.</li>
+                                    <li>We can run these at <strong>risk unit-level resolution</strong> sampled from historic values to build geospatial result datasets that incorporate a sense of historic variability under different climate conditions.</li>
+                                    <li>Retrain on train and validation together <strong>match leading yield prediction performance in literature</strong> when using growing conditions (6.2% MAE for mean and 2.0% MAE for std prediction in temporally displaced test set).</li>
+                                </ul>
+
+                                <details>
+                                    <summary>Additional technical details</summary>
+                                    <ul>
+                                        <li>Predict yield delta distributions which are historically normal at unit level.</li>
+                                        <li>Feed forward neural network outperformed classical approaches including Gaussian Process and LSTM.</li>
+                                        <li>Train on data between 1999 to 2012 inclusive, validateon 2014 and 2016 to compare candidates from grid search, and test on 2013 and 2015 which serve as a fully hidden set estimating future performance.</li>
+                                        <li>0.74 test set correlation coefficient on par with leading prior work but we use Monte Carlo to propagate uncertainty.</li>
+                                        <li>Additional details and trials in paper.</li>
+                                    </ul>
+                                </details>
+                                
+                                <div class="interactive" id="sweep-viz-holder">
+                                    <div class="app-intro">
+                                        <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                        <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
+                                    </div>
+                                    <div class="sketch">
+                                        <div id="sketch-load-message-methods">
+                                            Loading...
+                                            <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                        </div>
+                                        <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-methods"></canvas>
+                                    </div>
+                                    <div>ML & Hyperparameters: Shows model performance across different hyperparameter configurations.</div>
                                 </div>
                             </div>
                         </div>
