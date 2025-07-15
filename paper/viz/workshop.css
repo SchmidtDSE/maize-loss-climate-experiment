@@ -113,10 +113,6 @@
     margin-top: 10px;
 }
 
-.workshop-section .sketch canvas {
-    max-width: 100%;
-}
-
 .workshop-section .interactive > div:last-child {
     margin-top: 10px;
     font-style: italic;
