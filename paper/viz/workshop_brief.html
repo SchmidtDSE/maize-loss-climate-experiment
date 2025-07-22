@@ -1,0 +1,593 @@
+<!doctype html>
+<html id="root" lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+        <!-- Sketchingpy / PyScript -->
+        <link rel="stylesheet" href="/third_party/core.css">
+        <script type="module" src="/third_party/core.js"></script>
+
+        <link rel="stylesheet" href="/third_party/tabby.css">
+
+        <title>Workshop Brief: Practice-Agnostic Promotion of Resilience</title>
+        <meta name="description" content="Workshop brief on system-wide perspective on multi-peril crop insurance and practice-agnostic promotion of resilience.">
+        <meta name="keywords" content="agriculture, maize, corn, policy, AI, machine learning, insurance, workshop, resilience">
+        <meta name="author" content="Pottinger et al. Schmidt Center for Data Science and Environment at UC Berkeley. See humans.txt.">
+
+        <meta property="og:title" content="Workshop Brief: Practice-Agnostic Promotion of Resilience" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="Workshop brief on system-wide perspective on multi-peril crop insurance and practice-agnostic promotion of resilience.">
+        <meta property="og:url" content="https://ag-adaptation-study.pub" />
+        <meta property="og:image" content="https://ag-adaptation-study.pub/social/map.png" />
+
+        <meta name="twitter:title" content="Workshop Brief: Practice-Agnostic Promotion of Resilience">
+        <meta name="twitter:description" content="Workshop brief on system-wide perspective on multi-peril crop insurance and practice-agnostic promotion of resilience.">
+        <meta name="twitter:image" content="https://ag-adaptation-study.pub/social/map.png">
+        <meta name="twitter:card" content="summary_large_image">
+
+        <link rel="stylesheet" href="base.css?v=EPOCH">
+        <link rel="stylesheet" href="workshop.css?v=EPOCH">
+        
+        <style>
+            /* Additional styling for workshop brief */
+            .title-slide {
+                background: url('img/corn_stock.jpg');
+                background-size: cover;
+                background-position: center;
+                min-height: 60vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                color: white;
+                position: relative;
+                margin-top: -10px;
+                margin-bottom: 40px;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            }
+            
+            .title-content {
+                background: #00326294;
+                padding: 40px 60px;
+                border-radius: 10px;
+                backdrop-filter: blur(2px);
+            }
+            
+            .title-slide h1 {
+                font-size: 2.5em;
+                margin-bottom: 0.5em;
+                color: white;
+            }
+            
+            .title-slide .subtitle {
+                font-size: 1.3em;
+                font-weight: 300;
+                color: white;
+                margin-bottom: 0;
+            }
+            
+            .logo-container {
+                position: absolute;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                display: flex;
+                gap: 20px;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .logo-container img {
+                background: rgba(255, 255, 255, 0.9);
+                padding: 10px;
+                border-radius: 5px;
+                border: 2px solid #d1e38f;
+            }
+            
+            .logo-dse {
+                height: 60px;
+                order: 2;
+            }
+            
+            .logo-berkeley {
+                height: 45px;
+                order: 1;
+            }
+            
+            .logo-arkansas {
+                height: 45px;
+                order: 3;
+            }
+            
+            .two-column {
+                display: flex;
+                gap: 40px;
+                margin: 20px 0;
+            }
+            
+            .two-column > div {
+                flex: 1;
+            }
+            
+            .two-column h3 {
+                font-size: 1.2em;
+                margin-bottom: 15px;
+                color: #333;
+            }
+            
+            .right-panel {
+                background: #E0E0E0;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+            
+            @media (max-width: 768px) {
+                .title-content {
+                    padding: 30px 40px;
+                }
+                
+                .title-slide h1 {
+                    font-size: 2em;
+                }
+                
+                .title-slide .subtitle {
+                    font-size: 1.1em;
+                }
+                
+                .logo-container {
+                    position: static;
+                    transform: none;
+                    margin-top: 2em;
+                }
+                
+                .two-column {
+                    flex-direction: column;
+                    gap: 20px;
+                }
+            }
+            
+            .call-to-action {
+                text-align: center;
+                background-color: #f8f9fa;
+                padding: 30px;
+                border-radius: 8px;
+                margin: 30px 0;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+            
+            .call-to-action h3 {
+                color: #5050C0;
+                margin-bottom: 15px;
+            }
+        </style>
+    </head>
+    <body>
+        <py-config>
+        {
+            "packages": [
+                "/third_party/sketchingpy-0.2.4-py3-none-any.whl",
+                "/third_party/toolz-0.12.1-py3-none-any.whl"
+            ],
+            "files": {
+                "/buttons.py?v=EPOCH": "buttons.py",
+                "/config_buttons.py?v=EPOCH": "config_buttons.py",
+                "/const.py?v=EPOCH": "const.py",
+                "/data_struct.py?v=EPOCH": "data_struct.py",
+                "/history_viz.py?v=EPOCH": "history_viz.py",
+                "/hist_viz.py?v=EPOCH": "hist_viz.py",
+                "/legend.py?v=EPOCH": "legend.py",
+                "/map_viz.py?v=EPOCH": "map_viz.py",
+                "/preprocess.py?v=EPOCH": "preprocess.py",
+                "/rates_viz.py?v=EPOCH": "rates_viz.py",
+                "/results_viz_entry.py?v=EPOCH": "results_viz_entry.py",
+                "/results_viz.py?v=EPOCH": "results_viz.py",
+                "/scatter.py?v=EPOCH": "scatter.py",
+                "/sweep_viz.py?v=EPOCH": "sweep_viz.py",
+                "/symbols.py?v=EPOCH": "symbols.py"
+            }
+        }
+        </py-config>
+
+        <a class="skip-link" href="#main">
+            Skip to content
+        </a>
+        <a href="#more" tab="more" class="skip-link advance-button">
+            Skip to accessibility settings
+        </a>
+
+        <div class="page-warning" id="browser-warning"><span class="emoji">💿</span> We don't recognize your browser. It may be out of date and unable to run the interactive elements on this page or it may just be a less common piece of software. If you run into issues, please consider updating or using Firefox!</div>
+
+        <div class="page-warning" id="mobile-warning"><span class="emoji">📱</span> Parts of this experience involve experimenting with data inside tools optimized for larger screens. This window might be a little cramped. If you run into trouble, please try resizing this window, rotating your screen, or visiting us again on a larger device.</div>
+
+        <div class="page">
+            
+            <nav>
+                <ul data-tabs>
+                    <li><a data-tabby-default href="#title">Hello</a></li>
+                    <li><a href="#slide1">History</a></li>
+                    <li><a href="#slide2">Projection</a></li>
+                    <li><a href="#slide3">Rates</a></li>
+                    <li><a href="#slide4">Example</a></li>
+                    <li><a href="#slide5">Solutions</a></li>
+                    <li><a href="#slide6">Now</a></li>
+                    <li><a href="#slide7">Discussion</a></li>
+                    <li><a href="#more">More</a></li>
+                </ul>
+            </nav>
+
+            <main class="presentation" id="main">
+                <section id="title">
+                    <div class="title-slide">
+                        <div class="title-content">
+                            <h1>Practice-Agnostic Promotion of Resilience</h1>
+                            <div class="subtitle">System-wide Perspective on Multi-Peril Crop Insurance</div>
+                        </div>
+                        <div class="logo-container">
+                            <img src="img/logo_berkeley.png" alt="UC Berkeley" class="logo-berkeley">
+                            <img src="img/logo_dse.png" alt="Schmidt Center for Data Science and Environment" class="logo-dse">
+                            <img src="img/logo_arkansas.svg" alt="University of Arkansas" class="logo-arkansas">
+                        </div>
+                    </div>
+                </section>
+
+                <section id="slide1">
+                    <div class="workshop-content">
+                        <div class="workshop-section" id="stress-section">
+                            <h2><span class="emoji" aria-hidden="true">⚠️</span> Crop Insurance is Under Stress</h2>
+                            <div class="body-text">
+                                <div class="two-column">
+                                    <div>
+                                        <h3>We saw:</h3>
+                                        <ul>
+                                            <li>The <strong>costs of crop insurance in the U.S. have already increased by 500%</strong> since the early 2000s with annual indemnities reaching $19B in 2022 (<a href="https://www.ewg.org/research/crop-insurance-costs-soar-over-time-reaching-record-high-2022" target="_blank">Schechinger 2023</a>).</li>
+                                            <li>Retrospective analysis attributes 19% of "national-level crop insurance losses" between 1991 and 2017 to climate warming, an estimate rising to <strong>47% during the drought-stricken 2012 growing season</strong> (<a href="https://iopscience.iop.org/article/10.1088/1748-9326/ac1223" target="_blank">Diffenbaugh et al. 2021</a>)</li>
+                                        </ul>
+                                    </div>
+                                    <div class="right-panel">
+                                        <h3>We tried:</h3>
+                                        <ul>
+                                            <li>We built a <strong>simulation tool</strong>.</li>
+                                            <li>We looked at expected <strong>changes in growing conditions</strong>.</li>
+                                            <li>We ran models into the past as well as <strong>1 decade vs 3 decades</strong> into the future.</li>
+                                            <li>We focused on corn in the US <strong>Corn Belt</strong>.</li>
+                                            <li>We tracked <strong>individual risk units and insurance policies</strong>.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="paragraph" role="paragraph" style="font-size: 14px; color: #666; margin-top: 20px; font-style: italic;">
+                                    Overview of Climate-driven Doubling of U.S. Maize Loss Probability: Interactive Simulation with Neural Network Monte Carlo. Published in JDSSV (Pottinger et al 2025). DOI: <a href="https://doi.org/10.52933/jdssv.v5i3.134" target="_blank">10.52933/jdssv.v5i3.134</a>.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="slide2">
+                    <div class="workshop-content">
+                        <div class="workshop-section" id="worse-section">
+                            <h2><span class="emoji" aria-hidden="true">📈</span> We See the Stress Getting Worse</h2>
+                            <div class="body-text">
+                                <ul>
+                                    <li><strong>Simulations see a riskier future:</strong> Yield losses which may trigger indemnity claims will not only be more severe around 2050 but also be twice as frequent.</li>
+                                    <li><strong>We anticipate FCIP pressures:</strong> the traditional "75% of average APH yield" will likely become riskier to insure than in the past.</li>
+                                    <li>These results are seen even though <strong>we simulate changes in APH</strong> even without yield exclusions.</li>
+                                </ul>
+                                
+                                <div class="figure-container">
+                                    <img src="img/summary_figure.png" alt="Summary figure showing climate-driven changes in maize loss probability" class="workshop-image">
+                                    <div class="figure-caption">Summary of key findings showing the doubling of maize loss probability under climate change scenarios.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="slide3">
+                    <div class="workshop-content">
+                        <div class="workshop-section" id="rate-setting-section">
+                            <h2><span class="emoji" aria-hidden="true">⚖️</span> This Arises from Rate Setting</h2>
+                            <div class="body-text">
+                                <div class="paragraph" role="paragraph">
+                                    The core issue is that rate setting encourages aggregate yield but not additional yield stability.
+                                </div>
+                                
+                                <div class="interactive">
+                                    <div class="default-viz">
+                                        <div class="app-intro">
+                                            <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                            <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
+                                        </div>
+                                        <div class="sketch">
+                                            <div id="sketch-load-message-rates">
+                                                Loading...
+                                                <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                            </div>
+                                            <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-rates"></canvas>
+                                        </div>
+                                        <div>Rates Explorer: Explore how rates are set within Multi-Peril Crop Insurance.</div>
+                                    </div>
+                                    <div class="viz-alternative">
+                                        <span class="emoji" aria-hidden="true">💻</span> Alternative description: This interactive tool demonstrates how insurance rates are calculated based on APH, coverage level, and subsidy rates. The current system rewards higher yields but does not incentivize yield stability, which could help reduce future climate risk.
+                                    </div>
+                                    <div class="keyboard-controls">
+                                        <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-rates">rates visualization</a> has the following controls:
+                                        <ul>
+                                            <li><span class="vocab">Esc</span>: Exit the visualization</li>
+                                            <li><span class="vocab">i</span>: Change insured unit APH</li>
+                                            <li><span class="vocab">c</span>: Change coverage level</li>
+                                            <li><span class="vocab">s</span>: Toggle between average and standard deviation mode</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="slide4">
+                    <div class="workshop-content">
+                        <div class="workshop-section" id="plays-out-section">
+                            <h2><span class="emoji" aria-hidden="true">🎯</span> How this Plays Out</h2>
+                            <div class="body-text">
+                                <ul>
+                                    <li>Some risk units with lower yield variability perform better under climate stress</li>
+                                    <li>Future projections confirm stability advantage grows over time, saving the system from risk.</li>
+                                </ul>
+                                
+                                <div class="interactive">
+                                    <div class="default-viz">
+                                        <div class="app-intro">
+                                            <div class="instruction"><span class="emoji" aria-hidden="true">⚡</span> This section contains interactive components. It will take just a moment to load the lab.</div>
+                                            <a href="" class="load-app-link">Load Interactives <span class="chevron" aria-hidden="true">>></span></a>
+                                        </div>
+                                        <div class="sketch">
+                                            <div id="sketch-load-message-results">
+                                                Loading...
+                                                <progress class="sketch-load-progress" max="20" value="0"></progress>
+                                            </div>
+                                            <canvas tabindex="0" class="focus-canvas" id="sketch-canvas-results"></canvas>
+                                        </div>
+                                        <div>Distribution: Shows how yield distributions and stability advantages change under different climate scenarios.</div>
+                                    </div>
+                                    <div class="viz-alternative">
+                                        <span class="emoji" aria-hidden="true">💻</span> Alternative description: This visualization shows the distribution of yield changes under different climate scenarios. Risk units with lower yield variability show better performance under climate stress, and this advantage compounds over time.
+                                    </div>
+                                    <div class="keyboard-controls">
+                                        <span class="emoji" aria-hidden="true">⌨️</span> The <a href="#sketch-canvas-results">distribution visualization</a> has the following controls:
+                                        <ul>
+                                            <li><span class="vocab">Esc</span>: Exit the visualization</li>
+                                            <li><span class="vocab">Arrow keys</span>: Navigate through options</li>
+                                            <li><span class="vocab">Enter</span>: Select option</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="slide5">
+                    <div class="workshop-content">
+                        <div class="workshop-section" id="policy-solutions-section">
+                            <h2><span class="emoji" aria-hidden="true">🏛️</span> Policy Solutions</h2>
+                            <div class="body-text">
+                                <div class="paragraph" role="paragraph">
+                                    There are two ways to incorporate practice-agnostic incentives, rewarding outcome (stability) not method.
+                                </div>
+                                
+                                <div class="two-column">
+                                    <div>
+                                        <h3>APH modification</h3>
+                                        <ul>
+                                            <li>Incorporate yield variability into APH calculations.</li>
+                                            <li>For example, move from 0.75 * APH to APH - std dev * 1.45 which <strong>maintains current claims rates but reduces future risk</strong>.</li>
+                                            <li>However, <strong>requires statutory change</strong> to APH structure</li>
+                                        </ul>
+                                    </div>
+                                    <div class="right-panel">
+                                        <h3>Stability modification:</h3>
+                                        <ul>
+                                            <li>Flat-rate premium discount for "high stability" growers</li>
+                                            <li>Similar to existing $5/acre cover crop payments</li>
+                                            <li>Amenable to <strong>508h process</strong> by which RMA can pilot new approaches</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="slide6">
+                    <div class="workshop-content">
+                        <div class="workshop-section" id="matters-now-section">
+                            <h2><span class="emoji" aria-hidden="true">⏰</span> Why This Matters Now</h2>
+                            <div class="body-text">
+                                <div class="two-column">
+                                    <div>
+                                        <h3>Policy Pressure Points</h3>
+                                        <ul>
+                                            <li><strong>Budget constraints</strong>: Blumenauer bill caps subsidies at $125K</li>
+                                            <li><strong>Cap proposals</strong>: $40K caps being discussed</li>
+                                            <li><strong>Reinsurance pressure</strong>: Regional availability concerns growing for some specific policies.</li>
+                                            <li><strong>Historical precedent</strong>: Trump previously proposed reducing subsidies from 62% to 48%</li>
+                                        </ul>
+                                    </div>
+                                    <div class="right-panel">
+                                        <h3>System Stability</h3>
+                                        <ul>
+                                            <li>Government-supported agricultural insurance crucial for food system stability</li>
+                                            <li>Preserve program viability through adaptation</li>
+                                            <li>Alternative to across-the-board cuts or caps</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="slide7">
+                    <div class="workshop-content">
+                        <div class="workshop-section" id="discussion-section">
+                            <h2><span class="emoji" aria-hidden="true">💬</span> Discussion & Questions</h2>
+                            <div class="body-text">
+                                <div class="paragraph" role="paragraph">
+                                    Climate change requires evolving our crop insurance approach from rewarding aggregate yield to rewarding both higher yields and higher stability.
+                                </div>
+                                
+                                <div class="call-to-action">
+                                    <h3>Questions & Discussion</h3>
+                                    <p>Let's get into questions and discussions! How can we best help?</p>
+                                </div>
+                                
+                                <div class="paragraph" role="paragraph" style="font-size: 12px; color: #999; margin-top: 30px; font-style: italic;">
+                                    Some imagery is paid stock photography, used with license
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="more">
+                    <h2><span class="emoji" aria-hidden="true">ℹ️</span> About & Settings</h2>
+                    <div class="body-text">
+                        <div class="paragraph" role="paragraph">
+                            This workshop brief complements our <a href="https://jdssv.org/index.php/jdssv/article/view/134" target="_blank">scientific paper</a> published in JDSSV on Climate-driven Doubling of U.S. Maize Loss Probability.
+                        </div>
+                        <div class="paragraph" role="paragraph">
+                            This is a collaboration between folks at the University of California Berkeley and the University of Arkansas. Funding comes from the <a href="https://dse.berkeley.edu/" target="_blank">Eric and Wendy Schmidt Center for Data Science and Environment at UC Berkeley</a>.
+                        </div>
+                        
+                        <h3>Accessibility Settings</h3>
+                        
+                        <section class="setting" id="keyboard-setting">
+                            <h4>Visualization keyboard controls</h4>
+                            
+                            Readers who prefer to use the keyboard instead of a mouse or their finger for a touchscreen can elect to have a list of keyboard controls shown below each interactive visualization. Press escape to leave an interactive.
+
+                            <div class="option-set">
+                                <div>
+                                    <input type="radio" name="keyboard-settings" class="keyboard-setting-radio" id="show-keyboard" value="show">
+                                    <label for="show-keyboard">Show visualization keyboard controls</label>
+                                </div>
+
+                                <div>
+                                    <input type="radio" name="keyboard-settings" class="keyboard-setting-radio" id="hide-keyboard" value="hide" checked>
+                                    <label for="hide-keyboard">Hide visualization keyboard controls</label>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="setting">
+                            <h4>Visualizations</h4>
+
+                            Those who prefer not to engage with the interactive visualizations can use alternatives. This may be preferrable for those using adaptive technologies like screen readers.
+
+                            <div class="option-set">
+                                <div>
+                                    <input type="radio" name="visualizations-settings" class="visualizations-setting-radio" id="show-visualizations" value="show" checked>
+                                    <label for="show-visualizations">Show visualizations</label>
+                                </div>
+
+                                <div>
+                                    <input type="radio" name="visualizations-settings" class="visualizations-setting-radio" id="hide-visualizations" value="hide">
+                                    <label for="hide-visualizations">Show visualization alternatives</label>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="setting">
+                            <h4>Symbols and emojis</h4>
+
+                            Those using adaptive technologies may want to disable symbols and emojis for a more streamlined experience.
+
+                            <div class="option-set">
+                                <div>
+                                    <input type="radio" name="symbols-settings" class="symbols-setting-radio" id="show-symbols" value="show" checked>
+                                    <label for="show-symbols">Show symbols and emojis</label>
+                                </div>
+
+                                <div>
+                                    <input type="radio" name="symbols-settings" class="symbols-setting-radio" id="hide-symbols" value="hide">
+                                    <label for="hide-symbols">Hide symbols and emojis</label>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <div class="bottom-links">
+            <a href="#content">workshop content</a> / <a href="https://github.com/SchmidtDSE/maize-loss-climate-experiment" target="_blank">open source</a> / <a href="terms.html" target="_blank">terms and privacy</a> / <a href="#more" tab="more" class="advance-button">about & settings</a>
+        </div>
+    </body>
+
+    <script type="text/javascript" src="third_party/ua-parser.min.js"></script>
+    <script type="text/javascript">
+        var SUPPORTED_OPTIONS = {
+            "Microsoft Edge": 100,
+            "Edge": 100,
+            "Firefox": 106,
+            "Chrome": 100,
+            "Opera": 86,
+            "Safari": 15,
+            "Mobile Safari": 15,
+            "Mobile Chrome": 95,
+            "Mobile Firefox": 114
+        };
+
+        function isSupported() {
+            try {
+                var uap = new UAParser();
+                var result = uap.getResult();
+                var browser = result.browser;
+
+                if (SUPPORTED_OPTIONS[browser.name] === undefined) {
+                    return false;
+                }
+
+                var minVersion = SUPPORTED_OPTIONS[browser.name];
+                var majorVersion = parseFloat(browser.major);
+
+                if (majorVersion < minVersion) {
+                    return false;
+                } else {
+                    return true;
+                }
+            } catch {
+                return false;
+            }
+        }
+
+        function checkBrowser() {
+            if (isSupported()) {
+                document.getElementById("browser-warning").style.display = "none";
+            }
+        }
+
+        function checkWindow() {
+            if (window.innerWidth > 950) {
+                document.getElementById("mobile-warning").style.display = "none";
+            } else {
+                document.getElementById("mobile-warning").style.display = "block";
+            }
+        }
+
+        checkBrowser();
+        checkWindow();
+
+        addEventListener("resize", (event) => checkWindow());
+    </script>
+
+    <script src="/third_party/popper.min.js"></script>
+    <script src="/third_party/tabby.js"></script>
+    <script src="/third_party/tippy-bundle.umd.min.js"></script>
+    <script src="driver.js?v=EPOCH"></script>
+
+</html>
