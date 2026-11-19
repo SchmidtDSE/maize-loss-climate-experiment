@@ -284,12 +284,18 @@ jobs:
         run: mkdir deploy/social
       - name: Move card
         run: mv map.png deploy/social/map.png
-      - name: Deploy
-        uses: Creepios/sftp-action@v1.0.3
-        with:
-          host: ${{ secrets.SFTPHOST }}
-          port: 22
-          username: ${{ secrets.SFTPUSER }}
-          password: ${{ secrets.SFTPPASSWORD }}
-          localPath: './deploy'
-          remotePath: './ag-adaptation-study.pub'
+      - name: Install SSH client and sshpass
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssh-client sshpass
+      - name: Setup SSH known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H -p 22 ${{ secrets.SFTPHOST }} >> ~/.ssh/known_hosts
+      - name: Upload files via SCP
+        env:
+          SSHPASS: ${{ secrets.SFTPPASSWORD }}
+        run: |
+          sshpass -e scp -r -P 22 \
+            ./deploy/* \
+            ${{ secrets.SFTPUSER }}@${{ secrets.SFTPHOST }}:./ag-adaptation-study.pub/
